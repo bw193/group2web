@@ -39,3 +39,6 @@ next-env.d.ts
 # uploads
 /public/uploads/*
 !/public/uploads/.gitkeep
+
+# claude local settings (may contain tokens)
+.claude/settings.local.json
