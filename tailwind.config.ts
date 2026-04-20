@@ -9,20 +9,20 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // New design system
-        cream: '#FAFAF7',
-        sand: '#F2EEE8',
-        'warm-gray': '#E5E0D8',
-        'warm-border': '#DDD8D0',
+        // New design system — lighter, airier
+        cream: '#FCFBF8',
+        sand: '#F7F4EE',
+        'warm-gray': '#EFEAE2',
+        'warm-border': '#ECE7DF',
         ink: {
-          DEFAULT: '#1D1B18',
-          mid: '#6B645B',
-          light: '#9B9590',
+          DEFAULT: '#2A2620',
+          mid: '#7A736A',
+          light: '#B6B0A8',
         },
         bronze: {
-          DEFAULT: '#9A8266',
-          light: '#C4AD8F',
-          subtle: '#EDE6DB',
+          DEFAULT: '#A88E6F',
+          light: '#CDB99A',
+          subtle: '#F1ECE2',
         },
         espresso: {
           DEFAULT: '#2D2621',

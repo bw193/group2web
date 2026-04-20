@@ -203,3 +203,178 @@
 .animate-fade-up > *:nth-child(6)  { animation-delay: 300ms; }
 .animate-fade-up > *:nth-child(7)  { animation-delay: 360ms; }
 .animate-fade-up > *:nth-child(8)  { animation-delay: 420ms; }
+
+/* ============================================================================
+   ATMOSPHERE — drifting bronze blobs, film grain, soft mesh
+   ============================================================================ */
+
+@keyframes blob-drift-a {
+  0%, 100% { transform: translate(0, 0) scale(1) rotate(0deg); }
+  33%      { transform: translate(40px, -30px) scale(1.08) rotate(8deg); }
+  66%      { transform: translate(-25px, 35px) scale(0.95) rotate(-6deg); }
+}
+@keyframes blob-drift-b {
+  0%, 100% { transform: translate(0, 0) scale(1) rotate(0deg); }
+  50%      { transform: translate(-50px, 40px) scale(1.12) rotate(-10deg); }
+}
+@keyframes blob-drift-c {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50%      { transform: translate(30px, 50px) scale(0.92); }
+}
+
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.45;
+  pointer-events: none;
+  will-change: transform;
+}
+.blob-a { background: radial-gradient(circle, #CDB99A 0%, transparent 70%); animation: blob-drift-a 24s ease-in-out infinite; }
+.blob-b { background: radial-gradient(circle, #E9DCC3 0%, transparent 70%); animation: blob-drift-b 30s ease-in-out infinite; }
+.blob-c { background: radial-gradient(circle, #F1ECE2 0%, transparent 70%); animation: blob-drift-c 36s ease-in-out infinite; }
+
+/* Page-level film grain — once on body for tactility */
+.atmosphere-grain {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.035;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ============================================================================
+   WORD-BY-WORD MASK REVEAL — for serif headings
+   ============================================================================ */
+
+.reveal-words { display: inline-block; }
+.reveal-words .word {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+}
+.reveal-words .word > span {
+  display: inline-block;
+  transform: translateY(110%);
+  transition: transform 0.95s cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: calc(var(--w, 0) * 80ms);
+}
+.reveal-words.revealed .word > span {
+  transform: translateY(0);
+}
+
+/* ============================================================================
+   IMAGE CLIP REVEAL — wipes from bottom on scroll-in
+   ============================================================================ */
+
+[data-reveal="clip"] {
+  opacity: 1;
+  transform: none;
+  clip-path: inset(0 0 100% 0);
+  transition: clip-path 1.2s cubic-bezier(0.7, 0, 0.2, 1);
+}
+[data-reveal="clip"].revealed { clip-path: inset(0 0 0 0); }
+
+/* ============================================================================
+   INFINITE MARQUEE — for cert strip
+   ============================================================================ */
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 40s linear infinite;
+}
+.marquee-track:hover { animation-play-state: paused; }
+.marquee-mask {
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 12%, #000 88%, transparent 100%);
+          mask-image: linear-gradient(90deg, transparent 0%, #000 12%, #000 88%, transparent 100%);
+}
+
+/* ============================================================================
+   FLOATING DECORATIVE SHAPES
+   ============================================================================ */
+
+@keyframes float-soft {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-14px); }
+}
+.animate-float { animation: float-soft 7s ease-in-out infinite; }
+
+@keyframes spin-slow {
+  to { transform: rotate(360deg); }
+}
+.animate-spin-slow { animation: spin-slow 38s linear infinite; }
+
+/* ============================================================================
+   MAGNETIC CTA — soft glow that follows
+   ============================================================================ */
+
+.magnetic {
+  position: relative;
+  isolation: isolate;
+}
+.magnetic::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  background: radial-gradient(120px circle at var(--mx, 50%) var(--my, 50%), rgba(168, 142, 111, 0.35), transparent 60%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  z-index: -1;
+  pointer-events: none;
+}
+.magnetic:hover::before { opacity: 1; }
+
+/* ============================================================================
+   HERO TITLE LETTER PULSE
+   ============================================================================ */
+
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
+}
+.text-shimmer {
+  background: linear-gradient(90deg, currentColor 0%, currentColor 40%, #CDB99A 50%, currentColor 60%, currentColor 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+          background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 6s linear infinite;
+}
+
+/* ============================================================================
+   ROW-BY-ROW LIFT (for FAQ items, list items)
+   ============================================================================ */
+
+[data-reveal="lift"] {
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+}
+[data-reveal="lift"].revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ============================================================================
+   COUNT-UP STAT — number flip
+   ============================================================================ */
+
+@keyframes count-in {
+  from { opacity: 0; transform: translateY(40%); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-count-in { animation: count-in 1.1s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+/* Reduce motion */
+@media (prefers-reduced-motion: reduce) {
+  .blob, .marquee-track, .animate-float, .animate-spin-slow, .text-shimmer { animation: none !important; }
+}

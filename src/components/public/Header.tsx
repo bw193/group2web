@@ -37,10 +37,10 @@ export default function Header() {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+      className={`fixed top-0 left-0 right-0 z-50 bg-cream/95 backdrop-blur-md border-b transition-all duration-500 ${
         scrolled
-          ? 'bg-cream/95 backdrop-blur-md shadow-[0_1px_0_rgba(0,0,0,0.06)]'
-          : 'bg-transparent'
+          ? 'border-warm-border shadow-[0_10px_30px_-20px_rgba(42,38,32,0.25)]'
+          : 'border-warm-border/60'
       }`}
     >
       <div className="container-wide">
@@ -73,23 +73,14 @@ export default function Header() {
           {/* Actions */}
           <div className="hidden lg:flex items-center gap-5">
             <form onSubmit={handleSearch} className="relative">
-              <Search
-                size={14}
-                className={`absolute left-3 top-1/2 -translate-y-1/2 ${
-                  scrolled ? 'text-ink-light' : 'text-cream/70'
-                }`}
-              />
+              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-light" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search..."
                 aria-label="Search products"
-                className={`h-9 w-44 pl-9 pr-3 text-xs tracking-wide border transition-all duration-300 focus:w-56 focus:outline-none ${
-                  scrolled
-                    ? 'bg-transparent border-warm-border/60 text-ink placeholder:text-ink-light focus:border-ink'
-                    : 'bg-cream/10 border-cream/30 text-cream placeholder:text-cream/60 focus:border-cream/70'
-                }`}
+                className="h-9 w-44 pl-9 pr-3 text-xs tracking-wide bg-transparent border border-warm-border/60 text-ink placeholder:text-ink-light focus:border-ink rounded-full transition-all duration-300 focus:w-56 focus:outline-none"
               />
             </form>
             <LanguageSwitcher />

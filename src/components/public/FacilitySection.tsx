@@ -1,7 +1,9 @@
-import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import FacilityGallery from './FacilityGallery';
-import { Cog, ShieldCheck, Ship, Microscope, ArrowRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
+import WordsReveal from './WordsReveal';
+import CountUp from './CountUp';
+import MagneticLink from './MagneticLink';
 
 interface Props {
   locale: string;
@@ -13,157 +15,101 @@ export default async function FacilitySection({ locale, images = [] }: Props) {
   const gallerySrcs = images.filter((v): v is string => !!v);
 
   const capabilities = [
-    {
-      Icon: Cog,
-      label: 'Vertical Integration',
-      text: 'In-house design, glass processing, LED assembly, and finishing — full control from sketch to shipment.',
-    },
-    {
-      Icon: ShieldCheck,
-      label: 'Certified Quality',
-      text: 'ISO 9001:2015 operations with CE, CB, SAA, ETL, RoHS and IP44/54 compliance on every SKU.',
-    },
-    {
-      Icon: Microscope,
-      label: 'R&D Studio',
-      text: 'Dedicated engineering team iterating on optics, anti-fog technology and smart touch controls.',
-    },
-    {
-      Icon: Ship,
-      label: 'Global Logistics',
-      text: 'Export-grade packaging and consolidated container shipping to 60+ countries.',
-    },
+    'Vertical integration',
+    'Certified quality',
+    'In-house R&D studio',
+    'Global logistics',
   ];
 
   const stats = [
-    { value: '35K', unit: 'SQM', label: 'Facility Footprint' },
-    { value: '200+', unit: 'STAFF', label: 'Skilled Workforce' },
-    { value: '500K', unit: 'UNITS/YR', label: 'Annual Capacity' },
-    { value: '21+', unit: 'YEARS', label: 'Since 2005' },
+    { to: 35, suffix: 'K', label: 'sqm facility' },
+    { to: 200, suffix: '+', label: 'skilled staff' },
+    { to: 500, suffix: 'K', label: 'units / year' },
+    { to: 21, suffix: '+', label: 'years' },
   ];
 
   return (
-    <section className="relative section-padding bg-cream overflow-hidden">
-      {/* Atmospheric texture */}
-      <div
+    <section className="relative py-28 md:py-40 bg-cream overflow-hidden">
+      {/* Drifting bronze atmosphere */}
+      <span className="blob blob-a" style={{ width: 480, height: 480, top: '15%', left: '-150px' }} aria-hidden />
+      <span className="blob blob-c" style={{ width: 600, height: 600, bottom: '-200px', right: '-200px' }} aria-hidden />
+
+      {/* Decorative spinning ring — far background */}
+      <span
         aria-hidden
-        className="absolute inset-0 opacity-[0.035] pointer-events-none"
-        style={{
-          backgroundImage:
-            'radial-gradient(circle at 25% 25%, #9A8266 0.5px, transparent 0.5px)',
-          backgroundSize: '32px 32px',
-        }}
+        className="absolute top-20 right-10 md:right-32 w-32 h-32 md:w-44 md:h-44 rounded-full border border-bronze/20 animate-spin-slow pointer-events-none"
       />
-      {/* Vertical rule in deep background */}
-      <div
+      <span
         aria-hidden
-        className="hidden lg:block absolute left-1/2 top-0 bottom-0 w-px bg-warm-border/60 pointer-events-none"
+        className="absolute top-28 right-16 md:right-40 w-20 h-20 md:w-28 md:h-28 rounded-full border border-bronze/30 pointer-events-none"
       />
 
       <div className="container-wide relative">
-        {/* Eyebrow row */}
-        <div className="flex items-center gap-4 mb-10" data-reveal>
-          <span className="text-[11px] font-body font-medium text-bronze tracking-[0.3em] uppercase">
-            02 / The Facility
-          </span>
-          <span className="flex-1 h-px bg-warm-border" />
-          <span className="text-[10px] font-body font-light text-ink-light tracking-[0.25em] uppercase">
-            Jiaxing · Zhejiang · China
-          </span>
-        </div>
-
-        {/* Main asymmetric grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-start">
-          {/* Image gallery — spans 7 cols */}
-          <div className="lg:col-span-7" data-reveal>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-14 lg:gap-20 items-start">
+          {/* Image gallery — clip-path reveal */}
+          <div className="lg:col-span-7 relative" data-reveal="clip">
             <FacilityGallery images={gallerySrcs} />
           </div>
 
-          {/* Content column — spans 5 cols */}
-          <div className="lg:col-span-5 lg:pl-4 xl:pl-8" data-reveal>
-            <h2 className="text-4xl md:text-5xl font-display font-medium leading-[1.05] mb-6">
-              {t('factoryTitle')}
-            </h2>
-            <div className="w-12 h-px bg-bronze mb-8" />
+          {/* Content */}
+          <div className="lg:col-span-5 lg:pt-12">
+            <div className="flex items-center gap-3 mb-8" data-reveal>
+              <span className="w-1.5 h-1.5 rounded-full bg-bronze animate-pulse" />
+              <span className="text-[11px] font-body text-ink-mid tracking-[0.3em] uppercase">
+                The facility
+              </span>
+            </div>
 
-            <p className="text-ink-mid font-body font-light leading-relaxed text-base md:text-lg mb-8">
-              {t('factoryDesc')}. Four production lines, a dedicated R&D studio,
-              and an export-focused quality system — we ship globally with the
-              craftsmanship of a studio and the throughput of a factory.
+            <h2 className="text-5xl md:text-6xl font-display font-light leading-[0.95] text-ink">
+              <WordsReveal text="A studio that ships." italicAt={[3]} />
+            </h2>
+
+            <p
+              className="text-ink-mid font-body font-light leading-[1.85] text-base md:text-[17px] mt-10 max-w-md"
+              data-reveal
+            >
+              Four production lines, an R&D studio, and an export-focused quality system —
+              the craftsmanship of a studio at the throughput of a factory.
             </p>
 
-            {/* Capability callouts */}
-            <ul className="divide-y divide-warm-border border-y border-warm-border">
-              {capabilities.map(({ Icon, label, text }, i) => (
-                <li key={label} className="group py-5 flex gap-5">
-                  <span className="shrink-0 text-[10px] font-body font-light text-ink-light tracking-[0.2em] pt-1 w-7">
-                    {String(i + 1).padStart(2, '0')}
-                  </span>
-                  <span className="shrink-0 w-9 h-9 border border-warm-border flex items-center justify-center transition-colors duration-500 group-hover:border-bronze group-hover:bg-bronze-subtle/40">
-                    <Icon size={15} strokeWidth={1.4} className="text-bronze" />
-                  </span>
-                  <div className="min-w-0">
-                    <p className="font-display text-lg text-ink leading-tight mb-1">
-                      {label}
-                    </p>
-                    <p className="text-[13px] font-body font-light text-ink-mid leading-relaxed">
-                      {text}
-                    </p>
-                  </div>
+            {/* Capability list — animated dots */}
+            <ul className="mt-10 space-y-3" data-reveal-stagger>
+              {capabilities.map((text) => (
+                <li
+                  key={text}
+                  data-reveal
+                  className="group flex items-center gap-4 py-1 text-[15px] font-body text-ink-mid hover:text-ink transition-colors duration-500 cursor-default"
+                >
+                  <span className="block w-8 h-px bg-bronze transition-all duration-500 group-hover:w-14" />
+                  <span>{text}</span>
                 </li>
               ))}
             </ul>
 
-            {/* CTA */}
-            <div className="mt-10 flex items-center gap-6">
-              <Link
+            <div className="mt-14" data-reveal>
+              <MagneticLink
                 href={`/${locale}/about`}
-                className="btn-primary text-xs uppercase tracking-[0.12em] group inline-flex items-center"
+                className="group inline-flex items-center gap-3 px-7 py-4 border border-ink text-ink hover:bg-ink hover:text-cream text-[12px] font-body font-medium tracking-[0.18em] uppercase rounded-full transition-colors duration-500"
               >
-                Inside the Factory
-                <ArrowRight
-                  size={14}
-                  className="ml-3 transition-transform duration-300 group-hover:translate-x-1"
-                />
-              </Link>
-              <Link
-                href={`/${locale}/contact`}
-                className="text-[11px] font-body font-medium text-ink-mid hover:text-ink tracking-[0.15em] uppercase nav-link"
-              >
-                Request a Tour
-              </Link>
+                Inside the factory
+                <ArrowRight size={14} className="transition-transform duration-500 group-hover:translate-x-1" />
+              </MagneticLink>
             </div>
           </div>
         </div>
 
-        {/* Stats band — horizontal rule across full width */}
-        <div className="mt-20 md:mt-28 pt-10 border-t border-warm-border">
-          <div className="grid grid-cols-2 md:grid-cols-4" data-reveal-stagger>
-            {stats.map((s, i) => (
-              <div
-                key={s.label}
-                className={`relative px-4 md:px-8 py-6 md:py-4 ${
-                  i < stats.length - 1 ? 'md:border-r border-warm-border' : ''
-                } ${i % 2 === 0 ? 'border-r md:border-r' : ''} ${
-                  i < 2 ? 'border-b md:border-b-0 border-warm-border' : ''
-                }`}
-                data-reveal
-              >
-                <p className="font-display text-5xl md:text-6xl font-light text-bronze leading-none mb-3">
-                  {s.value}
-                </p>
-                <div className="flex items-baseline gap-3">
-                  <span className="text-[10px] font-body font-medium text-ink tracking-[0.25em] uppercase">
-                    {s.unit}
-                  </span>
-                  <span className="h-px flex-1 bg-warm-border" />
-                </div>
-                <p className="mt-2 text-[11px] font-body font-light text-ink-mid tracking-wide">
-                  {s.label}
-                </p>
-              </div>
-            ))}
-          </div>
+        {/* Stats — animated count-up */}
+        <div className="mt-28 md:mt-36 grid grid-cols-2 md:grid-cols-4 gap-y-12" data-reveal-stagger>
+          {stats.map((s) => (
+            <div key={s.label} className="text-center md:text-left group" data-reveal>
+              <p className="font-display text-6xl md:text-7xl font-light text-ink leading-none transition-colors duration-500 group-hover:text-bronze">
+                <CountUp to={s.to} suffix={s.suffix} />
+              </p>
+              <p className="mt-4 text-[11px] font-body font-light text-ink-light tracking-[0.25em] uppercase">
+                {s.label}
+              </p>
+            </div>
+          ))}
         </div>
       </div>
     </section>

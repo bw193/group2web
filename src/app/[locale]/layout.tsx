@@ -27,11 +27,13 @@ export default async function LocaleLayout({
 
   return (
     <html lang={locale}>
-      <body className="min-h-screen flex flex-col bg-cream">
+      <body className="min-h-screen flex flex-col bg-cream relative">
+        {/* Page-wide film grain — fixed, non-interactive */}
+        <div className="atmosphere-grain" aria-hidden />
         <NextIntlClientProvider messages={messages}>
           <AnimationProvider />
           <Header />
-          <main className="flex-1">{children}</main>
+          <main className="flex-1 relative z-[2] pt-20 md:pt-24">{children}</main>
           <Footer />
         </NextIntlClientProvider>
       </body>

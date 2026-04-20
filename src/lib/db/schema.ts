@@ -126,6 +126,23 @@ export const aboutGallery = pgTable('about_gallery', {
   displayOrder: integer('display_order').notNull().default(0),
 });
 
+export const faqs = pgTable('faqs', {
+  id: serial('id').primaryKey(),
+  displayOrder: integer('display_order').notNull().default(0),
+  isActive: boolean('is_active').notNull().default(true),
+  createdBy: integer('created_by').references(() => users.id),
+  createdAt: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { mode: 'string' }).notNull().defaultNow(),
+});
+
+export const faqTranslations = pgTable('faq_translations', {
+  id: serial('id').primaryKey(),
+  faqId: integer('faq_id').notNull().references(() => faqs.id, { onDelete: 'cascade' }),
+  locale: text('locale').notNull(),
+  question: text('question').notNull(),
+  answer: text('answer').notNull(),
+});
+
 export const pageSeo = pgTable('page_seo', {
   id: serial('id').primaryKey(),
   pageSlug: text('page_slug').notNull(),

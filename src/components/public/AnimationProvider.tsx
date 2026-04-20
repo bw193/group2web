@@ -29,6 +29,12 @@ export default function AnimationProvider() {
           observer.observe(el);
         }
       });
+
+      // Auto-reveal .reveal-words headings as well (they have their own internal observer too,
+      // but we ensure consistency on page-level reveals)
+      document.querySelectorAll('.reveal-words:not(.revealed)').forEach((el) => {
+        observer.observe(el);
+      });
     }
 
     observeElements();

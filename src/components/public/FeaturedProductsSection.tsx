@@ -1,9 +1,10 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import ProductCard from './ProductCard';
+import WordsReveal from './WordsReveal';
+import MagneticLink from './MagneticLink';
 
 interface FeaturedProduct {
   id: number;
@@ -64,31 +65,45 @@ export default function FeaturedProductsSection({
   ];
 
   return (
-    <section className="section-padding bg-sand">
-      <div className="container-wide">
+    <section className="relative py-28 md:py-40 bg-sand overflow-hidden">
+      {/* Top hairline divider */}
+      <span aria-hidden className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-px bg-bronze/40" />
+      {/* Atmospheric blob */}
+      <span className="blob blob-c" style={{ width: 520, height: 520, top: '10%', right: '-180px' }} aria-hidden />
+
+      <div className="container-wide relative">
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-10" data-reveal>
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-8 mb-16 md:mb-20">
           <div>
-            <h2 className="section-heading">{t('featuredProducts')}</h2>
-            <div className="w-12 h-px bg-bronze mt-6" />
+            <div className="flex items-center gap-3 mb-6" data-reveal>
+              <span className="w-1.5 h-1.5 rounded-full bg-bronze animate-pulse" />
+              <span className="text-[11px] font-body text-ink-mid tracking-[0.3em] uppercase">
+                Featured
+              </span>
+            </div>
+            <h2 className="text-5xl md:text-6xl lg:text-7xl font-display font-light leading-[0.95] text-ink">
+              <WordsReveal text={t('featuredProducts')} />
+            </h2>
           </div>
-          <Link
-            href={`/${locale}/products`}
-            className="btn-outline mt-6 md:mt-0 text-xs uppercase tracking-[0.1em] self-start md:self-auto"
-          >
-            {t('viewAll')}
-          </Link>
+          <div data-reveal>
+            <MagneticLink
+              href={`/${locale}/products`}
+              className="group inline-flex items-center gap-3 px-7 py-4 border border-ink text-ink hover:bg-ink hover:text-cream text-[12px] font-body font-medium tracking-[0.18em] uppercase rounded-full transition-colors duration-500 self-start md:self-auto"
+            >
+              {t('viewAll')}
+              <span className="text-bronze group-hover:text-cream transition-colors">→</span>
+            </MagneticLink>
+          </div>
         </div>
 
-        {/* Category filter — editorial tab bar */}
+        {/* Category filter — borderless pill row */}
         {tabs.length > 1 && (
           <div
-            className="relative border-y border-warm-border mb-12"
+            className="mb-12 md:mb-14"
             role="tablist"
             aria-label="Product categories"
           >
-            {/* Horizontal scroller for small screens */}
-            <div className="flex gap-1 md:gap-2 overflow-x-auto no-scrollbar -mx-1 px-1">
+            <div className="flex gap-2 md:gap-3 overflow-x-auto no-scrollbar -mx-1 px-1">
               {tabs.map((tab) => {
                 const active = tab.id === activeId;
                 return (
@@ -97,28 +112,13 @@ export default function FeaturedProductsSection({
                     role="tab"
                     aria-selected={active}
                     onClick={() => setActiveId(tab.id)}
-                    className={`group relative whitespace-nowrap py-4 md:py-5 px-3 md:px-5 text-[11px] md:text-xs font-body font-medium tracking-[0.18em] uppercase transition-colors duration-300 ${
-                      active ? 'text-ink' : 'text-ink-light hover:text-ink'
+                    className={`whitespace-nowrap px-6 py-3 text-[12px] font-body font-medium tracking-[0.12em] uppercase rounded-full transition-all duration-500 ease-out-expo ${
+                      active
+                        ? 'bg-ink text-cream shadow-[0_10px_30px_-10px_rgba(42,38,32,0.35)] scale-[1.02]'
+                        : 'bg-transparent text-ink-mid hover:text-ink hover:bg-bronze-subtle/60 hover:scale-[1.02]'
                     }`}
                   >
-                    {/* Eyebrow numeral */}
-                    <span
-                      className={`absolute top-1 left-3 md:left-5 text-[9px] font-body font-light tracking-[0.25em] transition-opacity duration-300 ${
-                        active ? 'text-bronze opacity-100' : 'text-ink-light/50 opacity-0 group-hover:opacity-60'
-                      }`}
-                    >
-                      {tab.id === 'all' ? '·' : String(availableCategories.findIndex((c) => c.id === tab.id) + 1).padStart(2, '0')}
-                    </span>
-
-                    <span className="relative">
-                      {tab.label}
-                      {/* Active underline */}
-                      <span
-                        className={`absolute -bottom-4 md:-bottom-5 left-1/2 -translate-x-1/2 h-px bg-bronze transition-all duration-500 ease-out-expo ${
-                          active ? 'w-full' : 'w-0 group-hover:w-1/3'
-                        }`}
-                      />
-                    </span>
+                    {tab.label}
                   </button>
                 );
               })}

@@ -16,7 +16,10 @@ import HeroBanner from '@/components/public/HeroBanner';
 import FeaturedProductsSection from '@/components/public/FeaturedProductsSection';
 import FacilitySection from '@/components/public/FacilitySection';
 import CertificationsSection from '@/components/public/CertificationsSection';
-import { Users, Globe, ClipboardCheck, Package } from 'lucide-react';
+import FaqSection from '@/components/public/FaqSection';
+import WordsReveal from '@/components/public/WordsReveal';
+import MagneticLink from '@/components/public/MagneticLink';
+import { Users, Globe, ClipboardCheck, Package, ArrowRight } from 'lucide-react';
 
 export const revalidate = 300; // ISR: rebuild at most every 5 minutes
 
@@ -53,8 +56,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       .select()
       .from(aboutGallery)
       .where(eq(aboutGallery.imageType, 'certification'))
-      .orderBy(aboutGallery.displayOrder)
-      .limit(8),
+      .orderBy(aboutGallery.displayOrder),
   ]);
 
   const bannerIds = bannerData.map((b) => b.id);
@@ -163,56 +165,35 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         fallbackCta={t('heroCta')}
       />
 
-      {/* Capabilities Strip */}
-      <section className="relative bg-cream border-b border-warm-border overflow-hidden">
-        {/* Subtle dotted texture */}
-        <div
-          className="absolute inset-0 opacity-[0.04] pointer-events-none"
-          style={{
-            backgroundImage: 'radial-gradient(circle at 50% 50%, #9A8266 0.5px, transparent 0.5px)',
-            backgroundSize: '28px 28px',
-          }}
+      {/* Capabilities Strip — animated soft blob + lift on hover */}
+      <section className="relative bg-cream py-16 md:py-20 overflow-hidden">
+        <span
+          className="blob blob-b"
+          style={{ width: 460, height: 460, top: '-180px', left: '50%', transform: 'translateX(-50%)' }}
+          aria-hidden
         />
-
         <div className="container-wide relative">
-          <div className="grid grid-cols-2 lg:grid-cols-4" data-reveal-stagger>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-10 md:gap-14" data-reveal-stagger>
             {capabilities.map((item, i) => (
               <div
                 key={i}
-                className={`relative px-5 md:px-8 py-6 md:py-7 group transition-colors duration-700 hover:bg-bronze-subtle/40 ${
-                  i < capabilities.length - 1 ? 'lg:border-r border-warm-border' : ''
-                } ${i < 2 ? 'border-b lg:border-b-0 border-warm-border' : ''} ${
-                  i % 2 === 0 ? 'border-r lg:border-r' : ''
-                }`}
+                className="group flex flex-col items-center text-center cursor-default"
                 data-reveal
               >
-                {/* Numeric eyebrow */}
-                <span className="absolute top-3 left-5 md:left-8 text-[10px] font-body font-light text-ink-light tracking-[0.3em]">
-                  {String(i + 1).padStart(2, '0')}
-                </span>
-                {/* Corner accent */}
-                <span className="absolute top-3 right-5 md:right-8 w-4 h-px bg-bronze/40 transition-all duration-500 group-hover:w-8 group-hover:bg-bronze" />
-
-                <div className="flex flex-col items-center text-center">
-                  <div className="relative w-10 h-10 flex items-center justify-center mb-3">
-                    {/* Decorative ring */}
-                    <span className="absolute inset-0 border border-warm-border transition-all duration-500 group-hover:border-bronze group-hover:rotate-45" />
-                    <span className="absolute inset-1 border border-transparent transition-all duration-700 group-hover:border-bronze/30 group-hover:-rotate-45" />
-                    <item.icon
-                      className="text-bronze relative transition-transform duration-500 group-hover:scale-110"
-                      size={18}
-                      strokeWidth={1.25}
-                    />
-                  </div>
-
-                  <h3 className="font-display text-base md:text-lg font-medium text-ink leading-tight mb-1.5">
-                    {item.title}
-                  </h3>
-                  <div className="w-5 h-px bg-bronze/40 mb-1.5 transition-all duration-500 group-hover:w-10 group-hover:bg-bronze" />
-                  <p className="text-[10px] md:text-[11px] font-body font-light text-ink-mid tracking-[0.15em] uppercase">
-                    {item.desc}
-                  </p>
+                <div className="relative w-14 h-14 mb-5 flex items-center justify-center">
+                  {/* Concentric animated rings */}
+                  <span className="absolute inset-0 rounded-full border border-bronze/20 transition-all duration-700 group-hover:scale-110 group-hover:border-bronze/60" />
+                  <span className="absolute inset-2 rounded-full border border-bronze/10 transition-all duration-1000 group-hover:scale-125 group-hover:border-bronze/40" />
+                  <item.icon
+                    className="text-bronze relative transition-all duration-500 group-hover:-translate-y-0.5 group-hover:scale-110"
+                    size={22}
+                    strokeWidth={1.25}
+                  />
                 </div>
+                <h3 className="font-display text-lg font-medium text-ink leading-tight transition-colors duration-500 group-hover:text-bronze">
+                  {item.title}
+                </h3>
+                <span className="block w-0 h-px bg-bronze mt-2 transition-all duration-500 group-hover:w-8" />
               </div>
             ))}
           </div>
@@ -237,26 +218,51 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       {/* Certifications */}
       <CertificationsSection images={certPhotos.map((p) => p.imageUrl)} />
 
-      {/* Inquiry CTA */}
-      <section className="py-24 md:py-32 bg-espresso text-cream relative overflow-hidden">
-        <div className="absolute inset-0 opacity-[0.02]" style={{
-          backgroundImage: 'radial-gradient(circle, #C4AD8F 0.5px, transparent 0.5px)',
-          backgroundSize: '32px 32px'
-        }} />
-        <div className="container-wide relative z-10 text-center">
-          <h2 className="text-3xl md:text-5xl font-display font-medium mb-6" data-reveal>
-            {t('inquiryCta')}
-          </h2>
-          <p className="text-base font-body font-light text-cream/60 mb-10 max-w-xl mx-auto leading-relaxed" data-reveal>
-            {t('inquiryCtaDesc')}
+      {/* FAQ — Inquiries */}
+      <FaqSection />
+
+      {/* Inquiry CTA — dramatic dark close */}
+      <section className="relative py-32 md:py-48 bg-ink text-cream overflow-hidden">
+        {/* Bronze wash */}
+        <span
+          aria-hidden
+          className="absolute inset-0 pointer-events-none opacity-[0.10]"
+          style={{
+            background:
+              'radial-gradient(ellipse 70% 60% at 50% 40%, rgba(205,185,154,1), transparent 70%)',
+          }}
+        />
+        {/* Layered atmosphere */}
+        <span className="blob blob-a" style={{ width: 700, height: 700, top: '-200px', left: '50%', transform: 'translateX(-50%)', opacity: 0.35 }} aria-hidden />
+        <span className="blob blob-c" style={{ width: 380, height: 380, bottom: '-100px', right: '10%', opacity: 0.3 }} aria-hidden />
+
+        {/* Spinning decorative ring */}
+        <span
+          aria-hidden
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[520px] h-[520px] md:w-[680px] md:h-[680px] rounded-full border border-bronze-light/20 animate-spin-slow pointer-events-none"
+        />
+
+        <div className="container-wide relative text-center">
+          <p
+            className="text-[11px] font-body text-bronze-light tracking-[0.4em] uppercase mb-8 animate-float"
+            data-reveal
+          >
+            Let's begin
           </p>
-          <div data-reveal>
-            <Link
+
+          <h2 className="text-5xl md:text-7xl lg:text-8xl font-display font-light leading-[0.95] text-cream max-w-4xl mx-auto">
+            <WordsReveal text={t('inquiryCta')} />
+          </h2>
+
+          <div className="mt-14" data-reveal>
+            <MagneticLink
               href={`/${locale}/contact`}
-              className="btn-accent text-sm uppercase tracking-[0.12em] px-12 py-4"
+              className="group inline-flex items-center gap-4 px-10 py-5 bg-cream text-ink hover:bg-bronze-light rounded-full text-[12px] font-body font-medium tracking-[0.2em] uppercase transition-colors duration-700"
+              strength={0.45}
             >
               {t('inquiryCtaBtn')}
-            </Link>
+              <ArrowRight size={16} className="transition-transform duration-500 group-hover:translate-x-1" />
+            </MagneticLink>
           </div>
         </div>
       </section>
