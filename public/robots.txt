@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+Disallow: /cms/
+Disallow: /api/
+
+Sitemap: https://www.chengtai-mirror.com/sitemap.xml
