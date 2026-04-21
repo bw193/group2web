@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useTranslations, useLocale } from 'next-intl';
 import { Menu, X, Search } from 'lucide-react';
 import LanguageSwitcher from './LanguageSwitcher';
@@ -11,8 +11,10 @@ export default function Header() {
   const t = useTranslations('nav');
   const locale = useLocale();
   const router = useRouter();
+  const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
   const handleSearch = (e: React.FormEvent) => {
@@ -20,10 +22,12 @@ export default function Header() {
     const q = searchQuery.trim();
     router.push(`/${locale}/products${q ? `?q=${encodeURIComponent(q)}` : ''}`);
     setMobileOpen(false);
+    setSearchOpen(false);
   };
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 50);
+    const handleScroll = () => setScrolled(window.scrollY > 16);
+    handleScroll();
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -35,56 +39,66 @@ export default function Header() {
     { href: `/${locale}/contact`, label: t('contact') },
   ];
 
+  const isActive = (href: string) => {
+    if (href === `/${locale}`) return pathname === href || pathname === `/${locale}/`;
+    return pathname === href || pathname?.startsWith(`${href}/`);
+  };
+
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 bg-cream/95 backdrop-blur-md border-b transition-all duration-500 ${
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
         scrolled
-          ? 'border-warm-border shadow-[0_10px_30px_-20px_rgba(42,38,32,0.25)]'
-          : 'border-warm-border/60'
+          ? 'bg-cream/92 backdrop-blur-md border-b border-warm-border'
+          : 'bg-cream/80 backdrop-blur-sm border-b border-transparent'
       }`}
     >
       <div className="container-wide">
-        <div className="flex items-center justify-between h-20 md:h-24">
+        <div className="flex items-center justify-between h-[72px] md:h-20">
           {/* Logo */}
-          <Link href={`/${locale}`} className="group">
-            <div className="flex flex-col">
-              <span className="text-xl md:text-2xl font-display font-medium text-ink tracking-[0.04em]">
-                CHENGTAI
-              </span>
-              <span className="text-[9px] font-body font-light text-ink-light tracking-[0.25em] uppercase">
-                Mirror Co., Ltd
-              </span>
-            </div>
+          <Link href={`/${locale}`} className="group flex items-baseline gap-3">
+            <span className="font-display text-[22px] md:text-[26px] font-light text-ink tracking-[0.02em] leading-none">
+              Chengtai
+            </span>
+            <span className="hidden md:inline-block text-[9px] font-body font-medium text-ink-light tracking-[0.32em] uppercase border-l border-warm-border pl-3">
+              Mirror Co., Ltd
+            </span>
           </Link>
 
           {/* Desktop Nav */}
           <nav className="hidden lg:flex items-center gap-10">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="nav-link text-[13px] font-body font-medium text-ink-mid hover:text-ink transition-colors tracking-[0.08em] uppercase"
-              >
-                {link.label}
-              </Link>
-            ))}
+            {navLinks.map((link) => {
+              const active = isActive(link.href);
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`nav-link text-[11px] font-body font-medium tracking-[0.26em] uppercase transition-colors duration-300 ${
+                    active ? 'text-ink is-active' : 'text-ink-mid hover:text-ink'
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
           </nav>
 
-          {/* Actions */}
-          <div className="hidden lg:flex items-center gap-5">
-            <form onSubmit={handleSearch} className="relative">
-              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-light" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search..."
-                aria-label="Search products"
-                className="h-9 w-44 pl-9 pr-3 text-xs tracking-wide bg-transparent border border-warm-border/60 text-ink placeholder:text-ink-light focus:border-ink rounded-full transition-all duration-300 focus:w-56 focus:outline-none"
-              />
-            </form>
+          {/* Right actions */}
+          <div className="hidden lg:flex items-center gap-6">
+            <button
+              type="button"
+              onClick={() => setSearchOpen((v) => !v)}
+              aria-label="Search"
+              className="p-1 text-ink-mid hover:text-ink transition-colors"
+            >
+              <Search size={15} strokeWidth={1.5} />
+            </button>
+            <span className="h-3 w-px bg-warm-border" aria-hidden />
             <LanguageSwitcher />
-            <Link href={`/${locale}/contact`} className="btn-primary text-xs uppercase tracking-[0.1em]">
+            <span className="h-3 w-px bg-warm-border" aria-hidden />
+            <Link
+              href={`/${locale}/contact`}
+              className="btn-primary h-10 px-6 text-[10px]"
+            >
               {t('inquiry')}
             </Link>
           </div>
@@ -95,46 +109,82 @@ export default function Header() {
             onClick={() => setMobileOpen(!mobileOpen)}
             aria-label="Toggle menu"
           >
-            {mobileOpen ? <X size={22} /> : <Menu size={22} />}
+            {mobileOpen ? <X size={22} strokeWidth={1.5} /> : <Menu size={22} strokeWidth={1.5} />}
           </button>
+        </div>
+
+        {/* Desktop search drawer */}
+        <div
+          className={`hidden lg:block overflow-hidden transition-[max-height,opacity] duration-500 ease-out ${
+            searchOpen ? 'max-h-24 opacity-100' : 'max-h-0 opacity-0'
+          }`}
+        >
+          <form onSubmit={handleSearch} className="pb-6 pt-1 flex items-center gap-4 border-t border-warm-border">
+            <Search size={15} strokeWidth={1.5} className="text-ink-mid" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search products, models, categories…"
+              autoFocus={searchOpen}
+              aria-label="Search products"
+              className="flex-1 h-10 bg-transparent border-0 text-sm font-body text-ink placeholder:text-ink-light/70 focus:outline-none"
+            />
+            <button
+              type="submit"
+              className="text-[10px] font-body font-medium tracking-[0.24em] uppercase text-ink-mid hover:text-ink transition-colors"
+            >
+              Search →
+            </button>
+          </form>
         </div>
       </div>
 
       {/* Mobile Nav */}
       <div
-        className={`lg:hidden fixed inset-0 top-20 bg-cream/98 backdrop-blur-lg transition-all duration-500 ease-out-expo ${
+        className={`lg:hidden fixed inset-0 top-[72px] bg-cream transition-all duration-500 ease-out-expo ${
           mobileOpen ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'
         }`}
       >
-        <div className="container-wide pt-8">
-          <form onSubmit={handleSearch} className="relative mb-6">
-            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-light" />
+        <div className="container-wide pt-10 pb-14">
+          <form onSubmit={handleSearch} className="relative mb-10 pb-4 border-b border-warm-border flex items-center gap-3">
+            <Search size={16} strokeWidth={1.5} className="text-ink-mid" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search..."
+              placeholder="Search products…"
               aria-label="Search products"
-              className="h-11 w-full pl-10 pr-3 text-sm bg-transparent border border-warm-border/60 text-ink placeholder:text-ink-light focus:border-ink focus:outline-none"
+              className="flex-1 h-10 bg-transparent border-0 text-base font-body font-light text-ink placeholder:text-ink-light focus:outline-none"
             />
           </form>
-          <nav className="flex flex-col gap-1">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="py-4 text-lg font-display font-medium text-ink border-b border-warm-border/50 transition-colors hover:text-bronze"
-                onClick={() => setMobileOpen(false)}
-              >
-                {link.label}
-              </Link>
-            ))}
+
+          <nav className="flex flex-col">
+            {navLinks.map((link, i) => {
+              const active = isActive(link.href);
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setMobileOpen(false)}
+                  className="flex items-baseline justify-between py-5 border-b border-warm-border group"
+                >
+                  <span className={`font-display text-3xl font-light leading-none ${active ? 'text-ink' : 'text-ink/80'}`}>
+                    {link.label}
+                  </span>
+                  <span className="text-[10px] font-body font-medium tracking-[0.3em] uppercase text-ink-light">
+                    {String(i + 1).padStart(2, '0')}
+                  </span>
+                </Link>
+              );
+            })}
           </nav>
-          <div className="mt-8 flex items-center justify-between">
+
+          <div className="mt-10 flex items-center justify-between">
             <LanguageSwitcher />
             <Link
               href={`/${locale}/contact`}
-              className="btn-primary text-xs uppercase tracking-[0.1em]"
+              className="btn-primary"
               onClick={() => setMobileOpen(false)}
             >
               {t('inquiry')}

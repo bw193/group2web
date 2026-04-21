@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
-import { ArrowRight, CheckCircle, AlertCircle } from 'lucide-react';
+import { ArrowRight, AlertCircle } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 
 interface Category {
@@ -54,7 +54,16 @@ export default function InquiryForm({ categories }: { categories: Category[] }) 
       });
       if (res.ok) {
         setStatus('success');
-        setFormData({ name: '', email: '', phone: '', company: '', country: '', productInterest: '', message: '', honeypot: '' });
+        setFormData({
+          name: '',
+          email: '',
+          phone: '',
+          company: '',
+          country: '',
+          productInterest: '',
+          message: '',
+          honeypot: '',
+        });
       } else {
         setStatus('error');
       }
@@ -65,17 +74,23 @@ export default function InquiryForm({ categories }: { categories: Category[] }) 
 
   if (status === 'success') {
     return (
-      <div className="text-center py-16">
-        <div className="w-16 h-16 border border-bronze/30 flex items-center justify-center mx-auto mb-6">
-          <CheckCircle className="text-bronze" size={28} />
-        </div>
-        <p className="text-2xl font-display font-medium text-ink mb-2">{t('success')}</p>
+      <div className="border-t border-warm-border pt-14">
+        <p className="kicker-plain mb-6">
+          <span className="text-bronze mr-3">—</span>
+          Received
+        </p>
+        <p className="font-display text-4xl md:text-5xl font-light text-ink leading-[1.1] tracking-[-0.015em] mb-6">
+          Thank you.
+        </p>
+        <p className="text-[16px] font-body font-light text-ink-mid leading-[1.85] max-w-md">
+          {t('success')}
+        </p>
       </div>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8">
+    <form onSubmit={handleSubmit} className="border-t border-warm-border">
       <input
         type="text"
         name="website"
@@ -86,115 +101,125 @@ export default function InquiryForm({ categories }: { categories: Category[] }) 
         autoComplete="off"
       />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div>
-          <label className="block text-[11px] font-body font-medium text-ink-light tracking-[0.15em] uppercase mb-3">
-            {t('name')} *
-          </label>
-          <input
-            type="text"
-            required
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            className="input-field"
-          />
-        </div>
-        <div>
-          <label className="block text-[11px] font-body font-medium text-ink-light tracking-[0.15em] uppercase mb-3">
-            {t('email')} *
-          </label>
-          <input
-            type="email"
-            required
-            value={formData.email}
-            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-            className="input-field"
-          />
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 border-b border-warm-border">
+        <Field label={`${t('name')} *`} required value={formData.name} onChange={(v) => setFormData({ ...formData, name: v })} />
+        <Field label={`${t('email')} *`} type="email" required value={formData.email} onChange={(v) => setFormData({ ...formData, email: v })} className="md:border-l md:border-warm-border" />
       </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div>
-          <label className="block text-[11px] font-body font-medium text-ink-light tracking-[0.15em] uppercase mb-3">
-            {t('phone')} <span className="text-ink-light/60 normal-case tracking-normal">({t('optional')})</span>
-          </label>
-          <input
-            type="tel"
-            value={formData.phone}
-            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-            className="input-field"
-          />
-        </div>
-        <div>
-          <label className="block text-[11px] font-body font-medium text-ink-light tracking-[0.15em] uppercase mb-3">
-            {t('company')}
-          </label>
-          <input
-            type="text"
-            value={formData.company}
-            onChange={(e) => setFormData({ ...formData, company: e.target.value })}
-            className="input-field"
-          />
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 border-b border-warm-border">
+        <Field label={`${t('phone')} (${t('optional')})`} type="tel" value={formData.phone} onChange={(v) => setFormData({ ...formData, phone: v })} />
+        <Field label={t('company')} value={formData.company} onChange={(v) => setFormData({ ...formData, company: v })} className="md:border-l md:border-warm-border" />
       </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div>
-          <label className="block text-[11px] font-body font-medium text-ink-light tracking-[0.15em] uppercase mb-3">
-            {t('country')}
-          </label>
-          <input
-            type="text"
-            value={formData.country}
-            onChange={(e) => setFormData({ ...formData, country: e.target.value })}
-            className="input-field"
-          />
-        </div>
-        <div>
-          <label className="block text-[11px] font-body font-medium text-ink-light tracking-[0.15em] uppercase mb-3">
-            {t('productInterest')}
-          </label>
-          <select
-            value={formData.productInterest}
-            onChange={(e) => setFormData({ ...formData, productInterest: e.target.value })}
-            className="input-field"
-          >
-            <option value="">--</option>
-            {categories.map((cat) => (
-              <option key={cat.id} value={cat.name}>{cat.name}</option>
-            ))}
-          </select>
-        </div>
-      </div>
-
-      <div>
-        <label className="block text-[11px] font-body font-medium text-ink-light tracking-[0.15em] uppercase mb-3">
-          {t('message')} *
-        </label>
-        <textarea
-          required
-          rows={5}
-          value={formData.message}
-          onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-          className="input-field resize-none"
+      <div className="grid grid-cols-1 md:grid-cols-2 border-b border-warm-border">
+        <Field label={t('country')} value={formData.country} onChange={(v) => setFormData({ ...formData, country: v })} />
+        <SelectField
+          label={t('productInterest')}
+          value={formData.productInterest}
+          onChange={(v) => setFormData({ ...formData, productInterest: v })}
+          options={categories.map((c) => ({ value: c.name, label: c.name }))}
+          className="md:border-l md:border-warm-border"
         />
       </div>
 
+      <div className="border-b border-warm-border">
+        <label className="block px-0 py-6">
+          <span className="block text-[10px] font-body font-medium text-ink-mid tracking-[0.26em] uppercase mb-4">
+            {t('message')} *
+          </span>
+          <textarea
+            required
+            rows={5}
+            value={formData.message}
+            onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+            className="w-full bg-transparent border-0 text-[16px] font-body font-light text-ink placeholder:text-ink-light focus:outline-none resize-none leading-relaxed"
+            placeholder="Tell us about volumes, dimensions, timeline, or certifications you need…"
+          />
+        </label>
+      </div>
+
       {status === 'error' && (
-        <div className="flex items-center gap-2 text-red-700 text-sm font-body">
+        <div className="flex items-center gap-2 text-red-700 text-sm font-body py-4 border-b border-warm-border">
           <AlertCircle size={15} />
           {t('error')}
         </div>
       )}
 
-      <button
-        type="submit"
-        disabled={status === 'loading'}
-        className="btn-primary w-full md:w-auto disabled:opacity-50 uppercase tracking-[0.12em] group"
-      >
-        <span>{status === 'loading' ? '...' : t('submit')}</span>
-        <ArrowRight size={15} className="ml-3 transition-transform duration-300 group-hover:translate-x-1" />
-      </button>
+      <div className="pt-10">
+        <button
+          type="submit"
+          disabled={status === 'loading'}
+          className="btn-primary disabled:opacity-50 group"
+        >
+          <span>{status === 'loading' ? '…' : t('submit')}</span>
+          <ArrowRight size={14} strokeWidth={1.5} className="ml-3 transition-transform duration-500 group-hover:translate-x-1" />
+        </button>
+      </div>
     </form>
+  );
+}
+
+/* ---------- Field subcomponents ---------- */
+
+function Field({
+  label,
+  value,
+  onChange,
+  type = 'text',
+  required,
+  className = '',
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  type?: string;
+  required?: boolean;
+  className?: string;
+}) {
+  return (
+    <label className={`block py-6 group ${className}`}>
+      <span className="block text-[10px] font-body font-medium text-ink-mid tracking-[0.26em] uppercase mb-4">
+        {label}
+      </span>
+      <input
+        type={type}
+        required={required}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full bg-transparent border-0 text-[16px] font-body font-light text-ink placeholder:text-ink-light focus:outline-none"
+      />
+    </label>
+  );
+}
+
+function SelectField({
+  label,
+  value,
+  onChange,
+  options,
+  className = '',
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  options: { value: string; label: string }[];
+  className?: string;
+}) {
+  return (
+    <label className={`block py-6 ${className}`}>
+      <span className="block text-[10px] font-body font-medium text-ink-mid tracking-[0.26em] uppercase mb-4">
+        {label}
+      </span>
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full bg-transparent border-0 text-[16px] font-body font-light text-ink focus:outline-none appearance-none cursor-pointer"
+      >
+        <option value="">—</option>
+        {options.map((o) => (
+          <option key={o.value} value={o.value}>
+            {o.label}
+          </option>
+        ))}
+      </select>
+    </label>
   );
 }

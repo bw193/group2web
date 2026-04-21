@@ -9,11 +9,8 @@ import { ArrowLeft, ArrowRight } from 'lucide-react';
 import ProductCard from '@/components/public/ProductCard';
 import ImageGallery from './ImageGallery';
 
-export const revalidate = 600; // ISR: rebuild at most every 10 minutes
+export const revalidate = 600;
 
-// Pre-render every (locale, slug) at build time so visits hit the CDN
-// instead of running SSR + DB queries on demand. Falls back to on-demand
-// generation for any slug not known at build time.
 export async function generateStaticParams() {
   try {
     const db = getDb();
@@ -22,7 +19,6 @@ export async function generateStaticParams() {
       .from(productTranslations);
     return rows.map((r) => ({ locale: r.locale, slug: r.slug }));
   } catch {
-    // If the DB is unreachable at build time, fall back to on-demand rendering
     return [];
   }
 }
@@ -37,7 +33,6 @@ export default async function ProductDetailPage({
   const common = await getTranslations('common');
   const db = getDb();
 
-  // Happy path: one JOIN query gets product + translation in a single round trip.
   const joined = await db
     .select({ product: products, trans: productTranslations })
     .from(productTranslations)
@@ -54,7 +49,6 @@ export default async function ProductDetailPage({
   let product = joined[0]?.product;
   let translation = joined[0]?.trans;
 
-  // Fallback: slug exists in a different locale. Rare, keeps old behavior.
   if (!product) {
     const any = await db
       .select({ product: products, trans: productTranslations })
@@ -67,7 +61,6 @@ export default async function ProductDetailPage({
   }
   if (!product || !translation) notFound();
 
-  // Fetch specs, images, and (if fallback happened) this-locale translation in parallel.
   const [specs, images, localeTrans] = await Promise.all([
     db
       .select()
@@ -89,10 +82,8 @@ export default async function ProductDetailPage({
   ]);
 
   if (localeTrans) translation = localeTrans;
-  // Keep `trans` alias for downstream references below.
   const trans = translation;
 
-  // Related products — batch fetch
   let related: {
     id: number;
     name: string;
@@ -111,8 +102,8 @@ export default async function ProductDetailPage({
         and(
           eq(products.categoryId, product.categoryId),
           ne(products.id, product.id),
-          eq(products.isActive, true)
-        )
+          eq(products.isActive, true),
+        ),
       )
       .limit(3);
 
@@ -164,81 +155,86 @@ export default async function ProductDetailPage({
     : ['/images/placeholder.svg'];
 
   return (
-    <div className="pt-20 md:pt-24">
+    <>
       {/* Breadcrumb bar */}
-      <div className="bg-sand border-b border-warm-border">
-        <div className="container-wide py-4">
+      <div className="bg-cream border-b border-warm-border">
+        <div className="container-wide py-5">
           <Link
             href={`/${locale}/products`}
-            className="inline-flex items-center gap-2 text-xs font-body font-medium text-ink-mid hover:text-ink tracking-[0.08em] uppercase transition-colors"
+            className="inline-flex items-center gap-2 text-[10px] font-body font-medium text-ink-mid hover:text-ink tracking-[0.26em] uppercase transition-colors"
           >
-            <ArrowLeft size={14} />
+            <ArrowLeft size={13} strokeWidth={1.5} />
             {common('backToProducts')}
           </Link>
         </div>
       </div>
 
       {/* Product Detail */}
-      <section className="section-padding bg-cream">
-        <div className="container-wide">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-20">
+      <section className="bg-cream">
+        <div className="container-wide py-16 md:py-24">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20">
             {/* Image Gallery */}
-            <ImageGallery images={imageUrls} productName={translation.name} />
+            <div className="lg:col-span-7">
+              <ImageGallery images={imageUrls} productName={trans.name} />
+            </div>
 
             {/* Product Info */}
-            <div className="lg:pt-4">
+            <div className="lg:col-span-5 lg:pt-4">
               {product.modelNumber && (
-                <p className="text-[11px] font-body text-ink-light tracking-[0.15em] uppercase mb-3">
-                  {t('modelNumber')}: {product.modelNumber}
+                <p className="text-[10px] font-body font-medium text-bronze tracking-[0.28em] uppercase mb-5">
+                  {t('modelNumber')} — {product.modelNumber}
                 </p>
               )}
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-display font-medium leading-tight mb-6">
-                {translation.name}
+              <h1 className="font-display text-4xl md:text-5xl lg:text-[56px] font-light leading-[1.02] text-ink tracking-[-0.02em] mb-8">
+                {trans.name}
               </h1>
-              {translation.shortDescription && (
-                <p className="text-ink-mid font-body font-light leading-relaxed text-lg mb-8">
-                  {translation.shortDescription}
+              {trans.shortDescription && (
+                <p className="text-ink-mid font-body font-light leading-[1.85] text-[16px] md:text-[17px] mb-10 max-w-md">
+                  {trans.shortDescription}
                 </p>
               )}
-
-              <div className="w-12 h-px bg-bronze mb-8" />
 
               {/* Specifications */}
               {specs.length > 0 && (
-                <div className="mb-10">
-                  <h2 className="text-lg font-display font-medium mb-5 tracking-wide">
+                <div className="mb-12">
+                  <p className="kicker-plain mb-6">
+                    <span className="text-bronze mr-3">—</span>
                     {t('specifications')}
-                  </h2>
-                  <div className="border-t border-warm-border">
+                  </p>
+                  <dl className="border-t border-warm-border">
                     {specs.map((spec) => (
-                      <div key={spec.id} className="flex border-b border-warm-border">
-                        <div className="w-2/5 py-3.5 pr-4 text-sm font-body font-medium text-ink">
+                      <div key={spec.id} className="grid grid-cols-[140px_1fr] gap-4 py-4 border-b border-warm-border">
+                        <dt className="text-[11px] font-body font-medium text-ink-mid tracking-[0.18em] uppercase">
                           {spec.specKey}
-                        </div>
-                        <div className="w-3/5 py-3.5 pl-4 text-sm font-body font-light text-ink-mid border-l border-warm-border">
+                        </dt>
+                        <dd className="text-[15px] font-body font-light text-ink leading-relaxed">
                           {spec.specValue}
-                        </div>
+                        </dd>
                       </div>
                     ))}
-                  </div>
+                  </dl>
                 </div>
               )}
 
               {/* CTA */}
               <Link
-                href={`/${locale}/contact?product=${encodeURIComponent(translation.name)}`}
-                className="btn-primary text-sm uppercase tracking-[0.12em] group"
+                href={`/${locale}/contact?product=${encodeURIComponent(trans.name)}`}
+                className="btn-primary group"
               >
                 {t('sendInquiry')}
-                <ArrowRight size={15} className="ml-3 transition-transform duration-300 group-hover:translate-x-1" />
+                <ArrowRight size={14} strokeWidth={1.5} className="ml-3 transition-transform duration-500 group-hover:translate-x-1" />
               </Link>
 
               {/* Full Description */}
-              {translation.fullDescription && (
-                <div className="mt-12 pt-10 border-t border-warm-border">
+              {trans.fullDescription && (
+                <div className="mt-14 pt-10 border-t border-warm-border">
+                  <p className="kicker-plain mb-6">
+                    <span className="text-bronze mr-3">—</span>
+                    Details
+                  </p>
                   <div
-                    className="prose-content text-sm"
-                    dangerouslySetInnerHTML={{ __html: translation.fullDescription }}
+                    className="prose-content text-[15px]"
+                    dangerouslySetInnerHTML={{ __html: trans.fullDescription }}
                   />
                 </div>
               )}
@@ -247,17 +243,34 @@ export default async function ProductDetailPage({
 
           {/* Related Products */}
           {related.length > 0 && (
-            <div className="mt-24 pt-16 border-t border-warm-border">
-              <h2 className="text-3xl font-display font-medium mb-12">{t('relatedProducts')}</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-                {related.map((p) => (
-                  <ProductCard key={p.id} {...p} />
+            <div className="mt-28 pt-16 border-t border-warm-border">
+              <div className="flex items-end justify-between mb-12">
+                <div>
+                  <p className="kicker-plain mb-4">
+                    <span className="text-bronze mr-3">—</span>
+                    Related
+                  </p>
+                  <h2 className="font-display text-4xl md:text-5xl font-light text-ink tracking-[-0.015em]">
+                    {t('relatedProducts')}
+                  </h2>
+                </div>
+                <Link
+                  href={`/${locale}/products`}
+                  className="hidden md:inline-flex items-center gap-3 border-b border-ink pb-2 text-[11px] font-body font-medium tracking-[0.26em] uppercase text-ink transition-colors hover:text-bronze hover:border-bronze group"
+                >
+                  {t('viewAll') || 'View all'}
+                  <ArrowRight size={14} strokeWidth={1.5} className="transition-transform duration-500 group-hover:translate-x-1" />
+                </Link>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-14 md:gap-x-10 md:gap-y-16">
+                {related.map((p, i) => (
+                  <ProductCard key={p.id} index={i} {...p} />
                 ))}
               </div>
             </div>
           )}
         </div>
       </section>
-    </div>
+    </>
   );
 }

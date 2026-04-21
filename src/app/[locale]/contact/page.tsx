@@ -2,7 +2,6 @@ import { getTranslations } from 'next-intl/server';
 import { getDb } from '@/lib/db';
 import { productCategories, categoryTranslations } from '@/lib/db/schema';
 import { eq, and, inArray } from 'drizzle-orm';
-import { Mail, Phone, MapPin } from 'lucide-react';
 import InquiryForm from '@/components/public/InquiryForm';
 
 export const revalidate = 600;
@@ -43,77 +42,111 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
   }));
 
   return (
-    <div className="pt-20 md:pt-24">
-      {/* Header */}
-      <section className="bg-sand py-16 md:py-24">
-        <div className="container-wide text-center">
-          <h1 className="text-4xl md:text-6xl font-display font-medium">{t('title')}</h1>
-          <div className="w-10 h-px bg-bronze mx-auto mt-6" />
-        </div>
-      </section>
-
-      <section className="section-padding bg-cream">
-        <div className="container-wide">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-16 lg:gap-20">
-            {/* Form */}
-            <div className="lg:col-span-2" data-reveal>
-              <h2 className="text-2xl md:text-3xl font-display font-medium mb-2">{t('formTitle')}</h2>
-              <div className="w-12 h-px bg-bronze mb-10" />
-              <InquiryForm categories={categories} />
+    <>
+      {/* Intro */}
+      <section className="bg-cream border-b border-warm-border">
+        <div className="container-wide pt-16 pb-16 md:pt-20 md:pb-24">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-end">
+            <div className="lg:col-span-8">
+              <p className="kicker-plain mb-6" data-reveal>
+                <span className="text-bronze mr-3">— Inquiries</span>
+                {t('info')}
+              </p>
+              <h1
+                className="font-display text-5xl md:text-6xl lg:text-[80px] font-light text-ink leading-[0.98] tracking-[-0.02em]"
+                data-reveal
+              >
+                {t('title')}
+              </h1>
             </div>
-
-            {/* Contact Info */}
-            <div data-reveal>
-              <h2 className="text-2xl md:text-3xl font-display font-medium mb-2">{t('info')}</h2>
-              <div className="w-12 h-px bg-bronze mb-10" />
-
-              <div className="space-y-0">
-                <div className="flex items-start gap-5 py-6 border-b border-warm-border">
-                  <div className="w-10 h-10 border border-warm-border flex items-center justify-center flex-shrink-0">
-                    <Mail className="text-bronze" size={16} />
-                  </div>
-                  <div>
-                    <p className="text-[11px] font-body font-medium text-ink-light tracking-[0.15em] uppercase mb-2">
-                      {t('emailLabel')}
-                    </p>
-                    <a href="mailto:bolen5@cnjxctm.com" className="text-sm font-body text-ink hover:text-bronze transition-colors">
-                      bolen5@cnjxctm.com
-                    </a>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-5 py-6 border-b border-warm-border">
-                  <div className="w-10 h-10 border border-warm-border flex items-center justify-center flex-shrink-0">
-                    <Phone className="text-bronze" size={16} />
-                  </div>
-                  <div>
-                    <p className="text-[11px] font-body font-medium text-ink-light tracking-[0.15em] uppercase mb-2">
-                      {t('whatsappLabel')}
-                    </p>
-                    <a href="https://wa.me/8617860567239" target="_blank" rel="noopener noreferrer" className="text-sm font-body text-ink hover:text-bronze transition-colors">
-                      +86 17860567239
-                    </a>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-5 py-6">
-                  <div className="w-10 h-10 border border-warm-border flex items-center justify-center flex-shrink-0">
-                    <MapPin className="text-bronze" size={16} />
-                  </div>
-                  <div>
-                    <p className="text-[11px] font-body font-medium text-ink-light tracking-[0.15em] uppercase mb-2">
-                      {t('addressLabel')}
-                    </p>
-                    <p className="text-sm font-body text-ink-mid leading-relaxed">
-                      No.768, Xinda Road, Xinfeng Town, Nanhu District, Jiaxing, Zhejiang, China
-                    </p>
-                  </div>
-                </div>
-              </div>
+            <div className="lg:col-span-4 lg:text-right" data-reveal>
+              <p className="text-[15px] font-body font-light text-ink-mid leading-[1.85] max-w-sm lg:ml-auto">
+                Share project details, and our export team will reply within a single business day.
+              </p>
             </div>
           </div>
         </div>
       </section>
-    </div>
+
+      {/* Form + Info */}
+      <section className="bg-cream">
+        <div className="container-wide py-20 md:py-28">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-14 lg:gap-20">
+            {/* Form */}
+            <div className="lg:col-span-7" data-reveal>
+              <p className="kicker-plain mb-4">
+                <span className="text-bronze mr-3">01</span>
+                {t('formTitle')}
+              </p>
+              <h2 className="font-display text-3xl md:text-4xl font-light text-ink tracking-[-0.015em] mb-10">
+                Tell us about the <span className="italic font-extralight">project.</span>
+              </h2>
+              <InquiryForm categories={categories} />
+            </div>
+
+            {/* Contact Info */}
+            <div className="lg:col-span-5 lg:pl-10 lg:border-l lg:border-warm-border" data-reveal>
+              <p className="kicker-plain mb-4">
+                <span className="text-bronze mr-3">02</span>
+                Direct contact
+              </p>
+              <h2 className="font-display text-3xl md:text-4xl font-light text-ink tracking-[-0.015em] mb-10">
+                Reach out <span className="italic font-extralight">directly.</span>
+              </h2>
+
+              <dl className="border-t border-warm-border">
+                <div className="grid grid-cols-[100px_1fr] gap-4 py-5 border-b border-warm-border">
+                  <dt className="text-[10px] font-body font-medium text-ink-mid tracking-[0.26em] uppercase pt-1">
+                    {t('emailLabel')}
+                  </dt>
+                  <dd>
+                    <a href="mailto:bolen5@cnjxctm.com" className="text-[16px] font-body font-light text-ink hover:text-bronze transition-colors border-b border-warm-border hover:border-bronze pb-0.5">
+                      bolen5@cnjxctm.com
+                    </a>
+                  </dd>
+                </div>
+
+                <div className="grid grid-cols-[100px_1fr] gap-4 py-5 border-b border-warm-border">
+                  <dt className="text-[10px] font-body font-medium text-ink-mid tracking-[0.26em] uppercase pt-1">
+                    {t('whatsappLabel')}
+                  </dt>
+                  <dd>
+                    <a
+                      href="https://wa.me/8617860567239"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[16px] font-body font-light text-ink hover:text-bronze transition-colors border-b border-warm-border hover:border-bronze pb-0.5"
+                    >
+                      +86 178 6056 7239
+                    </a>
+                  </dd>
+                </div>
+
+                <div className="grid grid-cols-[100px_1fr] gap-4 py-5 border-b border-warm-border">
+                  <dt className="text-[10px] font-body font-medium text-ink-mid tracking-[0.26em] uppercase pt-1">
+                    {t('addressLabel')}
+                  </dt>
+                  <dd className="text-[15px] font-body font-light text-ink-mid leading-[1.75]">
+                    No. 768 Xinda Road,<br />
+                    Xinfeng Town, Nanhu District,<br />
+                    Jiaxing, Zhejiang, China
+                  </dd>
+                </div>
+
+                <div className="grid grid-cols-[100px_1fr] gap-4 py-5">
+                  <dt className="text-[10px] font-body font-medium text-ink-mid tracking-[0.26em] uppercase pt-1">
+                    Hours
+                  </dt>
+                  <dd className="text-[15px] font-body font-light text-ink-mid leading-[1.75]">
+                    Mon–Sat, 09:00–18:00 CST<br />
+                    <span className="text-ink-light">(GMT+8)</span>
+                  </dd>
+                </div>
+              </dl>
+            </div>
+          </div>
+        </div>
+      </section>
+    </>
   );
 }

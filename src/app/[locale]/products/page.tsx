@@ -10,20 +10,15 @@ import {
 import { eq, and, desc, inArray } from 'drizzle-orm';
 import ProductsFilter from './ProductsFilter';
 
-export const revalidate = 300; // ISR: rebuild at most every 5 minutes
+export const revalidate = 300;
 
 export default async function ProductsPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const t = await getTranslations('products');
   const db = getDb();
 
-  // Fetch products + categories in parallel
   const [allProducts, allCats] = await Promise.all([
-    db
-      .select()
-      .from(products)
-      .where(eq(products.isActive, true))
-      .orderBy(desc(products.createdAt)),
+    db.select().from(products).where(eq(products.isActive, true)).orderBy(desc(products.createdAt)),
     db
       .select()
       .from(productCategories)
@@ -34,7 +29,6 @@ export default async function ProductsPage({ params }: { params: Promise<{ local
   const productIds = allProducts.map((p) => p.id);
   const catIds = allCats.map((c) => c.id);
 
-  // Batch all translation/image lookups
   const [prodTrans, prodTransEn, prodImgs, catTrans, catTransEn] = await Promise.all([
     productIds.length
       ? db
@@ -99,20 +93,34 @@ export default async function ProductsPage({ params }: { params: Promise<{ local
   }));
 
   return (
-    <div className="pt-20 md:pt-24">
-      {/* Page Header */}
-      <section className="bg-sand py-16 md:py-20">
-        <div className="container-wide">
-          <div className="max-w-2xl mx-auto text-center mb-12">
-            <h1 className="text-4xl md:text-5xl font-display font-medium mb-4">
-              {t('title')}
-            </h1>
-            <div className="w-10 h-px bg-bronze mx-auto" />
+    <>
+      {/* Page intro */}
+      <section className="bg-cream border-b border-warm-border">
+        <div className="container-wide pt-20 pb-16 md:pt-24 md:pb-20">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-end">
+            <div className="lg:col-span-8">
+              <p className="kicker-plain mb-6" data-reveal>
+                <span className="text-bronze mr-3">— Catalog</span>
+                {t('allCategories')}
+              </p>
+              <h1
+                className="font-display text-5xl md:text-6xl lg:text-[80px] font-light text-ink leading-[0.98] tracking-[-0.02em]"
+                data-reveal
+              >
+                {t('title')}
+              </h1>
+            </div>
+            <div className="lg:col-span-4 lg:text-right" data-reveal>
+              <p className="text-[14px] font-body font-light text-ink-mid leading-relaxed max-w-sm lg:ml-auto">
+                Mirrors engineered for bathrooms, hospitality, retail, and residential projects —
+                browse the full collection.
+              </p>
+            </div>
           </div>
-
-          <ProductsFilter products={productsData} categories={categoriesData} />
         </div>
       </section>
-    </div>
+
+      <ProductsFilter products={productsData} categories={categoriesData} />
+    </>
   );
 }

@@ -1,5 +1,4 @@
 import { getTranslations } from 'next-intl/server';
-import Link from 'next/link';
 import { getDb } from '@/lib/db';
 import {
   banners,
@@ -19,9 +18,6 @@ import FeaturedProductsSection from '@/components/public/FeaturedProductsSection
 import FacilitySection from '@/components/public/FacilitySection';
 import CertificationsSection from '@/components/public/CertificationsSection';
 import FaqSection from '@/components/public/FaqSection';
-import WordsReveal from '@/components/public/WordsReveal';
-import MagneticLink from '@/components/public/MagneticLink';
-import { Users, Globe, ClipboardCheck, Package, ArrowRight } from 'lucide-react';
 
 export const revalidate = 300; // ISR: rebuild at most every 5 minutes
 
@@ -184,10 +180,10 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   }).filter((x): x is { q: string; a: string } => !!x);
 
   const capabilities = [
-    { icon: Users, title: t('service1Title'), desc: t('service1Desc') },
-    { icon: Globe, title: t('service2Title'), desc: t('service2Desc') },
-    { icon: ClipboardCheck, title: t('service3Title'), desc: t('service3Desc') },
-    { icon: Package, title: t('service4Title'), desc: t('service4Desc') },
+    { title: t('service1Title'), desc: t('service1Desc') },
+    { title: t('service2Title'), desc: t('service2Desc') },
+    { title: t('service3Title'), desc: t('service3Desc') },
+    { title: t('service4Title'), desc: t('service4Desc') },
   ];
 
   return (
@@ -200,35 +196,27 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         fallbackCta={t('heroCta')}
       />
 
-      {/* Capabilities Strip — animated soft blob + lift on hover */}
-      <section className="relative bg-cream py-16 md:py-20 overflow-hidden">
-        <span
-          className="blob blob-b"
-          style={{ width: 460, height: 460, top: '-180px', left: '50%', transform: 'translateX(-50%)' }}
-          aria-hidden
-        />
-        <div className="container-wide relative">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-10 md:gap-14" data-reveal-stagger>
+      {/* Capabilities — editorial four-column strip with hairlines */}
+      <section className="bg-cream border-b border-warm-border">
+        <div className="container-wide py-20 md:py-24">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4" data-reveal-stagger>
             {capabilities.map((item, i) => (
               <div
                 key={i}
-                className="group flex flex-col items-center text-center cursor-default"
+                className={`group relative py-8 md:py-4 md:px-10 lg:px-12 first:md:pl-0 last:md:pr-0 ${
+                  i < capabilities.length - 1 ? 'border-b md:border-b-0 md:border-r border-warm-border' : ''
+                }`}
                 data-reveal
               >
-                <div className="relative w-14 h-14 mb-5 flex items-center justify-center">
-                  {/* Concentric animated rings */}
-                  <span className="absolute inset-0 rounded-full border border-bronze/20 transition-all duration-700 group-hover:scale-110 group-hover:border-bronze/60" />
-                  <span className="absolute inset-2 rounded-full border border-bronze/10 transition-all duration-1000 group-hover:scale-125 group-hover:border-bronze/40" />
-                  <item.icon
-                    className="text-bronze relative transition-all duration-500 group-hover:-translate-y-0.5 group-hover:scale-110"
-                    size={22}
-                    strokeWidth={1.25}
-                  />
-                </div>
-                <h3 className="font-display text-lg font-medium text-ink leading-tight transition-colors duration-500 group-hover:text-bronze">
+                <p className="font-display text-[13px] font-medium text-bronze tracking-[0.18em] uppercase mb-4">
+                  0{i + 1}
+                </p>
+                <h3 className="font-display text-xl md:text-2xl font-light text-ink leading-tight mb-3 tracking-[-0.01em]">
                   {item.title}
                 </h3>
-                <span className="block w-0 h-px bg-bronze mt-2 transition-all duration-500 group-hover:w-8" />
+                <p className="text-[14px] font-body font-light text-ink-mid leading-[1.7] max-w-xs">
+                  {item.desc}
+                </p>
               </div>
             ))}
           </div>
@@ -250,57 +238,11 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         images={facilityPhoto.map((p) => p.imageUrl)}
       />
 
-      {/* Certifications */}
-      <CertificationsSection images={certPhotos.map((p) => p.imageUrl)} />
-
       {/* FAQ — Inquiries */}
       <FaqSection backendFaqs={finalFaqs} />
 
-      {/* Inquiry CTA — dramatic dark close */}
-      <section className="relative py-32 md:py-48 bg-ink text-cream overflow-hidden">
-        {/* Bronze wash */}
-        <span
-          aria-hidden
-          className="absolute inset-0 pointer-events-none opacity-[0.10]"
-          style={{
-            background:
-              'radial-gradient(ellipse 70% 60% at 50% 40%, rgba(205,185,154,1), transparent 70%)',
-          }}
-        />
-        {/* Layered atmosphere */}
-        <span className="blob blob-a" style={{ width: 700, height: 700, top: '-200px', left: '50%', transform: 'translateX(-50%)', opacity: 0.35 }} aria-hidden />
-        <span className="blob blob-c" style={{ width: 380, height: 380, bottom: '-100px', right: '10%', opacity: 0.3 }} aria-hidden />
-
-        {/* Spinning decorative ring */}
-        <span
-          aria-hidden
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[520px] h-[520px] md:w-[680px] md:h-[680px] rounded-full border border-bronze-light/20 animate-spin-slow pointer-events-none"
-        />
-
-        <div className="container-wide relative text-center">
-          <p
-            className="text-[11px] font-body text-bronze-light tracking-[0.4em] uppercase mb-8 animate-float"
-            data-reveal
-          >
-            Let's begin
-          </p>
-
-          <h2 className="text-5xl md:text-7xl lg:text-8xl font-display font-light leading-[0.95] text-cream max-w-4xl mx-auto">
-            <WordsReveal text={t('inquiryCta')} />
-          </h2>
-
-          <div className="mt-14" data-reveal>
-            <MagneticLink
-              href={`/${locale}/contact`}
-              className="group inline-flex items-center gap-4 px-10 py-5 bg-cream text-ink hover:bg-bronze-light rounded-full text-[12px] font-body font-medium tracking-[0.2em] uppercase transition-colors duration-700"
-              strength={0.45}
-            >
-              {t('inquiryCtaBtn')}
-              <ArrowRight size={16} className="transition-transform duration-500 group-hover:translate-x-1" />
-            </MagneticLink>
-          </div>
-        </div>
-      </section>
+      {/* Certifications */}
+      <CertificationsSection images={certPhotos.map((p) => p.imageUrl)} />
     </>
   );
 }

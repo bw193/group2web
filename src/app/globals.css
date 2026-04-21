@@ -11,70 +11,122 @@
 
   body {
     @apply bg-cream text-ink font-body;
-    line-height: 1.7;
+    font-feature-settings: 'ss01', 'cv01';
+    line-height: 1.65;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-display font-medium;
-    line-height: 1.15;
+    @apply font-display font-light;
+    line-height: 1.08;
+    letter-spacing: -0.015em;
   }
 
   ::selection {
-    background: #EDE6DB;
-    color: #1D1B18;
+    background: #2A2620;
+    color: #FCFBF8;
   }
 }
 
 @layer components {
   .container-wide {
-    @apply max-w-[1340px] mx-auto px-5 sm:px-8 lg:px-12;
+    @apply max-w-[1320px] mx-auto px-6 sm:px-8 lg:px-14;
   }
 
+  .container-narrow {
+    @apply max-w-[980px] mx-auto px-6 sm:px-8 lg:px-14;
+  }
+
+  /* ---------- Buttons: flat, square, editorial ---------- */
   .btn-primary {
-    @apply inline-flex items-center justify-center px-8 py-3.5 bg-espresso text-cream font-body font-medium
-           tracking-wide text-sm transition-all duration-500 ease-out-expo hover:bg-espresso-light;
-  }
-
-  .btn-accent {
-    @apply inline-flex items-center justify-center px-8 py-3.5 bg-bronze text-cream font-body font-medium
-           tracking-wide text-sm transition-all duration-500 ease-out-expo hover:bg-bronze-light;
-  }
-
-  .btn-gold {
-    @apply inline-flex items-center justify-center px-8 py-3.5 bg-bronze text-cream font-body font-medium
-           tracking-wide text-sm transition-all duration-500 ease-out-expo hover:bg-bronze-light;
+    @apply inline-flex items-center justify-center h-12 px-8 bg-ink text-cream
+           font-body text-[11px] font-medium tracking-[0.22em] uppercase
+           transition-colors duration-300 hover:bg-espresso-light;
   }
 
   .btn-outline {
-    @apply inline-flex items-center justify-center px-8 py-3.5 border border-ink text-ink
-           font-body font-medium tracking-wide text-sm transition-all duration-500 ease-out-expo
-           hover:bg-ink hover:text-cream;
+    @apply inline-flex items-center justify-center h-12 px-8 border border-ink text-ink
+           font-body text-[11px] font-medium tracking-[0.22em] uppercase
+           transition-colors duration-300 hover:bg-ink hover:text-cream;
   }
 
+  .btn-ghost {
+    @apply inline-flex items-center gap-3 font-body text-[11px] font-medium tracking-[0.22em] uppercase
+           text-ink transition-colors duration-300 hover:text-bronze;
+  }
+
+  /* Legacy helpers kept for backward compat in dynamic HTML */
+  .btn-accent,
+  .btn-gold {
+    @apply btn-primary;
+  }
+
+  /* ---------- Sections ---------- */
   .section-padding {
-    @apply py-20 md:py-32;
+    @apply py-24 md:py-32;
   }
 
   .section-heading {
-    @apply text-4xl md:text-5xl lg:text-6xl font-display font-medium tracking-tight;
+    @apply font-display font-light text-4xl md:text-5xl lg:text-6xl leading-[1.02];
+    letter-spacing: -0.02em;
   }
 
+  /* Eyebrow / kicker label */
+  .kicker {
+    @apply inline-flex items-center gap-3 font-body text-[10px] font-medium tracking-[0.32em] uppercase text-ink-mid;
+  }
+  .kicker::before {
+    content: '';
+    @apply block w-6 h-px bg-bronze;
+  }
+
+  .kicker-plain {
+    @apply font-body text-[10px] font-medium tracking-[0.32em] uppercase text-ink-mid;
+  }
+
+  /* Section-kicker legacy helper (used in PageIntro and a few places) */
+  .section-kicker {
+    @apply inline-flex items-center gap-3 font-body text-[10px] font-medium tracking-[0.32em] uppercase text-ink-mid;
+  }
+
+  /* ---------- Inputs ---------- */
   .input-field {
-    @apply w-full px-0 py-3 bg-transparent border-0 border-b border-warm-border
+    @apply w-full px-0 py-3.5 bg-transparent border-0 border-b border-warm-border
            text-ink font-body text-sm placeholder:text-ink-light
-           focus:outline-none focus:border-bronze transition-colors duration-300;
+           focus:outline-none focus:border-ink transition-colors duration-300;
   }
 
   .input-field-boxed {
-    @apply w-full px-5 py-3.5 bg-cream border border-warm-border
+    @apply w-full px-4 py-3.5 bg-white border border-warm-border
            text-ink font-body text-sm placeholder:text-ink-light
-           focus:outline-none focus:border-bronze transition-colors duration-300;
+           focus:outline-none focus:border-ink transition-colors duration-300;
   }
 
-  .card-hover {
-    @apply transition-all duration-700 ease-out-expo;
+  /* ---------- Links ---------- */
+  .link-underline {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding-bottom: 2px;
+    font-weight: 500;
+  }
+  .link-underline::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 1px;
+    background: currentColor;
+    transform-origin: right;
+    transform: scaleX(1);
+    transition: transform 0.55s cubic-bezier(0.7, 0, 0.2, 1);
+  }
+  .link-underline:hover::after {
+    transform-origin: left;
+    transform: scaleX(1);
   }
 
   .cms-card {
@@ -82,120 +134,105 @@
   }
 }
 
-/* Scroll reveal animations */
+/* ============================================================================
+   REVEALS — quiet, cubic-bezier fade + short lift
+   ============================================================================ */
+
 [data-reveal] {
   opacity: 0;
-  transform: translateY(24px);
+  transform: translateY(16px);
   transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
               transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
 }
-
-[data-reveal="left"] {
-  transform: translateX(-24px);
+[data-reveal="left"]  { transform: translateX(-16px); }
+[data-reveal="right"] { transform: translateX(16px); }
+[data-reveal="clip"]  { opacity: 1; transform: none; }
+[data-reveal="clip"] > * {
+  clip-path: inset(0 0 100% 0);
+  transition: clip-path 1.2s cubic-bezier(0.7, 0, 0.2, 1);
+}
+[data-reveal="clip"].revealed > * { clip-path: inset(0 0 0 0); }
+[data-reveal="lift"] {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 1s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-[data-reveal="right"] {
-  transform: translateX(24px);
-}
-
-[data-reveal="scale"] {
-  transform: scale(0.96);
-}
-
-[data-reveal].revealed {
+[data-reveal].revealed,
+[data-reveal="lift"].revealed {
   opacity: 1;
-  transform: translateY(0) translateX(0) scale(1);
+  transform: translateY(0) translateX(0);
 }
 
 [data-reveal-stagger] > [data-reveal] {
-  transition-delay: calc(var(--reveal-index, 0) * 120ms);
+  transition-delay: calc(var(--reveal-index, 0) * 100ms);
 }
 
-/* Nav link underline animation */
+/* ============================================================================
+   NAV LINK — subtle left-anchored underline
+   ============================================================================ */
+
 .nav-link {
   position: relative;
+  display: inline-block;
 }
 .nav-link::after {
   content: '';
   position: absolute;
-  bottom: -2px;
+  bottom: -4px;
   left: 0;
-  width: 0;
+  width: 100%;
   height: 1px;
   background: currentColor;
-  transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.5s cubic-bezier(0.7, 0, 0.2, 1);
 }
-.nav-link:hover::after {
-  width: 100%;
-}
-
-/* Product card image overlay */
-.product-image-overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to top, rgba(29, 27, 24, 0.35) 0%, transparent 50%);
-  opacity: 0;
-  transition: opacity 0.6s ease;
-}
-.group:hover .product-image-overlay {
-  opacity: 1;
+.nav-link:hover::after,
+.nav-link.is-active::after {
+  transform: scaleX(1);
+  transform-origin: left;
 }
 
-/* Hero slide transitions */
-.hero-slide-enter {
-  animation: heroFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
-}
+/* ============================================================================
+   PROSE — rich text content
+   ============================================================================ */
 
-@keyframes heroFadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(16px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
+.prose-content h1 { @apply text-3xl font-display font-light mb-4 mt-10; letter-spacing: -0.015em; }
+.prose-content h2 { @apply text-2xl font-display font-light mb-3 mt-8; letter-spacing: -0.015em; }
+.prose-content h3 { @apply text-xl font-display font-light mb-2 mt-6; letter-spacing: -0.015em; }
+.prose-content p { @apply mb-5 leading-[1.85] text-ink-mid font-light; }
+.prose-content ul { @apply list-disc pl-6 mb-5 text-ink-mid font-light; }
+.prose-content ol { @apply list-decimal pl-6 mb-5 text-ink-mid font-light; }
+.prose-content li { @apply mb-1.5; }
+.prose-content a { @apply text-ink underline decoration-bronze decoration-1 underline-offset-4 hover:decoration-ink transition-colors; }
+.prose-content blockquote { @apply border-l border-bronze pl-6 italic my-6 text-ink font-display text-xl font-light; }
+.prose-content img { @apply my-6 max-w-full; }
 
-/* Subtle grain overlay */
-.grain-overlay::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  opacity: 0.025;
-  pointer-events: none;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-}
+/* ============================================================================
+   SCROLLBAR
+   ============================================================================ */
 
-/* Rich text content */
-.prose-content h1 { @apply text-3xl font-display font-medium mb-4 mt-8; }
-.prose-content h2 { @apply text-2xl font-display font-medium mb-3 mt-6; }
-.prose-content h3 { @apply text-xl font-display font-medium mb-2 mt-4; }
-.prose-content p { @apply mb-4 leading-relaxed text-ink-mid; }
-.prose-content ul { @apply list-disc pl-6 mb-4 text-ink-mid; }
-.prose-content ol { @apply list-decimal pl-6 mb-4 text-ink-mid; }
-.prose-content li { @apply mb-1; }
-.prose-content a { @apply text-bronze underline hover:text-espresso transition-colors; }
-.prose-content blockquote { @apply border-l-2 border-bronze pl-6 italic my-4 text-ink-mid; }
-.prose-content img { @apply my-4 max-w-full; }
-
-/* Scrollbar */
 ::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: #F2EEE8; }
-::-webkit-scrollbar-thumb { background: #C4AD8F; }
-::-webkit-scrollbar-thumb:hover { background: #9A8266; }
+::-webkit-scrollbar-track { background: #F7F4EE; }
+::-webkit-scrollbar-thumb { background: #D9D3C7; }
+::-webkit-scrollbar-thumb:hover { background: #A88E6F; }
 
 /* Hide scrollbar utility (used on category tab bar) */
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-/* Subtle fade-up reveal for filter swaps */
+/* ============================================================================
+   FADE-UP — filter/grid swap
+   ============================================================================ */
+
 @keyframes fade-up {
   from { opacity: 0; transform: translateY(12px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-.animate-fade-up { animation: fade-up 600ms cubic-bezier(0.16, 1, 0.3, 1) both; }
-.animate-fade-up > * { animation: fade-up 700ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-fade-up { animation: fade-up 700ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-fade-up > * { animation: fade-up 800ms cubic-bezier(0.16, 1, 0.3, 1) both; }
 .animate-fade-up > *:nth-child(2)  { animation-delay: 60ms; }
 .animate-fade-up > *:nth-child(3)  { animation-delay: 120ms; }
 .animate-fade-up > *:nth-child(4)  { animation-delay: 180ms; }
@@ -205,9 +242,46 @@
 .animate-fade-up > *:nth-child(8)  { animation-delay: 420ms; }
 
 /* ============================================================================
-   ATMOSPHERE — drifting bronze blobs, film grain, soft mesh
+   COUNT-UP
    ============================================================================ */
 
+@keyframes count-in {
+  from { opacity: 0; transform: translateY(20%); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-count-in { animation: count-in 1s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+/* ============================================================================
+   MARQUEE — rolling ticker (certifications)
+   ============================================================================ */
+
+@keyframes marquee-x {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.marquee-viewport {
+  position: relative;
+  overflow: hidden;
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee-x 48s linear infinite;
+  will-change: transform;
+}
+.marquee-viewport:hover .marquee-track { animation-play-state: paused; }
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track { animation: none; }
+}
+
+/* ============================================================================
+   HERO-ONLY LEGACY CLASSES
+   Preserved because HeroBanner.tsx is not being touched.
+   ============================================================================ */
+
+/* Atmospheric blob (used by hero fallback + any hero decor) */
 @keyframes blob-drift-a {
   0%, 100% { transform: translate(0, 0) scale(1) rotate(0deg); }
   33%      { transform: translate(40px, -30px) scale(1.08) rotate(8deg); }
@@ -221,7 +295,6 @@
   0%, 100% { transform: translate(0, 0) scale(1); }
   50%      { transform: translate(30px, 50px) scale(0.92); }
 }
-
 .blob {
   position: absolute;
   border-radius: 50%;
@@ -234,152 +307,38 @@
 .blob-b { background: radial-gradient(circle, #E9DCC3 0%, transparent 70%); animation: blob-drift-b 30s ease-in-out infinite; }
 .blob-c { background: radial-gradient(circle, #F1ECE2 0%, transparent 70%); animation: blob-drift-c 36s ease-in-out infinite; }
 
-/* Page-level film grain — once on body for tactility */
+/* Fixed page grain (disabled by default — pages now render cleaner) */
 .atmosphere-grain {
   position: fixed;
   inset: 0;
   z-index: 1;
   pointer-events: none;
-  opacity: 0.035;
+  opacity: 0.025;
   mix-blend-mode: multiply;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
-/* ============================================================================
-   WORD-BY-WORD MASK REVEAL — for serif headings
-   ============================================================================ */
-
+/* Word-by-word mask reveal — still available for heroes if needed */
 .reveal-words { display: inline-block; }
-.reveal-words .word {
-  display: inline-block;
-  overflow: hidden;
-  vertical-align: top;
-}
+.reveal-words .word { display: inline-block; overflow: hidden; vertical-align: top; }
 .reveal-words .word > span {
   display: inline-block;
   transform: translateY(110%);
   transition: transform 0.95s cubic-bezier(0.16, 1, 0.3, 1);
-  transition-delay: calc(var(--w, 0) * 80ms);
+  transition-delay: calc(var(--w, 0) * 70ms);
 }
-.reveal-words.revealed .word > span {
-  transform: translateY(0);
-}
+.reveal-words.revealed .word > span { transform: translateY(0); }
 
 /* ============================================================================
-   IMAGE CLIP REVEAL — wipes from bottom on scroll-in
+   REDUCE MOTION
    ============================================================================ */
 
-/* Clip-path is applied to a child rather than the observed element itself,
-   because clip-path collapses the IntersectionObserver intersection rect to
-   zero and the reveal would never fire for on-load-visible elements. */
-[data-reveal="clip"] {
-  opacity: 1;
-  transform: none;
-}
-[data-reveal="clip"] > * {
-  clip-path: inset(0 0 100% 0);
-  transition: clip-path 1.2s cubic-bezier(0.7, 0, 0.2, 1);
-}
-[data-reveal="clip"].revealed > * { clip-path: inset(0 0 0 0); }
-
-/* ============================================================================
-   INFINITE MARQUEE — for cert strip
-   ============================================================================ */
-
-@keyframes marquee {
-  from { transform: translateX(0); }
-  to   { transform: translateX(-50%); }
-}
-.marquee-track {
-  display: flex;
-  width: max-content;
-  animation: marquee 40s linear infinite;
-}
-.marquee-track:hover { animation-play-state: paused; }
-.marquee-mask {
-  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 12%, #000 88%, transparent 100%);
-          mask-image: linear-gradient(90deg, transparent 0%, #000 12%, #000 88%, transparent 100%);
-}
-
-/* ============================================================================
-   FLOATING DECORATIVE SHAPES
-   ============================================================================ */
-
-@keyframes float-soft {
-  0%, 100% { transform: translateY(0); }
-  50%      { transform: translateY(-14px); }
-}
-.animate-float { animation: float-soft 7s ease-in-out infinite; }
-
-@keyframes spin-slow {
-  to { transform: rotate(360deg); }
-}
-.animate-spin-slow { animation: spin-slow 38s linear infinite; }
-
-/* ============================================================================
-   MAGNETIC CTA — soft glow that follows
-   ============================================================================ */
-
-.magnetic {
-  position: relative;
-  isolation: isolate;
-}
-.magnetic::before {
-  content: '';
-  position: absolute;
-  inset: -2px;
-  background: radial-gradient(120px circle at var(--mx, 50%) var(--my, 50%), rgba(168, 142, 111, 0.35), transparent 60%);
-  opacity: 0;
-  transition: opacity 0.4s ease;
-  z-index: -1;
-  pointer-events: none;
-}
-.magnetic:hover::before { opacity: 1; }
-
-/* ============================================================================
-   HERO TITLE LETTER PULSE
-   ============================================================================ */
-
-@keyframes shimmer {
-  0%   { background-position: -200% center; }
-  100% { background-position:  200% center; }
-}
-.text-shimmer {
-  background: linear-gradient(90deg, currentColor 0%, currentColor 40%, #CDB99A 50%, currentColor 60%, currentColor 100%);
-  background-size: 200% auto;
-  -webkit-background-clip: text;
-          background-clip: text;
-  -webkit-text-fill-color: transparent;
-  animation: shimmer 6s linear infinite;
-}
-
-/* ============================================================================
-   ROW-BY-ROW LIFT (for FAQ items, list items)
-   ============================================================================ */
-
-[data-reveal="lift"] {
-  opacity: 0;
-  transform: translateY(28px);
-  transition:
-    opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
-    transform 1s cubic-bezier(0.16, 1, 0.3, 1);
-}
-[data-reveal="lift"].revealed {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* ============================================================================
-   COUNT-UP STAT — number flip
-   ============================================================================ */
-
-@keyframes count-in {
-  from { opacity: 0; transform: translateY(40%); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-.animate-count-in { animation: count-in 1.1s cubic-bezier(0.16, 1, 0.3, 1) both; }
-
-/* Reduce motion */
 @media (prefers-reduced-motion: reduce) {
-  .blob, .marquee-track, .animate-float, .animate-spin-slow, .text-shimmer { animation: none !important; }
+  .blob { animation: none !important; }
+  [data-reveal], [data-reveal="lift"], [data-reveal="clip"] > * {
+    transition: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+    clip-path: none !important;
+  }
 }

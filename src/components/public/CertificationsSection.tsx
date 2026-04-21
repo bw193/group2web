@@ -1,5 +1,4 @@
 import Image from 'next/image';
-import { getTranslations } from 'next-intl/server';
 import { getUploadUrl } from '@/lib/utils';
 
 interface Props {
@@ -9,88 +8,82 @@ interface Props {
 const FALLBACK_LABELS = ['CE', 'CB', 'SAA', 'ETL', 'IP44', 'IP54', 'RoHS', 'ISO 9001'];
 
 export default async function CertificationsSection({ images = [] }: Props) {
-  const t = await getTranslations('home');
   const photos = images.filter((v): v is string => !!v);
   const hasPhotos = photos.length > 0;
 
-  // Build a seamless infinite marquee. The CSS animates translateX from 0 to
-  // -50%, so we need exactly two identical halves. Each half must be wider
-  // than any reasonable viewport or a gap will appear after the last item,
-  // so pad photos up to ~8 items per half when the source list is short.
-  const MIN_ITEMS_PER_HALF = 8;
-  const photoRepeats = hasPhotos
-    ? Math.max(1, Math.ceil(MIN_ITEMS_PER_HALF / photos.length))
-    : 1;
-  const photosHalf = Array.from({ length: photoRepeats }, () => photos).flat();
-  const marqueePhotos = hasPhotos ? [...photosHalf, ...photosHalf] : [];
-  const marqueeLabels = [...FALLBACK_LABELS, ...FALLBACK_LABELS];
+  // Duplicate the track so the marquee loops seamlessly
+  const photoTrack = hasPhotos ? [...photos, ...photos] : [];
+  const labelTrack = [...FALLBACK_LABELS, ...FALLBACK_LABELS];
 
   return (
-    <section className="relative py-28 md:py-36 bg-ink text-cream overflow-hidden">
-      {/* Faint bronze wash */}
-      <span
-        aria-hidden
-        className="absolute inset-0 pointer-events-none opacity-[0.08]"
-        style={{
-          background:
-            'radial-gradient(ellipse 60% 50% at 50% 50%, rgba(205,185,154,0.9), transparent 70%)',
-        }}
-      />
-      <span
-        className="blob blob-b"
-        style={{ width: 600, height: 600, top: '50%', left: '50%', transform: 'translate(-50%, -50%)', opacity: 0.25 }}
-        aria-hidden
-      />
-
-      <div className="container-wide relative">
-        {/* Header */}
-        <div className="max-w-3xl mx-auto text-center mb-20" data-reveal>
-          <p className="text-[11px] font-body text-bronze-light tracking-[0.4em] uppercase mb-6">
-            Certified
-          </p>
-          <h2 className="text-4xl md:text-6xl font-display font-light leading-[1.05] text-cream">
-            Trusted in{' '}
-            <span className="italic text-bronze-light">60+</span>{' '}
-            countries.
-          </h2>
+    <section className="bg-cream border-b border-warm-border">
+      <div className="container-wide pt-24 md:pt-32 pb-12 md:pb-16">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-end mb-14 md:mb-20">
+          <div className="lg:col-span-7" data-reveal>
+            <p className="kicker-plain mb-6">
+              <span className="text-bronze mr-3">05</span>
+              Certified
+            </p>
+            <h2 className="section-heading text-ink">
+              Trusted in{' '}
+              <span className="italic font-extralight text-bronze">60+</span>{' '}
+              countries.
+            </h2>
+          </div>
+          <div className="lg:col-span-5 lg:text-right" data-reveal>
+            <p className="text-[15px] font-body font-light text-ink-mid leading-[1.85] max-w-md lg:ml-auto">
+              Every mirror ships with the paperwork to clear the most demanding markets —
+              from European bathrooms to North American hospitality projects.
+            </p>
+          </div>
         </div>
       </div>
 
-      {/* Full-bleed marquee strip */}
-      <div className="relative marquee-mask" data-reveal>
-        {hasPhotos ? (
-          <div className="marquee-track py-6">
-            {marqueePhotos.map((src, i) => (
-              <div
-                key={`${src}-${i}`}
-                className="group relative shrink-0 mx-8 md:mx-12 w-[120px] md:w-[150px] aspect-[4/5] flex items-center justify-center"
-              >
-                <Image
-                  src={getUploadUrl(src)}
-                  alt={`Certification ${(i % photos.length) + 1}`}
-                  fill
-                  sizes="150px"
-                  quality={80}
-                  className="object-contain transition-all duration-700 ease-out-expo grayscale opacity-85 group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-110"
-                />
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="marquee-track py-6">
-            {marqueeLabels.map((cert, i) => (
-              <div
-                key={`${cert}-${i}`}
-                className="group shrink-0 mx-10 md:mx-16 flex items-center"
-              >
-                <span className="font-display text-3xl md:text-5xl font-light text-cream/40 group-hover:text-bronze-light transition-colors duration-500 tracking-wider whitespace-nowrap">
-                  {cert}
-                </span>
-                <span className="ml-10 md:ml-16 w-1.5 h-1.5 rounded-full bg-bronze-light/50" />
-              </div>
-            ))}
-          </div>
-        )}
+      {/* Rolling ticker — edge-to-edge */}
+      <div className="relative border-y border-warm-border bg-sand/40" data-reveal>
+        <div className="marquee-viewport py-10 md:py-12">
+          {hasPhotos ? (
+            <div className="marquee-track">
+              {photoTrack.map((src, i) => (
+                <div
+                  key={`p-${i}`}
+                  className="relative flex items-center justify-center w-[180px] md:w-[220px] h-[88px] md:h-[104px] mx-8 md:mx-14 shrink-0"
+                  aria-hidden={i >= photos.length}
+                >
+                  <Image
+                    src={getUploadUrl(src)}
+                    alt={i < photos.length ? `Certification ${i + 1}` : ''}
+                    fill
+                    sizes="220px"
+                    quality={80}
+                    className="object-contain grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all duration-500"
+                  />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="marquee-track">
+              {labelTrack.map((cert, i) => (
+                <div
+                  key={`l-${i}`}
+                  className="flex items-center mx-10 md:mx-16 shrink-0"
+                  aria-hidden={i >= FALLBACK_LABELS.length}
+                >
+                  <p className="font-display text-4xl md:text-5xl font-light text-ink/80 leading-none whitespace-nowrap">
+                    {cert}
+                  </p>
+                  <span className="ml-10 md:ml-16 h-1 w-1 rounded-full bg-bronze/70" aria-hidden />
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="container-wide pt-8 pb-24 md:pb-32">
+        <p className="text-[10px] font-body font-medium tracking-[0.32em] uppercase text-ink-light text-center">
+          CE · CB · SAA · ETL · IP44 · IP54 · RoHS · ISO 9001
+        </p>
       </div>
     </section>
   );
