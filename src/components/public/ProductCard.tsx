@@ -35,16 +35,29 @@ export default function ProductCard({
         href={`/${locale}/products/${slug}`}
         className="block relative aspect-[4/5] overflow-hidden bg-sand mb-5 rounded-sm"
       >
-        <Image
-          src={getUploadUrl(imageUrl)}
-          alt={name}
-          fill
-          sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-          className="object-cover transition-transform duration-[1.4s] ease-out-expo group-hover:scale-110"
-          loading="lazy"
-        />
-        {/* Soft cream wash on hover */}
-        <div className="absolute inset-0 bg-gradient-to-t from-ink/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+        {imageUrl ? (
+          <>
+            <Image
+              src={getUploadUrl(imageUrl)}
+              alt={name}
+              fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              className="object-cover transition-transform duration-[1.4s] ease-out-expo group-hover:scale-110"
+              loading="lazy"
+            />
+            {/* Soft cream wash on hover */}
+            <div className="absolute inset-0 bg-gradient-to-t from-ink/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+          </>
+        ) : (
+          <div className="absolute inset-0 flex flex-col items-center justify-center p-6 bg-gradient-to-br from-[#EFEAE2] to-[#ECE7DF] text-center border border-bronze/10 transition-transform duration-[1.4s] ease-out-expo group-hover:scale-110">
+             {/* Abstract Mirror Icon Pattern */}
+             <div className="w-16 h-20 border-[1.5px] border-bronze/40 rounded-t-full rounded-b-sm flex flex-col items-center justify-center gap-2 mb-4 bg-cream/50 shadow-inner">
+               <span className="w-1.5 h-1.5 bg-bronze/40 rounded-full" />
+             </div>
+             <span className="text-[10px] font-body text-ink-light tracking-[0.2em] uppercase">Premium Mirror</span>
+             <div className="absolute inset-0 bg-gradient-to-t from-ink/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+          </div>
+        )}
 
         {isFeatured && (
           <span className="absolute top-4 left-4 bg-cream/95 backdrop-blur-sm text-ink text-[10px] font-body font-medium px-3 py-1.5 uppercase tracking-[0.18em] rounded-full">

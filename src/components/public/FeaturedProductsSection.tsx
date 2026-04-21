@@ -65,7 +65,7 @@ export default function FeaturedProductsSection({
   ];
 
   return (
-    <section className="relative py-28 md:py-40 bg-sand overflow-hidden">
+    <section className="relative py-28 md:py-40 bg-sand bg-arch-grid overflow-hidden">
       {/* Top hairline divider */}
       <span aria-hidden className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-px bg-bronze/40" />
       {/* Atmospheric blob */}

@@ -19,20 +19,34 @@ export default function FacilityGallery({ images }: Props) {
       {/* Primary image */}
       <div className="relative aspect-[4/5] md:aspect-[5/4] overflow-hidden bg-sand rounded-sm">
         {thumbs.map((src, i) => (
-          <Image
-            key={`${src}-${i}`}
-            src={src.startsWith('/') ? src : getUploadUrl(src)}
-            alt={`Chengtai facility view ${i + 1}`}
-            fill
-            sizes="(max-width: 1024px) 100vw, 58vw"
-            quality={85}
-            priority={i === 0}
-            className={`object-cover transition-all duration-[1.2s] ease-out-expo ${
-              i === activeIdx
-                ? 'opacity-100 scale-100'
-                : 'opacity-0 scale-[1.06] pointer-events-none'
-            }`}
-          />
+          src === '/images/placeholder.svg' ? (
+            <div 
+              key={`ph-${i}`}
+              className={`absolute inset-0 flex flex-col items-center justify-center bg-sand transition-all duration-[1.2s] ease-out-expo ${
+                i === activeIdx ? 'opacity-100 scale-100' : 'opacity-0 scale-[1.06] pointer-events-none'
+              }`}
+            >
+              <div className="w-32 h-40 border border-bronze/20 bg-cream/30 shadow-sm rounded-sm mb-4 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-full h-full bg-gradient-to-tr from-transparent via-cream/40 to-transparent" />
+              </div>
+              <span className="text-[11px] font-body text-ink-light tracking-[0.3em] uppercase">Facility View</span>
+            </div>
+          ) : (
+            <Image
+              key={`${src}-${i}`}
+              src={src.startsWith('/') ? src : getUploadUrl(src)}
+              alt={`Chengtai facility view ${i + 1}`}
+              fill
+              sizes="(max-width: 1024px) 100vw, 58vw"
+              quality={85}
+              priority={i === 0}
+              className={`object-cover transition-all duration-[1.2s] ease-out-expo ${
+                i === activeIdx
+                  ? 'opacity-100 scale-100'
+                  : 'opacity-0 scale-[1.06] pointer-events-none'
+              }`}
+            />
+          )
         ))}
 
         {/* Soft overlay & corner index */}

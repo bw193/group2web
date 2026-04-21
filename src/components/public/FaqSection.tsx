@@ -20,21 +20,14 @@ const FALLBACK_FAQ: QA[] = [
   { q: 'Do you offer a warranty on the products?', a: 'Every product ships with a two-year warranty.' },
 ];
 
-export default function FaqSection() {
-  const locale = useLocale();
-  const [FAQ, setFAQ] = useState<QA[]>(FALLBACK_FAQ);
-  const [openIdx, setOpenIdx] = useState<number | null>(0);
+interface Props {
+  backendFaqs?: QA[];
+}
 
-  useEffect(() => {
-    fetch(`/api/faqs?locale=${locale}`)
-      .then((r) => (r.ok ? r.json() : []))
-      .then((rows: { question: string; answer: string }[]) => {
-        if (Array.isArray(rows) && rows.length > 0) {
-          setFAQ(rows.map((r) => ({ q: r.question, a: r.answer })));
-        }
-      })
-      .catch(() => {});
-  }, [locale]);
+export default function FaqSection({ backendFaqs = [] }: Props) {
+  const locale = useLocale();
+  const [FAQ, setFAQ] = useState<QA[]>(backendFaqs.length > 0 ? backendFaqs : FALLBACK_FAQ);
+  const [openIdx, setOpenIdx] = useState<number | null>(0);
 
   const toggle = (i: number) => setOpenIdx((curr) => (curr === i ? null : i));
 

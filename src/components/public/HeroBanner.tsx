@@ -48,10 +48,40 @@ export default function HeroBanner({ slides }: HeroBannerProps) {
     return () => clearInterval(timer);
   }, [next, hasSlides]);
 
-  // Fallback when no slides — render an empty banner area
+  // Fallback when no slides — render an elegant animated canvas with text
   if (!hasSlides) {
     return (
-      <section className="relative h-[60vh] min-h-[420px] max-h-[640px] md:h-[70vh] md:min-h-[480px] bg-sand overflow-hidden" />
+      <section className="relative h-[60vh] min-h-[420px] max-h-[700px] md:h-[80vh] md:min-h-[600px] bg-ink overflow-hidden text-cream flex items-center justify-center">
+        {/* Abstract animated gradient mesh fallback */}
+        <span
+          className="absolute inset-0 pointer-events-none opacity-40 mix-blend-screen"
+          style={{
+            background: 'radial-gradient(ellipse 70% 60% at 50% 40%, rgba(168,142,111,0.8), transparent 70%)',
+          }}
+        />
+        <span className="blob blob-a" style={{ width: 700, height: 700, top: '-25%', left: '20%', opacity: 0.35 }} />
+        <span className="blob blob-c" style={{ width: 500, height: 500, bottom: '-15%', right: '5%', opacity: 0.25 }} />
+        <span className="atmosphere-grain" />
+
+        <div className="container-wide relative z-10 text-center flex flex-col items-center">
+          <p className="text-[12px] font-body text-bronze-light tracking-[0.4em] uppercase mb-8 animate-fade-up" style={{ animationDelay: '100ms' }}>
+            {fallbackSubtitle || 'Premium B2B Manufacturer'}
+          </p>
+          <h1 className="text-5xl md:text-7xl lg:text-[90px] font-display font-light leading-[0.95] text-cream max-w-5xl mx-auto animate-fade-up" style={{ animationDelay: '300ms' }}>
+            {fallbackTitle || 'Excellence in Precision Mirrors'}
+          </h1>
+          <div className="mt-14 animate-fade-up" style={{ animationDelay: '500ms' }}>
+            <MagneticLink
+              href="/en/contact"
+              className="group inline-flex items-center gap-4 px-10 py-5 bg-cream text-ink hover:bg-bronze-light rounded-full text-[12px] font-body font-medium tracking-[0.2em] uppercase transition-colors duration-700"
+              strength={0.45}
+            >
+              {fallbackCta || 'Send Inquiry'}
+              <ArrowRight size={16} className="transition-transform duration-500 group-hover:translate-x-1" />
+            </MagneticLink>
+          </div>
+        </div>
+      </section>
     );
   }
 

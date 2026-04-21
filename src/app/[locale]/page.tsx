@@ -10,6 +10,8 @@ import {
   productCategories,
   categoryTranslations,
   aboutGallery,
+  faqs,
+  faqTranslations,
 } from '@/lib/db/schema';
 import { eq, and, desc, inArray } from 'drizzle-orm';
 import HeroBanner from '@/components/public/HeroBanner';
@@ -148,6 +150,39 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     name: catTransMap.get(c.id)?.name || catTransEnMap.get(c.id)?.name || `Category ${c.id}`,
   }));
 
+  // Fetch FAQs securely on the server
+  const faqData = await db
+    .select()
+    .from(faqs)
+    .where(eq(faqs.isActive, true))
+    .orderBy(faqs.displayOrder);
+
+  const faqIds = faqData.map((f) => f.id);
+
+  const [faqTrans, faqTransEn] = await Promise.all([
+    faqIds.length
+      ? db
+          .select()
+          .from(faqTranslations)
+          .where(and(inArray(faqTranslations.faqId, faqIds), eq(faqTranslations.locale, locale)))
+      : Promise.resolve([]),
+    faqIds.length && locale !== 'en'
+      ? db
+          .select()
+          .from(faqTranslations)
+          .where(and(inArray(faqTranslations.faqId, faqIds), eq(faqTranslations.locale, 'en')))
+      : Promise.resolve([]),
+  ]);
+
+  const faqTransMap = new Map(faqTrans.map((t) => [t.faqId, t]));
+  const faqTransEnMap = new Map(faqTransEn.map((t) => [t.faqId, t]));
+
+  const finalFaqs = faqData.map((f) => {
+    const t = faqTransMap.get(f.id) || faqTransEnMap.get(f.id);
+    if (!t) return null;
+    return { q: t.question, a: t.answer };
+  }).filter((x): x is { q: string; a: string } => !!x);
+
   const capabilities = [
     { icon: Users, title: t('service1Title'), desc: t('service1Desc') },
     { icon: Globe, title: t('service2Title'), desc: t('service2Desc') },
@@ -219,7 +254,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       <CertificationsSection images={certPhotos.map((p) => p.imageUrl)} />
 
       {/* FAQ — Inquiries */}
-      <FaqSection />
+      <FaqSection backendFaqs={finalFaqs} />
 
       {/* Inquiry CTA — dramatic dark close */}
       <section className="relative py-32 md:py-48 bg-ink text-cream overflow-hidden">

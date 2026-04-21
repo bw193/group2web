@@ -3,6 +3,7 @@ import { getDb } from '@/lib/db';
 import { aboutGallery } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { getSession } from '@/lib/auth';
+import { revalidatePath } from 'next/cache';
 
 const VALID_TYPES = new Set(['factory', 'certification', 'team', 'product']);
 
@@ -43,6 +44,8 @@ export async function POST(request: NextRequest) {
       displayOrder: body.displayOrder ?? 0,
     })
     .returning();
+
+  revalidatePath('/', 'layout');
 
   return NextResponse.json(row, { status: 201 });
 }

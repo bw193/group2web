@@ -13,8 +13,16 @@ export default async function CertificationsSection({ images = [] }: Props) {
   const photos = images.filter((v): v is string => !!v);
   const hasPhotos = photos.length > 0;
 
-  // Duplicate the source for a seamless infinite marquee
-  const marqueePhotos = hasPhotos ? [...photos, ...photos] : [];
+  // Build a seamless infinite marquee. The CSS animates translateX from 0 to
+  // -50%, so we need exactly two identical halves. Each half must be wider
+  // than any reasonable viewport or a gap will appear after the last item,
+  // so pad photos up to ~8 items per half when the source list is short.
+  const MIN_ITEMS_PER_HALF = 8;
+  const photoRepeats = hasPhotos
+    ? Math.max(1, Math.ceil(MIN_ITEMS_PER_HALF / photos.length))
+    : 1;
+  const photosHalf = Array.from({ length: photoRepeats }, () => photos).flat();
+  const marqueePhotos = hasPhotos ? [...photosHalf, ...photosHalf] : [];
   const marqueeLabels = [...FALLBACK_LABELS, ...FALLBACK_LABELS];
 
   return (
@@ -63,7 +71,7 @@ export default async function CertificationsSection({ images = [] }: Props) {
                   fill
                   sizes="150px"
                   quality={80}
-                  className="object-contain transition-all duration-700 ease-out-expo grayscale brightness-[1.8] opacity-70 group-hover:grayscale-0 group-hover:brightness-100 group-hover:opacity-100 group-hover:scale-110"
+                  className="object-contain transition-all duration-700 ease-out-expo grayscale opacity-85 group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-110"
                 />
               </div>
             ))}

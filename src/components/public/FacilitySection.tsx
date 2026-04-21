@@ -13,6 +13,7 @@ interface Props {
 export default async function FacilitySection({ locale, images = [] }: Props) {
   const t = await getTranslations('home');
   const gallerySrcs = images.filter((v): v is string => !!v);
+  console.log('[DEBUG] Server FacilitySection received images:', images.length, images);
 
   const capabilities = [
     'Vertical integration',

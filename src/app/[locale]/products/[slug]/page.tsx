@@ -11,6 +11,22 @@ import ImageGallery from './ImageGallery';
 
 export const revalidate = 600; // ISR: rebuild at most every 10 minutes
 
+// Pre-render every (locale, slug) at build time so visits hit the CDN
+// instead of running SSR + DB queries on demand. Falls back to on-demand
+// generation for any slug not known at build time.
+export async function generateStaticParams() {
+  try {
+    const db = getDb();
+    const rows = await db
+      .select({ locale: productTranslations.locale, slug: productTranslations.slug })
+      .from(productTranslations);
+    return rows.map((r) => ({ locale: r.locale, slug: r.slug }));
+  } catch {
+    // If the DB is unreachable at build time, fall back to on-demand rendering
+    return [];
+  }
+}
+
 export default async function ProductDetailPage({
   params,
 }: {
@@ -21,44 +37,60 @@ export default async function ProductDetailPage({
   const common = await getTranslations('common');
   const db = getDb();
 
-  // Find product by slug (try requested locale, then any locale)
-  let transRows = await db
-    .select()
+  // Happy path: one JOIN query gets product + translation in a single round trip.
+  const joined = await db
+    .select({ product: products, trans: productTranslations })
     .from(productTranslations)
-    .where(and(eq(productTranslations.slug, slug), eq(productTranslations.locale, locale)))
+    .innerJoin(products, eq(products.id, productTranslations.productId))
+    .where(
+      and(
+        eq(productTranslations.slug, slug),
+        eq(productTranslations.locale, locale),
+        eq(products.isActive, true),
+      ),
+    )
     .limit(1);
-  if (!transRows[0]) {
-    transRows = await db
-      .select()
-      .from(productTranslations)
-      .where(eq(productTranslations.slug, slug))
-      .limit(1);
-  }
-  const trans = transRows[0];
-  if (!trans) notFound();
 
-  // Fetch product, translations for this locale, specs, and images in parallel
-  const [productRows, translationRows, specs, images] = await Promise.all([
-    db.select().from(products).where(eq(products.id, trans.productId)).limit(1),
-    db
-      .select()
+  let product = joined[0]?.product;
+  let translation = joined[0]?.trans;
+
+  // Fallback: slug exists in a different locale. Rare, keeps old behavior.
+  if (!product) {
+    const any = await db
+      .select({ product: products, trans: productTranslations })
       .from(productTranslations)
-      .where(and(eq(productTranslations.productId, trans.productId), eq(productTranslations.locale, locale)))
-      .limit(1),
+      .innerJoin(products, eq(products.id, productTranslations.productId))
+      .where(and(eq(productTranslations.slug, slug), eq(products.isActive, true)))
+      .limit(1);
+    product = any[0]?.product;
+    translation = any[0]?.trans;
+  }
+  if (!product || !translation) notFound();
+
+  // Fetch specs, images, and (if fallback happened) this-locale translation in parallel.
+  const [specs, images, localeTrans] = await Promise.all([
     db
       .select()
       .from(productSpecifications)
-      .where(and(eq(productSpecifications.productId, trans.productId), eq(productSpecifications.locale, locale))),
+      .where(and(eq(productSpecifications.productId, product.id), eq(productSpecifications.locale, locale))),
     db
       .select()
       .from(productImages)
-      .where(eq(productImages.productId, trans.productId))
+      .where(eq(productImages.productId, product.id))
       .orderBy(productImages.displayOrder),
+    translation.locale === locale
+      ? Promise.resolve(null)
+      : db
+          .select()
+          .from(productTranslations)
+          .where(and(eq(productTranslations.productId, product.id), eq(productTranslations.locale, locale)))
+          .limit(1)
+          .then((r) => r[0] ?? null),
   ]);
 
-  const product = productRows[0];
-  if (!product || !product.isActive) notFound();
-  const translation = translationRows[0] || trans;
+  if (localeTrans) translation = localeTrans;
+  // Keep `trans` alias for downstream references below.
+  const trans = translation;
 
   // Related products — batch fetch
   let related: {

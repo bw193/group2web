@@ -269,13 +269,18 @@
    IMAGE CLIP REVEAL — wipes from bottom on scroll-in
    ============================================================================ */
 
+/* Clip-path is applied to a child rather than the observed element itself,
+   because clip-path collapses the IntersectionObserver intersection rect to
+   zero and the reveal would never fire for on-load-visible elements. */
 [data-reveal="clip"] {
   opacity: 1;
   transform: none;
+}
+[data-reveal="clip"] > * {
   clip-path: inset(0 0 100% 0);
   transition: clip-path 1.2s cubic-bezier(0.7, 0, 0.2, 1);
 }
-[data-reveal="clip"].revealed { clip-path: inset(0 0 0 0); }
+[data-reveal="clip"].revealed > * { clip-path: inset(0 0 0 0); }
 
 /* ============================================================================
    INFINITE MARQUEE — for cert strip

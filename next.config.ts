@@ -24,6 +24,13 @@ const nextConfig = {
   },
   experimental: {
     optimizePackageImports: ['lucide-react', 'next-intl'],
+    // Client-side router cache for previously-visited routes.
+    // Default in Next 15 is 0s for dynamic routes, which makes every
+    // internal navigation round-trip to the server for the RSC payload.
+    staleTimes: {
+      dynamic: 30,
+      static: 180,
+    },
   },
 };
 
