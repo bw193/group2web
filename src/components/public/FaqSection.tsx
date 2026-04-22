@@ -36,11 +36,6 @@ export default function FaqSection({ backendFaqs = [] }: Props) {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-14 lg:gap-20 items-start">
           {/* Left column */}
           <aside className="lg:col-span-5 lg:sticky lg:top-32">
-            <p className="kicker-plain mb-6" data-reveal>
-              <span className="text-bronze mr-3">04</span>
-              Inquiries
-            </p>
-
             <h2 className="section-heading text-ink" data-reveal>
               Frequently<br />
               <span className="italic font-extralight">asked.</span>

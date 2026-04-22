@@ -11,8 +11,15 @@ export default async function CertificationsSection({ images = [] }: Props) {
   const photos = images.filter((v): v is string => !!v);
   const hasPhotos = photos.length > 0;
 
-  // Duplicate the track so the marquee loops seamlessly
-  const photoTrack = hasPhotos ? [...photos, ...photos] : [];
+  // Each visual item is ~332px wide (220 + 2×56 margin). To guarantee the
+  // marquee covers any realistic viewport AND loops seamlessly, we need at
+  // least ~12 items per track (two sets of ≥6). Repeat photos as needed.
+  const MIN_PER_SET = 6;
+  const copiesPerSet = hasPhotos ? Math.max(1, Math.ceil(MIN_PER_SET / photos.length)) : 0;
+  const oneSet = hasPhotos
+    ? Array.from({ length: copiesPerSet }, () => photos).flat()
+    : [];
+  const photoTrack = [...oneSet, ...oneSet];
   const labelTrack = [...FALLBACK_LABELS, ...FALLBACK_LABELS];
 
   return (
@@ -20,10 +27,6 @@ export default async function CertificationsSection({ images = [] }: Props) {
       <div className="container-wide pt-24 md:pt-32 pb-12 md:pb-16">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-end mb-14 md:mb-20">
           <div className="lg:col-span-7" data-reveal>
-            <p className="kicker-plain mb-6">
-              <span className="text-bronze mr-3">05</span>
-              Certified
-            </p>
             <h2 className="section-heading text-ink">
               Trusted in{' '}
               <span className="italic font-extralight text-bronze">60+</span>{' '}
@@ -40,21 +43,21 @@ export default async function CertificationsSection({ images = [] }: Props) {
       </div>
 
       {/* Rolling ticker — edge-to-edge */}
-      <div className="relative border-y border-warm-border bg-sand/40" data-reveal>
+      <div className="relative bg-sand/40" data-reveal>
         <div className="marquee-viewport py-10 md:py-12">
           {hasPhotos ? (
             <div className="marquee-track">
               {photoTrack.map((src, i) => (
                 <div
                   key={`p-${i}`}
-                  className="relative flex items-center justify-center w-[180px] md:w-[220px] h-[88px] md:h-[104px] mx-8 md:mx-14 shrink-0"
+                  className="relative flex items-center justify-center w-[260px] md:w-[320px] h-[130px] md:h-[160px] mx-8 md:mx-12 shrink-0"
                   aria-hidden={i >= photos.length}
                 >
                   <Image
                     src={getUploadUrl(src)}
-                    alt={i < photos.length ? `Certification ${i + 1}` : ''}
+                    alt={i < photos.length ? `Certification ${(i % photos.length) + 1}` : ''}
                     fill
-                    sizes="220px"
+                    sizes="320px"
                     quality={80}
                     className="object-contain grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all duration-500"
                   />

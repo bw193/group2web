@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { getDb } from '@/lib/db';
 import { products, productTranslations, productSpecifications, productImages } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
@@ -89,6 +90,31 @@ export async function PUT(
         productId, locale: spec.locale || 'en', specKey: spec.key, specValue: spec.value,
       });
     }
+  }
+
+  if (body.images && Array.isArray(body.images)) {
+    await db.delete(productImages).where(eq(productImages.productId, productId));
+    const hasPrimary = body.images.some((img: any) => img.isPrimary);
+    for (let i = 0; i < body.images.length; i++) {
+      const img = body.images[i];
+      if (!img?.imageUrl) continue;
+      await db.insert(productImages).values({
+        productId,
+        imageUrl: img.imageUrl,
+        isPrimary: img.isPrimary ?? (!hasPrimary && i === 0),
+        displayOrder: typeof img.displayOrder === 'number' ? img.displayOrder : i,
+      });
+    }
+  }
+
+  // Bust ISR cache so CMS edits show up on the public site immediately.
+  const allTrans = await db
+    .select({ locale: productTranslations.locale, slug: productTranslations.slug })
+    .from(productTranslations)
+    .where(eq(productTranslations.productId, productId));
+  for (const t of allTrans) {
+    revalidatePath(`/${t.locale}/products/${t.slug}`);
+    revalidatePath(`/${t.locale}/products`);
   }
 
   return NextResponse.json({ message: 'Product updated' });

@@ -2,12 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { ArrowLeft, Plus, X, Upload } from 'lucide-react';
+import { ArrowLeft, Plus, X, Upload, Star, ArrowLeftCircle, ArrowRightCircle } from 'lucide-react';
 import Link from 'next/link';
 import { getUploadUrl, slugify } from '@/lib/utils';
 
 interface Category { id: number; name: string; }
 interface Spec { key: string; value: string; locale: string; }
+interface ProductImage { imageUrl: string; isPrimary: boolean; }
 
 export default function ProductEditPage() {
   const router = useRouter();
@@ -31,7 +32,7 @@ export default function ProductEditPage() {
     fullDescription: '',
   });
   const [specs, setSpecs] = useState<Spec[]>([]);
-  const [images, setImages] = useState<string[]>([]);
+  const [images, setImages] = useState<ProductImage[]>([]);
   const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
@@ -54,7 +55,11 @@ export default function ProductEditPage() {
             fullDescription: enTrans?.fullDescription || '',
           });
           setSpecs((data.specifications || []).filter((s: any) => s.locale === 'en').map((s: any) => ({ key: s.specKey, value: s.specValue, locale: 'en' })));
-          setImages((data.images || []).map((i: any) => i.imageUrl));
+          const loadedImages: ProductImage[] = (data.images || []).map((i: any) => ({ imageUrl: i.imageUrl, isPrimary: !!i.isPrimary }));
+          if (loadedImages.length > 0 && !loadedImages.some((img) => img.isPrimary)) {
+            loadedImages[0].isPrimary = true;
+          }
+          setImages(loadedImages);
         })
         .finally(() => setLoading(false));
     }
@@ -71,10 +76,38 @@ export default function ProductEditPage() {
       const res = await fetch('/api/upload', { method: 'POST', body: fd });
       if (res.ok) {
         const data = await res.json();
-        setImages((prev) => [...prev, data.url]);
+        setImages((prev) => [
+          ...prev,
+          { imageUrl: data.url, isPrimary: prev.length === 0 },
+        ]);
       }
     }
     setUploading(false);
+    e.target.value = '';
+  }
+
+  function removeImage(index: number) {
+    setImages((prev) => {
+      const next = prev.filter((_, j) => j !== index);
+      if (next.length > 0 && !next.some((img) => img.isPrimary)) {
+        next[0] = { ...next[0], isPrimary: true };
+      }
+      return next;
+    });
+  }
+
+  function setPrimary(index: number) {
+    setImages((prev) => prev.map((img, j) => ({ ...img, isPrimary: j === index })));
+  }
+
+  function moveImage(index: number, direction: -1 | 1) {
+    setImages((prev) => {
+      const target = index + direction;
+      if (target < 0 || target >= prev.length) return prev;
+      const next = [...prev];
+      [next[index], next[target]] = [next[target], next[index]];
+      return next;
+    });
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -95,6 +128,11 @@ export default function ProductEditPage() {
         fullDescription: form.fullDescription,
       }],
       specifications: specs.map((s) => ({ locale: 'en', key: s.key, value: s.value })),
+      images: images.map((img, i) => ({
+        imageUrl: img.imageUrl,
+        isPrimary: img.isPrimary,
+        displayOrder: i,
+      })),
     };
 
     const url = isNew ? '/api/products' : `/api/products/${id}`;
@@ -194,17 +232,69 @@ export default function ProductEditPage() {
 
         {/* Images */}
         <div className="cms-card">
-          <h2 className="text-lg font-semibold mb-4">Images</h2>
+          <h2 className="text-lg font-semibold mb-1">Images</h2>
+          <p className="text-xs text-text-secondary mb-4">
+            Click the star to set the main photo. Use the arrows to reorder.
+          </p>
           <div className="flex flex-wrap gap-4 mb-4">
             {images.map((img, i) => (
-              <div key={i} className="relative w-24 h-24 rounded overflow-hidden border">
-                <img src={getUploadUrl(img)} alt="" className="w-full h-full object-cover" />
-                <button type="button" onClick={() => setImages(images.filter((_, j) => j !== i))} className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
+              <div
+                key={i}
+                className={`relative w-28 h-28 rounded overflow-hidden border ${
+                  img.isPrimary ? 'ring-2 ring-amber-400 border-amber-400' : ''
+                }`}
+              >
+                <img src={getUploadUrl(img.imageUrl)} alt="" className="w-full h-full object-cover" />
+
+                {img.isPrimary && (
+                  <span className="absolute top-1 left-1 bg-amber-400 text-white text-[10px] font-semibold px-1.5 py-0.5 rounded">
+                    MAIN
+                  </span>
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => removeImage(i)}
+                  title="Remove"
+                  className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
+                >
                   &times;
                 </button>
+
+                <div className="absolute bottom-0 inset-x-0 bg-black/55 text-white flex items-center justify-between px-1 py-1">
+                  <button
+                    type="button"
+                    onClick={() => moveImage(i, -1)}
+                    disabled={i === 0}
+                    title="Move left"
+                    className="disabled:opacity-30 hover:text-amber-300"
+                  >
+                    <ArrowLeftCircle size={16} />
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setPrimary(i)}
+                    disabled={img.isPrimary}
+                    title="Set as main photo"
+                    className={`${img.isPrimary ? 'text-amber-300' : 'hover:text-amber-300'} disabled:cursor-default`}
+                  >
+                    <Star size={16} fill={img.isPrimary ? 'currentColor' : 'none'} />
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => moveImage(i, 1)}
+                    disabled={i === images.length - 1}
+                    title="Move right"
+                    className="disabled:opacity-30 hover:text-amber-300"
+                  >
+                    <ArrowRightCircle size={16} />
+                  </button>
+                </div>
               </div>
             ))}
-            <label className="w-24 h-24 rounded border-2 border-dashed border-gray-300 flex flex-col items-center justify-center cursor-pointer hover:border-accent-navy transition-colors">
+            <label className="w-28 h-28 rounded border-2 border-dashed border-gray-300 flex flex-col items-center justify-center cursor-pointer hover:border-accent-navy transition-colors">
               <Upload size={20} className="text-gray-400" />
               <span className="text-xs text-gray-400 mt-1">Upload</span>
               <input type="file" accept="image/*" multiple onChange={handleImageUpload} className="hidden" />

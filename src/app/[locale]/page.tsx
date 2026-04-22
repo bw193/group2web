@@ -18,6 +18,7 @@ import FeaturedProductsSection from '@/components/public/FeaturedProductsSection
 import FacilitySection from '@/components/public/FacilitySection';
 import CertificationsSection from '@/components/public/CertificationsSection';
 import FaqSection from '@/components/public/FaqSection';
+import { Users, Globe, FlaskConical, Factory } from 'lucide-react';
 
 export const revalidate = 300; // ISR: rebuild at most every 5 minutes
 
@@ -180,10 +181,10 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   }).filter((x): x is { q: string; a: string } => !!x);
 
   const capabilities = [
-    { title: t('service1Title'), desc: t('service1Desc') },
-    { title: t('service2Title'), desc: t('service2Desc') },
-    { title: t('service3Title'), desc: t('service3Desc') },
-    { title: t('service4Title'), desc: t('service4Desc') },
+    { title: t('service1Title'), desc: t('service1Desc'), Icon: Users },
+    { title: t('service2Title'), desc: t('service2Desc'), Icon: Globe },
+    { title: t('service3Title'), desc: t('service3Desc'), Icon: FlaskConical },
+    { title: t('service4Title'), desc: t('service4Desc'), Icon: Factory },
   ];
 
   return (
@@ -196,29 +197,36 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         fallbackCta={t('heroCta')}
       />
 
-      {/* Capabilities — editorial four-column strip with hairlines */}
-      <section className="bg-cream border-b border-warm-border">
-        <div className="container-wide py-20 md:py-24">
+      {/* Capabilities — compact four-column plinth seamed into the hero */}
+      <section className="relative bg-cream border-b border-warm-border -mt-8 md:-mt-10 z-10 shadow-[0_-18px_48px_-40px_rgba(20,18,14,0.28)]">
+        <div className="container-wide pt-6 pb-10 md:pt-8 md:pb-12">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4" data-reveal-stagger>
-            {capabilities.map((item, i) => (
-              <div
-                key={i}
-                className={`group relative py-8 md:py-4 md:px-10 lg:px-12 first:md:pl-0 last:md:pr-0 ${
-                  i < capabilities.length - 1 ? 'border-b md:border-b-0 md:border-r border-warm-border' : ''
-                }`}
-                data-reveal
-              >
-                <p className="font-display text-[13px] font-medium text-bronze tracking-[0.18em] uppercase mb-4">
-                  0{i + 1}
-                </p>
-                <h3 className="font-display text-xl md:text-2xl font-light text-ink leading-tight mb-3 tracking-[-0.01em]">
-                  {item.title}
-                </h3>
-                <p className="text-[14px] font-body font-light text-ink-mid leading-[1.7] max-w-xs">
-                  {item.desc}
-                </p>
-              </div>
-            ))}
+            {capabilities.map((item, i) => {
+              const Icon = item.Icon;
+              return (
+                <div
+                  key={i}
+                  className={`group relative py-5 md:py-3 md:px-8 lg:px-10 first:md:pl-0 last:md:pr-0 ${
+                    i < capabilities.length - 1 ? 'border-b md:border-b-0 md:border-r border-warm-border' : ''
+                  }`}
+                  data-reveal
+                >
+                  <div className="mb-3">
+                    <Icon
+                      size={20}
+                      strokeWidth={1.25}
+                      className="text-bronze transition-transform duration-700 ease-out group-hover:-translate-y-0.5"
+                    />
+                  </div>
+                  <h3 className="font-display text-lg md:text-xl font-light text-ink leading-tight mb-1.5 tracking-[-0.01em]">
+                    {item.title}
+                  </h3>
+                  <p className="text-[13px] font-body font-light text-ink-mid leading-[1.65] max-w-xs">
+                    {item.desc}
+                  </p>
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>

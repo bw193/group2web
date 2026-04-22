@@ -268,12 +268,12 @@
 .marquee-track {
   display: flex;
   width: max-content;
-  animation: marquee-x 48s linear infinite;
   will-change: transform;
+  animation: marquee-x 48s linear infinite;
 }
 .marquee-viewport:hover .marquee-track { animation-play-state: paused; }
 @media (prefers-reduced-motion: reduce) {
-  .marquee-track { animation: none; }
+  .marquee-track { animation: none; transform: none; }
 }
 
 /* ============================================================================

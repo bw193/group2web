@@ -38,11 +38,6 @@ export default async function FacilitySection({ locale, images = [] }: Props) {
 
           {/* Content */}
           <div className="lg:col-span-5 lg:pt-6">
-            <p className="kicker-plain mb-6" data-reveal>
-              <span className="text-bronze mr-3">03</span>
-              The facility
-            </p>
-
             <h2 className="section-heading text-ink" data-reveal>
               A studio that<br />
               <span className="italic font-extralight">ships.</span>

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { getDb } from '@/lib/db';
 import { products, productTranslations, productImages, productSpecifications } from '@/lib/db/schema';
 import { eq, and, desc, inArray, type SQL } from 'drizzle-orm';
@@ -105,7 +106,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json() as any;
-    const { categoryId, modelNumber, isFeatured, isActive, tags, translations, specifications } = body;
+    const { categoryId, modelNumber, isFeatured, isActive, tags, translations, specifications, images } = body;
 
     const db = getDb();
 
@@ -139,6 +140,30 @@ export async function POST(request: NextRequest) {
           specKey: spec.key,
           specValue: spec.value,
         });
+      }
+    }
+
+    if (images && Array.isArray(images) && images.length > 0) {
+      const hasPrimary = images.some((img: any) => img.isPrimary);
+      for (let i = 0; i < images.length; i++) {
+        const img = images[i];
+        if (!img?.imageUrl) continue;
+        await db.insert(productImages).values({
+          productId: product.id,
+          imageUrl: img.imageUrl,
+          isPrimary: img.isPrimary ?? (!hasPrimary && i === 0),
+          displayOrder: typeof img.displayOrder === 'number' ? img.displayOrder : i,
+        });
+      }
+    }
+
+    // Bust ISR cache for the products index in every locale with a translation.
+    if (translations && Array.isArray(translations)) {
+      for (const t of translations) {
+        if (t?.locale) {
+          revalidatePath(`/${t.locale}/products`);
+          if (t.slug) revalidatePath(`/${t.locale}/products/${t.slug}`);
+        }
       }
     }
 

@@ -65,18 +65,46 @@ export default function FeaturedProductsSection({
   return (
     <section className="bg-cream border-b border-warm-border">
       <div className="container-wide py-24 md:py-32">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-10 mb-16 md:mb-20">
-          <div className="max-w-2xl">
-            <p className="kicker-plain mb-6" data-reveal>
-              <span className="text-bronze mr-3">02</span>
-              The collection
-            </p>
-            <h2 className="section-heading text-ink" data-reveal>
-              {t('featuredProducts')}
-            </h2>
-          </div>
-          <div data-reveal>
+        {/* Header — heading, tabs, and CTA grouped as one cluster */}
+        <div className="flex flex-col items-center text-center mb-14 md:mb-16">
+          <h2 className="section-heading text-ink" data-reveal>
+            {t('featuredProducts')}
+          </h2>
+
+          {tabs.length > 1 && (
+            <div
+              className="mt-8 md:mt-10"
+              role="tablist"
+              aria-label="Product categories"
+              data-reveal
+            >
+              <div className="flex justify-center flex-wrap gap-x-8 gap-y-3 md:gap-x-10 overflow-x-auto no-scrollbar -mx-1 px-1">
+                {tabs.map((tab) => {
+                  const active = tab.id === activeId;
+                  return (
+                    <button
+                      key={tab.id}
+                      role="tab"
+                      aria-selected={active}
+                      onClick={() => setActiveId(tab.id)}
+                      className={`relative whitespace-nowrap pb-2 text-[11px] font-body font-medium tracking-[0.24em] uppercase transition-colors duration-300 ${
+                        active ? 'text-ink' : 'text-ink-light hover:text-ink'
+                      }`}
+                    >
+                      {tab.label}
+                      <span
+                        className={`absolute left-0 bottom-0 h-px bg-ink transition-all duration-500 ease-out ${
+                          active ? 'w-full' : 'w-0'
+                        }`}
+                      />
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          <div className="mt-8 md:mt-10" data-reveal>
             <Link
               href={`/${locale}/products`}
               className="group inline-flex items-center gap-3 border-b border-ink pb-2 text-[11px] font-body font-medium tracking-[0.26em] uppercase text-ink transition-colors hover:text-bronze hover:border-bronze"
@@ -86,39 +114,6 @@ export default function FeaturedProductsSection({
             </Link>
           </div>
         </div>
-
-        {/* Category filter — quiet underline tabs */}
-        {tabs.length > 1 && (
-          <div
-            className="mb-14 md:mb-16 border-b border-warm-border"
-            role="tablist"
-            aria-label="Product categories"
-          >
-            <div className="flex gap-8 md:gap-10 overflow-x-auto no-scrollbar -mx-1 px-1">
-              {tabs.map((tab) => {
-                const active = tab.id === activeId;
-                return (
-                  <button
-                    key={tab.id}
-                    role="tab"
-                    aria-selected={active}
-                    onClick={() => setActiveId(tab.id)}
-                    className={`relative whitespace-nowrap pb-5 text-[11px] font-body font-medium tracking-[0.24em] uppercase transition-colors duration-300 ${
-                      active ? 'text-ink' : 'text-ink-light hover:text-ink'
-                    }`}
-                  >
-                    {tab.label}
-                    <span
-                      className={`absolute left-0 bottom-[-1px] h-px bg-ink transition-all duration-500 ease-out ${
-                        active ? 'w-full' : 'w-0'
-                      }`}
-                    />
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        )}
 
         {/* Product grid */}
         {filtered.length === 0 ? (

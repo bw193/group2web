@@ -88,7 +88,7 @@ export default function HeroBanner({ slides }: HeroBannerProps) {
   const slide = slides[current];
 
   return (
-    <section className="relative h-[60vh] min-h-[420px] max-h-[640px] md:h-[70vh] md:min-h-[480px] overflow-hidden">
+    <section className="relative h-[72vh] min-h-[520px] max-h-[820px] md:h-[88vh] md:min-h-[640px] overflow-hidden">
       {/* Background Image */}
       <div className="absolute inset-0">
         <Image
