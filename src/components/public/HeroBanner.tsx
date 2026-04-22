@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { getUploadUrl } from '@/lib/utils';
+import MagneticLink from './MagneticLink';
 
 interface BannerSlide {
   id: number;
@@ -21,7 +22,7 @@ interface HeroBannerProps {
   fallbackCta?: string;
 }
 
-export default function HeroBanner({ slides }: HeroBannerProps) {
+export default function HeroBanner({ slides, fallbackTitle, fallbackSubtitle, fallbackCta }: HeroBannerProps) {
   const [current, setCurrent] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
 
@@ -85,23 +86,30 @@ export default function HeroBanner({ slides }: HeroBannerProps) {
     );
   }
 
-  const slide = slides[current];
-
   return (
-    <section className="relative h-[72vh] min-h-[520px] max-h-[820px] md:h-[88vh] md:min-h-[640px] overflow-hidden">
-      {/* Background Image */}
-      <div className="absolute inset-0">
-        <Image
-          src={getUploadUrl(slide.imageUrl)}
-          alt=""
-          fill
-          priority
-          sizes="100vw"
-          quality={85}
-          className="object-cover transition-transform duration-[1.2s] ease-out-expo scale-[1.03]"
-          key={current}
-        />
-      </div>
+    <section className="relative h-[72vh] min-h-[520px] max-h-[820px] md:h-[88vh] md:min-h-[640px] overflow-hidden bg-ink">
+      {/* Background Images — stacked cross-fade layers.
+          Only slide 0 gets `priority` so it remains the LCP candidate;
+          other slides fetch normally but stay mounted so transitions are instant. */}
+      {slides.map((s, i) => (
+        <div
+          key={s.id}
+          aria-hidden={i !== current}
+          className={`absolute inset-0 transition-opacity duration-[1.2s] ease-out-expo ${
+            i === current ? 'opacity-100' : 'opacity-0'
+          }`}
+        >
+          <Image
+            src={getUploadUrl(s.imageUrl)}
+            alt=""
+            fill
+            priority={i === 0}
+            sizes="100vw"
+            quality={85}
+            className="object-cover scale-[1.03]"
+          />
+        </div>
+      ))}
 
       {/* Navigation */}
       {slides.length > 1 && (

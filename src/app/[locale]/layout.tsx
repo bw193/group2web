@@ -5,6 +5,7 @@ import { locales } from '@/i18n/config';
 import Header from '@/components/public/Header';
 import Footer from '@/components/public/Footer';
 import AnimationProvider from '@/components/public/AnimationProvider';
+import { fontDisplay, fontBody } from '@/lib/fonts';
 
 export function generateStaticParams() {
   return locales.map((locale) => ({ locale }));
@@ -26,7 +27,7 @@ export default async function LocaleLayout({
   const messages = await getMessages();
 
   return (
-    <html lang={locale}>
+    <html lang={locale} className={`${fontDisplay.variable} ${fontBody.variable}`}>
       <body className="min-h-screen flex flex-col bg-cream relative">
         {/* Page-wide film grain — fixed, non-interactive */}
         <div className="atmosphere-grain" aria-hidden />

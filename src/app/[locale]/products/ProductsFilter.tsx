@@ -128,7 +128,7 @@ export default function ProductsFilter({ products, categories }: ProductsFilterP
             </div>
           ) : (
             <div
-              key={`${selectedCategory}-${search}`}
+              key={selectedCategory}
               className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-14 md:gap-x-10 md:gap-y-16 animate-fade-up"
             >
               {filtered.map((product, i) => (

@@ -35,11 +35,11 @@ const config: Config = {
         accent: { gold: '#B8956A', 'gold-light': '#D4B896', navy: '#1B2A4A' },
       },
       fontFamily: {
-        display: ['"Cormorant Garamond"', 'Georgia', 'serif'],
-        body: ['"Outfit"', 'system-ui', 'sans-serif'],
+        display: ['var(--font-display)', '"Cormorant Garamond"', 'Georgia', 'serif'],
+        body: ['var(--font-body)', '"Outfit"', 'system-ui', 'sans-serif'],
         // Legacy
-        sans: ['Inter', 'Montserrat', 'system-ui', 'sans-serif'],
-        heading: ['Montserrat', 'Inter', 'system-ui', 'sans-serif'],
+        sans: ['var(--font-body)', 'Inter', 'Montserrat', 'system-ui', 'sans-serif'],
+        heading: ['var(--font-display)', 'Montserrat', 'Inter', 'system-ui', 'sans-serif'],
       },
       transitionTimingFunction: {
         'out-expo': 'cubic-bezier(0.16, 1, 0.3, 1)',

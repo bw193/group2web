@@ -16,7 +16,11 @@ const client =
   postgres(connectionString, {
     ssl: { rejectUnauthorized: false },
     prepare: false, // required for Supabase transaction pooler (port 6543)
-    max: 10,
+    // Supabase's transaction pooler already multiplexes across all
+    // clients, so each serverless instance only needs a small local
+    // pool. 3 is plenty and keeps us well under the pooler's limit
+    // when many function instances spin up concurrently.
+    max: 3,
     idle_timeout: 20,
     connect_timeout: 10,
   });
