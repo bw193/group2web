@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
-import { ArrowRight, AlertCircle } from 'lucide-react';
-import { useSearchParams } from 'next/navigation';
+import { ArrowRight, AlertCircle, X, CheckCircle2 } from 'lucide-react';
+import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 
 interface Category {
   id: number;
@@ -12,8 +12,23 @@ interface Category {
 
 export default function InquiryForm({ categories }: { categories: Category[] }) {
   const t = useTranslations('contact');
+  const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
-  const prefilledProduct = searchParams.get('product') || '';
+
+  // Deep-link context from a product card / product page.
+  const productParam = searchParams.get('product') || '';
+  const modelParam = searchParams.get('model') || '';
+
+  const selectedProductLabel = useMemo(() => {
+    if (productParam && modelParam) return `${modelParam} — ${productParam}`;
+    return productParam || modelParam || '';
+  }, [productParam, modelParam]);
+
+  const [selectedProduct, setSelectedProduct] = useState({
+    name: productParam,
+    model: modelParam,
+  });
 
   const [formData, setFormData] = useState({
     name: '',
@@ -21,17 +36,24 @@ export default function InquiryForm({ categories }: { categories: Category[] }) 
     phone: '',
     company: '',
     country: '',
-    productInterest: prefilledProduct,
+    productInterest: selectedProductLabel,
     message: '',
     honeypot: '',
   });
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
 
   useEffect(() => {
-    if (prefilledProduct) {
-      setFormData((prev) => ({ ...prev, productInterest: prefilledProduct }));
+    setSelectedProduct({ name: productParam, model: modelParam });
+    if (selectedProductLabel) {
+      setFormData((prev) => ({ ...prev, productInterest: selectedProductLabel }));
     }
-  }, [prefilledProduct]);
+  }, [productParam, modelParam, selectedProductLabel]);
+
+  function clearSelectedProduct() {
+    setSelectedProduct({ name: '', model: '' });
+    setFormData((prev) => ({ ...prev, productInterest: '' }));
+    router.replace(pathname || '/', { scroll: false });
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -39,6 +61,14 @@ export default function InquiryForm({ categories }: { categories: Category[] }) 
 
     setStatus('loading');
     try {
+      const messageWithReference = selectedProduct.name || selectedProduct.model
+        ? `[Inquiring about: ${
+            selectedProduct.model && selectedProduct.name
+              ? `${selectedProduct.model} — ${selectedProduct.name}`
+              : selectedProduct.model || selectedProduct.name
+          }]\n\n${formData.message}`
+        : formData.message;
+
       const res = await fetch('/api/inquiries', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -49,7 +79,7 @@ export default function InquiryForm({ categories }: { categories: Category[] }) 
           company: formData.company,
           country: formData.country,
           productInterest: formData.productInterest,
-          message: formData.message,
+          message: messageWithReference,
         }),
       });
       if (res.ok) {
@@ -74,15 +104,17 @@ export default function InquiryForm({ categories }: { categories: Category[] }) 
 
   if (status === 'success') {
     return (
-      <div className="border-t border-warm-border pt-14">
-        <p className="kicker-plain mb-6">
-          <span className="text-bronze mr-3">—</span>
-          Received
-        </p>
-        <p className="font-display text-4xl md:text-5xl font-light text-ink leading-[1.1] tracking-[-0.015em] mb-6">
+      <div className="bg-sand p-8 md:p-10">
+        <div className="flex items-center gap-3 text-bronze mb-4">
+          <CheckCircle2 size={24} strokeWidth={1.75} />
+          <span className="text-[13px] font-body font-semibold uppercase tracking-[0.15em]">
+            Inquiry received
+          </span>
+        </div>
+        <h3 className="font-display text-3xl md:text-4xl font-normal text-ink leading-tight mb-3">
           Thank you.
-        </p>
-        <p className="text-[16px] font-body font-light text-ink-mid leading-[1.85] max-w-md">
+        </h3>
+        <p className="text-[16px] font-body text-ink leading-[1.6] max-w-md">
           {t('success')}
         </p>
       </div>
@@ -90,7 +122,36 @@ export default function InquiryForm({ categories }: { categories: Category[] }) 
   }
 
   return (
-    <form onSubmit={handleSubmit} className="border-t border-warm-border">
+    <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Selected product — simple solid card with model + name */}
+      {(selectedProduct.name || selectedProduct.model) && (
+        <div className="bg-ink text-cream px-5 py-4 flex items-center gap-4">
+          <span className="hidden sm:inline text-[11px] font-body font-semibold text-bronze uppercase tracking-[0.2em]">
+            Inquiring about
+          </span>
+          <div className="flex-1 flex items-baseline flex-wrap gap-x-3 gap-y-1 min-w-0">
+            {selectedProduct.model && (
+              <span className="font-body text-[12px] font-semibold text-bronze tracking-[0.12em]">
+                {selectedProduct.model}
+              </span>
+            )}
+            {selectedProduct.name && (
+              <span className="font-display text-[20px] font-normal text-cream leading-snug truncate">
+                {selectedProduct.name}
+              </span>
+            )}
+          </div>
+          <button
+            type="button"
+            onClick={clearSelectedProduct}
+            aria-label="Clear selected product"
+            className="shrink-0 text-cream/70 hover:text-cream transition-colors p-1"
+          >
+            <X size={18} strokeWidth={1.75} />
+          </button>
+        </div>
+      )}
+
       <input
         type="text"
         name="website"
@@ -101,90 +162,127 @@ export default function InquiryForm({ categories }: { categories: Category[] }) 
         autoComplete="off"
       />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 border-b border-warm-border">
-        <Field label={`${t('name')} *`} required value={formData.name} onChange={(v) => setFormData({ ...formData, name: v })} />
-        <Field label={`${t('email')} *`} type="email" required value={formData.email} onChange={(v) => setFormData({ ...formData, email: v })} className="md:border-l md:border-warm-border" />
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 border-b border-warm-border">
-        <Field label={`${t('phone')} (${t('optional')})`} type="tel" value={formData.phone} onChange={(v) => setFormData({ ...formData, phone: v })} />
-        <Field label={t('company')} value={formData.company} onChange={(v) => setFormData({ ...formData, company: v })} className="md:border-l md:border-warm-border" />
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 border-b border-warm-border">
-        <Field label={t('country')} value={formData.country} onChange={(v) => setFormData({ ...formData, country: v })} />
+      {/* Two-column fields on desktop, single column on mobile.
+          No inner hairlines — fields are self-contained filled inputs. */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <Field
+          label="Your name"
+          required
+          value={formData.name}
+          onChange={(v) => setFormData({ ...formData, name: v })}
+        />
+        <Field
+          label="Email"
+          type="email"
+          required
+          value={formData.email}
+          onChange={(v) => setFormData({ ...formData, email: v })}
+        />
+        <Field
+          label="Phone (optional)"
+          type="tel"
+          value={formData.phone}
+          onChange={(v) => setFormData({ ...formData, phone: v })}
+        />
+        <Field
+          label="Company"
+          value={formData.company}
+          onChange={(v) => setFormData({ ...formData, company: v })}
+        />
+        <Field
+          label="Country"
+          value={formData.country}
+          onChange={(v) => setFormData({ ...formData, country: v })}
+        />
         <SelectField
-          label={t('productInterest')}
+          label="Product category"
           value={formData.productInterest}
           onChange={(v) => setFormData({ ...formData, productInterest: v })}
           options={categories.map((c) => ({ value: c.name, label: c.name }))}
-          className="md:border-l md:border-warm-border"
+          extraOption={
+            selectedProductLabel && !categories.some((c) => c.name === selectedProductLabel)
+              ? { value: selectedProductLabel, label: selectedProductLabel }
+              : undefined
+          }
         />
       </div>
 
-      <div className="border-b border-warm-border">
-        <label className="block px-0 py-6">
-          <span className="block text-[10px] font-body font-medium text-ink-mid tracking-[0.26em] uppercase mb-4">
-            {t('message')} *
+      {/* Message */}
+      <div>
+        <label className="block">
+          <span className="block text-[13px] font-body font-medium text-ink mb-2">
+            Your message <span className="text-bronze">*</span>
           </span>
           <textarea
             required
-            rows={5}
+            rows={6}
             value={formData.message}
             onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-            className="w-full bg-transparent border-0 text-[16px] font-body font-light text-ink placeholder:text-ink-light focus:outline-none resize-none leading-relaxed"
-            placeholder="Tell us about volumes, dimensions, timeline, or certifications you need…"
+            className="w-full bg-sand border border-transparent hover:border-warm-border focus:border-ink px-4 py-3 text-[15px] font-body text-ink placeholder:text-ink-light focus:outline-none resize-y leading-[1.6] transition-colors"
+            placeholder={
+              selectedProduct.name
+                ? `Quantities, finishes, lead time you're targeting for the ${selectedProduct.name}…`
+                : 'Tell us about volumes, dimensions, timeline, or certifications you need…'
+            }
           />
         </label>
       </div>
 
       {status === 'error' && (
-        <div className="flex items-center gap-2 text-red-700 text-sm font-body py-4 border-b border-warm-border">
-          <AlertCircle size={15} />
+        <div className="flex items-center gap-2 bg-red-50 border border-red-200 text-red-800 text-[14px] font-body px-4 py-3">
+          <AlertCircle size={16} />
           {t('error')}
         </div>
       )}
 
-      <div className="pt-10">
+      <div className="pt-2">
         <button
           type="submit"
           disabled={status === 'loading'}
-          className="btn-primary disabled:opacity-50 group"
+          className="btn-primary h-14 px-10 text-[12px] disabled:opacity-50 group"
         >
-          <span>{status === 'loading' ? '…' : t('submit')}</span>
-          <ArrowRight size={14} strokeWidth={1.5} className="ml-3 transition-transform duration-500 group-hover:translate-x-1" />
+          <span>{status === 'loading' ? 'Sending…' : 'Send inquiry'}</span>
+          <ArrowRight
+            size={16}
+            strokeWidth={2}
+            className="ml-3 transition-transform duration-300 group-hover:translate-x-1"
+          />
         </button>
+        <p className="mt-3 text-[13px] font-body text-ink-mid">
+          We&rsquo;ll reply within one business day.
+        </p>
       </div>
     </form>
   );
 }
 
-/* ---------- Field subcomponents ---------- */
-
+/* ============================================================
+   Field — filled input with readable label, proper size, strong focus
+   ============================================================ */
 function Field({
   label,
   value,
   onChange,
   type = 'text',
   required,
-  className = '',
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
   type?: string;
   required?: boolean;
-  className?: string;
 }) {
   return (
-    <label className={`block py-6 group ${className}`}>
-      <span className="block text-[10px] font-body font-medium text-ink-mid tracking-[0.26em] uppercase mb-4">
-        {label}
+    <label className="block">
+      <span className="block text-[13px] font-body font-medium text-ink mb-2">
+        {label} {required && <span className="text-bronze">*</span>}
       </span>
       <input
         type={type}
         required={required}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full bg-transparent border-0 text-[16px] font-body font-light text-ink placeholder:text-ink-light focus:outline-none"
+        className="w-full h-12 bg-sand border border-transparent hover:border-warm-border focus:border-ink px-4 text-[15px] font-body text-ink placeholder:text-ink-light focus:outline-none transition-colors"
       />
     </label>
   );
@@ -195,31 +293,38 @@ function SelectField({
   value,
   onChange,
   options,
-  className = '',
+  extraOption,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
   options: { value: string; label: string }[];
-  className?: string;
+  extraOption?: { value: string; label: string };
 }) {
   return (
-    <label className={`block py-6 ${className}`}>
-      <span className="block text-[10px] font-body font-medium text-ink-mid tracking-[0.26em] uppercase mb-4">
+    <label className="block relative">
+      <span className="block text-[13px] font-body font-medium text-ink mb-2">
         {label}
       </span>
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full bg-transparent border-0 text-[16px] font-body font-light text-ink focus:outline-none appearance-none cursor-pointer"
+        className="w-full h-12 bg-sand border border-transparent hover:border-warm-border focus:border-ink px-4 pr-10 text-[15px] font-body text-ink focus:outline-none appearance-none cursor-pointer transition-colors"
       >
-        <option value="">—</option>
+        <option value="">Select a category</option>
+        {extraOption && <option value={extraOption.value}>{extraOption.label}</option>}
         {options.map((o) => (
           <option key={o.value} value={o.value}>
             {o.label}
           </option>
         ))}
       </select>
+      <span
+        aria-hidden
+        className="pointer-events-none absolute right-4 bottom-4 text-ink-mid text-[12px]"
+      >
+        ▾
+      </span>
     </label>
   );
 }

@@ -25,18 +25,18 @@ export default async function CertificationsSection({ images = [] }: Props) {
   return (
     <section className="bg-cream border-b border-warm-border">
       <div className="container-wide pt-24 md:pt-32 pb-12 md:pb-16">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-end mb-14 md:mb-20">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-end mb-12 md:mb-16">
           <div className="lg:col-span-7" data-reveal>
-            <h2 className="section-heading text-ink">
-              Trusted in{' '}
-              <span className="italic font-extralight text-bronze">60+</span>{' '}
-              countries.
+            <p className="text-[13px] font-body font-semibold text-bronze uppercase tracking-[0.18em] mb-5">
+              Certifications
+            </p>
+            <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-normal text-ink leading-[1.05] tracking-[-0.02em]">
+              Trusted in 60+ countries
             </h2>
           </div>
           <div className="lg:col-span-5 lg:text-right" data-reveal>
-            <p className="text-[15px] font-body font-light text-ink-mid leading-[1.85] max-w-md lg:ml-auto">
-              Every mirror ships with the paperwork to clear the most demanding markets —
-              from European bathrooms to North American hospitality projects.
+            <p className="text-[17px] font-body font-normal text-ink leading-[1.6] max-w-md lg:ml-auto">
+              Every mirror ships with the paperwork to clear the most demanding markets — from European bathrooms to North American hospitality projects.
             </p>
           </div>
         </div>
@@ -72,7 +72,7 @@ export default async function CertificationsSection({ images = [] }: Props) {
                   className="flex items-center mx-10 md:mx-16 shrink-0"
                   aria-hidden={i >= FALLBACK_LABELS.length}
                 >
-                  <p className="font-display text-4xl md:text-5xl font-light text-ink/80 leading-none whitespace-nowrap">
+                  <p className="font-display text-4xl md:text-5xl font-normal text-ink leading-none whitespace-nowrap">
                     {cert}
                   </p>
                   <span className="ml-10 md:ml-16 h-1 w-1 rounded-full bg-bronze/70" aria-hidden />
@@ -83,8 +83,8 @@ export default async function CertificationsSection({ images = [] }: Props) {
         </div>
       </div>
 
-      <div className="container-wide pt-8 pb-24 md:pb-32">
-        <p className="text-[10px] font-body font-medium tracking-[0.32em] uppercase text-ink-light text-center">
+      <div className="container-wide pt-8 pb-20 md:pb-24">
+        <p className="text-[13px] font-body font-semibold tracking-[0.14em] uppercase text-ink text-center">
           CE · CB · SAA · ETL · IP44 · IP54 · RoHS · ISO 9001
         </p>
       </div>

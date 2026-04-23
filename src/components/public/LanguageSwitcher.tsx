@@ -42,14 +42,14 @@ export default function LanguageSwitcher() {
         onClick={() => setOpen(!open)}
         aria-haspopup="listbox"
         aria-expanded={open}
-        className="flex items-center gap-1.5 text-[10px] font-body font-medium tracking-[0.24em] uppercase text-ink-mid hover:text-ink transition-colors"
+        className="flex items-center gap-1.5 text-[13px] font-body font-semibold tracking-[0.12em] uppercase text-ink-mid hover:text-ink transition-colors"
       >
         <span>{(locale as string).toUpperCase()}</span>
-        <span className="text-ink-light font-normal normal-case tracking-normal hidden xl:inline-block">
+        <span className="text-ink-mid font-normal normal-case tracking-normal hidden xl:inline-block">
           — {currentLabel}
         </span>
         <ChevronDown
-          size={11}
+          size={13}
           strokeWidth={1.75}
           className={`transition-transform duration-300 ${open ? 'rotate-180' : ''}`}
         />
@@ -70,8 +70,8 @@ export default function LanguageSwitcher() {
                 active ? 'text-ink bg-sand' : 'text-ink-mid hover:bg-sand hover:text-ink'
               }`}
             >
-              <span className="font-light">{localeNames[l]}</span>
-              <span className={`text-[9px] font-medium tracking-[0.22em] uppercase ${active ? 'text-bronze' : 'text-ink-light'}`}>
+              <span className="font-normal">{localeNames[l]}</span>
+              <span className={`text-[12px] font-semibold tracking-[0.12em] uppercase ${active ? 'text-bronze' : 'text-ink-mid'}`}>
                 {(l as string).toUpperCase()}
               </span>
             </button>

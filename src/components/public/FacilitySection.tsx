@@ -38,63 +38,59 @@ export default async function FacilitySection({ locale, images = [] }: Props) {
 
           {/* Content */}
           <div className="lg:col-span-5 lg:pt-6">
-            <h2 className="section-heading text-ink" data-reveal>
-              A studio that<br />
-              <span className="italic font-extralight">ships.</span>
+            <p className="text-[13px] font-body font-semibold text-bronze uppercase tracking-[0.18em] mb-5" data-reveal>
+              The factory
+            </p>
+            <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-normal text-ink leading-[1.05] tracking-[-0.02em]" data-reveal>
+              A studio that ships
             </h2>
 
             <p
-              className="text-ink-mid font-body font-light leading-[1.85] text-[16px] md:text-[17px] mt-8 max-w-md"
+              className="text-ink font-body font-normal leading-[1.6] text-[17px] md:text-[18px] mt-6 max-w-md"
               data-reveal
             >
-              Four production lines, an R&D studio, and an export-focused quality system —
-              the craftsmanship of a studio at the throughput of a factory.
+              Four production lines, an R&D studio, and an export-focused quality system — the craftsmanship of a studio at the throughput of a factory.
             </p>
 
-            {/* Capability list — numbered rows with hairlines */}
-            <ul className="mt-12 border-t border-warm-border" data-reveal-stagger>
-              {capabilities.map((item, i) => (
+            {/* Capability list — readable rows */}
+            <ul className="mt-10" data-reveal-stagger>
+              {capabilities.map((item) => (
                 <li
                   key={item.label}
                   data-reveal
-                  className="group grid grid-cols-[32px_1fr] gap-6 py-5 border-b border-warm-border"
+                  className="py-5 border-b border-warm-border first:border-t"
                 >
-                  <span className="font-body text-[10px] font-medium tracking-[0.2em] uppercase text-bronze mt-1">
-                    0{i + 1}
-                  </span>
-                  <div>
-                    <p className="font-display text-[19px] font-light text-ink leading-snug">
-                      {item.label}
-                    </p>
-                    <p className="text-[13px] font-body font-light text-ink-mid mt-1 leading-relaxed">
-                      {item.note}
-                    </p>
-                  </div>
+                  <p className="font-display text-[20px] font-normal text-ink leading-snug">
+                    {item.label}
+                  </p>
+                  <p className="text-[15px] font-body font-normal text-ink-mid mt-1.5 leading-[1.55]">
+                    {item.note}
+                  </p>
                 </li>
               ))}
             </ul>
 
-            <div className="mt-12" data-reveal>
+            <div className="mt-10" data-reveal>
               <Link
                 href={`/${locale}/about`}
-                className="group inline-flex items-center gap-3 border-b border-ink pb-2 text-[11px] font-body font-medium tracking-[0.26em] uppercase text-ink transition-colors hover:text-bronze hover:border-bronze"
+                className="btn-primary group"
               >
                 Inside the factory
-                <ArrowRight size={14} strokeWidth={1.5} className="transition-transform duration-500 group-hover:translate-x-1" />
+                <ArrowRight size={14} strokeWidth={1.75} className="ml-3 transition-transform duration-500 group-hover:translate-x-1" />
               </Link>
             </div>
           </div>
         </div>
 
-        {/* Stats — refined editorial band */}
-        <div className="mt-24 md:mt-32 pt-12 border-t border-warm-border">
+        {/* Stats band */}
+        <div className="mt-20 md:mt-24 pt-12 border-t border-warm-border">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-10" data-reveal-stagger>
             {stats.map((s) => (
               <div key={s.label} data-reveal className="md:border-r md:border-warm-border md:pr-8 md:last:border-r-0">
-                <p className="font-display text-5xl md:text-[56px] font-light text-ink leading-none tracking-[-0.02em]">
+                <p className="font-display text-5xl md:text-[56px] font-normal text-ink leading-none tracking-[-0.02em]">
                   <CountUp to={s.to} suffix={s.suffix} />
                 </p>
-                <p className="mt-5 text-[10px] font-body font-medium text-ink-mid tracking-[0.28em] uppercase">
+                <p className="mt-4 text-[14px] font-body font-semibold text-ink tracking-[0.08em] uppercase">
                   {s.label}
                 </p>
               </div>

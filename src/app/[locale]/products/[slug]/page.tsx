@@ -161,9 +161,9 @@ export default async function ProductDetailPage({
         <div className="container-wide py-5">
           <Link
             href={`/${locale}/products`}
-            className="inline-flex items-center gap-2 text-[10px] font-body font-medium text-ink-mid hover:text-ink tracking-[0.26em] uppercase transition-colors"
+            className="inline-flex items-center gap-2 text-[13px] font-body font-semibold text-ink-mid hover:text-ink tracking-[0.14em] uppercase transition-colors"
           >
-            <ArrowLeft size={13} strokeWidth={1.5} />
+            <ArrowLeft size={14} strokeWidth={1.75} />
             {common('backToProducts')}
           </Link>
         </div>
@@ -171,8 +171,8 @@ export default async function ProductDetailPage({
 
       {/* Product Detail */}
       <section className="bg-cream">
-        <div className="container-wide py-16 md:py-24">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20">
+        <div className="container-wide py-14 md:py-20">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
             {/* Image Gallery */}
             <div className="lg:col-span-7">
               <ImageGallery images={imageUrls} productName={trans.name} />
@@ -181,33 +181,32 @@ export default async function ProductDetailPage({
             {/* Product Info */}
             <div className="lg:col-span-5 lg:pt-4">
               {product.modelNumber && (
-                <p className="text-[10px] font-body font-medium text-bronze tracking-[0.28em] uppercase mb-5">
+                <p className="text-[13px] font-body font-semibold text-bronze tracking-[0.18em] uppercase mb-4">
                   {t('modelNumber')} — {product.modelNumber}
                 </p>
               )}
-              <h1 className="font-display text-4xl md:text-5xl lg:text-[56px] font-light leading-[1.02] text-ink tracking-[-0.02em] mb-8">
+              <h1 className="font-display text-3xl md:text-4xl lg:text-5xl font-normal leading-[1.05] text-ink tracking-[-0.02em] mb-6">
                 {trans.name}
               </h1>
               {trans.shortDescription && (
-                <p className="text-ink-mid font-body font-light leading-[1.85] text-[16px] md:text-[17px] mb-10 max-w-md">
+                <p className="text-ink font-body font-normal leading-[1.6] text-[17px] md:text-[18px] mb-10 max-w-md">
                   {trans.shortDescription}
                 </p>
               )}
 
               {/* Specifications */}
               {specs.length > 0 && (
-                <div className="mb-12">
-                  <p className="kicker-plain mb-6">
-                    <span className="text-bronze mr-3">—</span>
+                <div className="mb-10">
+                  <p className="text-[13px] font-body font-semibold text-bronze uppercase tracking-[0.18em] mb-5">
                     {t('specifications')}
                   </p>
                   <dl className="border-t border-warm-border">
                     {specs.map((spec) => (
                       <div key={spec.id} className="grid grid-cols-[140px_1fr] gap-4 py-4 border-b border-warm-border">
-                        <dt className="text-[11px] font-body font-medium text-ink-mid tracking-[0.18em] uppercase">
+                        <dt className="text-[13px] font-body font-semibold text-ink-mid tracking-[0.08em] uppercase">
                           {spec.specKey}
                         </dt>
-                        <dd className="text-[15px] font-body font-light text-ink leading-relaxed">
+                        <dd className="text-[15px] font-body font-normal text-ink leading-[1.55]">
                           {spec.specValue}
                         </dd>
                       </div>
@@ -218,22 +217,23 @@ export default async function ProductDetailPage({
 
               {/* CTA */}
               <Link
-                href={`/${locale}/contact?product=${encodeURIComponent(trans.name)}`}
+                href={`/${locale}/contact?product=${encodeURIComponent(trans.name)}${
+                  product.modelNumber ? `&model=${encodeURIComponent(product.modelNumber)}` : ''
+                }`}
                 className="btn-primary group"
               >
                 {t('sendInquiry')}
-                <ArrowRight size={14} strokeWidth={1.5} className="ml-3 transition-transform duration-500 group-hover:translate-x-1" />
+                <ArrowRight size={14} strokeWidth={1.75} className="ml-3 transition-transform duration-500 group-hover:translate-x-1" />
               </Link>
 
               {/* Full Description */}
               {trans.fullDescription && (
-                <div className="mt-14 pt-10 border-t border-warm-border">
-                  <p className="kicker-plain mb-6">
-                    <span className="text-bronze mr-3">—</span>
+                <div className="mt-12 pt-10 border-t border-warm-border">
+                  <p className="text-[13px] font-body font-semibold text-bronze uppercase tracking-[0.18em] mb-5">
                     Details
                   </p>
                   <div
-                    className="prose-content text-[15px]"
+                    className="prose-content text-[16px]"
                     dangerouslySetInnerHTML={{ __html: trans.fullDescription }}
                   />
                 </div>
@@ -243,23 +243,22 @@ export default async function ProductDetailPage({
 
           {/* Related Products */}
           {related.length > 0 && (
-            <div className="mt-28 pt-16 border-t border-warm-border">
-              <div className="flex items-end justify-between mb-12">
+            <div className="mt-24 pt-14 border-t border-warm-border">
+              <div className="flex items-end justify-between mb-10">
                 <div>
-                  <p className="kicker-plain mb-4">
-                    <span className="text-bronze mr-3">—</span>
+                  <p className="text-[13px] font-body font-semibold text-bronze uppercase tracking-[0.18em] mb-3">
                     Related
                   </p>
-                  <h2 className="font-display text-4xl md:text-5xl font-light text-ink tracking-[-0.015em]">
+                  <h2 className="font-display text-3xl md:text-4xl font-normal text-ink tracking-[-0.015em] leading-[1.1]">
                     {t('relatedProducts')}
                   </h2>
                 </div>
                 <Link
                   href={`/${locale}/products`}
-                  className="hidden md:inline-flex items-center gap-3 border-b border-ink pb-2 text-[11px] font-body font-medium tracking-[0.26em] uppercase text-ink transition-colors hover:text-bronze hover:border-bronze group"
+                  className="hidden md:inline-flex items-center gap-2 text-[13px] font-body font-semibold tracking-[0.14em] uppercase text-ink hover:text-bronze transition-colors group"
                 >
                   {t('viewAll') || 'View all'}
-                  <ArrowRight size={14} strokeWidth={1.5} className="transition-transform duration-500 group-hover:translate-x-1" />
+                  <ArrowRight size={14} strokeWidth={1.75} className="transition-transform duration-500 group-hover:translate-x-1" />
                 </Link>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-14 md:gap-x-10 md:gap-y-16">

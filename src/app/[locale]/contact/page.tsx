@@ -3,6 +3,7 @@ import { getDb } from '@/lib/db';
 import { productCategories, categoryTranslations } from '@/lib/db/schema';
 import { eq, and, inArray } from 'drizzle-orm';
 import InquiryForm from '@/components/public/InquiryForm';
+import { Mail, MessageCircle, MapPin } from 'lucide-react';
 
 export const revalidate = 600;
 
@@ -42,111 +43,112 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
   }));
 
   return (
+    <section className="bg-cream">
+      <div className="container-narrow pt-16 pb-24 md:pt-20 md:pb-32">
+        {/* Header — one line, readable, no decorative chrome */}
+        <header className="mb-14 md:mb-16">
+          <p className="text-[13px] font-body font-medium text-bronze uppercase tracking-[0.18em] mb-5">
+            Contact
+          </p>
+          <h1 className="font-display text-4xl md:text-5xl lg:text-[56px] font-normal text-ink tracking-[-0.02em] leading-[1.05]">
+            Send us an inquiry
+          </h1>
+          <p className="mt-5 text-[17px] md:text-[18px] font-body font-normal text-ink leading-[1.6] max-w-2xl">
+            Share your project details and our export team will reply within one business day.
+          </p>
+        </header>
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
+          {/* Form */}
+          <div className="lg:col-span-8">
+            <InquiryForm categories={categories} />
+          </div>
+
+          {/* Direct contact — simple, readable, no vertical rule or quote */}
+          <aside className="lg:col-span-4">
+            <div className="bg-sand p-6 md:p-7">
+              <h2 className="font-display text-[24px] font-normal text-ink mb-6">
+                Prefer a direct line?
+              </h2>
+
+              <ul className="space-y-5">
+                <ContactRow
+                  icon={<Mail size={18} strokeWidth={1.75} />}
+                  label="Email"
+                  value="bolen5@cnjxctm.com"
+                  href="mailto:bolen5@cnjxctm.com"
+                />
+                <ContactRow
+                  icon={<MessageCircle size={18} strokeWidth={1.75} />}
+                  label="WhatsApp"
+                  value="+86 178 6056 7239"
+                  href="https://wa.me/8617860567239"
+                  external
+                />
+                <ContactRow
+                  icon={<MapPin size={18} strokeWidth={1.75} />}
+                  label="Address"
+                  value={
+                    <>
+                      No. 768 Xinda Road,<br />
+                      Xinfeng Town, Nanhu District,<br />
+                      Jiaxing, Zhejiang, China
+                    </>
+                  }
+                />
+              </ul>
+
+              <p className="mt-7 pt-5 border-t border-warm-border text-[14px] font-body text-ink">
+                <span className="font-medium">Hours:</span>{' '}
+                <span className="text-ink-mid">Mon&ndash;Sat, 09:00&ndash;18:00 (GMT+8)</span>
+              </p>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ----- Direct-contact row: icon + label + value, all readable ----- */
+function ContactRow({
+  icon,
+  label,
+  value,
+  href,
+  external,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: React.ReactNode;
+  href?: string;
+  external?: boolean;
+}) {
+  const content = (
     <>
-      {/* Intro */}
-      <section className="bg-cream border-b border-warm-border">
-        <div className="container-wide pt-16 pb-16 md:pt-20 md:pb-24">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-end">
-            <div className="lg:col-span-8">
-              <p className="kicker-plain mb-6" data-reveal>
-                <span className="text-bronze mr-3">— Inquiries</span>
-                {t('info')}
-              </p>
-              <h1
-                className="font-display text-5xl md:text-6xl lg:text-[80px] font-light text-ink leading-[0.98] tracking-[-0.02em]"
-                data-reveal
-              >
-                {t('title')}
-              </h1>
-            </div>
-            <div className="lg:col-span-4 lg:text-right" data-reveal>
-              <p className="text-[15px] font-body font-light text-ink-mid leading-[1.85] max-w-sm lg:ml-auto">
-                Share project details, and our export team will reply within a single business day.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Form + Info */}
-      <section className="bg-cream">
-        <div className="container-wide py-20 md:py-28">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-14 lg:gap-20">
-            {/* Form */}
-            <div className="lg:col-span-7" data-reveal>
-              <p className="kicker-plain mb-4">
-                <span className="text-bronze mr-3">01</span>
-                {t('formTitle')}
-              </p>
-              <h2 className="font-display text-3xl md:text-4xl font-light text-ink tracking-[-0.015em] mb-10">
-                Tell us about the <span className="italic font-extralight">project.</span>
-              </h2>
-              <InquiryForm categories={categories} />
-            </div>
-
-            {/* Contact Info */}
-            <div className="lg:col-span-5 lg:pl-10 lg:border-l lg:border-warm-border" data-reveal>
-              <p className="kicker-plain mb-4">
-                <span className="text-bronze mr-3">02</span>
-                Direct contact
-              </p>
-              <h2 className="font-display text-3xl md:text-4xl font-light text-ink tracking-[-0.015em] mb-10">
-                Reach out <span className="italic font-extralight">directly.</span>
-              </h2>
-
-              <dl className="border-t border-warm-border">
-                <div className="grid grid-cols-[100px_1fr] gap-4 py-5 border-b border-warm-border">
-                  <dt className="text-[10px] font-body font-medium text-ink-mid tracking-[0.26em] uppercase pt-1">
-                    {t('emailLabel')}
-                  </dt>
-                  <dd>
-                    <a href="mailto:bolen5@cnjxctm.com" className="text-[16px] font-body font-light text-ink hover:text-bronze transition-colors border-b border-warm-border hover:border-bronze pb-0.5">
-                      bolen5@cnjxctm.com
-                    </a>
-                  </dd>
-                </div>
-
-                <div className="grid grid-cols-[100px_1fr] gap-4 py-5 border-b border-warm-border">
-                  <dt className="text-[10px] font-body font-medium text-ink-mid tracking-[0.26em] uppercase pt-1">
-                    {t('whatsappLabel')}
-                  </dt>
-                  <dd>
-                    <a
-                      href="https://wa.me/8617860567239"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-[16px] font-body font-light text-ink hover:text-bronze transition-colors border-b border-warm-border hover:border-bronze pb-0.5"
-                    >
-                      +86 178 6056 7239
-                    </a>
-                  </dd>
-                </div>
-
-                <div className="grid grid-cols-[100px_1fr] gap-4 py-5 border-b border-warm-border">
-                  <dt className="text-[10px] font-body font-medium text-ink-mid tracking-[0.26em] uppercase pt-1">
-                    {t('addressLabel')}
-                  </dt>
-                  <dd className="text-[15px] font-body font-light text-ink-mid leading-[1.75]">
-                    No. 768 Xinda Road,<br />
-                    Xinfeng Town, Nanhu District,<br />
-                    Jiaxing, Zhejiang, China
-                  </dd>
-                </div>
-
-                <div className="grid grid-cols-[100px_1fr] gap-4 py-5">
-                  <dt className="text-[10px] font-body font-medium text-ink-mid tracking-[0.26em] uppercase pt-1">
-                    Hours
-                  </dt>
-                  <dd className="text-[15px] font-body font-light text-ink-mid leading-[1.75]">
-                    Mon–Sat, 09:00–18:00 CST<br />
-                    <span className="text-ink-light">(GMT+8)</span>
-                  </dd>
-                </div>
-              </dl>
-            </div>
-          </div>
-        </div>
-      </section>
+      <span className="shrink-0 mt-0.5 text-bronze">{icon}</span>
+      <div>
+        <p className="text-[12px] font-body font-medium text-ink-mid uppercase tracking-[0.1em] mb-1">
+          {label}
+        </p>
+        <p className="text-[15px] font-body text-ink leading-[1.55]">{value}</p>
+      </div>
     </>
   );
+
+  if (href) {
+    return (
+      <li>
+        <a
+          href={href}
+          target={external ? '_blank' : undefined}
+          rel={external ? 'noopener noreferrer' : undefined}
+          className="flex items-start gap-3 hover:text-bronze transition-colors"
+        >
+          {content}
+        </a>
+      </li>
+    );
+  }
+  return <li className="flex items-start gap-3">{content}</li>;
 }

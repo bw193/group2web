@@ -38,16 +38,47 @@ export default function AnimationProvider() {
     observeElements();
 
     // Expose a scoped rescan for components that inject reveal elements
-    // after mount (e.g., client-side filter/tab grids). Cheaper than a
-    // blanket MutationObserver on document.body.
+    // after mount (e.g., client-side filter/tab grids).
     const rescan = (event: Event) => {
       const detail = (event as CustomEvent).detail as ParentNode | undefined;
       observeElements(detail ?? document);
     };
     window.addEventListener('reveal:rescan', rescan);
 
+    // Watch for reveal elements added after mount. This covers the
+    // App Router case where loading.tsx is in <main> when this effect
+    // first runs, then gets replaced by the real page content (whose
+    // [data-reveal] elements would otherwise never be observed),
+    // as well as client-side route transitions.
+    let pending = 0;
+    const schedule = () => {
+      if (pending) return;
+      pending = window.requestAnimationFrame(() => {
+        pending = 0;
+        observeElements();
+      });
+    };
+    const mutationObserver = new MutationObserver((mutations) => {
+      for (const m of mutations) {
+        for (const node of m.addedNodes) {
+          if (node.nodeType !== 1) continue;
+          const el = node as Element;
+          if (
+            el.matches?.('[data-reveal], .reveal-words, [data-reveal-stagger]') ||
+            el.querySelector?.('[data-reveal], .reveal-words, [data-reveal-stagger]')
+          ) {
+            schedule();
+            return;
+          }
+        }
+      }
+    });
+    mutationObserver.observe(document.body, { childList: true, subtree: true });
+
     return () => {
       observer.disconnect();
+      mutationObserver.disconnect();
+      if (pending) cancelAnimationFrame(pending);
       window.removeEventListener('reveal:rescan', rescan);
     };
   }, []);

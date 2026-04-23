@@ -70,9 +70,9 @@
     letter-spacing: -0.02em;
   }
 
-  /* Eyebrow / kicker label */
+  /* Eyebrow / kicker label — readable small-caps, bronze */
   .kicker {
-    @apply inline-flex items-center gap-3 font-body text-[10px] font-medium tracking-[0.32em] uppercase text-ink-mid;
+    @apply inline-flex items-center gap-3 font-body text-[13px] font-semibold tracking-[0.16em] uppercase text-bronze;
   }
   .kicker::before {
     content: '';
@@ -80,12 +80,12 @@
   }
 
   .kicker-plain {
-    @apply font-body text-[10px] font-medium tracking-[0.32em] uppercase text-ink-mid;
+    @apply font-body text-[13px] font-semibold tracking-[0.16em] uppercase text-bronze;
   }
 
   /* Section-kicker legacy helper (used in PageIntro and a few places) */
   .section-kicker {
-    @apply inline-flex items-center gap-3 font-body text-[10px] font-medium tracking-[0.32em] uppercase text-ink-mid;
+    @apply inline-flex items-center gap-3 font-body text-[13px] font-semibold tracking-[0.16em] uppercase text-bronze;
   }
 
   /* ---------- Inputs ---------- */
@@ -197,15 +197,15 @@
    PROSE — rich text content
    ============================================================================ */
 
-.prose-content h1 { @apply text-3xl font-display font-light mb-4 mt-10; letter-spacing: -0.015em; }
-.prose-content h2 { @apply text-2xl font-display font-light mb-3 mt-8; letter-spacing: -0.015em; }
-.prose-content h3 { @apply text-xl font-display font-light mb-2 mt-6; letter-spacing: -0.015em; }
-.prose-content p { @apply mb-5 leading-[1.85] text-ink-mid font-light; }
-.prose-content ul { @apply list-disc pl-6 mb-5 text-ink-mid font-light; }
-.prose-content ol { @apply list-decimal pl-6 mb-5 text-ink-mid font-light; }
+.prose-content h1 { @apply text-3xl font-display font-normal mb-4 mt-10 text-ink; letter-spacing: -0.015em; }
+.prose-content h2 { @apply text-2xl font-display font-normal mb-3 mt-8 text-ink; letter-spacing: -0.015em; }
+.prose-content h3 { @apply text-xl font-display font-normal mb-2 mt-6 text-ink; letter-spacing: -0.015em; }
+.prose-content p { @apply mb-5 leading-[1.7] text-ink font-normal; }
+.prose-content ul { @apply list-disc pl-6 mb-5 text-ink font-normal; }
+.prose-content ol { @apply list-decimal pl-6 mb-5 text-ink font-normal; }
 .prose-content li { @apply mb-1.5; }
 .prose-content a { @apply text-ink underline decoration-bronze decoration-1 underline-offset-4 hover:decoration-ink transition-colors; }
-.prose-content blockquote { @apply border-l border-bronze pl-6 italic my-6 text-ink font-display text-xl font-light; }
+.prose-content blockquote { @apply border-l-2 border-bronze pl-6 my-6 text-ink font-display text-xl font-normal; }
 .prose-content img { @apply my-6 max-w-full; }
 
 /* ============================================================================
@@ -328,6 +328,67 @@
 .reveal-words.revealed .word > span { transform: translateY(0); }
 
 /* ============================================================================
+   NAV PROGRESS — hairline bronze line at the top edge during route changes
+   ============================================================================ */
+
+.nav-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  z-index: 100;
+  pointer-events: none;
+  background: rgba(168, 142, 111, 0.08); /* bronze track, barely there */
+  overflow: hidden;
+}
+
+.nav-progress__bar {
+  display: block;
+  height: 100%;
+  width: 100%;
+  transform-origin: left center;
+  background: linear-gradient(
+    90deg,
+    rgba(168, 142, 111, 0)    0%,
+    rgba(168, 142, 111, 0.55) 35%,
+    #A88E6F                   65%,
+    rgba(168, 142, 111, 0.55) 95%,
+    rgba(168, 142, 111, 0)    100%
+  );
+  /* faint glow to lift it off the cream background */
+  box-shadow: 0 0 6px rgba(168, 142, 111, 0.35);
+}
+
+.nav-progress[data-phase="loading"] .nav-progress__bar {
+  /* Snap to ~22% in 90ms (instant feedback), then ease to ~92% over 6s. */
+  animation: nav-progress-snap 90ms cubic-bezier(0.2, 0.8, 0.2, 1) forwards,
+             nav-progress-grow 6s 90ms cubic-bezier(0.1, 0.7, 0.1, 1) forwards;
+}
+
+.nav-progress[data-phase="finishing"] .nav-progress__bar {
+  animation: nav-progress-finish 320ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes nav-progress-snap {
+  0%   { transform: scaleX(0);    opacity: 0.85; }
+  100% { transform: scaleX(0.22); opacity: 1; }
+}
+
+@keyframes nav-progress-grow {
+  0%   { transform: scaleX(0.22); }
+  35%  { transform: scaleX(0.55); }
+  70%  { transform: scaleX(0.8);  }
+  100% { transform: scaleX(0.92); }
+}
+
+@keyframes nav-progress-finish {
+  0%   { transform: scaleX(0.92); opacity: 1; }
+  55%  { transform: scaleX(1);    opacity: 1; }
+  100% { transform: scaleX(1);    opacity: 0; }
+}
+
+/* ============================================================================
    REDUCE MOTION
    ============================================================================ */
 
@@ -339,4 +400,5 @@
     transform: none !important;
     clip-path: none !important;
   }
+  .nav-progress__bar { animation: none !important; }
 }

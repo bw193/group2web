@@ -218,10 +218,10 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                       className="text-bronze transition-transform duration-700 ease-out group-hover:-translate-y-0.5"
                     />
                   </div>
-                  <h3 className="font-display text-lg md:text-xl font-light text-ink leading-tight mb-1.5 tracking-[-0.01em]">
+                  <h3 className="font-display text-lg md:text-xl font-normal text-ink leading-tight mb-1.5 tracking-[-0.01em]">
                     {item.title}
                   </h3>
-                  <p className="text-[13px] font-body font-light text-ink-mid leading-[1.65] max-w-xs">
+                  <p className="text-[14px] font-body font-normal text-ink leading-[1.55] max-w-xs">
                     {item.desc}
                   </p>
                 </div>

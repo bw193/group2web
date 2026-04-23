@@ -56,10 +56,10 @@ export default function Header() {
         <div className="flex items-center justify-between h-[72px] md:h-20">
           {/* Logo */}
           <Link href={`/${locale}`} className="group flex items-baseline gap-3">
-            <span className="font-display text-[22px] md:text-[26px] font-light text-ink tracking-[0.02em] leading-none">
+            <span className="font-display text-[22px] md:text-[26px] font-normal text-ink tracking-[0.01em] leading-none">
               Chengtai
             </span>
-            <span className="hidden md:inline-block text-[9px] font-body font-medium text-ink-light tracking-[0.32em] uppercase border-l border-warm-border pl-3">
+            <span className="hidden md:inline-block text-[11px] font-body font-semibold text-ink-mid tracking-[0.16em] uppercase border-l border-warm-border pl-3">
               Mirror Co., Ltd
             </span>
           </Link>
@@ -72,7 +72,7 @@ export default function Header() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`nav-link text-[11px] font-body font-medium tracking-[0.26em] uppercase transition-colors duration-300 ${
+                  className={`nav-link text-[13px] font-body font-semibold tracking-[0.14em] uppercase transition-colors duration-300 ${
                     active ? 'text-ink is-active' : 'text-ink-mid hover:text-ink'
                   }`}
                 >
@@ -90,14 +90,14 @@ export default function Header() {
               aria-label="Search"
               className="p-1 text-ink-mid hover:text-ink transition-colors"
             >
-              <Search size={15} strokeWidth={1.5} />
+              <Search size={16} strokeWidth={1.75} />
             </button>
             <span className="h-3 w-px bg-warm-border" aria-hidden />
             <LanguageSwitcher />
             <span className="h-3 w-px bg-warm-border" aria-hidden />
             <Link
               href={`/${locale}/contact`}
-              className="btn-primary h-10 px-6 text-[10px]"
+              className="btn-primary h-10 px-6 text-[12px]"
             >
               {t('inquiry')}
             </Link>
@@ -120,7 +120,7 @@ export default function Header() {
           }`}
         >
           <form onSubmit={handleSearch} className="pb-6 pt-1 flex items-center gap-4 border-t border-warm-border">
-            <Search size={15} strokeWidth={1.5} className="text-ink-mid" />
+            <Search size={16} strokeWidth={1.75} className="text-ink-mid" />
             <input
               type="text"
               value={searchQuery}
@@ -128,11 +128,11 @@ export default function Header() {
               placeholder="Search products, models, categories…"
               autoFocus={searchOpen}
               aria-label="Search products"
-              className="flex-1 h-10 bg-transparent border-0 text-sm font-body text-ink placeholder:text-ink-light/70 focus:outline-none"
+              className="flex-1 h-10 bg-transparent border-0 text-[15px] font-body text-ink placeholder:text-ink-mid focus:outline-none"
             />
             <button
               type="submit"
-              className="text-[10px] font-body font-medium tracking-[0.24em] uppercase text-ink-mid hover:text-ink transition-colors"
+              className="text-[12px] font-body font-semibold tracking-[0.14em] uppercase text-ink hover:text-bronze transition-colors"
             >
               Search →
             </button>
@@ -160,7 +160,7 @@ export default function Header() {
           </form>
 
           <nav className="flex flex-col">
-            {navLinks.map((link, i) => {
+            {navLinks.map((link) => {
               const active = isActive(link.href);
               return (
                 <Link
@@ -169,12 +169,10 @@ export default function Header() {
                   onClick={() => setMobileOpen(false)}
                   className="flex items-baseline justify-between py-5 border-b border-warm-border group"
                 >
-                  <span className={`font-display text-3xl font-light leading-none ${active ? 'text-ink' : 'text-ink/80'}`}>
+                  <span className={`font-display text-3xl font-normal leading-none ${active ? 'text-ink' : 'text-ink'}`}>
                     {link.label}
                   </span>
-                  <span className="text-[10px] font-body font-medium tracking-[0.3em] uppercase text-ink-light">
-                    {String(i + 1).padStart(2, '0')}
-                  </span>
+                  <span className="text-bronze transition-transform duration-300 group-hover:translate-x-1">→</span>
                 </Link>
               );
             })}

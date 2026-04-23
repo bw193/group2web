@@ -36,22 +36,24 @@ export default function FaqSection({ backendFaqs = [] }: Props) {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-14 lg:gap-20 items-start">
           {/* Left column */}
           <aside className="lg:col-span-5 lg:sticky lg:top-32">
-            <h2 className="section-heading text-ink" data-reveal>
-              Frequently<br />
-              <span className="italic font-extralight">asked.</span>
+            <p className="text-[13px] font-body font-semibold text-bronze uppercase tracking-[0.18em] mb-5" data-reveal>
+              FAQ
+            </p>
+            <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-normal text-ink leading-[1.05] tracking-[-0.02em]" data-reveal>
+              Frequently asked
             </h2>
 
-            <p className="mt-8 text-[15px] font-body font-light text-ink-mid leading-[1.85] max-w-md" data-reveal>
+            <p className="mt-6 text-[17px] font-body font-normal text-ink leading-[1.6] max-w-md" data-reveal>
               If your question isn&apos;t here, we typically reply to direct inquiries within a single business day.
             </p>
 
-            <div className="mt-12" data-reveal>
+            <div className="mt-10" data-reveal>
               <Link
                 href={`/${locale}/contact`}
-                className="group inline-flex items-center gap-3 border-b border-ink pb-2 text-[11px] font-body font-medium tracking-[0.26em] uppercase text-ink transition-colors hover:text-bronze hover:border-bronze"
+                className="btn-primary group"
               >
                 Ask a question
-                <ArrowRight size={14} strokeWidth={1.5} className="transition-transform duration-500 group-hover:translate-x-1" />
+                <ArrowRight size={14} strokeWidth={1.75} className="ml-3 transition-transform duration-500 group-hover:translate-x-1" />
               </Link>
             </div>
           </aside>
@@ -67,19 +69,11 @@ export default function FaqSection({ backendFaqs = [] }: Props) {
                     onClick={() => toggle(i)}
                     aria-expanded={isOpen}
                     aria-controls={`faq-answer-${i}`}
-                    className="w-full flex items-start gap-6 py-8 md:py-9 text-left group"
+                    className="w-full flex items-start gap-6 py-7 md:py-8 text-left group"
                   >
-                    <span
-                      className={`shrink-0 w-10 font-body text-[10px] font-medium tracking-[0.28em] uppercase mt-2 transition-colors duration-300 ${
-                        isOpen ? 'text-bronze' : 'text-ink-light'
-                      }`}
-                    >
-                      {String(i + 1).padStart(2, '0')}
-                    </span>
-
                     <h3
-                      className={`flex-1 font-display text-xl md:text-2xl font-light leading-snug tracking-[-0.01em] transition-colors duration-300 ${
-                        isOpen ? 'text-ink' : 'text-ink/80 group-hover:text-ink'
+                      className={`flex-1 font-display text-[19px] md:text-[22px] font-normal leading-snug tracking-[-0.005em] transition-colors duration-300 ${
+                        isOpen ? 'text-ink' : 'text-ink group-hover:text-bronze'
                       }`}
                     >
                       {item.q}
@@ -88,23 +82,23 @@ export default function FaqSection({ backendFaqs = [] }: Props) {
                     <span
                       aria-hidden
                       className={`shrink-0 mt-1 w-8 h-8 flex items-center justify-center transition-all duration-500 ease-out ${
-                        isOpen ? 'rotate-[225deg] text-ink' : 'rotate-0 text-ink-light group-hover:text-ink'
+                        isOpen ? 'rotate-[225deg] text-bronze' : 'rotate-0 text-ink-mid group-hover:text-ink'
                       }`}
                     >
-                      <Plus size={18} strokeWidth={1.25} />
+                      <Plus size={20} strokeWidth={1.75} />
                     </span>
                   </button>
 
                   <div
                     id={`faq-answer-${i}`}
                     className={`grid transition-[grid-template-rows,opacity] duration-[700ms] ease-out-expo ${
-                      isOpen ? 'grid-rows-[1fr] opacity-100 pb-9' : 'grid-rows-[0fr] opacity-0'
+                      isOpen ? 'grid-rows-[1fr] opacity-100 pb-8' : 'grid-rows-[0fr] opacity-0'
                     }`}
                   >
                     <div className="overflow-hidden">
-                      <div className="pl-16 pr-4 md:pr-12">
+                      <div className="pr-4 md:pr-12">
                         <p
-                          className="text-[15px] font-body font-light text-ink-mid leading-[1.85] max-w-[60ch]"
+                          className="text-[16px] font-body font-normal text-ink leading-[1.65] max-w-[62ch]"
                           style={{
                             transform: isOpen ? 'translateY(0)' : 'translateY(8px)',
                             opacity: isOpen ? 1 : 0,

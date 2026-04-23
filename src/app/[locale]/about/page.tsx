@@ -38,19 +38,18 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
         <div className="container-wide pt-16 pb-20 md:pt-20 md:pb-28">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-end">
             <div className="lg:col-span-8">
-              <p className="kicker-plain mb-6" data-reveal>
-                <span className="text-bronze mr-3">— Since 2005</span>
-                Chengtai Mirror Co., Ltd
+              <p className="text-[13px] font-body font-semibold text-bronze uppercase tracking-[0.18em] mb-5" data-reveal>
+                Chengtai Mirror Co., Ltd — Since 2005
               </p>
               <h1
-                className="font-display text-5xl md:text-6xl lg:text-[80px] font-light text-ink leading-[0.98] tracking-[-0.02em]"
+                className="font-display text-4xl md:text-5xl lg:text-[64px] font-normal text-ink leading-[1.05] tracking-[-0.02em]"
                 data-reveal
               >
                 {t('title')}
               </h1>
             </div>
             <div className="lg:col-span-4 lg:text-right" data-reveal>
-              <p className="text-[15px] font-body font-light text-ink-mid leading-[1.85] max-w-sm lg:ml-auto">
+              <p className="text-[17px] font-body font-normal text-ink leading-[1.6] max-w-sm lg:ml-auto">
                 Jiaxing, China — a 35,000 sqm studio building precision mirrors for global hospitality, retail, and residential brands.
               </p>
             </div>
@@ -60,11 +59,10 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
 
       {/* Company Introduction */}
       <section className="bg-cream border-b border-warm-border">
-        <div className="container-wide py-24 md:py-32">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20">
+        <div className="container-wide py-20 md:py-24">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
             <div className="lg:col-span-4">
-              <p className="kicker-plain sticky top-32" data-reveal>
-                <span className="text-bronze mr-3">01</span>
+              <p className="text-[13px] font-body font-semibold text-bronze uppercase tracking-[0.18em] sticky top-32" data-reveal>
                 {t('companyIntro')}
               </p>
             </div>
@@ -77,14 +75,11 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
                 />
               ) : (
                 <div data-reveal>
-                  <p className="font-display text-3xl md:text-4xl font-light text-ink leading-[1.25] tracking-[-0.015em] mb-8">
-                    Established in 2005, Jiaxing Chengtai Mirror Co., Ltd. is a premier manufacturer
-                    of <span className="italic">LED, bathroom, and full-body mirrors</span>.
+                  <p className="font-display text-2xl md:text-3xl font-normal text-ink leading-[1.3] tracking-[-0.01em] mb-6">
+                    Established in 2005, Jiaxing Chengtai Mirror Co., Ltd. is a premier manufacturer of LED, bathroom, and full-body mirrors.
                   </p>
-                  <p className="text-[16px] font-body font-light text-ink-mid leading-[1.85] max-w-xl">
-                    From a single production line to an integrated 35,000 sqm facility, our
-                    mirrors now reach more than 60 countries — built to the specifications of
-                    projects that demand consistent quality at scale.
+                  <p className="text-[17px] font-body font-normal text-ink leading-[1.65] max-w-xl">
+                    From a single production line to an integrated 35,000 sqm facility, our mirrors now reach more than 60 countries — built to the specifications of projects that demand consistent quality at scale.
                   </p>
                 </div>
               )}
@@ -95,23 +90,22 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
 
       {/* Factory Stats — editorial dark band */}
       <section className="bg-ink text-cream">
-        <div className="container-wide py-24 md:py-32">
-          <p className="kicker-plain mb-12 text-cream/60" data-reveal>
-            <span className="text-bronze-light mr-3">02</span>
+        <div className="container-wide py-20 md:py-24">
+          <p className="text-[13px] font-body font-semibold text-bronze-light uppercase tracking-[0.18em] mb-10" data-reveal>
             {t('factoryScale')}
           </p>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-y-14 gap-x-8 border-t border-cream/15 pt-14" data-reveal-stagger>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-y-12 gap-x-8 border-t border-cream/15 pt-12" data-reveal-stagger>
             {stats.map((stat, i) => (
               <div key={i} data-reveal className="md:border-r md:border-cream/15 md:pr-8 md:last:border-r-0">
-                <p className="font-display text-5xl md:text-[64px] font-light text-cream leading-none tracking-[-0.02em]">
+                <p className="font-display text-5xl md:text-[56px] font-normal text-cream leading-none tracking-[-0.02em]">
                   {stat.value}
                 </p>
                 {stat.unit && (
-                  <p className="mt-3 text-[10px] font-body font-medium text-bronze-light tracking-[0.28em] uppercase">
+                  <p className="mt-3 text-[13px] font-body font-semibold text-bronze-light tracking-[0.16em] uppercase">
                     {stat.unit}
                   </p>
                 )}
-                <p className="mt-5 text-[13px] font-body font-light text-cream/60">
+                <p className="mt-4 text-[15px] font-body font-normal text-cream/85">
                   {stat.label}
                 </p>
               </div>
@@ -123,16 +117,14 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
       {/* Factory Gallery */}
       {factoryPhotos.length > 0 && (
         <section className="bg-cream border-b border-warm-border">
-          <div className="container-wide py-24 md:py-32">
-            <div className="flex items-end justify-between mb-14" data-reveal>
+          <div className="container-wide py-20 md:py-24">
+            <div className="flex items-end justify-between mb-12" data-reveal>
               <div>
-                <p className="kicker-plain mb-5">
-                  <span className="text-bronze mr-3">03</span>
+                <p className="text-[13px] font-body font-semibold text-bronze uppercase tracking-[0.18em] mb-4">
                   {t('factoryGallery')}
                 </p>
-                <h2 className="section-heading text-ink">
-                  Inside the{' '}
-                  <span className="italic font-extralight">studio.</span>
+                <h2 className="font-display text-3xl md:text-4xl font-normal text-ink tracking-[-0.015em] leading-[1.1]">
+                  Inside the studio
                 </h2>
               </div>
             </div>
@@ -153,9 +145,6 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
                     className="object-cover transition-transform duration-[1.4s] ease-out group-hover:scale-[1.04]"
                     loading="lazy"
                   />
-                  <span className="absolute top-4 left-4 font-body text-[10px] font-medium tracking-[0.28em] uppercase text-cream/90 mix-blend-difference">
-                    {String(i + 1).padStart(2, '0')} — Facility
-                  </span>
                 </div>
               ))}
             </div>
@@ -165,15 +154,14 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
 
       {/* Certifications */}
       <section className="bg-cream border-b border-warm-border">
-        <div className="container-wide py-24 md:py-32">
-          <div className="flex items-end justify-between mb-14" data-reveal>
+        <div className="container-wide py-20 md:py-24">
+          <div className="flex items-end justify-between mb-12" data-reveal>
             <div>
-              <p className="kicker-plain mb-5">
-                <span className="text-bronze mr-3">04</span>
+              <p className="text-[13px] font-body font-semibold text-bronze uppercase tracking-[0.18em] mb-4">
                 {t('certifications')}
               </p>
-              <h2 className="section-heading text-ink">
-                Compliance that <span className="italic font-extralight">travels.</span>
+              <h2 className="font-display text-3xl md:text-4xl font-normal text-ink tracking-[-0.015em] leading-[1.1]">
+                Compliance that travels
               </h2>
             </div>
           </div>
@@ -205,10 +193,10 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
                   className="aspect-square border-r border-b border-warm-border flex flex-col items-center justify-center text-center group hover:bg-sand transition-colors duration-300"
                   data-reveal
                 >
-                  <p className="font-display text-3xl md:text-4xl font-light text-ink group-hover:text-bronze transition-colors duration-300">
+                  <p className="font-display text-3xl md:text-4xl font-normal text-ink group-hover:text-bronze transition-colors duration-300">
                     {cert}
                   </p>
-                  <p className="mt-2 text-[9px] font-body font-medium text-ink-light tracking-[0.28em] uppercase">
+                  <p className="mt-2 text-[12px] font-body font-semibold text-ink-mid tracking-[0.16em] uppercase">
                     Certified
                   </p>
                 </div>
@@ -220,21 +208,20 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
 
       {/* Closing CTA */}
       <section className="bg-cream">
-        <div className="container-wide py-20 md:py-28">
+        <div className="container-wide py-16 md:py-20">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-end">
             <div className="lg:col-span-8">
-              <h2 className="section-heading text-ink">
-                Plan a project with{' '}
-                <span className="italic font-extralight">Chengtai.</span>
+              <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-normal text-ink tracking-[-0.02em] leading-[1.05]">
+                Plan a project with Chengtai
               </h2>
             </div>
             <div className="lg:col-span-4 lg:text-right">
               <Link
                 href={`/${locale}/contact`}
-                className="group inline-flex items-center gap-3 border-b border-ink pb-2 text-[11px] font-body font-medium tracking-[0.26em] uppercase text-ink transition-colors hover:text-bronze hover:border-bronze"
+                className="btn-primary group"
               >
                 Start an inquiry
-                <ArrowRight size={14} strokeWidth={1.5} className="transition-transform duration-500 group-hover:translate-x-1" />
+                <ArrowRight size={14} strokeWidth={1.75} className="ml-3 transition-transform duration-500 group-hover:translate-x-1" />
               </Link>
             </div>
           </div>

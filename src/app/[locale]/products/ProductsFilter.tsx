@@ -69,13 +69,13 @@ export default function ProductsFilter({ products, categories }: ProductsFilterP
                   <button
                     key={String(tab.id)}
                     onClick={() => setSelectedCategory(tab.id)}
-                    className={`relative whitespace-nowrap py-2 text-[11px] font-body font-medium tracking-[0.22em] uppercase transition-colors duration-300 ${
-                      active ? 'text-ink' : 'text-ink-light hover:text-ink'
+                    className={`relative whitespace-nowrap py-2 text-[13px] font-body font-semibold tracking-[0.12em] uppercase transition-colors duration-300 ${
+                      active ? 'text-ink' : 'text-ink-mid hover:text-ink'
                     }`}
                   >
                     {tab.label}
                     <span
-                      className={`absolute left-0 bottom-0 h-px bg-ink transition-all duration-500 ease-out ${
+                      className={`absolute left-0 bottom-0 h-0.5 bg-bronze transition-all duration-500 ease-out ${
                         active ? 'w-full' : 'w-0'
                       }`}
                     />
@@ -87,25 +87,25 @@ export default function ProductsFilter({ products, categories }: ProductsFilterP
             {/* Search */}
             <div className="relative md:w-64 flex-shrink-0">
               <Search
-                size={14}
-                strokeWidth={1.5}
-                className="absolute left-0 top-1/2 -translate-y-1/2 text-ink-light"
+                size={15}
+                strokeWidth={1.75}
+                className="absolute left-0 top-1/2 -translate-y-1/2 text-ink-mid"
               />
               <input
                 type="text"
                 placeholder={t('search')}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-7 pr-8 py-2.5 text-sm font-body font-light text-ink placeholder:text-ink-light bg-transparent border-0 border-b border-warm-border focus:outline-none focus:border-ink transition-colors"
+                className="w-full pl-7 pr-8 py-2.5 text-[15px] font-body font-normal text-ink placeholder:text-ink-mid bg-transparent border-0 border-b border-warm-border focus:outline-none focus:border-ink transition-colors"
               />
               {search && (
                 <button
                   type="button"
                   onClick={() => setSearch('')}
                   aria-label="Clear search"
-                  className="absolute right-0 top-1/2 -translate-y-1/2 text-ink-light hover:text-ink transition-colors"
+                  className="absolute right-0 top-1/2 -translate-y-1/2 text-ink-mid hover:text-ink transition-colors"
                 >
-                  <X size={14} strokeWidth={1.5} />
+                  <X size={15} strokeWidth={1.75} />
                 </button>
               )}
             </div>
@@ -115,16 +115,16 @@ export default function ProductsFilter({ products, categories }: ProductsFilterP
 
       {/* Grid */}
       <section className="bg-cream">
-        <div className="container-wide py-16 md:py-24">
-          <p className="text-[11px] font-body font-medium text-ink-mid tracking-[0.24em] uppercase mb-10 md:mb-14">
+        <div className="container-wide py-14 md:py-20">
+          <p className="text-[14px] font-body font-semibold text-ink tracking-[0.08em] uppercase mb-8 md:mb-12">
             {filtered.length === 0
-              ? '— No results'
-              : `— Showing ${String(filtered.length).padStart(2, '0')} ${filtered.length === 1 ? 'item' : 'items'}`}
+              ? 'No results'
+              : `Showing ${filtered.length} ${filtered.length === 1 ? 'item' : 'items'}`}
           </p>
 
           {filtered.length === 0 ? (
             <div className="py-20 text-center border-t border-warm-border">
-              <p className="font-display text-2xl font-light text-ink-mid">{t('noProducts')}</p>
+              <p className="font-display text-2xl font-normal text-ink-mid">{t('noProducts')}</p>
             </div>
           ) : (
             <div

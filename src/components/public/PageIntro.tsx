@@ -19,20 +19,19 @@ export default function PageIntro({
 
   return (
     <section className="bg-cream border-b border-warm-border">
-      <div className="container-wide pt-16 pb-16 md:pt-20 md:pb-24">
+      <div className="container-wide pt-14 pb-14 md:pt-20 md:pb-20">
         <div className={centered ? 'mx-auto max-w-4xl text-center' : 'max-w-4xl'}>
           {eyebrow && (
             <p
-              className={`kicker-plain mb-6 ${centered ? 'justify-center' : ''}`}
+              className="text-[13px] font-body font-semibold text-bronze uppercase tracking-[0.18em] mb-5"
               data-reveal
             >
-              <span className="text-bronze mr-3">—</span>
               {eyebrow}
             </p>
           )}
 
           <h1
-            className="font-display text-5xl md:text-6xl lg:text-[80px] font-light text-ink leading-[0.98] tracking-[-0.02em]"
+            className="font-display text-4xl md:text-5xl lg:text-[64px] font-normal text-ink leading-[1.05] tracking-[-0.02em]"
             data-reveal
           >
             {title}
@@ -40,7 +39,7 @@ export default function PageIntro({
 
           {description && (
             <p
-              className={`mt-8 text-[16px] font-body font-light leading-[1.85] text-ink-mid md:text-[17px] max-w-2xl ${
+              className={`mt-6 text-[17px] font-body font-normal leading-[1.6] text-ink md:text-[18px] max-w-2xl ${
                 centered ? 'mx-auto' : ''
               }`}
               data-reveal
@@ -50,7 +49,7 @@ export default function PageIntro({
           )}
         </div>
 
-        {children && <div className="mt-12 md:mt-14">{children}</div>}
+        {children && <div className="mt-10 md:mt-12">{children}</div>}
       </div>
     </section>
   );

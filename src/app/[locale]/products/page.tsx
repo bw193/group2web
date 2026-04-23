@@ -96,24 +96,22 @@ export default async function ProductsPage({ params }: { params: Promise<{ local
     <>
       {/* Page intro */}
       <section className="bg-cream border-b border-warm-border">
-        <div className="container-wide pt-20 pb-16 md:pt-24 md:pb-20">
+        <div className="container-wide pt-16 pb-14 md:pt-20 md:pb-16">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-end">
             <div className="lg:col-span-8">
-              <p className="kicker-plain mb-6" data-reveal>
-                <span className="text-bronze mr-3">— Catalog</span>
+              <p className="text-[13px] font-body font-semibold text-bronze uppercase tracking-[0.18em] mb-5" data-reveal>
                 {t('allCategories')}
               </p>
               <h1
-                className="font-display text-5xl md:text-6xl lg:text-[80px] font-light text-ink leading-[0.98] tracking-[-0.02em]"
+                className="font-display text-4xl md:text-5xl lg:text-[64px] font-normal text-ink leading-[1.05] tracking-[-0.02em]"
                 data-reveal
               >
                 {t('title')}
               </h1>
             </div>
             <div className="lg:col-span-4 lg:text-right" data-reveal>
-              <p className="text-[14px] font-body font-light text-ink-mid leading-relaxed max-w-sm lg:ml-auto">
-                Mirrors engineered for bathrooms, hospitality, retail, and residential projects —
-                browse the full collection.
+              <p className="text-[17px] font-body font-normal text-ink leading-[1.6] max-w-sm lg:ml-auto">
+                Mirrors engineered for bathrooms, hospitality, retail, and residential projects — browse the full collection.
               </p>
             </div>
           </div>

@@ -64,21 +64,24 @@ export default function FeaturedProductsSection({
 
   return (
     <section className="bg-cream border-b border-warm-border">
-      <div className="container-wide py-24 md:py-32">
+      <div className="container-wide py-20 md:py-24">
         {/* Header — heading, tabs, and CTA grouped as one cluster */}
-        <div className="flex flex-col items-center text-center mb-14 md:mb-16">
-          <h2 className="section-heading text-ink" data-reveal>
+        <div className="flex flex-col items-center text-center mb-12 md:mb-14">
+          <p className="text-[13px] font-body font-semibold text-bronze uppercase tracking-[0.18em] mb-4" data-reveal>
+            Catalog
+          </p>
+          <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-normal text-ink tracking-[-0.02em] leading-[1.05]" data-reveal>
             {t('featuredProducts')}
           </h2>
 
           {tabs.length > 1 && (
             <div
-              className="mt-8 md:mt-10"
+              className="mt-8"
               role="tablist"
               aria-label="Product categories"
               data-reveal
             >
-              <div className="flex justify-center flex-wrap gap-x-8 gap-y-3 md:gap-x-10 overflow-x-auto no-scrollbar -mx-1 px-1">
+              <div className="flex justify-center flex-wrap gap-x-6 gap-y-3 md:gap-x-8 overflow-x-auto no-scrollbar -mx-1 px-1">
                 {tabs.map((tab) => {
                   const active = tab.id === activeId;
                   return (
@@ -87,13 +90,13 @@ export default function FeaturedProductsSection({
                       role="tab"
                       aria-selected={active}
                       onClick={() => setActiveId(tab.id)}
-                      className={`relative whitespace-nowrap pb-2 text-[11px] font-body font-medium tracking-[0.24em] uppercase transition-colors duration-300 ${
-                        active ? 'text-ink' : 'text-ink-light hover:text-ink'
+                      className={`relative whitespace-nowrap pb-2 text-[13px] font-body font-semibold tracking-[0.12em] uppercase transition-colors duration-300 ${
+                        active ? 'text-ink' : 'text-ink-mid hover:text-ink'
                       }`}
                     >
                       {tab.label}
                       <span
-                        className={`absolute left-0 bottom-0 h-px bg-ink transition-all duration-500 ease-out ${
+                        className={`absolute left-0 bottom-0 h-0.5 bg-bronze transition-all duration-500 ease-out ${
                           active ? 'w-full' : 'w-0'
                         }`}
                       />
@@ -104,13 +107,13 @@ export default function FeaturedProductsSection({
             </div>
           )}
 
-          <div className="mt-8 md:mt-10" data-reveal>
+          <div className="mt-8" data-reveal>
             <Link
               href={`/${locale}/products`}
-              className="group inline-flex items-center gap-3 border-b border-ink pb-2 text-[11px] font-body font-medium tracking-[0.26em] uppercase text-ink transition-colors hover:text-bronze hover:border-bronze"
+              className="btn-primary group"
             >
               {t('viewAll')}
-              <ArrowRight size={14} strokeWidth={1.5} className="transition-transform duration-500 group-hover:translate-x-1" />
+              <ArrowRight size={14} strokeWidth={1.75} className="ml-3 transition-transform duration-500 group-hover:translate-x-1" />
             </Link>
           </div>
         </div>
@@ -118,7 +121,7 @@ export default function FeaturedProductsSection({
         {/* Product grid */}
         {filtered.length === 0 ? (
           <div className="py-20 text-center">
-            <p className="font-display text-xl font-light text-ink-mid">{t('featuredProducts')}</p>
+            <p className="font-display text-xl font-normal text-ink-mid">{t('featuredProducts')}</p>
           </div>
         ) : (
           <div
@@ -126,7 +129,7 @@ export default function FeaturedProductsSection({
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-14 md:gap-x-10 md:gap-y-16 animate-fade-up"
           >
             {filtered.map((product, i) => (
-              <ProductCard key={product.id} index={i} {...product} />
+              <ProductCard key={product.id} index={i} hideDescription {...product} />
             ))}
           </div>
         )}

@@ -14,6 +14,11 @@ interface ProductCardProps {
   imageUrl?: string | null;
   isFeatured?: boolean;
   index?: number;
+  /**
+   * When true, the short-description paragraph is hidden. Used on the
+   * homepage featured grid so cards stay compact and bottom-aligned.
+   */
+  hideDescription?: boolean;
 }
 
 export default function ProductCard({
@@ -24,12 +29,13 @@ export default function ProductCard({
   imageUrl,
   isFeatured,
   index,
+  hideDescription = false,
 }: ProductCardProps) {
   const t = useTranslations('products');
   const locale = useLocale();
 
   return (
-    <article className="group">
+    <article className="group flex flex-col h-full">
       {/* Image */}
       <Link
         href={`/${locale}/products/${slug}`}
@@ -54,32 +60,28 @@ export default function ProductCard({
           </div>
         )}
 
-        {/* Index number — editorial mark */}
-        {typeof index === 'number' && (
-          <span className="absolute top-4 left-4 font-body text-[10px] font-medium tracking-[0.28em] uppercase text-cream/90 mix-blend-difference">
-            {String(index + 1).padStart(2, '0')}
-          </span>
-        )}
-
         {isFeatured && (
-          <span className="absolute top-4 right-4 bg-cream text-ink text-[9px] font-body font-medium px-3 py-1 uppercase tracking-[0.24em]">
+          <span className="absolute top-4 right-4 bg-cream text-ink text-[11px] font-body font-semibold px-3 py-1 uppercase tracking-[0.14em]">
             {t('featured')}
           </span>
         )}
       </Link>
 
-      {/* Content */}
-      <div>
-        <div className="flex items-baseline justify-between gap-3 mb-2">
+      {/* Content — flex column so the action row pins to the bottom
+          and every card in a row ends at the same baseline. */}
+      <div className="flex flex-col flex-1">
+        <div className="flex items-baseline justify-between gap-3 mb-2 min-h-[16px]">
           {modelNumber ? (
-            <p className="text-[10px] font-body text-ink-light tracking-[0.2em] uppercase">
+            <p className="text-[12px] font-body font-semibold text-bronze tracking-[0.12em] uppercase">
               {modelNumber}
             </p>
           ) : (
             <span />
           )}
         </div>
-        <h3 className="font-display text-[22px] font-light text-ink leading-[1.2] mb-3 tracking-[-0.005em] line-clamp-2">
+        {/* Reserve two lines of title height so 1-line titles don't
+            shrink the card and break alignment with multi-line siblings. */}
+        <h3 className="font-display text-[22px] font-normal text-ink leading-[1.2] mb-3 tracking-[-0.005em] line-clamp-2 min-h-[calc(2*1.2em)]">
           <Link
             href={`/${locale}/products/${slug}`}
             className="bg-left-bottom bg-gradient-to-r from-ink to-ink bg-[length:0%_1px] bg-no-repeat transition-[background-size] duration-500 group-hover:bg-[length:100%_1px]"
@@ -87,21 +89,23 @@ export default function ProductCard({
             {name}
           </Link>
         </h3>
-        {shortDescription && (
-          <p className="text-[14px] font-body font-light text-ink-mid line-clamp-2 mb-5 leading-[1.7]">
+        {!hideDescription && shortDescription && (
+          <p className="text-[15px] font-body font-normal text-ink-mid line-clamp-2 mb-5 leading-[1.55]">
             {shortDescription}
           </p>
         )}
-        <div className="flex items-center gap-6 pt-4 border-t border-warm-border">
+        <div className="mt-auto flex items-center gap-6 pt-4 border-t border-warm-border">
           <Link
             href={`/${locale}/products/${slug}`}
-            className="nav-link text-[10px] font-body font-medium text-ink tracking-[0.24em] uppercase"
+            className="nav-link text-[13px] font-body font-semibold text-ink tracking-[0.12em] uppercase"
           >
             {t('viewDetails')}
           </Link>
           <Link
-            href={`/${locale}/contact?product=${encodeURIComponent(name)}`}
-            className="text-[10px] font-body font-medium text-ink-mid tracking-[0.24em] uppercase hover:text-bronze transition-colors duration-300"
+            href={`/${locale}/contact?product=${encodeURIComponent(name)}${
+              modelNumber ? `&model=${encodeURIComponent(modelNumber)}` : ''
+            }`}
+            className="text-[13px] font-body font-semibold text-ink-mid tracking-[0.12em] uppercase hover:text-bronze transition-colors duration-300"
           >
             {t('sendInquiry')}
           </Link>
