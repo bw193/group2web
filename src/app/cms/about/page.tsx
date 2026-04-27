@@ -12,8 +12,6 @@ interface GalleryItem {
   displayOrder: number;
 }
 
-const FACILITY_SLOTS = 4; // home page facility gallery shows up to 4
-
 export default function AboutManagementPage() {
   const { t } = useT();
   // Text content
@@ -151,34 +149,35 @@ export default function AboutManagementPage() {
         </div>
       </div>
 
-      {/* === Facility Gallery — fixed 4-slot ===================================== */}
+      {/* === Facility Gallery — dynamic count ==================================== */}
       <Section
         eyebrow="03"
         title={t('about.facility.title')}
         emphasis={t('about.facility.emphasis')}
         description={t('about.facility.desc')}
         icon={Building2}
-        meta={t('about.facility.meta', { n: facility.length, total: FACILITY_SLOTS })}
+        meta={t(facility.length === 1 ? 'about.facility.metaOne' : 'about.facility.metaMany', { n: facility.length })}
       >
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
-          {Array.from({ length: FACILITY_SLOTS }).map((_, i) => {
-            const item = facility[i];
-            return (
-              <SlotCard
-                key={i}
-                index={i}
-                item={item}
-                kind="factory"
-                onUpload={(f) => handleUpload(f, 'factory', (facility[facility.length - 1]?.displayOrder ?? -1) + 1)}
-                onDelete={(id) => deleteImage(id, 'factory')}
-                uploading={uploadingType === 'factory'}
-              />
-            );
-          })}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+          {facility.map((p, i) => (
+            <FacilityCard
+              key={p.id}
+              index={i}
+              item={p}
+              total={facility.length}
+              onDelete={() => deleteImage(p.id, 'factory')}
+              onReorder={(delta) => reorder(p, delta)}
+            />
+          ))}
+          <FacilityUploader
+            uploading={uploadingType === 'factory'}
+            nextOrder={(facility[facility.length - 1]?.displayOrder ?? -1) + 1}
+            onUpload={(f, ord) => handleUpload(f, 'factory', ord)}
+          />
         </div>
-        {facility.length >= FACILITY_SLOTS && (
-          <p className="text-[11px] text-amber-700 bg-amber-50 border border-amber-200 px-3 py-2 mt-4">
-            {t('about.facility.full')}
+        {facility.length === 0 && (
+          <p className="text-[11px] text-gray-500 bg-gray-50 border border-gray-200 px-3 py-2 mt-4">
+            {t('about.facility.empty')}
           </p>
         )}
       </Section>
@@ -300,43 +299,71 @@ function Section({
   );
 }
 
-function SlotCard({
+function FacilityCard({
   index,
   item,
-  kind,
-  onUpload,
+  total,
   onDelete,
-  uploading,
+  onReorder,
 }: {
   index: number;
-  item?: GalleryItem;
-  kind: 'factory' | 'certification';
-  onUpload: (f: File) => void;
-  onDelete: (id: number) => void;
-  uploading: boolean;
+  item: GalleryItem;
+  total: number;
+  onDelete: () => void;
+  onReorder: (delta: number) => void;
 }) {
   const { t } = useT();
-  if (item) {
-    return (
-      <div className="group relative aspect-[4/5] bg-gray-50 border border-gray-200 hover:border-[#9A8266] transition-colors overflow-hidden">
-        <img
-          src={getUploadUrl(item.imageUrl)}
-          alt=""
-          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
-        />
-        <span className="absolute top-2 left-2 text-[9px] tracking-[0.2em] text-white bg-black/40 backdrop-blur-sm px-1.5 py-0.5">
-          {String(index + 1).padStart(2, '0')}
-        </span>
+  return (
+    <div className="group relative aspect-[4/5] bg-gray-50 border border-gray-200 hover:border-[#9A8266] transition-colors overflow-hidden">
+      <img
+        src={getUploadUrl(item.imageUrl)}
+        alt=""
+        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+      />
+      <span className="absolute top-2 left-2 text-[9px] tracking-[0.15em] text-white bg-black/50 backdrop-blur-sm px-1.5 py-0.5 font-mono">
+        {String(index + 1).padStart(String(total).length, '0')}
+        <span className="opacity-60 ml-1">/ {total}</span>
+      </span>
+      <div className="absolute inset-x-0 bottom-0 bg-white/95 backdrop-blur-sm border-t border-gray-100 flex opacity-0 group-hover:opacity-100 transition-all translate-y-1 group-hover:translate-y-0">
         <button
-          onClick={() => onDelete(item.id)}
-          className="absolute top-2 right-2 w-7 h-7 bg-white/90 hover:bg-red-600 hover:text-white text-gray-700 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all"
+          type="button"
+          onClick={() => onReorder(-1)}
+          className="flex-1 py-1.5 text-[10px] text-gray-500 hover:text-[#9A8266] hover:bg-gray-50 transition-colors tracking-wider"
+          title={t('about.tooltip.moveUp')}
+        >
+          ↑
+        </button>
+        <button
+          type="button"
+          onClick={() => onReorder(1)}
+          className="flex-1 py-1.5 text-[10px] text-gray-500 hover:text-[#9A8266] hover:bg-gray-50 transition-colors tracking-wider border-l border-gray-100"
+          title={t('about.tooltip.moveDown')}
+        >
+          ↓
+        </button>
+        <button
+          type="button"
+          onClick={onDelete}
+          className="flex-1 py-1.5 text-[10px] text-gray-500 hover:text-red-600 hover:bg-red-50 transition-colors tracking-wider border-l border-gray-100"
           title={t('about.tooltip.delete')}
         >
-          <Trash2 size={13} />
+          <Trash2 size={11} className="inline" />
         </button>
       </div>
-    );
-  }
+    </div>
+  );
+}
+
+function FacilityUploader({
+  uploading,
+  nextOrder,
+  onUpload,
+}: {
+  uploading: boolean;
+  nextOrder: number;
+  onUpload: (f: File, order: number) => void;
+}) {
+  const { t } = useT();
   return (
     <label className="group relative aspect-[4/5] border border-dashed border-gray-300 hover:border-[#9A8266] hover:bg-[#9A8266]/[0.02] transition-colors cursor-pointer flex flex-col items-center justify-center gap-2">
       <input
@@ -346,18 +373,14 @@ function SlotCard({
         disabled={uploading}
         onChange={(e) => {
           const f = e.target.files?.[0];
-          if (f) onUpload(f);
+          if (f) onUpload(f, nextOrder);
           e.target.value = '';
         }}
       />
-      <span className="text-[9px] tracking-[0.25em] text-gray-300 uppercase absolute top-2 left-2">
-        {t('about.slot.label', { n: String(index + 1).padStart(2, '0') })}
-      </span>
       <Upload size={20} className="text-gray-300 group-hover:text-[#9A8266] transition-colors" strokeWidth={1.5} />
       <span className="text-[10px] tracking-[0.2em] text-gray-400 uppercase">
         {uploading ? t('pe.uploading') : t('about.addPhoto')}
       </span>
-      <span className="absolute inset-x-4 bottom-3 h-px bg-gray-200 group-hover:bg-[#9A8266] transition-colors" />
     </label>
   );
 }

@@ -357,9 +357,11 @@ const en = {
   'about.facility.title': 'Facility Gallery',
   'about.facility.emphasis': 'gallery',
   'about.facility.desc':
-    'The home page Facility section renders up to 4 photos with a primary image and 3 thumbnails. Empty slots show a diagonal hairline.',
-  'about.facility.meta': '{n}/{total} slots',
-  'about.facility.full': 'Facility gallery is full. Delete a photo to upload a replacement.',
+    'Upload as many facility photos as you want. They appear in the home page Facility section and on the About page gallery, in the order shown below.',
+  'about.facility.metaOne': '{n} photo',
+  'about.facility.metaMany': '{n} photos',
+  'about.facility.empty':
+    'No facility photos uploaded yet — the home and About pages will fall back to placeholders.',
   'about.cert.title': 'Certifications',
   'about.cert.emphasis': 'badges',
   'about.cert.desc':
@@ -739,9 +741,10 @@ const zh: typeof en = {
   'about.saved': '已保存',
   'about.facility.title': '工厂图册',
   'about.facility.emphasis': '图册',
-  'about.facility.desc': '首页"工厂"区块最多展示 4 张照片(1 张主图 + 3 张缩略图)。空位以斜线占位显示。',
-  'about.facility.meta': '{n}/{total} 个位置',
-  'about.facility.full': '工厂图册已满,删除一张后即可上传新照片。',
+  'about.facility.desc': '可上传任意数量的工厂照片,按下方顺序显示在首页"工厂"区块和"关于"页图册中。',
+  'about.facility.metaOne': '{n} 张照片',
+  'about.facility.metaMany': '{n} 张照片',
+  'about.facility.empty': '尚未上传工厂照片 — 首页和关于页将显示占位图。',
   'about.cert.title': '认证证书',
   'about.cert.emphasis': '徽标',
   'about.cert.desc': '所有上传的证书会按数量自适应排版显示在首页。编号与"总数"会自动更新。',

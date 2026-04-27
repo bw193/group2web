@@ -11,13 +11,13 @@ interface Props {
 export default function FacilityGallery({ images }: Props) {
   const list = images.length > 0 ? images : ['/images/placeholder.svg'];
   const [activeIdx, setActiveIdx] = useState(0);
-  const thumbs = list.slice(0, 4);
+  const total = list.length;
 
   return (
     <div className="relative">
       {/* Primary image */}
       <div className="relative aspect-[4/5] md:aspect-[5/4] overflow-hidden bg-warm-gray">
-        {thumbs.map((src, i) =>
+        {list.map((src, i) =>
           src === '/images/placeholder.svg' ? (
             <div
               key={`ph-${i}`}
@@ -53,36 +53,35 @@ export default function FacilityGallery({ images }: Props) {
           </span>
           <span className="w-10 h-px bg-cream/50" />
           <span className="text-[10px] font-body font-medium tracking-[0.28em] uppercase text-cream/70">
-            {String(thumbs.length).padStart(2, '0')}
+            {String(total).padStart(2, '0')}
           </span>
         </div>
       </div>
 
-      {/* Thumbnail strip */}
-      <div className="mt-4 grid grid-cols-4 gap-2 md:gap-3">
-        {Array.from({ length: 4 }).map((_, i) => {
-          const src = thumbs[i];
+      {/* Thumbnail strip — wraps to multiple rows when there are many images */}
+      <div className="mt-4 grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 gap-2 md:gap-3">
+        {list.map((src, i) => {
           const isActive = i === activeIdx;
-          const isEmpty = !src;
+          const isPlaceholder = src === '/images/placeholder.svg';
           return (
             <button
-              key={i}
+              key={`${src}-${i}`}
               type="button"
-              disabled={isEmpty}
-              onClick={() => !isEmpty && setActiveIdx(i)}
+              disabled={isPlaceholder}
+              onClick={() => !isPlaceholder && setActiveIdx(i)}
               aria-label={`Show facility image ${i + 1}`}
               aria-pressed={isActive}
               className={`group relative aspect-[5/4] overflow-hidden transition-all duration-500 ${
-                isEmpty ? 'bg-warm-gray/60 cursor-not-allowed' : 'bg-warm-gray cursor-pointer'
+                isPlaceholder ? 'bg-warm-gray/60 cursor-not-allowed' : 'bg-warm-gray cursor-pointer'
               }`}
             >
-              {src ? (
+              {!isPlaceholder ? (
                 <>
                   <Image
                     src={src.startsWith('/') ? src : getUploadUrl(src)}
                     alt=""
                     fill
-                    sizes="15vw"
+                    sizes="(max-width: 768px) 25vw, 15vw"
                     quality={70}
                     className={`object-cover transition-all duration-500 ${
                       isActive ? 'opacity-100' : 'opacity-60 group-hover:opacity-90'

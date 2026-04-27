@@ -171,15 +171,15 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
               {certPhotos.map((cert) => (
                 <div
                   key={cert.id}
-                  className="aspect-square border-r border-b border-warm-border flex items-center justify-center p-10 bg-cream"
+                  className="aspect-square border-r border-b border-warm-border flex items-center justify-center p-4 md:p-6 bg-cream"
                   data-reveal
                 >
                   <Image
                     src={getUploadUrl(cert.imageUrl)}
                     alt="Certification"
-                    width={200}
-                    height={112}
-                    className="max-h-20 w-auto object-contain grayscale hover:grayscale-0 transition-all duration-500"
+                    width={420}
+                    height={420}
+                    className="max-h-full max-w-full w-auto h-auto object-contain grayscale hover:grayscale-0 transition-all duration-500"
                     loading="lazy"
                   />
                 </div>
