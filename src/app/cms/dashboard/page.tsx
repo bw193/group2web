@@ -12,6 +12,7 @@ import {
   ArrowUpRight,
   ExternalLink,
 } from 'lucide-react';
+import { useT } from '../_lib/i18n';
 
 interface Counts {
   banners: number;
@@ -35,6 +36,7 @@ const initial: Counts = {
 };
 
 export default function DashboardPage() {
+  const { t, lang } = useT();
   const [counts, setCounts] = useState<Counts>(initial);
   const [recentInquiries, setRecentInquiries] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -70,72 +72,74 @@ export default function DashboardPage() {
   const homeSections = [
     {
       eyebrow: '01',
-      title: 'Hero Banners',
-      desc: 'Top-of-page rotating slides with localized titles & CTAs.',
+      title: t('dash.section.banners.title'),
+      desc: t('dash.section.banners.desc'),
       icon: ImageIcon,
       href: '/cms/banners',
       primary: counts.bannersActive,
       total: counts.banners,
-      unit: counts.bannersActive === 1 ? 'slide live' : 'slides live',
-      detail: `${counts.banners} total`,
+      unit: counts.bannersActive === 1 ? t('dash.section.banners.unitOne') : t('dash.section.banners.unitMany'),
+      detail: t('dash.section.banners.detail', { n: counts.banners }),
     },
     {
       eyebrow: '02',
-      title: 'Featured Products',
-      desc: 'Products marked “featured” surface in the home grid by category.',
+      title: t('dash.section.featured.title'),
+      desc: t('dash.section.featured.desc'),
       icon: Package,
       href: '/cms/products',
       primary: counts.featuredProducts,
       total: counts.totalProducts,
-      unit: 'on home grid',
-      detail: `${counts.totalProducts} total in catalog`,
+      unit: t('dash.section.featured.unit'),
+      detail: t('dash.section.featured.detail', { n: counts.totalProducts }),
     },
     {
       eyebrow: '03',
-      title: 'Facility Gallery',
-      desc: 'Up to 4 photos appear in the “Inside the Factory” gallery.',
+      title: t('dash.section.facility.title'),
+      desc: t('dash.section.facility.desc'),
       icon: Building2,
       href: '/cms/about',
       primary: counts.facilityImages,
       total: 4,
-      unit: counts.facilityImages === 1 ? 'image uploaded' : 'images uploaded',
-      detail: counts.facilityImages >= 4 ? 'Gallery complete' : `${4 - counts.facilityImages} slot(s) free`,
+      unit: counts.facilityImages === 1 ? t('dash.section.facility.unitOne') : t('dash.section.facility.unitMany'),
+      detail: counts.facilityImages >= 4 ? t('dash.section.facility.complete') : t('dash.section.facility.free', { n: 4 - counts.facilityImages }),
     },
     {
       eyebrow: '04',
-      title: 'Certifications',
-      desc: 'Compliance badges shown in the Compliance section, dynamically.',
+      title: t('dash.section.cert.title'),
+      desc: t('dash.section.cert.desc'),
       icon: Award,
       href: '/cms/about',
       primary: counts.certImages,
       total: counts.certImages,
-      unit: counts.certImages === 1 ? 'certificate' : 'certificates',
-      detail: counts.certImages === 0 ? 'Showing fallback labels' : 'Auto-laid out',
+      unit: counts.certImages === 1 ? t('dash.section.cert.unitOne') : t('dash.section.cert.unitMany'),
+      detail: counts.certImages === 0 ? t('dash.section.cert.fallback') : t('dash.section.cert.auto'),
     },
     {
       eyebrow: '05',
-      title: 'FAQ',
-      desc: 'Accordion of inquiries answered on the home page.',
+      title: t('dash.section.faqs.title'),
+      desc: t('dash.section.faqs.desc'),
       icon: HelpCircle,
       href: '/cms/faqs',
       primary: counts.faqsActive,
       total: counts.faqs,
-      unit: counts.faqsActive === 1 ? 'question live' : 'questions live',
-      detail: `${counts.faqs} total`,
+      unit: counts.faqsActive === 1 ? t('dash.section.faqs.unitOne') : t('dash.section.faqs.unitMany'),
+      detail: t('dash.section.faqs.detail', { n: counts.faqs }),
     },
     {
       eyebrow: '06',
-      title: 'Inquiries',
-      desc: 'Inbound contact requests from the public site.',
+      title: t('dash.section.inquiries.title'),
+      desc: t('dash.section.inquiries.desc'),
       icon: MessageSquare,
       href: '/cms/inquiries',
       primary: counts.unreadInquiries,
       total: counts.inquiries,
-      unit: 'unread',
-      detail: `${counts.inquiries} total received`,
+      unit: t('dash.section.inquiries.unit'),
+      detail: t('dash.section.inquiries.detail', { n: counts.inquiries }),
       highlight: counts.unreadInquiries > 0,
     },
   ];
+
+  const dateLocale = lang === 'zh' ? 'zh-CN' : 'en-US';
 
   return (
     <div className="max-w-[1280px] mx-auto">
@@ -143,11 +147,11 @@ export default function DashboardPage() {
       <div className="mb-10">
         <div className="flex items-center gap-3 mb-3">
           <span className="text-[10px] font-medium text-[#9A8266] tracking-[0.3em] uppercase">
-            Overview
+            {t('dash.eyebrow')}
           </span>
           <span className="h-px flex-1 bg-gray-200 max-w-[120px]" />
           <span className="text-[10px] text-gray-400 tracking-[0.25em] uppercase">
-            {loading ? 'Syncing…' : 'Live'}
+            {loading ? t('dash.syncing') : t('dash.live')}
           </span>
         </div>
         <div className="flex flex-wrap items-end justify-between gap-6">
@@ -156,11 +160,10 @@ export default function DashboardPage() {
               className="text-4xl md:text-5xl font-medium leading-tight text-gray-900"
               style={{ fontFamily: 'Cormorant Garamond, Georgia, serif' }}
             >
-              Home Page <em className="text-[#9A8266] italic font-light">Control</em>
+              {t('dash.titlePart1')} <em className="text-[#9A8266] italic font-light">{t('dash.titlePart2')}</em>
             </h1>
             <p className="text-sm text-gray-500 mt-3 max-w-xl leading-relaxed">
-              Every section of the public home page maps to a card below. Click in to edit
-              what visitors see — banners, featured products, facility gallery, certifications, FAQ.
+              {t('dash.intro')}
             </p>
           </div>
           <Link
@@ -169,7 +172,7 @@ export default function DashboardPage() {
             rel="noreferrer"
             className="inline-flex items-center gap-2 px-5 py-3 border border-gray-900 text-gray-900 hover:bg-gray-900 hover:text-white text-[11px] tracking-[0.2em] uppercase font-medium transition-colors"
           >
-            View Live Site
+            {t('common.viewLiveSite')}
             <ExternalLink size={12} />
           </Link>
         </div>
@@ -239,7 +242,7 @@ export default function DashboardPage() {
 
             {s.highlight && !loading && s.primary > 0 && (
               <span className="absolute top-3 right-3 px-2 py-0.5 bg-amber-100 text-amber-700 text-[9px] tracking-[0.15em] uppercase font-medium">
-                Action needed
+                {t('dash.actionNeeded')}
               </span>
             )}
           </Link>
@@ -251,38 +254,38 @@ export default function DashboardPage() {
         <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
           <div className="flex items-center gap-3">
             <span className="text-[10px] font-medium text-[#9A8266] tracking-[0.3em] uppercase">
-              Latest
+              {t('dash.recentEyebrow')}
             </span>
             <span className="w-8 h-px bg-gray-200" />
             <h2
               className="text-xl font-medium text-gray-900"
               style={{ fontFamily: 'Cormorant Garamond, Georgia, serif' }}
             >
-              Recent Inquiries
+              {t('dash.recentTitle')}
             </h2>
           </div>
           <Link
             href="/cms/inquiries"
             className="text-[11px] tracking-[0.2em] uppercase text-gray-500 hover:text-[#9A8266] transition-colors"
           >
-            View all →
+            {t('dash.viewAll')}
           </Link>
         </div>
 
         {recentInquiries.length === 0 ? (
           <div className="px-6 py-12 text-center">
-            <p className="text-sm text-gray-400">No inquiries yet.</p>
+            <p className="text-sm text-gray-400">{t('dash.noInquiries')}</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-[10px] tracking-[0.2em] text-gray-400 uppercase">
-                  <th className="text-left px-6 py-3 font-medium">Name</th>
-                  <th className="text-left px-6 py-3 font-medium">Email</th>
-                  <th className="text-left px-6 py-3 font-medium">Product</th>
-                  <th className="text-left px-6 py-3 font-medium">Date</th>
-                  <th className="text-left px-6 py-3 font-medium">Status</th>
+                  <th className="text-left px-6 py-3 font-medium">{t('dash.col.name')}</th>
+                  <th className="text-left px-6 py-3 font-medium">{t('dash.col.email')}</th>
+                  <th className="text-left px-6 py-3 font-medium">{t('dash.col.product')}</th>
+                  <th className="text-left px-6 py-3 font-medium">{t('dash.col.date')}</th>
+                  <th className="text-left px-6 py-3 font-medium">{t('dash.col.status')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -291,7 +294,7 @@ export default function DashboardPage() {
                     <td className="px-6 py-3.5 font-medium text-gray-800">{inq.name}</td>
                     <td className="px-6 py-3.5 text-gray-500">{inq.email}</td>
                     <td className="px-6 py-3.5 text-gray-500">{inq.productInterest || '—'}</td>
-                    <td className="px-6 py-3.5 text-gray-500">{new Date(inq.createdAt).toLocaleDateString()}</td>
+                    <td className="px-6 py-3.5 text-gray-500">{new Date(inq.createdAt).toLocaleDateString(dateLocale)}</td>
                     <td className="px-6 py-3.5">
                       <span
                         className={`text-[10px] px-2.5 py-1 tracking-[0.15em] uppercase font-medium ${
@@ -300,7 +303,7 @@ export default function DashboardPage() {
                             : 'bg-[#9A8266]/10 text-[#7a6750]'
                         }`}
                       >
-                        {inq.isRead ? 'Read' : 'New'}
+                        {inq.isRead ? t('dash.statusRead') : t('dash.statusNew')}
                       </span>
                     </td>
                   </tr>

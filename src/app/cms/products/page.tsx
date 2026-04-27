@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Plus, Edit2, Trash2, Star, Search } from 'lucide-react';
 import { getUploadUrl } from '@/lib/utils';
+import { useT } from '../_lib/i18n';
 
 interface Product {
   id: number;
@@ -22,6 +23,7 @@ interface Category {
 }
 
 export default function ProductsListPage() {
+  const { t } = useT();
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [search, setSearch] = useState('');
@@ -42,13 +44,13 @@ export default function ProductsListPage() {
   }
 
   async function handleDelete(id: number) {
-    if (!confirm('Delete this product?')) return;
+    if (!confirm(t('prod.confirmDelete'))) return;
     await fetch(`/api/products/${id}`, { method: 'DELETE' });
     fetchData();
   }
 
   async function bulkDelete() {
-    if (!confirm(`Delete ${selected.size} products?`)) return;
+    if (!confirm(t('prod.confirmBulk', { n: selected.size }))) return;
     await Promise.all(Array.from(selected).map((id) => fetch(`/api/products/${id}`, { method: 'DELETE' })));
     setSelected(new Set());
     fetchData();
@@ -70,9 +72,9 @@ export default function ProductsListPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-heading font-bold">Products</h1>
+        <h1 className="text-2xl font-heading font-bold">{t('prod.title')}</h1>
         <Link href="/cms/products/new" className="btn-primary text-sm">
-          <Plus size={16} className="mr-1" /> Add Product
+          <Plus size={16} className="mr-1" /> {t('prod.add')}
         </Link>
       </div>
 
@@ -83,21 +85,21 @@ export default function ProductsListPage() {
             <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
               type="text"
-              placeholder="Search products..."
+              placeholder={t('prod.searchPlaceholder')}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="input-field pl-9"
             />
           </div>
           <select value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)} className="input-field md:w-48">
-            <option value="">All Categories</option>
+            <option value="">{t('prod.allCategories')}</option>
             {categories.map((c) => (
               <option key={c.id} value={c.id}>{c.name}</option>
             ))}
           </select>
           {selected.size > 0 && (
             <button onClick={bulkDelete} className="px-4 py-2 bg-red-500 text-white rounded text-sm">
-              Delete ({selected.size})
+              {t('prod.bulkDelete', { n: selected.size })}
             </button>
           )}
         </div>
@@ -115,11 +117,11 @@ export default function ProductsListPage() {
                   onChange={(e) => setSelected(e.target.checked ? new Set(filtered.map((p) => p.id)) : new Set())}
                 />
               </th>
-              <th className="text-left py-3">Image</th>
-              <th className="text-left py-3">Name</th>
-              <th className="text-left py-3">Model</th>
-              <th className="text-left py-3">Featured</th>
-              <th className="text-left py-3">Actions</th>
+              <th className="text-left py-3">{t('prod.col.image')}</th>
+              <th className="text-left py-3">{t('prod.col.name')}</th>
+              <th className="text-left py-3">{t('prod.col.model')}</th>
+              <th className="text-left py-3">{t('prod.col.featured')}</th>
+              <th className="text-left py-3">{t('common.actions')}</th>
             </tr>
           </thead>
           <tbody>
@@ -150,7 +152,7 @@ export default function ProductsListPage() {
             ))}
           </tbody>
         </table>
-        {filtered.length === 0 && <p className="text-center text-text-secondary py-8">No products found.</p>}
+        {filtered.length === 0 && <p className="text-center text-text-secondary py-8">{t('prod.empty')}</p>}
       </div>
     </div>
   );

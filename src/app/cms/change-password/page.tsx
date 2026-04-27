@@ -2,9 +2,11 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useT } from '../_lib/i18n';
 
 export default function ChangePasswordPage() {
   const router = useRouter();
+  const { t } = useT();
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -16,12 +18,12 @@ export default function ChangePasswordPage() {
     setError('');
 
     if (newPassword !== confirmPassword) {
-      setError('Passwords do not match');
+      setError(t('cp.mismatch'));
       return;
     }
 
     if (newPassword.length < 8) {
-      setError('Password must be at least 8 characters');
+      setError(t('cp.tooShort'));
       return;
     }
 
@@ -35,13 +37,13 @@ export default function ChangePasswordPage() {
 
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error || 'Failed to change password');
+        setError(data.error || t('cp.failed'));
         return;
       }
 
       router.push('/cms/dashboard');
     } catch {
-      setError('Network error');
+      setError(t('common.networkError'));
     } finally {
       setLoading(false);
     }
@@ -50,9 +52,9 @@ export default function ChangePasswordPage() {
   return (
     <div className="max-w-md mx-auto mt-8">
       <div className="cms-card">
-        <h1 className="text-xl font-semibold mb-2">Change Password</h1>
+        <h1 className="text-xl font-semibold mb-2">{t('cp.title')}</h1>
         <p className="text-sm text-text-secondary mb-6">
-          You must change your password before continuing.
+          {t('cp.notice')}
         </p>
 
         {error && (
@@ -63,7 +65,7 @@ export default function ChangePasswordPage() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-1.5">Current Password</label>
+            <label className="block text-sm font-medium mb-1.5">{t('cp.current')}</label>
             <input
               type="password"
               required
@@ -73,7 +75,7 @@ export default function ChangePasswordPage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1.5">New Password</label>
+            <label className="block text-sm font-medium mb-1.5">{t('cp.new')}</label>
             <input
               type="password"
               required
@@ -84,7 +86,7 @@ export default function ChangePasswordPage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1.5">Confirm New Password</label>
+            <label className="block text-sm font-medium mb-1.5">{t('cp.confirm')}</label>
             <input
               type="password"
               required
@@ -94,7 +96,7 @@ export default function ChangePasswordPage() {
             />
           </div>
           <button type="submit" disabled={loading} className="btn-primary w-full disabled:opacity-50">
-            {loading ? 'Changing...' : 'Change Password'}
+            {loading ? t('cp.changing') : t('cp.submit')}
           </button>
         </form>
       </div>

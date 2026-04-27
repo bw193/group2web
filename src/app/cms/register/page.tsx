@@ -2,8 +2,10 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useT } from '../_lib/i18n';
 
 export default function RegisterPage() {
+  const { t } = useT();
   const [form, setForm] = useState({ username: '', email: '', password: '', fullName: '' });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
@@ -24,13 +26,13 @@ export default function RegisterPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error || 'Registration failed');
+        setError(data.error || t('register.failed'));
         return;
       }
 
       setSuccess(true);
     } catch {
-      setError('Network error. Please try again.');
+      setError(t('common.networkError'));
     } finally {
       setLoading(false);
     }
@@ -41,12 +43,12 @@ export default function RegisterPage() {
       <div className="min-h-screen flex items-center justify-center px-4">
         <div className="w-full max-w-md bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
           <div className="text-green-500 text-4xl mb-4">&#10003;</div>
-          <h2 className="text-xl font-semibold mb-2">Registration Successful</h2>
+          <h2 className="text-xl font-semibold mb-2">{t('register.successTitle')}</h2>
           <p className="text-sm text-text-secondary mb-6">
-            Your account is pending admin approval. Please contact an administrator.
+            {t('register.successBody')}
           </p>
           <Link href="/cms/login" className="btn-primary">
-            Back to Login
+            {t('register.backToLogin')}
           </Link>
         </div>
       </div>
@@ -57,12 +59,12 @@ export default function RegisterPage() {
     <div className="min-h-screen flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-heading font-bold text-text-primary">CHENGTAI CMS</h1>
-          <p className="text-sm text-text-secondary mt-1">Create Employee Account</p>
+          <h1 className="text-2xl font-heading font-bold text-text-primary">{t('login.brand')}</h1>
+          <p className="text-sm text-text-secondary mt-1">{t('register.tagline')}</p>
         </div>
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
-          <h2 className="text-xl font-semibold mb-6">Register</h2>
+          <h2 className="text-xl font-semibold mb-6">{t('register.title')}</h2>
 
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg p-3 mb-4">
@@ -72,7 +74,7 @@ export default function RegisterPage() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium mb-1.5">Full Name</label>
+              <label className="block text-sm font-medium mb-1.5">{t('common.fullName')}</label>
               <input
                 type="text"
                 required
@@ -82,7 +84,7 @@ export default function RegisterPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1.5">Username</label>
+              <label className="block text-sm font-medium mb-1.5">{t('common.username')}</label>
               <input
                 type="text"
                 required
@@ -93,7 +95,7 @@ export default function RegisterPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1.5">Email</label>
+              <label className="block text-sm font-medium mb-1.5">{t('common.email')}</label>
               <input
                 type="email"
                 required
@@ -103,7 +105,7 @@ export default function RegisterPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1.5">Password</label>
+              <label className="block text-sm font-medium mb-1.5">{t('common.password')}</label>
               <input
                 type="password"
                 required
@@ -112,20 +114,20 @@ export default function RegisterPage() {
                 onChange={(e) => setForm({ ...form, password: e.target.value })}
                 className="input-field"
               />
-              <p className="text-xs text-text-secondary mt-1">Minimum 8 characters</p>
+              <p className="text-xs text-text-secondary mt-1">{t('register.minChars')}</p>
             </div>
             <button
               type="submit"
               disabled={loading}
               className="btn-primary w-full disabled:opacity-50"
             >
-              {loading ? 'Creating account...' : 'Create Account'}
+              {loading ? t('register.creating') : t('register.create')}
             </button>
           </form>
 
           <div className="mt-6 text-center">
             <Link href="/cms/login" className="text-sm text-accent-navy hover:underline">
-              Already have an account? Sign in
+              {t('register.haveAccount')}
             </Link>
           </div>
         </div>

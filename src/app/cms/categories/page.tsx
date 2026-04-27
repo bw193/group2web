@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Plus, Edit2, Trash2 } from 'lucide-react';
 import { slugify } from '@/lib/utils';
+import { useT } from '../_lib/i18n';
 
 interface Category {
   id: number;
@@ -13,6 +14,7 @@ interface Category {
 }
 
 export default function CategoriesPage() {
+  const { t } = useT();
   const [categories, setCategories] = useState<Category[]>([]);
   const [editing, setEditing] = useState<Category | null>(null);
   const [showForm, setShowForm] = useState(false);
@@ -51,7 +53,7 @@ export default function CategoriesPage() {
   }
 
   async function handleDelete(id: number) {
-    if (!confirm('Delete this category?')) return;
+    if (!confirm(t('cat.confirmDelete'))) return;
     await fetch(`/api/categories/${id}`, { method: 'DELETE' });
     fetchCategories();
   }
@@ -71,42 +73,42 @@ export default function CategoriesPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-heading font-bold">Categories</h1>
+        <h1 className="text-2xl font-heading font-bold">{t('cat.title')}</h1>
         <button onClick={() => { resetForm(); setShowForm(true); }} className="btn-primary text-sm">
-          <Plus size={16} className="mr-1" /> Add Category
+          <Plus size={16} className="mr-1" /> {t('cat.add')}
         </button>
       </div>
 
       {showForm && (
         <div className="cms-card mb-6">
-          <h2 className="text-lg font-semibold mb-4">{editing ? 'Edit Category' : 'New Category'}</h2>
+          <h2 className="text-lg font-semibold mb-4">{editing ? t('cat.editTitle') : t('cat.newTitle')}</h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium mb-1.5">Category Name *</label>
+                <label className="block text-sm font-medium mb-1.5">{t('cat.name')}</label>
                 <input type="text" required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value, slug: slugify(e.target.value) })} className="input-field" />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1.5">URL Slug</label>
+                <label className="block text-sm font-medium mb-1.5">{t('cat.slug')}</label>
                 <input type="text" value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} className="input-field" />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1.5">Parent Category</label>
+                <label className="block text-sm font-medium mb-1.5">{t('cat.parent')}</label>
                 <select value={form.parentId} onChange={(e) => setForm({ ...form, parentId: e.target.value })} className="input-field">
-                  <option value="">None (top level)</option>
+                  <option value="">{t('cat.parentNone')}</option>
                   {categories.filter((c) => c.id !== editing?.id).map((c) => (
                     <option key={c.id} value={c.id}>{c.name}</option>
                   ))}
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1.5">Display Order</label>
+                <label className="block text-sm font-medium mb-1.5">{t('common.displayOrder')}</label>
                 <input type="number" value={form.displayOrder} onChange={(e) => setForm({ ...form, displayOrder: parseInt(e.target.value) || 0 })} className="input-field" />
               </div>
             </div>
             <div className="flex gap-2">
-              <button type="submit" className="btn-primary text-sm">{editing ? 'Update' : 'Create'}</button>
-              <button type="button" onClick={resetForm} className="btn-outline text-sm">Cancel</button>
+              <button type="submit" className="btn-primary text-sm">{editing ? t('common.update') : t('common.create')}</button>
+              <button type="button" onClick={resetForm} className="btn-outline text-sm">{t('common.cancel')}</button>
             </div>
           </form>
         </div>
@@ -116,10 +118,10 @@ export default function CategoriesPage() {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b">
-              <th className="text-left py-3">Name</th>
-              <th className="text-left py-3">Slug</th>
-              <th className="text-left py-3">Order</th>
-              <th className="text-left py-3">Actions</th>
+              <th className="text-left py-3">{t('common.name')}</th>
+              <th className="text-left py-3">{t('cat.col.slug')}</th>
+              <th className="text-left py-3">{t('cat.col.order')}</th>
+              <th className="text-left py-3">{t('common.actions')}</th>
             </tr>
           </thead>
           <tbody>
@@ -138,7 +140,7 @@ export default function CategoriesPage() {
             ))}
           </tbody>
         </table>
-        {categories.length === 0 && <p className="text-center text-text-secondary py-4">No categories yet.</p>}
+        {categories.length === 0 && <p className="text-center text-text-secondary py-4">{t('cat.empty')}</p>}
       </div>
     </div>
   );

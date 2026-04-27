@@ -5,12 +5,14 @@ import { useRouter, useParams } from 'next/navigation';
 import { ArrowLeft, Plus, X, Upload, Star, ArrowLeftCircle, ArrowRightCircle } from 'lucide-react';
 import Link from 'next/link';
 import { getUploadUrl, slugify } from '@/lib/utils';
+import { useT } from '../../_lib/i18n';
 
 interface Category { id: number; name: string; }
 interface Spec { key: string; value: string; locale: string; }
 interface ProductImage { imageUrl: string; isPrimary: boolean; }
 
 export default function ProductEditPage() {
+  const { t } = useT();
   const router = useRouter();
   const params = useParams();
   const id = params.id as string;
@@ -150,36 +152,36 @@ export default function ProductEditPage() {
     setSaving(false);
   }
 
-  if (loading) return <div className="text-text-secondary">Loading...</div>;
+  if (loading) return <div className="text-text-secondary">{t('common.loading')}</div>;
 
   return (
     <div>
       <Link href="/cms/products" className="inline-flex items-center gap-1 text-sm text-text-secondary hover:text-text-primary mb-4">
-        <ArrowLeft size={16} /> Back to Products
+        <ArrowLeft size={16} /> {t('pe.back')}
       </Link>
 
-      <h1 className="text-2xl font-heading font-bold mb-6">{isNew ? 'Add Product' : 'Edit Product'}</h1>
+      <h1 className="text-2xl font-heading font-bold mb-6">{isNew ? t('pe.titleNew') : t('pe.titleEdit')}</h1>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="cms-card">
-          <h2 className="text-lg font-semibold mb-4">Basic Info</h2>
+          <h2 className="text-lg font-semibold mb-4">{t('pe.basicInfo')}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-1.5">Product Name *</label>
+              <label className="block text-sm font-medium mb-1.5">{t('pe.name')}</label>
               <input type="text" required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value, slug: slugify(e.target.value) })} className="input-field" />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1.5">URL Slug</label>
+              <label className="block text-sm font-medium mb-1.5">{t('pe.slug')}</label>
               <input type="text" value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} className="input-field" />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1.5">Model Number</label>
+              <label className="block text-sm font-medium mb-1.5">{t('pe.model')}</label>
               <input type="text" value={form.modelNumber} onChange={(e) => setForm({ ...form, modelNumber: e.target.value })} className="input-field" />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1.5">Category</label>
+              <label className="block text-sm font-medium mb-1.5">{t('pe.category')}</label>
               <select value={form.categoryId} onChange={(e) => setForm({ ...form, categoryId: e.target.value })} className="input-field">
-                <option value="">Select category</option>
+                <option value="">{t('pe.selectCategory')}</option>
                 {categories.map((c) => (
                   <option key={c.id} value={c.id}>{c.name}</option>
                 ))}
@@ -187,54 +189,54 @@ export default function ProductEditPage() {
             </div>
           </div>
           <div className="mt-4">
-            <label className="block text-sm font-medium mb-1.5">Short Description</label>
+            <label className="block text-sm font-medium mb-1.5">{t('pe.shortDesc')}</label>
             <textarea rows={2} value={form.shortDescription} onChange={(e) => setForm({ ...form, shortDescription: e.target.value })} className="input-field" />
           </div>
           <div className="mt-4">
-            <label className="block text-sm font-medium mb-1.5">Full Description (HTML)</label>
+            <label className="block text-sm font-medium mb-1.5">{t('pe.fullDesc')}</label>
             <textarea rows={6} value={form.fullDescription} onChange={(e) => setForm({ ...form, fullDescription: e.target.value })} className="input-field font-mono text-xs" />
           </div>
           <div className="mt-4 flex gap-6">
             <label className="flex items-center gap-2 text-sm">
               <input type="checkbox" checked={form.isFeatured} onChange={(e) => setForm({ ...form, isFeatured: e.target.checked })} />
-              Featured Product
+              {t('pe.featured')}
             </label>
             <label className="flex items-center gap-2 text-sm">
               <input type="checkbox" checked={form.isActive} onChange={(e) => setForm({ ...form, isActive: e.target.checked })} />
-              Active
+              {t('pe.active')}
             </label>
           </div>
           <div className="mt-4">
-            <label className="block text-sm font-medium mb-1.5">Tags (comma separated)</label>
-            <input type="text" value={form.tags} onChange={(e) => setForm({ ...form, tags: e.target.value })} className="input-field" placeholder="new arrival, best seller" />
+            <label className="block text-sm font-medium mb-1.5">{t('pe.tags')}</label>
+            <input type="text" value={form.tags} onChange={(e) => setForm({ ...form, tags: e.target.value })} className="input-field" placeholder={t('pe.tagsPlaceholder')} />
           </div>
         </div>
 
         {/* Specifications */}
         <div className="cms-card">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold">Specifications</h2>
+            <h2 className="text-lg font-semibold">{t('pe.specs')}</h2>
             <button type="button" onClick={() => setSpecs([...specs, { key: '', value: '', locale: 'en' }])} className="text-sm text-accent-navy hover:underline flex items-center gap-1">
-              <Plus size={14} /> Add Spec
+              <Plus size={14} /> {t('pe.addSpec')}
             </button>
           </div>
           {specs.map((spec, i) => (
             <div key={i} className="flex gap-2 mb-2">
-              <input type="text" placeholder="Key (e.g. Size)" value={spec.key} onChange={(e) => { const s = [...specs]; s[i].key = e.target.value; setSpecs(s); }} className="input-field flex-1" />
-              <input type="text" placeholder="Value (e.g. 600x800mm)" value={spec.value} onChange={(e) => { const s = [...specs]; s[i].value = e.target.value; setSpecs(s); }} className="input-field flex-1" />
+              <input type="text" placeholder={t('pe.specKey')} value={spec.key} onChange={(e) => { const s = [...specs]; s[i].key = e.target.value; setSpecs(s); }} className="input-field flex-1" />
+              <input type="text" placeholder={t('pe.specValue')} value={spec.value} onChange={(e) => { const s = [...specs]; s[i].value = e.target.value; setSpecs(s); }} className="input-field flex-1" />
               <button type="button" onClick={() => setSpecs(specs.filter((_, j) => j !== i))} className="p-2 text-red-500 hover:bg-red-50 rounded">
                 <X size={16} />
               </button>
             </div>
           ))}
-          {specs.length === 0 && <p className="text-sm text-text-secondary">No specifications added.</p>}
+          {specs.length === 0 && <p className="text-sm text-text-secondary">{t('pe.noSpecs')}</p>}
         </div>
 
         {/* Images */}
         <div className="cms-card">
-          <h2 className="text-lg font-semibold mb-1">Images</h2>
+          <h2 className="text-lg font-semibold mb-1">{t('pe.images')}</h2>
           <p className="text-xs text-text-secondary mb-4">
-            Click the star to set the main photo. Use the arrows to reorder.
+            {t('pe.imagesHint')}
           </p>
           <div className="flex flex-wrap gap-4 mb-4">
             {images.map((img, i) => (
@@ -248,14 +250,14 @@ export default function ProductEditPage() {
 
                 {img.isPrimary && (
                   <span className="absolute top-1 left-1 bg-amber-400 text-white text-[10px] font-semibold px-1.5 py-0.5 rounded">
-                    MAIN
+                    {t('pe.main')}
                   </span>
                 )}
 
                 <button
                   type="button"
                   onClick={() => removeImage(i)}
-                  title="Remove"
+                  title={t('pe.tooltip.remove')}
                   className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
                 >
                   &times;
@@ -266,7 +268,7 @@ export default function ProductEditPage() {
                     type="button"
                     onClick={() => moveImage(i, -1)}
                     disabled={i === 0}
-                    title="Move left"
+                    title={t('pe.tooltip.moveLeft')}
                     className="disabled:opacity-30 hover:text-amber-300"
                   >
                     <ArrowLeftCircle size={16} />
@@ -276,7 +278,7 @@ export default function ProductEditPage() {
                     type="button"
                     onClick={() => setPrimary(i)}
                     disabled={img.isPrimary}
-                    title="Set as main photo"
+                    title={t('pe.tooltip.setMain')}
                     className={`${img.isPrimary ? 'text-amber-300' : 'hover:text-amber-300'} disabled:cursor-default`}
                   >
                     <Star size={16} fill={img.isPrimary ? 'currentColor' : 'none'} />
@@ -286,7 +288,7 @@ export default function ProductEditPage() {
                     type="button"
                     onClick={() => moveImage(i, 1)}
                     disabled={i === images.length - 1}
-                    title="Move right"
+                    title={t('pe.tooltip.moveRight')}
                     className="disabled:opacity-30 hover:text-amber-300"
                   >
                     <ArrowRightCircle size={16} />
@@ -296,18 +298,18 @@ export default function ProductEditPage() {
             ))}
             <label className="w-28 h-28 rounded border-2 border-dashed border-gray-300 flex flex-col items-center justify-center cursor-pointer hover:border-accent-navy transition-colors">
               <Upload size={20} className="text-gray-400" />
-              <span className="text-xs text-gray-400 mt-1">Upload</span>
+              <span className="text-xs text-gray-400 mt-1">{t('pe.upload')}</span>
               <input type="file" accept="image/*" multiple onChange={handleImageUpload} className="hidden" />
             </label>
           </div>
-          {uploading && <p className="text-xs text-text-secondary">Uploading...</p>}
+          {uploading && <p className="text-xs text-text-secondary">{t('pe.uploading')}</p>}
         </div>
 
         <div className="flex gap-2">
           <button type="submit" disabled={saving} className="btn-primary">
-            {saving ? 'Saving...' : isNew ? 'Create Product' : 'Update Product'}
+            {saving ? t('pe.creating') : isNew ? t('pe.create') : t('pe.updateBtn')}
           </button>
-          <Link href="/cms/products" className="btn-outline">Cancel</Link>
+          <Link href="/cms/products" className="btn-outline">{t('common.cancel')}</Link>
         </div>
       </form>
     </div>

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Mail, MailOpen, Trash2, Download, MessageCircle } from 'lucide-react';
+import { useT } from '../_lib/i18n';
 
 interface Inquiry {
   id: number;
@@ -18,6 +19,7 @@ interface Inquiry {
 }
 
 export default function InquiriesPage() {
+  const { t, lang } = useT();
   const [inquiries, setInquiries] = useState<Inquiry[]>([]);
   const [selected, setSelected] = useState<Inquiry | null>(null);
 
@@ -47,7 +49,7 @@ export default function InquiriesPage() {
   }
 
   async function handleDelete(id: number) {
-    if (!confirm('Delete this inquiry?')) return;
+    if (!confirm(t('inq.confirmDelete'))) return;
     await fetch(`/api/inquiries/${id}`, { method: 'DELETE' });
     if (selected?.id === id) setSelected(null);
     fetchInquiries();
@@ -57,12 +59,14 @@ export default function InquiriesPage() {
     window.location.href = '/api/inquiries/export';
   }
 
+  const dateLocale = lang === 'zh' ? 'zh-CN' : 'en-US';
+
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-heading font-bold">Inquiries</h1>
+        <h1 className="text-2xl font-heading font-bold">{t('inq.title')}</h1>
         <button onClick={exportCSV} className="btn-outline text-sm">
-          <Download size={16} className="mr-1" /> Export CSV
+          <Download size={16} className="mr-1" /> {t('inq.export')}
         </button>
       </div>
 
@@ -70,7 +74,7 @@ export default function InquiriesPage() {
         {/* List */}
         <div className="lg:col-span-2 cms-card max-h-[70vh] overflow-y-auto">
           {inquiries.length === 0 ? (
-            <p className="text-text-secondary text-sm py-4">No inquiries yet.</p>
+            <p className="text-text-secondary text-sm py-4">{t('inq.empty')}</p>
           ) : (
             <div className="space-y-1">
               {inquiries.map((inq) => (
@@ -84,14 +88,14 @@ export default function InquiriesPage() {
                   <div className="flex items-center justify-between">
                     <span className={`text-sm ${!inq.isRead ? 'font-semibold' : ''}`}>{inq.name}</span>
                     <span className="text-xs text-text-secondary">
-                      {new Date(inq.createdAt).toLocaleDateString()}
+                      {new Date(inq.createdAt).toLocaleDateString(dateLocale)}
                     </span>
                   </div>
                   <p className="text-xs text-text-secondary">{inq.email}</p>
                   <p className="text-xs text-text-secondary truncate mt-1">{inq.message}</p>
                   <div className="flex gap-1 mt-1">
                     {inq.isReplied && (
-                      <span className="text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded">Replied</span>
+                      <span className="text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded">{t('inq.replied')}</span>
                     )}
                     {inq.productInterest && (
                       <span className="text-xs bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded">{inq.productInterest}</span>
@@ -109,11 +113,11 @@ export default function InquiriesPage() {
             <div>
               <h3 className="font-semibold mb-3">{selected.name}</h3>
               <div className="space-y-2 text-sm mb-4">
-                <p><span className="text-text-secondary">Email:</span> <a href={`mailto:${selected.email}`} className="text-accent-navy">{selected.email}</a></p>
-                {selected.phone && <p><span className="text-text-secondary">Phone:</span> {selected.phone}</p>}
-                {selected.company && <p><span className="text-text-secondary">Company:</span> {selected.company}</p>}
-                {selected.country && <p><span className="text-text-secondary">Country:</span> {selected.country}</p>}
-                {selected.productInterest && <p><span className="text-text-secondary">Product:</span> {selected.productInterest}</p>}
+                <p><span className="text-text-secondary">{t('inq.label.email')}</span> <a href={`mailto:${selected.email}`} className="text-accent-navy">{selected.email}</a></p>
+                {selected.phone && <p><span className="text-text-secondary">{t('inq.label.phone')}</span> {selected.phone}</p>}
+                {selected.company && <p><span className="text-text-secondary">{t('inq.label.company')}</span> {selected.company}</p>}
+                {selected.country && <p><span className="text-text-secondary">{t('inq.label.country')}</span> {selected.country}</p>}
+                {selected.productInterest && <p><span className="text-text-secondary">{t('inq.label.product')}</span> {selected.productInterest}</p>}
               </div>
               <div className="bg-gray-50 rounded-lg p-3 mb-4">
                 <p className="text-sm whitespace-pre-wrap">{selected.message}</p>
@@ -124,25 +128,25 @@ export default function InquiriesPage() {
                   className={`text-xs px-3 py-1.5 rounded border ${selected.isReplied ? 'bg-green-50 border-green-200 text-green-700' : 'border-gray-200'}`}
                 >
                   <MessageCircle size={12} className="inline mr-1" />
-                  {selected.isReplied ? 'Replied' : 'Mark Replied'}
+                  {selected.isReplied ? t('inq.replied') : t('inq.markReplied')}
                 </button>
                 <button
                   onClick={() => markRead(selected.id, !selected.isRead)}
                   className="text-xs px-3 py-1.5 rounded border border-gray-200"
                 >
                   {selected.isRead ? <MailOpen size={12} className="inline mr-1" /> : <Mail size={12} className="inline mr-1" />}
-                  {selected.isRead ? 'Mark Unread' : 'Mark Read'}
+                  {selected.isRead ? t('inq.markUnread') : t('inq.markRead')}
                 </button>
                 <button
                   onClick={() => handleDelete(selected.id)}
                   className="text-xs px-3 py-1.5 rounded border border-red-200 text-red-600"
                 >
-                  <Trash2 size={12} className="inline mr-1" /> Delete
+                  <Trash2 size={12} className="inline mr-1" /> {t('common.delete')}
                 </button>
               </div>
             </div>
           ) : (
-            <p className="text-text-secondary text-sm">Select an inquiry to view details.</p>
+            <p className="text-text-secondary text-sm">{t('inq.selectHint')}</p>
           )}
         </div>
       </div>
