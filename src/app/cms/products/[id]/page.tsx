@@ -6,6 +6,7 @@ import { ArrowLeft, Plus, X, Upload, Star, ArrowLeftCircle, ArrowRightCircle } f
 import Link from 'next/link';
 import { getUploadUrl, slugify } from '@/lib/utils';
 import { useT } from '../../_lib/i18n';
+import RichTextEditor from '../../_components/RichTextEditor';
 
 interface Category { id: number; name: string; }
 interface Spec { key: string; value: string; locale: string; }
@@ -194,7 +195,12 @@ export default function ProductEditPage() {
           </div>
           <div className="mt-4">
             <label className="block text-sm font-medium mb-1.5">{t('pe.fullDesc')}</label>
-            <textarea rows={6} value={form.fullDescription} onChange={(e) => setForm({ ...form, fullDescription: e.target.value })} className="input-field font-mono text-xs" />
+            <RichTextEditor
+              value={form.fullDescription}
+              onChange={(html) => setForm({ ...form, fullDescription: html })}
+              placeholder={t('rt.placeholder')}
+              minHeight={240}
+            />
           </div>
           <div className="mt-4 flex gap-6">
             <label className="flex items-center gap-2 text-sm">
