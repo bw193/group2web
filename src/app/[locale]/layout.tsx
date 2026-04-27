@@ -32,7 +32,7 @@ export default async function LocaleLayout({
       <body className="min-h-screen flex flex-col bg-cream relative">
         {/* Page-wide film grain — fixed, non-interactive */}
         <div className="atmosphere-grain" aria-hidden />
-        <NextIntlClientProvider messages={messages}>
+        <NextIntlClientProvider locale={locale} messages={messages}>
           <AnimationProvider />
           <NavProgress />
           <Header />
