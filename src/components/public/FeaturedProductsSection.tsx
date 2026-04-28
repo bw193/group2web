@@ -67,9 +67,6 @@ export default function FeaturedProductsSection({
       <div className="container-wide py-20 md:py-24">
         {/* Header — heading, tabs, and CTA grouped as one cluster */}
         <div className="flex flex-col items-center text-center mb-12 md:mb-14">
-          <p className="text-[13px] font-body font-semibold text-bronze uppercase tracking-[0.18em] mb-4" data-reveal>
-            Catalog
-          </p>
           <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-normal text-ink tracking-[-0.02em] leading-[1.05]" data-reveal>
             {t('featuredProducts')}
           </h2>
@@ -81,7 +78,7 @@ export default function FeaturedProductsSection({
               aria-label="Product categories"
               data-reveal
             >
-              <div className="flex justify-center flex-wrap gap-x-6 gap-y-3 md:gap-x-8 overflow-x-auto no-scrollbar -mx-1 px-1">
+              <div className="flex justify-center flex-wrap gap-x-10 gap-y-3 md:gap-x-16 lg:gap-x-20 overflow-x-auto no-scrollbar -mx-1 px-1">
                 {tabs.map((tab) => {
                   const active = tab.id === activeId;
                   return (
