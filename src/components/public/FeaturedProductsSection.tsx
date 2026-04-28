@@ -123,7 +123,7 @@ export default function FeaturedProductsSection({
         ) : (
           <div
             key={activeId}
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-14 md:gap-x-10 md:gap-y-16 animate-fade-up"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-24 md:gap-x-10 md:gap-y-28 animate-fade-up"
           >
             {filtered.map((product, i) => (
               <ProductCard key={product.id} index={i} hideDescription {...product} />

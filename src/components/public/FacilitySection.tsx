@@ -83,10 +83,10 @@ export default async function FacilitySection({ locale, images = [] }: Props) {
         </div>
 
         {/* Stats band */}
-        <div className="mt-20 md:mt-24 pt-12 border-t border-warm-border">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-10" data-reveal-stagger>
+        <div className="mt-20 md:mt-24 py-12 md:py-16 border-t border-warm-border">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-10 items-center" data-reveal-stagger>
             {stats.map((s) => (
-              <div key={s.label} data-reveal className="md:border-r md:border-warm-border md:pr-8 md:last:border-r-0">
+              <div key={s.label} data-reveal className="flex flex-col justify-center md:border-r md:border-warm-border md:pr-8 md:last:border-r-0">
                 <p className="font-display text-5xl md:text-[56px] font-normal text-ink leading-none tracking-[-0.02em]">
                   <CountUp to={s.to} suffix={s.suffix} />
                 </p>

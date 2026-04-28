@@ -33,9 +33,41 @@ export default function Footer() {
         </div>
 
         {/* Info grid */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-12 md:gap-8 pt-14">
-          {/* Contact */}
-          <div className="md:col-span-5">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8 pt-14">
+          {/* Since — first column */}
+          <div className="md:text-left">
+            <p className="text-[13px] font-body font-semibold tracking-[0.16em] uppercase text-bronze-light mb-5">
+              Since
+            </p>
+            <p className="font-display text-5xl md:text-6xl font-normal text-cream leading-none">2005</p>
+            <p className="mt-4 text-[14px] font-body font-normal text-cream/80 leading-[1.55] max-w-xs">
+              Two decades of mirror craftsmanship — LED, bathroom, cabinet, and bespoke manufacturing from Jiaxing, China.
+            </p>
+          </div>
+
+          {/* Quick Links — middle column, centered */}
+          <div className="md:text-center md:flex md:flex-col md:items-center">
+            <p className="text-[13px] font-body font-semibold tracking-[0.16em] uppercase text-bronze-light mb-5">
+              {t('quickLinks')}
+            </p>
+            <nav className="flex flex-col gap-3 text-[15px] font-body font-normal md:items-center">
+              <Link href={`/${locale}`} className="text-cream hover:text-bronze-light transition-colors">
+                {nav('home')}
+              </Link>
+              <Link href={`/${locale}/products`} className="text-cream hover:text-bronze-light transition-colors">
+                {nav('products')}
+              </Link>
+              <Link href={`/${locale}/about`} className="text-cream hover:text-bronze-light transition-colors">
+                {nav('about')}
+              </Link>
+              <Link href={`/${locale}/contact`} className="text-cream hover:text-bronze-light transition-colors">
+                {nav('contact')}
+              </Link>
+            </nav>
+          </div>
+
+          {/* Contact — third column */}
+          <div className="md:text-left">
             <p className="text-[13px] font-body font-semibold tracking-[0.16em] uppercase text-bronze-light mb-5">
               {t('contactUs')}
             </p>
@@ -59,38 +91,6 @@ export default function Footer() {
                 Nanhu District, Jiaxing, Zhejiang, China
               </p>
             </div>
-          </div>
-
-          {/* Nav */}
-          <div className="md:col-span-3 md:col-start-7">
-            <p className="text-[13px] font-body font-semibold tracking-[0.16em] uppercase text-bronze-light mb-5">
-              {t('quickLinks')}
-            </p>
-            <nav className="flex flex-col gap-3 text-[15px] font-body font-normal">
-              <Link href={`/${locale}`} className="text-cream hover:text-bronze-light transition-colors">
-                {nav('home')}
-              </Link>
-              <Link href={`/${locale}/products`} className="text-cream hover:text-bronze-light transition-colors">
-                {nav('products')}
-              </Link>
-              <Link href={`/${locale}/about`} className="text-cream hover:text-bronze-light transition-colors">
-                {nav('about')}
-              </Link>
-              <Link href={`/${locale}/contact`} className="text-cream hover:text-bronze-light transition-colors">
-                {nav('contact')}
-              </Link>
-            </nav>
-          </div>
-
-          {/* Since */}
-          <div className="md:col-span-3 md:col-start-10">
-            <p className="text-[13px] font-body font-semibold tracking-[0.16em] uppercase text-bronze-light mb-5">
-              Since
-            </p>
-            <p className="font-display text-5xl md:text-6xl font-normal text-cream leading-none">2005</p>
-            <p className="mt-4 text-[14px] font-body font-normal text-cream/80 leading-[1.55] max-w-xs">
-              Two decades of mirror craftsmanship — LED, bathroom, cabinet, and bespoke manufacturing from Jiaxing, China.
-            </p>
           </div>
         </div>
 
