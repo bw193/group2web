@@ -4,4 +4,4 @@ Allow: /
 Disallow: /cms/
 Disallow: /api/
 
-Sitemap: https://www.chengtai-mirror.com/sitemap.xml
+Sitemap: https://chengtaimirror.com/sitemap.xml

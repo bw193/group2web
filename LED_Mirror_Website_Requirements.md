@@ -309,7 +309,7 @@ chengtai-website-assets/          ← R2 bucket name
 #### R2 Integration Rules
 
 - **Upload flow**: CMS upload → API route/Worker → R2 `PUT` → store the R2 object key in D1 database.
-- **Serving files**: Use a **Cloudflare R2 public bucket** or a **custom domain** pointed to the R2 bucket for public image URLs (e.g., `https://assets.chengtai-mirror.com/products/123/primary.webp`).
+- **Serving files**: Use a **Cloudflare R2 public bucket** or a **custom domain** pointed to the R2 bucket for public image URLs (e.g., `https://assets.chengtaimirror.com/products/123/primary.webp`).
 - **Image optimization**: On upload, resize/compress images to WebP format. Generate thumbnails (e.g., 400px width for cards, full-size for detail view). Store both versions in R2.
 - **Allowed file types**: `.jpg`, `.jpeg`, `.png`, `.webp`, `.svg`, `.gif` (max 10MB per file).
 - **File naming**: Use sanitized, unique names: `{entity}-{id}-{timestamp}.{ext}` to avoid collisions.
@@ -570,7 +570,7 @@ page_seo
 
 - [ ] Cloudflare D1 database created and migrations run successfully
 - [ ] Cloudflare R2 bucket created (`chengtai-website-assets`) with public access configured
-- [ ] R2 custom domain configured (e.g., `assets.chengtai-mirror.com`)
+- [ ] R2 custom domain configured (e.g., `assets.chengtaimirror.com`)
 - [ ] Initial admin account seeded into D1
 - [ ] Email sending configured and tested (inquiry notifications via Resend/SendGrid)
 - [ ] All 6 languages have base UI translations
