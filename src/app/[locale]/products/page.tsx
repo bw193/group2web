@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import { getDb } from '@/lib/db';
 import {
@@ -9,8 +10,55 @@ import {
 } from '@/lib/db/schema';
 import { eq, and, desc, inArray } from 'drizzle-orm';
 import ProductsFilter from './ProductsFilter';
+import { JsonLd } from '@/components/seo/JsonLd';
+import {
+  SITE_NAME,
+  SITE_OG_IMAGE,
+  buildAlternates,
+  localeToOg,
+  localizedUrl,
+  pageCopy,
+} from '@/lib/seo';
+import { getUploadUrl } from '@/lib/utils';
 
 export const revalidate = 300;
+
+export async function generateMetadata({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ locale: string }>;
+  searchParams?: Promise<{ q?: string | string[] }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const sp = searchParams ? await searchParams : undefined;
+  const hasSearchQuery = Boolean(sp?.q);
+  const copy = pageCopy(locale, 'products');
+  const url = localizedUrl(locale, '/products');
+
+  return {
+    title: copy.title,
+    description: copy.description,
+    // Filtered/search result pages aren't unique enough to index.
+    robots: hasSearchQuery ? { index: false, follow: true } : undefined,
+    alternates: buildAlternates(locale, '/products'),
+    openGraph: {
+      type: 'website',
+      url,
+      siteName: SITE_NAME,
+      title: copy.title,
+      description: copy.description,
+      locale: localeToOg(locale),
+      images: [{ url: SITE_OG_IMAGE, width: 1200, height: 630, alt: SITE_NAME }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: copy.title,
+      description: copy.description,
+      images: [SITE_OG_IMAGE],
+    },
+  };
+}
 
 export default async function ProductsPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -92,8 +140,34 @@ export default async function ProductsPage({ params }: { params: Promise<{ local
     name: catTransMap.get(c.id)?.name || catTransEnMap.get(c.id)?.name || `Category ${c.id}`,
   }));
 
+  const itemList = {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    itemListOrder: 'https://schema.org/ItemListOrderDescending',
+    numberOfItems: productsData.length,
+    itemListElement: productsData.slice(0, 30).map((p, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      url: localizedUrl(locale, `/products/${p.slug}`),
+      name: p.name,
+      image: p.imageUrl ? getUploadUrl(p.imageUrl) : undefined,
+    })),
+  };
+
+  const breadcrumb = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: localizedUrl(locale, '') },
+      { '@type': 'ListItem', position: 2, name: 'Products', item: localizedUrl(locale, '/products') },
+    ],
+  };
+
   return (
     <>
+      <JsonLd id="ld-products-list" data={itemList} />
+      <JsonLd id="ld-products-breadcrumb" data={breadcrumb} />
+
       {/* Page intro */}
       <section className="bg-cream border-b border-warm-border">
         <div className="container-wide pt-16 pb-14 md:pt-20 md:pb-16">

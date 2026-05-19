@@ -1,6 +1,7 @@
+import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { getDb } from '@/lib/db';
 import { products, productTranslations, productSpecifications, productImages } from '@/lib/db/schema';
 import { eq, and, ne, inArray } from 'drizzle-orm';
@@ -8,8 +9,110 @@ import { getUploadUrl } from '@/lib/utils';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import ProductCard from '@/components/public/ProductCard';
 import ImageGallery from './ImageGallery';
+import { JsonLd } from '@/components/seo/JsonLd';
+import {
+  SITE_NAME,
+  SITE_OG_IMAGE,
+  SITE_URL,
+  localeToOg,
+  localizedPath,
+  localizedUrl,
+  productTitle,
+} from '@/lib/seo';
+import { locales, defaultLocale } from '@/i18n/config';
 
 export const revalidate = 600;
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string; slug: string }>;
+}): Promise<Metadata> {
+  const { locale, slug } = await params;
+
+  try {
+    const db = getDb();
+    const joined = await db
+      .select({ product: products, trans: productTranslations })
+      .from(productTranslations)
+      .innerJoin(products, eq(products.id, productTranslations.productId))
+      .where(
+        and(
+          eq(productTranslations.slug, slug),
+          eq(productTranslations.locale, locale),
+          eq(products.isActive, true),
+        ),
+      )
+      .limit(1);
+
+    const row = joined[0];
+    if (!row) {
+      // Leave defaults; the page will render notFound() or redirect.
+      return { title: productTitle('Product'), robots: { index: false, follow: true } };
+    }
+
+    // Per-locale slugs for hreflang on this specific product.
+    const allTrans = await db
+      .select({ locale: productTranslations.locale, slug: productTranslations.slug })
+      .from(productTranslations)
+      .where(eq(productTranslations.productId, row.product.id));
+
+    const languages: Record<string, string> = {};
+    for (const t of allTrans) {
+      if ((locales as readonly string[]).includes(t.locale)) {
+        languages[t.locale] = localizedUrl(t.locale, `/products/${t.slug}`);
+      }
+    }
+    const defaultRow = allTrans.find((t) => t.locale === defaultLocale);
+    if (defaultRow) {
+      languages['x-default'] = localizedUrl(defaultLocale, `/products/${defaultRow.slug}`);
+    }
+
+    const primaryImg = await db
+      .select({ imageUrl: productImages.imageUrl })
+      .from(productImages)
+      .where(eq(productImages.productId, row.product.id))
+      .orderBy(productImages.displayOrder)
+      .limit(1);
+
+    const ogImage = primaryImg[0]?.imageUrl
+      ? getUploadUrl(primaryImg[0].imageUrl)
+      : SITE_OG_IMAGE;
+
+    const title = productTitle(row.trans.name);
+    const description = row.trans.shortDescription
+      ? row.trans.shortDescription.slice(0, 300)
+      : `${row.trans.name}${row.product.modelNumber ? ` (Model ${row.product.modelNumber})` : ''} — manufactured by Chengtai Mirror, Jiaxing, China. OEM/ODM available.`;
+
+    const canonical = localizedUrl(locale, `/products/${slug}`);
+
+    return {
+      title,
+      description,
+      alternates: {
+        canonical,
+        languages: Object.keys(languages).length ? languages : undefined,
+      },
+      openGraph: {
+        type: 'website',
+        url: canonical,
+        siteName: SITE_NAME,
+        title,
+        description,
+        locale: localeToOg(locale),
+        images: [{ url: ogImage, width: 1200, height: 630, alt: row.trans.name }],
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title,
+        description,
+        images: [ogImage],
+      },
+    };
+  } catch {
+    return { title: productTitle('Product') };
+  }
+}
 
 export async function generateStaticParams() {
   try {
@@ -50,14 +153,38 @@ export default async function ProductDetailPage({
   let translation = joined[0]?.trans;
 
   if (!product) {
+    // Slug not present in requested locale. Look for the product by slug
+    // in *any* locale, then redirect to its translation in the requested
+    // locale if one exists. This preserves URL ↔ language consistency
+    // (no English content under /fr/, etc.) and avoids duplicate content.
     const any = await db
       .select({ product: products, trans: productTranslations })
       .from(productTranslations)
       .innerJoin(products, eq(products.id, productTranslations.productId))
       .where(and(eq(productTranslations.slug, slug), eq(products.isActive, true)))
       .limit(1);
-    product = any[0]?.product;
-    translation = any[0]?.trans;
+    const target = any[0];
+    if (!target) notFound();
+
+    const localizedSlugRow = await db
+      .select({ slug: productTranslations.slug })
+      .from(productTranslations)
+      .where(
+        and(
+          eq(productTranslations.productId, target.product.id),
+          eq(productTranslations.locale, locale),
+        ),
+      )
+      .limit(1);
+
+    if (localizedSlugRow[0]?.slug && localizedSlugRow[0].slug !== slug) {
+      redirect(localizedPath(locale, `/products/${localizedSlugRow[0].slug}`));
+    }
+
+    // No translation for this locale — render whatever we have to avoid 404,
+    // but mark the page noindex via metadata fallback. (notFound is harsher.)
+    product = target.product;
+    translation = target.trans;
   }
   if (!product || !translation) notFound();
 
@@ -154,8 +281,38 @@ export default async function ProductDetailPage({
     ? images.map((img) => getUploadUrl(img.imageUrl))
     : ['/images/placeholder.svg'];
 
+  const productJsonLd: Record<string, unknown> = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: trans.name,
+    image: imageUrls,
+    description:
+      trans.shortDescription ||
+      (trans.fullDescription ? trans.fullDescription.replace(/<[^>]+>/g, '').slice(0, 500) : `${trans.name} — manufactured by ${SITE_NAME}.`),
+    brand: { '@type': 'Brand', name: SITE_NAME },
+    manufacturer: { '@id': `${SITE_URL}/#organization` },
+    url: localizedUrl(locale, `/products/${trans.slug}`),
+  };
+  if (product.modelNumber) {
+    productJsonLd.sku = product.modelNumber;
+    productJsonLd.mpn = product.modelNumber;
+  }
+
+  const productBreadcrumb = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: localizedUrl(locale, '') },
+      { '@type': 'ListItem', position: 2, name: 'Products', item: localizedUrl(locale, '/products') },
+      { '@type': 'ListItem', position: 3, name: trans.name, item: localizedUrl(locale, `/products/${trans.slug}`) },
+    ],
+  };
+
   return (
     <>
+      <JsonLd id="ld-product" data={productJsonLd} />
+      <JsonLd id="ld-product-breadcrumb" data={productBreadcrumb} />
+
       {/* Breadcrumb bar */}
       <div className="bg-cream border-b border-warm-border">
         <div className="container-wide py-5">

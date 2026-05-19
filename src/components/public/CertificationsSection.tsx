@@ -55,7 +55,11 @@ export default async function CertificationsSection({ images = [] }: Props) {
                 >
                   <Image
                     src={getUploadUrl(src)}
-                    alt={i < photos.length ? `Certification ${(i % photos.length) + 1}` : ''}
+                    alt={
+                      i < photos.length
+                        ? `Chengtai Mirror product certification ${(i % photos.length) + 1} (CE / CB / SAA / ETL / RoHS / ISO 9001 family)`
+                        : ''
+                    }
                     fill
                     sizes="320px"
                     quality={80}

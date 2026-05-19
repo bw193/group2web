@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import { getDb } from '@/lib/db';
 import {
@@ -18,9 +19,65 @@ import FeaturedProductsSection from '@/components/public/FeaturedProductsSection
 import FacilitySection from '@/components/public/FacilitySection';
 import CertificationsSection from '@/components/public/CertificationsSection';
 import FaqSection from '@/components/public/FaqSection';
+import { JsonLd } from '@/components/seo/JsonLd';
+import {
+  ADDRESS,
+  CONTACT_EMAIL,
+  CONTACT_PHONE,
+  SITE_LEGAL_NAME,
+  SITE_LOGO_URL,
+  SITE_NAME,
+  SITE_OG_IMAGE,
+  SITE_URL,
+  buildAlternates,
+  localeToOg,
+  localizedUrl,
+  pageCopy,
+} from '@/lib/seo';
 import { Users, Globe, FlaskConical, Factory } from 'lucide-react';
 
 export const revalidate = 300; // ISR: rebuild at most every 5 minutes
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const copy = pageCopy(locale, 'home');
+  const url = localizedUrl(locale, '');
+
+  return {
+    title: copy.title,
+    description: copy.description,
+    alternates: buildAlternates(locale, ''),
+    openGraph: {
+      type: 'website',
+      url,
+      siteName: SITE_NAME,
+      title: copy.title,
+      description: copy.description,
+      locale: localeToOg(locale),
+      images: [{ url: SITE_OG_IMAGE, width: 1200, height: 630, alt: SITE_NAME }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: copy.title,
+      description: copy.description,
+      images: [SITE_OG_IMAGE],
+    },
+  };
+}
+
+// FAQ fallback used both by the client UI and JSON-LD when DB is empty.
+const FALLBACK_FAQ_FOR_SEO: { q: string; a: string }[] = [
+  { q: 'Do you accept sample orders?', a: 'Yes — we support our customers in ordering samples to test quality and function before placing a full production order.' },
+  { q: 'What is your typical lead time?', a: 'Generally 10–15 days for standard orders. Larger volumes are scheduled with you in advance.' },
+  { q: 'Do you have an MOQ restriction?', a: 'Low MOQ — even a single piece is acceptable for sample checking.' },
+  { q: 'Do you operate your own factory?', a: 'Yes. Fifteen years specializing in mirror manufacturing — LED, bathroom, dressing, and full mirror cabinets, all in-house.' },
+  { q: 'Can we print our own logo on the products?', a: 'Yes. Confirm the design against our pre-production sample and let us know before production begins.' },
+  { q: 'Do you offer a warranty on the products?', a: 'Every product ships with a two-year warranty.' },
+];
 
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -187,8 +244,66 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     { title: t('service4Title'), desc: t('service4Desc'), Icon: Factory },
   ];
 
+  // FAQs for JSON-LD: prefer DB content; fall back to the same list the
+  // client component shows so structured data is always present.
+  const seoFaqs = finalFaqs.length > 0 ? finalFaqs : FALLBACK_FAQ_FOR_SEO;
+
+  const organization = {
+    '@type': 'Organization',
+    '@id': `${SITE_URL}/#organization`,
+    name: SITE_LEGAL_NAME,
+    alternateName: SITE_NAME,
+    url: SITE_URL,
+    logo: SITE_LOGO_URL,
+    foundingDate: '2005',
+    address: { '@type': 'PostalAddress', ...ADDRESS },
+    contactPoint: [
+      {
+        '@type': 'ContactPoint',
+        contactType: 'sales',
+        email: CONTACT_EMAIL,
+        telephone: CONTACT_PHONE,
+        areaServed: 'Worldwide',
+        availableLanguage: ['English', 'Spanish', 'Portuguese', 'French', 'Italian', 'German'],
+      },
+    ],
+  };
+
+  const website = {
+    '@type': 'WebSite',
+    '@id': `${SITE_URL}/#website`,
+    url: SITE_URL,
+    name: SITE_NAME,
+    publisher: { '@id': `${SITE_URL}/#organization` },
+    inLanguage: locale,
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: {
+        '@type': 'EntryPoint',
+        urlTemplate: `${localizedUrl(locale, '/products')}?q={search_term_string}`,
+      },
+      'query-input': 'required name=search_term_string',
+    },
+  };
+
+  const faqJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: seoFaqs.map((f) => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
+  };
+
   return (
     <>
+      <JsonLd
+        id="ld-org-website"
+        data={{ '@context': 'https://schema.org', '@graph': [organization, website] }}
+      />
+      <JsonLd id="ld-faq" data={faqJsonLd} />
+
       {/* Hero Banner */}
       <HeroBanner
         slides={bannerSlides}

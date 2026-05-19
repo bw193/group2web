@@ -3,40 +3,20 @@ import { getDb } from '@/lib/db';
 import { productTranslations, products } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { locales, defaultLocale } from '@/i18n/config';
+import {
+  localizedUrl,
+  buildLanguageAlternates,
+} from '@/lib/seo';
 
-const SITE_URL = 'https://chengtaimirror.com';
+// Stable date for static routes so Google doesn't see every locale homepage
+// "changing" on each rebuild. Bump manually when nav/footer/structure shifts.
+const STATIC_LAST_MODIFIED = new Date('2026-05-19T00:00:00Z');
 
 // Static routes shared across every locale, expressed as the path segment
 // AFTER the (optional) locale prefix. Use '' for the locale's homepage.
 const STATIC_ROUTES = ['', '/about', '/contact', '/products'] as const;
 
-/**
- * Build the absolute URL for a given locale + path-after-locale.
- * `localePrefix: 'as-needed'` means the default locale has no prefix.
- */
-function localizedUrl(locale: string, pathAfterLocale: string): string {
-  const prefix = locale === defaultLocale ? '' : `/${locale}`;
-  return `${SITE_URL}${prefix}${pathAfterLocale}`;
-}
-
-/**
- * Build the hreflang `alternates.languages` map for a given path-after-locale,
- * so search engines know the equivalent URL in every supported language.
- */
-function buildLanguageAlternates(
-  pathAfterLocale: string,
-): Record<string, string> {
-  const languages: Record<string, string> = {};
-  for (const loc of locales) {
-    languages[loc] = localizedUrl(loc, pathAfterLocale);
-  }
-  // x-default points at the canonical (default-locale) version.
-  languages['x-default'] = localizedUrl(defaultLocale, pathAfterLocale);
-  return languages;
-}
-
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const now = new Date();
   const entries: MetadataRoute.Sitemap = [];
 
   // Static routes × every locale.
@@ -45,7 +25,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     for (const loc of locales) {
       entries.push({
         url: localizedUrl(loc, pathAfterLocale),
-        lastModified: now,
+        lastModified: STATIC_LAST_MODIFIED,
         changeFrequency: pathAfterLocale === '' ? 'weekly' : 'monthly',
         priority: pathAfterLocale === '' ? 1.0 : 0.7,
         alternates: { languages },
@@ -99,19 +79,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       }
       const defaultSlug = slugs[defaultLocale];
       if (defaultSlug) {
-        languages['x-default'] = localizedUrl(
-          defaultLocale,
-          `/products/${defaultSlug}`,
-        );
+        languages['x-default'] = localizedUrl(defaultLocale, `/products/${defaultSlug}`);
       }
 
       // Emit one sitemap entry per locale that actually has a translation.
       for (const loc of locales) {
         const slug = slugs[loc];
         if (!slug) continue;
+        const lastModified = updatedAt ? new Date(updatedAt) : STATIC_LAST_MODIFIED;
         entries.push({
           url: localizedUrl(loc, `/products/${slug}`),
-          lastModified: new Date(updatedAt),
+          lastModified: Number.isNaN(lastModified.getTime()) ? STATIC_LAST_MODIFIED : lastModified,
           changeFrequency: 'monthly',
           priority: 0.8,
           alternates: { languages },

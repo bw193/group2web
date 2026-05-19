@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -5,9 +6,55 @@ import { getDb } from '@/lib/db';
 import { aboutPage, aboutGallery } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { getUploadUrl } from '@/lib/utils';
+import { JsonLd } from '@/components/seo/JsonLd';
+import {
+  ADDRESS,
+  CONTACT_EMAIL,
+  CONTACT_PHONE,
+  SITE_LEGAL_NAME,
+  SITE_LOGO_URL,
+  SITE_NAME,
+  SITE_OG_IMAGE,
+  SITE_URL,
+  buildAlternates,
+  localeToOg,
+  localizedUrl,
+  pageCopy,
+} from '@/lib/seo';
 import { ArrowRight } from 'lucide-react';
 
 export const revalidate = 600;
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const copy = pageCopy(locale, 'about');
+  const url = localizedUrl(locale, '/about');
+
+  return {
+    title: copy.title,
+    description: copy.description,
+    alternates: buildAlternates(locale, '/about'),
+    openGraph: {
+      type: 'website',
+      url,
+      siteName: SITE_NAME,
+      title: copy.title,
+      description: copy.description,
+      locale: localeToOg(locale),
+      images: [{ url: SITE_OG_IMAGE, width: 1200, height: 630, alt: SITE_NAME }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: copy.title,
+      description: copy.description,
+      images: [SITE_OG_IMAGE],
+    },
+  };
+}
 
 export default async function AboutPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -31,8 +78,52 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
     { value: '21+', unit: 'years', label: t('yearsExperience') },
   ];
 
+  const aboutOrg = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    '@id': `${SITE_URL}/#organization`,
+    name: SITE_LEGAL_NAME,
+    alternateName: SITE_NAME,
+    url: SITE_URL,
+    logo: SITE_LOGO_URL,
+    image: SITE_OG_IMAGE,
+    foundingDate: '2005',
+    numberOfEmployees: about?.employeeCount || '200+',
+    address: { '@type': 'PostalAddress', ...ADDRESS },
+    contactPoint: [
+      {
+        '@type': 'ContactPoint',
+        contactType: 'sales',
+        email: CONTACT_EMAIL,
+        telephone: CONTACT_PHONE,
+        areaServed: 'Worldwide',
+        availableLanguage: ['English', 'Spanish', 'Portuguese', 'French', 'Italian', 'German'],
+      },
+    ],
+  };
+
+  const aboutPageJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'AboutPage',
+    url: localizedUrl(locale, '/about'),
+    mainEntity: { '@id': `${SITE_URL}/#organization` },
+  };
+
+  const breadcrumb = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: localizedUrl(locale, '') },
+      { '@type': 'ListItem', position: 2, name: 'About', item: localizedUrl(locale, '/about') },
+    ],
+  };
+
   return (
     <>
+      <JsonLd id="ld-about-org" data={aboutOrg} />
+      <JsonLd id="ld-about-page" data={aboutPageJsonLd} />
+      <JsonLd id="ld-about-breadcrumb" data={breadcrumb} />
+
       {/* Intro */}
       <section className="bg-cream border-b border-warm-border">
         <div className="container-wide pt-16 pb-20 md:pt-20 md:pb-28">
@@ -139,7 +230,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
                 >
                   <Image
                     src={getUploadUrl(photo.imageUrl)}
-                    alt="Factory"
+                    alt={`Chengtai Mirror factory in Jiaxing — production view ${i + 1}`}
                     fill
                     sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                     className="object-cover transition-transform duration-[1.4s] ease-out group-hover:scale-[1.04]"
@@ -168,7 +259,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
 
           {certPhotos.length > 0 ? (
             <div className="grid grid-cols-2 md:grid-cols-4 border-t border-l border-warm-border" data-reveal-stagger>
-              {certPhotos.map((cert) => (
+              {certPhotos.map((cert, i) => (
                 <div
                   key={cert.id}
                   className="aspect-square border-r border-b border-warm-border flex items-center justify-center p-4 md:p-6 bg-cream"
@@ -176,7 +267,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
                 >
                   <Image
                     src={getUploadUrl(cert.imageUrl)}
-                    alt="Certification"
+                    alt={`Chengtai Mirror product certification ${i + 1} (CE / CB / SAA / ETL / RoHS / ISO 9001 family)`}
                     width={420}
                     height={420}
                     className="max-h-full max-w-full w-auto h-auto object-contain grayscale hover:grayscale-0 transition-all duration-500"

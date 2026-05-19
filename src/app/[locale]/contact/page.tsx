@@ -1,11 +1,56 @@
+import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import { getDb } from '@/lib/db';
 import { productCategories, categoryTranslations } from '@/lib/db/schema';
 import { eq, and, inArray } from 'drizzle-orm';
 import InquiryForm from '@/components/public/InquiryForm';
 import { Mail, MessageCircle, MapPin } from 'lucide-react';
+import { JsonLd } from '@/components/seo/JsonLd';
+import {
+  ADDRESS,
+  CONTACT_EMAIL,
+  CONTACT_PHONE,
+  SITE_NAME,
+  SITE_OG_IMAGE,
+  SITE_URL,
+  buildAlternates,
+  localeToOg,
+  localizedUrl,
+  pageCopy,
+} from '@/lib/seo';
 
 export const revalidate = 600;
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const copy = pageCopy(locale, 'contact');
+  const url = localizedUrl(locale, '/contact');
+
+  return {
+    title: copy.title,
+    description: copy.description,
+    alternates: buildAlternates(locale, '/contact'),
+    openGraph: {
+      type: 'website',
+      url,
+      siteName: SITE_NAME,
+      title: copy.title,
+      description: copy.description,
+      locale: localeToOg(locale),
+      images: [{ url: SITE_OG_IMAGE, width: 1200, height: 630, alt: SITE_NAME }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: copy.title,
+      description: copy.description,
+      images: [SITE_OG_IMAGE],
+    },
+  };
+}
 
 export default async function ContactPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -42,8 +87,44 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
     name: transMap.get(cat.id)?.name || transEnMap.get(cat.id)?.name || `Category ${cat.id}`,
   }));
 
+  const contactJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'ContactPage',
+    url: localizedUrl(locale, '/contact'),
+    name: pageCopy(locale, 'contact').title,
+    about: { '@id': `${SITE_URL}/#organization` },
+    mainEntity: {
+      '@type': 'Organization',
+      name: SITE_NAME,
+      email: CONTACT_EMAIL,
+      telephone: CONTACT_PHONE,
+      address: { '@type': 'PostalAddress', ...ADDRESS },
+      contactPoint: [
+        {
+          '@type': 'ContactPoint',
+          contactType: 'sales',
+          email: CONTACT_EMAIL,
+          telephone: CONTACT_PHONE,
+          areaServed: 'Worldwide',
+          availableLanguage: ['English', 'Spanish', 'Portuguese', 'French', 'Italian', 'German'],
+        },
+      ],
+    },
+  };
+
+  const breadcrumb = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: localizedUrl(locale, '') },
+      { '@type': 'ListItem', position: 2, name: 'Contact', item: localizedUrl(locale, '/contact') },
+    ],
+  };
+
   return (
     <section className="bg-cream">
+      <JsonLd id="ld-contact" data={contactJsonLd} />
+      <JsonLd id="ld-contact-breadcrumb" data={breadcrumb} />
       <div className="container-narrow pt-16 pb-24 md:pt-20 md:pb-32">
         {/* Header — one line, readable, no decorative chrome */}
         <header className="mb-14 md:mb-16">

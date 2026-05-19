@@ -34,7 +34,7 @@ export default function FacilityGallery({ images }: Props) {
             <Image
               key={`${src}-${i}`}
               src={src.startsWith('/') ? src : getUploadUrl(src)}
-              alt={`Chengtai facility view ${i + 1}`}
+              alt={`Chengtai Mirror manufacturing facility in Jiaxing — view ${i + 1}`}
               fill
               sizes="(max-width: 1024px) 100vw, 58vw"
               quality={85}
