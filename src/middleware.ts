@@ -42,7 +42,9 @@ export default function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     // Skip _next, api, cms, uploads, images, favicon, sitemap, robots,
-    // and any path that contains a "." (static asset)
-    '/((?!api|cms|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt|uploads|images|.*\\..*).*)',
+    // and any path that contains a "." (static asset). CMS/API early-exit
+    // in the middleware function itself is the runtime safety net — the
+    // matcher just filters out the obvious static assets.
+    '/((?!_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt|uploads|images|.*\\..*).*)',
   ],
 };
