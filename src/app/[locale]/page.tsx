@@ -91,12 +91,16 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       .from(banners)
       .where(eq(banners.isActive, true))
       .orderBy(banners.displayOrder),
+    // Fetch generously here — the section caps the grid at maxVisible=8
+    // via FeaturedProductsSection, but it needs the full set so every
+    // category that has a featured item gets a tab (otherwise the newest
+    // 12 happen to bunch into 2 categories and the others disappear).
     db
       .select()
       .from(products)
       .where(and(eq(products.isFeatured, true), eq(products.isActive, true)))
       .orderBy(desc(products.createdAt))
-      .limit(12),
+      .limit(60),
     db
       .select()
       .from(productCategories)
