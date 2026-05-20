@@ -2,6 +2,15 @@ import createNextIntlPlugin from 'next-intl/plugin';
 
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
+// 301s for slug typos corrected in drizzle/0003_fix_product_typos.sql.
+// Keeps any inbound link/index entry to a typoed slug from 404ing after
+// the DB rename. Add a new entry here every time a slug is corrected.
+const TYPO_SLUG_REDIRECTS: { from: string; to: string }[] = [
+  { from: 'asymmetrical-led-miirror', to: 'asymmetrical-led-mirror' },
+  { from: 'ps-full-length-mirorr', to: 'ps-full-length-mirror' },
+  { from: 'silm-framed-bathroom-mirror', to: 'slim-framed-bathroom-mirror' },
+];
+
 const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
@@ -31,6 +40,22 @@ const nextConfig = {
       dynamic: 30,
       static: 180,
     },
+  },
+  async redirects() {
+    return TYPO_SLUG_REDIRECTS.flatMap(({ from, to }) => [
+      {
+        source: `/:locale/products/${from}`,
+        destination: `/:locale/products/${to}`,
+        permanent: true,
+      },
+      // Unprefixed legacy form, in case it was ever indexed before the
+      // `localePrefix: 'always'` switch.
+      {
+        source: `/products/${from}`,
+        destination: `/en/products/${to}`,
+        permanent: true,
+      },
+    ]);
   },
 };
 

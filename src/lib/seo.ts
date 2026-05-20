@@ -5,7 +5,12 @@ export const SITE_NAME = 'Chengtai Mirror';
 export const SITE_LEGAL_NAME = 'Jiaxing Chengtai Mirror Co., Ltd';
 export const SITE_LOGO_URL =
   'https://yleuaykcrrrqdhzmrmoq.supabase.co/storage/v1/object/public/assets/Favicon.png';
-export const SITE_OG_IMAGE = SITE_LOGO_URL;
+// Dedicated 1200x630 brand/product collage image used for og:image and
+// twitter:image on non-product pages. Upload the actual artwork to this
+// Supabase Storage path; do NOT reuse the favicon (search engines and
+// social platforms expect a real preview image, not a square logo).
+export const SITE_OG_IMAGE =
+  'https://yleuaykcrrrqdhzmrmoq.supabase.co/storage/v1/object/public/assets/og-image.jpg';
 
 export const CONTACT_EMAIL = 'bolen5@cnjxctm.com';
 export const CONTACT_PHONE = '+86-178-6056-7239';
@@ -30,10 +35,9 @@ export function localeToOg(locale: string): string {
   return LOCALE_TO_BCP47[locale as Locale] ?? 'en_US';
 }
 
-/** Path with locale prefix only when locale is non-default. */
+/** Path with locale prefix. Mirrors middleware `localePrefix: 'always'`. */
 export function localizedPath(locale: string, pathAfterLocale: string): string {
-  const prefix = locale === defaultLocale ? '' : `/${locale}`;
-  return `${prefix}${pathAfterLocale}`;
+  return `/${locale}${pathAfterLocale}`;
 }
 
 /** Absolute URL for a localized path. */
@@ -67,14 +71,16 @@ export function buildAlternates(locale: string, pathAfterLocale: string) {
  * Falls back to English if a locale entry is missing.
  */
 type PageKey = 'home' | 'products' | 'about' | 'contact';
-type RoutedCopy = Record<PageKey, { title: string; description: string }>;
+type PageEntry = { title: string; description: string; h1?: string };
+type RoutedCopy = Record<PageKey, PageEntry>;
 
 const COPY: Record<Locale, RoutedCopy> = {
   en: {
     home: {
       title: 'Chengtai Mirror — LED, Smart & Bathroom Mirror Manufacturer',
       description:
-        'Jiaxing Chengtai Mirror — 21 years manufacturing LED, smart, and bathroom mirrors for global hospitality, retail, and residential projects. OEM/ODM, CE/CB/SAA/ETL/RoHS/ISO 9001 certified.',
+        'Chengtai Mirror — 21 years manufacturing LED, smart & bathroom mirrors for hospitality, retail, and residential projects worldwide. OEM/ODM, CE/ETL certified.',
+      h1: 'LED, Smart & Bathroom Mirror Manufacturer',
     },
     products: {
       title: 'LED, Smart & Bathroom Mirror Catalog | Chengtai Mirror',
@@ -84,7 +90,7 @@ const COPY: Record<Locale, RoutedCopy> = {
     about: {
       title: 'About Chengtai Mirror — 35,000 sqm Factory in Jiaxing, China',
       description:
-        'Founded in 2005 in Jiaxing, Zhejiang. 35,000 sqm facility, 200+ staff, 500,000 units/year capacity. CE, CB, SAA, ETL, IP44, IP54, RoHS, ISO 9001 certified mirrors shipped to 60+ countries.',
+        'Founded 2005 in Jiaxing, Zhejiang. 35,000 sqm facility, 200+ staff, 500,000 units/year. CE, CB, SAA, ETL, RoHS, ISO 9001 — shipping to 60+ countries.',
     },
     contact: {
       title: 'Contact Chengtai Mirror — Request a Quote',
@@ -97,6 +103,7 @@ const COPY: Record<Locale, RoutedCopy> = {
       title: 'Chengtai Mirror — Fabricante de Espejos LED, Smart y Baño',
       description:
         'Jiaxing Chengtai Mirror — 21 años fabricando espejos LED, inteligentes y de baño para proyectos hoteleros, retail y residenciales globales. OEM/ODM, certificados CE/CB/SAA/ETL/RoHS/ISO 9001.',
+      h1: 'Fabricante de Espejos LED, Smart y Baño',
     },
     products: {
       title: 'Catálogo de Espejos LED, Smart y Baño | Chengtai Mirror',
@@ -119,6 +126,7 @@ const COPY: Record<Locale, RoutedCopy> = {
       title: 'Chengtai Mirror — Fabricante de Espelhos LED, Smart e de Banho',
       description:
         'Jiaxing Chengtai Mirror — 21 anos fabricando espelhos LED, inteligentes e de banho para projetos hoteleiros, varejo e residenciais globais. OEM/ODM, certificados CE/CB/SAA/ETL/RoHS/ISO 9001.',
+      h1: 'Fabricante de Espelhos LED, Smart e de Banho',
     },
     products: {
       title: 'Catálogo de Espelhos LED, Smart e de Banho | Chengtai Mirror',
@@ -141,6 +149,7 @@ const COPY: Record<Locale, RoutedCopy> = {
       title: 'Chengtai Mirror — Fabricant de Miroirs LED, Intelligents et de Salle de Bain',
       description:
         "Jiaxing Chengtai Mirror — 21 ans de fabrication de miroirs LED, intelligents et de salle de bain pour les projets hôteliers, retail et résidentiels mondiaux. OEM/ODM, certifiés CE/CB/SAA/ETL/RoHS/ISO 9001.",
+      h1: 'Fabricant de Miroirs LED, Intelligents et de Salle de Bain',
     },
     products: {
       title: 'Catalogue de Miroirs LED, Intelligents et de Salle de Bain | Chengtai Mirror',
@@ -163,6 +172,7 @@ const COPY: Record<Locale, RoutedCopy> = {
       title: 'Chengtai Mirror — Produttore di Specchi LED, Smart e da Bagno',
       description:
         "Jiaxing Chengtai Mirror — 21 anni di produzione di specchi LED, smart e da bagno per progetti hospitality, retail e residenziali globali. OEM/ODM, certificati CE/CB/SAA/ETL/RoHS/ISO 9001.",
+      h1: 'Produttore di Specchi LED, Smart e da Bagno',
     },
     products: {
       title: 'Catalogo Specchi LED, Smart e da Bagno | Chengtai Mirror',
@@ -185,6 +195,7 @@ const COPY: Record<Locale, RoutedCopy> = {
       title: 'Chengtai Mirror — Hersteller von LED-, Smart- & Badspiegeln',
       description:
         'Jiaxing Chengtai Mirror — 21 Jahre Erfahrung in der Fertigung von LED-, Smart- und Badspiegeln für globale Hotellerie-, Retail- und Wohnprojekte. OEM/ODM, CE/CB/SAA/ETL/RoHS/ISO 9001 zertifiziert.',
+      h1: 'Hersteller von LED-, Smart- & Badspiegeln',
     },
     products: {
       title: 'LED-, Smart- & Badspiegel Katalog | Chengtai Mirror',

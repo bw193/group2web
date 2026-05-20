@@ -281,6 +281,7 @@ export default async function ProductDetailPage({
     ? images.map((img) => getUploadUrl(img.imageUrl))
     : ['/images/placeholder.svg'];
 
+  const productUrl = localizedUrl(locale, `/products/${trans.slug}`);
   const productJsonLd: Record<string, unknown> = {
     '@context': 'https://schema.org',
     '@type': 'Product',
@@ -291,7 +292,20 @@ export default async function ProductDetailPage({
       (trans.fullDescription ? trans.fullDescription.replace(/<[^>]+>/g, '').slice(0, 500) : `${trans.name} — manufactured by ${SITE_NAME}.`),
     brand: { '@type': 'Brand', name: SITE_NAME },
     manufacturer: { '@id': `${SITE_URL}/#organization` },
-    url: localizedUrl(locale, `/products/${trans.slug}`),
+    url: productUrl,
+    // B2B quote-driven catalog: no public price, but availability +
+    // seller info still produce a valid Product offer for crawlers.
+    // Do NOT inject a fabricated `price` here — Google penalizes fake
+    // pricing data and the audit explicitly forbids it.
+    offers: {
+      '@type': 'Offer',
+      url: productUrl,
+      availability: 'https://schema.org/InStock',
+      itemCondition: 'https://schema.org/NewCondition',
+      businessFunction: 'https://schema.org/Sell',
+      areaServed: 'Worldwide',
+      seller: { '@id': `${SITE_URL}/#organization` },
+    },
   };
   if (product.modelNumber) {
     productJsonLd.sku = product.modelNumber;

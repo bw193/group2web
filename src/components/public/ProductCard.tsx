@@ -39,6 +39,7 @@ export default function ProductCard({
       {/* Image */}
       <Link
         href={`/${locale}/products/${slug}`}
+        aria-label={`${name} — view product details`}
         className="block relative aspect-[4/5] overflow-hidden bg-sand mb-6"
       >
         {imageUrl ? (

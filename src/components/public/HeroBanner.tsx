@@ -68,9 +68,9 @@ export default function HeroBanner({ slides, fallbackTitle, fallbackSubtitle, fa
           <p className="text-[12px] font-body text-bronze-light tracking-[0.4em] uppercase mb-8 animate-fade-up" style={{ animationDelay: '100ms' }}>
             {fallbackSubtitle || 'Premium B2B Manufacturer'}
           </p>
-          <h1 className="text-5xl md:text-7xl lg:text-[90px] font-display font-light leading-[0.95] text-cream max-w-5xl mx-auto animate-fade-up" style={{ animationDelay: '300ms' }}>
+          <p className="text-5xl md:text-7xl lg:text-[90px] font-display font-light leading-[0.95] text-cream max-w-5xl mx-auto animate-fade-up" style={{ animationDelay: '300ms' }}>
             {fallbackTitle || 'Excellence in Precision Mirrors'}
-          </h1>
+          </p>
           <div className="mt-14 animate-fade-up" style={{ animationDelay: '500ms' }}>
             <MagneticLink
               href="/en/contact"
