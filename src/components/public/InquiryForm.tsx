@@ -108,11 +108,11 @@ export default function InquiryForm({ categories }: { categories: Category[] }) 
         <div className="flex items-center gap-3 text-bronze mb-4">
           <CheckCircle2 size={24} strokeWidth={1.75} />
           <span className="text-[13px] font-body font-semibold uppercase tracking-[0.15em]">
-            Inquiry received
+            {t('successLabel')}
           </span>
         </div>
         <h3 className="font-display text-3xl md:text-4xl font-normal text-ink leading-tight mb-3">
-          Thank you.
+          {t('successHeading')}
         </h3>
         <p className="text-[16px] font-body text-ink leading-[1.6] max-w-md">
           {t('success')}
@@ -127,7 +127,7 @@ export default function InquiryForm({ categories }: { categories: Category[] }) 
       {(selectedProduct.name || selectedProduct.model) && (
         <div className="bg-ink text-cream px-5 py-4 flex items-center gap-4">
           <span className="hidden sm:inline text-[11px] font-body font-semibold text-bronze uppercase tracking-[0.2em]">
-            Inquiring about
+            {t('inquiringAbout')}
           </span>
           <div className="flex-1 flex items-baseline flex-wrap gap-x-3 gap-y-1 min-w-0">
             {selectedProduct.model && (
@@ -144,7 +144,7 @@ export default function InquiryForm({ categories }: { categories: Category[] }) 
           <button
             type="button"
             onClick={clearSelectedProduct}
-            aria-label="Clear selected product"
+            aria-label={t('clearSelectedProduct')}
             className="shrink-0 text-cream/70 hover:text-cream transition-colors p-1"
           >
             <X size={18} strokeWidth={1.75} />
@@ -166,36 +166,37 @@ export default function InquiryForm({ categories }: { categories: Category[] }) 
           No inner hairlines — fields are self-contained filled inputs. */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <Field
-          label="Your name"
+          label={t('name')}
           required
           value={formData.name}
           onChange={(v) => setFormData({ ...formData, name: v })}
         />
         <Field
-          label="Email"
+          label={t('email')}
           type="email"
           required
           value={formData.email}
           onChange={(v) => setFormData({ ...formData, email: v })}
         />
         <Field
-          label="Phone (optional)"
+          label={`${t('phone')} (${t('optional')})`}
           type="tel"
           value={formData.phone}
           onChange={(v) => setFormData({ ...formData, phone: v })}
         />
         <Field
-          label="Company"
+          label={t('company')}
           value={formData.company}
           onChange={(v) => setFormData({ ...formData, company: v })}
         />
         <Field
-          label="Country"
+          label={t('country')}
           value={formData.country}
           onChange={(v) => setFormData({ ...formData, country: v })}
         />
         <SelectField
-          label="Product category"
+          label={t('productInterest')}
+          placeholder={t('selectCategory')}
           value={formData.productInterest}
           onChange={(v) => setFormData({ ...formData, productInterest: v })}
           options={categories.map((c) => ({ value: c.name, label: c.name }))}
@@ -211,7 +212,7 @@ export default function InquiryForm({ categories }: { categories: Category[] }) 
       <div>
         <label className="block">
           <span className="block text-[13px] font-body font-medium text-ink mb-2">
-            Your message <span className="text-bronze">*</span>
+            {t('message')} <span className="text-bronze">*</span>
           </span>
           <textarea
             required
@@ -221,8 +222,8 @@ export default function InquiryForm({ categories }: { categories: Category[] }) 
             className="w-full bg-sand border border-transparent hover:border-warm-border focus:border-ink px-4 py-3 text-[15px] font-body text-ink placeholder:text-ink-light focus:outline-none resize-y leading-[1.6] transition-colors"
             placeholder={
               selectedProduct.name
-                ? `Quantities, finishes, lead time you're targeting for the ${selectedProduct.name}…`
-                : 'Tell us about volumes, dimensions, timeline, or certifications you need…'
+                ? t('placeholderWithProduct', { product: selectedProduct.name })
+                : t('placeholderGeneral')
             }
           />
         </label>
@@ -241,7 +242,7 @@ export default function InquiryForm({ categories }: { categories: Category[] }) 
           disabled={status === 'loading'}
           className="btn-primary h-14 px-10 text-[12px] disabled:opacity-50 group"
         >
-          <span>{status === 'loading' ? 'Sending…' : 'Send inquiry'}</span>
+          <span>{status === 'loading' ? t('sending') : t('sendButton')}</span>
           <ArrowRight
             size={16}
             strokeWidth={2}
@@ -249,7 +250,7 @@ export default function InquiryForm({ categories }: { categories: Category[] }) 
           />
         </button>
         <p className="mt-3 text-[13px] font-body text-ink-mid">
-          We&rsquo;ll reply within one business day.
+          {t('replyTime')}
         </p>
       </div>
     </form>
@@ -290,12 +291,14 @@ function Field({
 
 function SelectField({
   label,
+  placeholder,
   value,
   onChange,
   options,
   extraOption,
 }: {
   label: string;
+  placeholder: string;
   value: string;
   onChange: (v: string) => void;
   options: { value: string; label: string }[];
@@ -311,7 +314,7 @@ function SelectField({
         onChange={(e) => onChange(e.target.value)}
         className="w-full h-12 bg-sand border border-transparent hover:border-warm-border focus:border-ink px-4 pr-10 text-[15px] font-body text-ink focus:outline-none appearance-none cursor-pointer transition-colors"
       >
-        <option value="">Select a category</option>
+        <option value="">{placeholder}</option>
         {extraOption && <option value={extraOption.value}>{extraOption.label}</option>}
         {options.map((o) => (
           <option key={o.value} value={o.value}>

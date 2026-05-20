@@ -63,6 +63,7 @@ export async function generateMetadata({
 export default async function ProductsPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const t = await getTranslations('products');
+  const breadcrumbT = await getTranslations('breadcrumb');
   const db = getDb();
 
   const [allProducts, allCats] = await Promise.all([
@@ -158,8 +159,8 @@ export default async function ProductsPage({ params }: { params: Promise<{ local
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Home', item: localizedUrl(locale, '') },
-      { '@type': 'ListItem', position: 2, name: 'Products', item: localizedUrl(locale, '/products') },
+      { '@type': 'ListItem', position: 1, name: breadcrumbT('home'), item: localizedUrl(locale, '') },
+      { '@type': 'ListItem', position: 2, name: breadcrumbT('products'), item: localizedUrl(locale, '/products') },
     ],
   };
 
@@ -185,7 +186,7 @@ export default async function ProductsPage({ params }: { params: Promise<{ local
             </div>
             <div className="lg:col-span-4 lg:text-right" data-reveal>
               <p className="text-[17px] font-body font-normal text-ink leading-[1.6] max-w-sm lg:ml-auto">
-                Mirrors engineered for bathrooms, hospitality, retail, and residential projects — browse the full collection.
+                {t('introText')}
               </p>
             </div>
           </div>

@@ -57,7 +57,7 @@ export default function ProductCard({
         ) : (
           <div className="absolute inset-0 flex flex-col items-center justify-center p-6 bg-gradient-to-br from-sand to-warm-gray text-center">
             <div className="w-14 h-20 border border-bronze/30 rounded-t-full bg-cream/40 mb-4" />
-            <span className="text-[10px] font-body text-ink-light tracking-[0.28em] uppercase">Premium Mirror</span>
+            <span className="text-[10px] font-body text-ink-light tracking-[0.28em] uppercase">{t('placeholderImageAlt')}</span>
           </div>
         )}
 

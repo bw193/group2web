@@ -36,7 +36,23 @@
     "certDesc": "Unsere Produkte erfüllen die höchsten internationalen Standards",
     "inquiryCta": "Bereit, Ihr Projekt zu Starten?",
     "inquiryCtaDesc": "Kontaktieren Sie uns heute für wettbewerbsfähige Preise, OEM/ODM-Services und schnelle Lieferung.",
-    "inquiryCtaBtn": "Angebot Anfordern"
+    "inquiryCtaBtn": "Angebot Anfordern",
+    "factoryEyebrow": "Die Fabrik",
+    "factoryHeading": "Ein Studio, das liefert",
+    "factoryDescription": "Vier Produktionslinien, ein F&E-Studio und ein exportorientiertes Qualitätssystem — die Handwerkskunst eines Studios im Takt einer Fabrik.",
+    "factoryButton": "In die Fabrik",
+    "capability1Title": "Vertikale Integration",
+    "capability1Desc": "Glas, Beschichtung, LED und Veredelung im Haus",
+    "capability2Title": "Zertifizierte Qualität",
+    "capability2Desc": "CE, CB, SAA, ETL, IP44, IP54, RoHS, ISO 9001",
+    "capability3Title": "Eigenes F&E-Studio",
+    "capability3Desc": "Vom Prototyp zur Form in unter 21 Tagen",
+    "capability4Title": "Globale Logistik",
+    "capability4Desc": "Exportbereit in über 60 Länder",
+    "statsLabel1": "Quadratmeter",
+    "statsLabel2": "Fachkräfte",
+    "statsLabel3": "Einheiten pro Jahr",
+    "statsLabel4": "Jahre Handwerk"
   },
   "products": {
     "title": "Unsere Produkte",
@@ -48,7 +64,10 @@
     "featured": "Empfohlen",
     "specifications": "Spezifikationen",
     "relatedProducts": "Verwandte Produkte",
-    "modelNumber": "Modellnr."
+    "modelNumber": "Modellnr.",
+    "viewAll": "Alle Produkte Anzeigen",
+    "introText": "Spiegel entwickelt für Bäder, Hotellerie, Retail und Wohnprojekte — entdecken Sie die komplette Kollektion.",
+    "placeholderImageAlt": "Premium Spiegel"
   },
   "about": {
     "title": "Über Chengtai",
@@ -59,17 +78,25 @@
     "annualCapacity": "Jahreskapazität",
     "yearsExperience": "Jahre Erfahrung",
     "factoryGallery": "Fabrik & Werkstatt",
-    "certifications": "Zertifizierungen"
+    "certifications": "Zertifizierungen",
+    "eyebrowSince": "Chengtai Mirror Co., Ltd — Seit 2005",
+    "introSubtitle": "Jiaxing, China — ein 35.000 m² Studio, das Präzisionsspiegel für globale Hotellerie-, Retail- und Wohnmarken fertigt.",
+    "factoryGalleryTitle": "Im Studio",
+    "certificationsTitle": "Compliance, die mitreist",
+    "ctaHeading": "Planen Sie ein Projekt mit Chengtai",
+    "ctaButton": "Anfrage starten",
+    "companyIntroFallbackLead": "Gegründet 2005, ist Jiaxing Chengtai Mirror Co., Ltd. ein führender Hersteller von LED-, Bad- und Ganzkörperspiegeln.",
+    "companyIntroFallbackBody": "Von einer einzelnen Produktionslinie zu einem integrierten Werk von 35.000 m² — unsere Spiegel erreichen heute mehr als 60 Länder, gefertigt nach den Spezifikationen von Projekten, die konstante Qualität im Maßstab verlangen."
   },
   "contact": {
     "title": "Kontaktieren Sie Uns",
-    "formTitle": "Senden Sie Uns eine Anfrage",
+    "formTitle": "Senden Sie uns eine Anfrage",
     "name": "Ihr Name",
-    "email": "E-Mail-Adresse",
+    "email": "E-Mail",
     "phone": "Telefon",
-    "company": "Firmenname",
+    "company": "Unternehmen",
     "country": "Land",
-    "productInterest": "Interessiertes Produkt",
+    "productInterest": "Produktkategorie",
     "message": "Ihre Nachricht",
     "submit": "Anfrage Senden",
     "success": "Vielen Dank! Ihre Anfrage wurde erfolgreich gesendet. Wir werden uns bald bei Ihnen melden.",
@@ -78,18 +105,43 @@
     "emailLabel": "E-Mail",
     "whatsappLabel": "WhatsApp",
     "addressLabel": "Adresse",
-    "optional": "optional"
+    "optional": "optional",
+    "eyebrow": "Kontakt",
+    "pageIntro": "Teilen Sie uns Ihre Projektdetails mit — unser Exportteam antwortet innerhalb eines Werktags.",
+    "directLine": "Lieber direkt anrufen?",
+    "hoursLabel": "Öffnungszeiten:",
+    "hoursValue": "Mo–Sa, 09:00–18:00 (GMT+8)",
+    "inquiringAbout": "Anfrage zu",
+    "successHeading": "Vielen Dank.",
+    "successLabel": "Anfrage erhalten",
+    "selectCategory": "Kategorie auswählen",
+    "sending": "Wird gesendet…",
+    "sendButton": "Anfrage senden",
+    "replyTime": "Wir antworten innerhalb eines Werktags.",
+    "placeholderWithProduct": "Mengen, Ausführungen und Lieferzeit für {product}…",
+    "placeholderGeneral": "Erzählen Sie uns von Volumen, Maßen, Zeitplänen oder erforderlichen Zertifizierungen…",
+    "clearSelectedProduct": "Ausgewähltes Produkt entfernen"
   },
   "footer": {
     "company": "JIAXING CHENGTAI MIRROR CO., LTD",
     "slogan": "Ein globaler Marktführer in der Smart-Home-Spiegelindustrie werden",
     "quickLinks": "Schnelllinks",
     "contactUs": "Kontaktieren Sie Uns",
-    "copyright": "© 2025 Jiaxing Chengtai Mirror Co., Ltd. Alle Rechte vorbehalten."
+    "copyright": "© 2025 Jiaxing Chengtai Mirror Co., Ltd. Alle Rechte vorbehalten.",
+    "tagline": "Licht gestalten, gespiegelt",
+    "sinceLabel": "Seit",
+    "sinceBody": "Zwei Jahrzehnte Spiegelhandwerk — LED, Bad, Schränke und maßgeschneiderte Fertigung aus Jiaxing, China.",
+    "startInquiry": "Anfrage starten"
   },
   "common": {
     "learnMore": "Mehr Erfahren",
     "backToProducts": "Zurück zu Produkten",
     "loading": "Laden..."
+  },
+  "breadcrumb": {
+    "home": "Startseite",
+    "products": "Produkte",
+    "about": "Über Uns",
+    "contact": "Kontakt"
   }
 }

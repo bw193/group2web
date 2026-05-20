@@ -36,7 +36,23 @@
     "certDesc": "Nuestros productos cumplen los más altos estándares internacionales",
     "inquiryCta": "¿Listo para Iniciar su Proyecto?",
     "inquiryCtaDesc": "Contáctenos hoy para precios competitivos, servicios OEM/ODM y entrega rápida.",
-    "inquiryCtaBtn": "Solicitar Cotización"
+    "inquiryCtaBtn": "Solicitar Cotización",
+    "factoryEyebrow": "La fábrica",
+    "factoryHeading": "Un estudio que entrega",
+    "factoryDescription": "Cuatro líneas de producción, un estudio de I+D y un sistema de calidad orientado a la exportación — la artesanía de un estudio con el ritmo de una fábrica.",
+    "factoryButton": "Dentro de la fábrica",
+    "capability1Title": "Integración vertical",
+    "capability1Desc": "Vidrio, recubrimiento, LED y acabados internos",
+    "capability2Title": "Calidad certificada",
+    "capability2Desc": "CE, CB, SAA, ETL, IP44, IP54, RoHS, ISO 9001",
+    "capability3Title": "Estudio de I+D propio",
+    "capability3Desc": "De prototipo a molde en menos de 21 días",
+    "capability4Title": "Logística global",
+    "capability4Desc": "Listos para exportar a más de 60 países",
+    "statsLabel1": "Metros cuadrados",
+    "statsLabel2": "Personal cualificado",
+    "statsLabel3": "Unidades al año",
+    "statsLabel4": "Años de oficio"
   },
   "products": {
     "title": "Nuestros Productos",
@@ -48,7 +64,10 @@
     "featured": "Destacado",
     "specifications": "Especificaciones",
     "relatedProducts": "Productos Relacionados",
-    "modelNumber": "Nº de Modelo"
+    "modelNumber": "Nº de Modelo",
+    "viewAll": "Ver Todos los Productos",
+    "introText": "Espejos diseñados para baños, hostelería, retail y proyectos residenciales — explore la colección completa.",
+    "placeholderImageAlt": "Espejo Premium"
   },
   "about": {
     "title": "Sobre Chengtai",
@@ -59,18 +78,26 @@
     "annualCapacity": "Capacidad Anual",
     "yearsExperience": "Años de Experiencia",
     "factoryGallery": "Fábrica y Taller",
-    "certifications": "Certificaciones"
+    "certifications": "Certificaciones",
+    "eyebrowSince": "Chengtai Mirror Co., Ltd — Desde 2005",
+    "introSubtitle": "Jiaxing, China — un estudio de 35.000 m² que fabrica espejos de precisión para marcas globales de hostelería, retail y residencial.",
+    "factoryGalleryTitle": "Dentro del estudio",
+    "certificationsTitle": "Cumplimiento que viaja",
+    "ctaHeading": "Planifique un proyecto con Chengtai",
+    "ctaButton": "Iniciar una consulta",
+    "companyIntroFallbackLead": "Fundada en 2005, Jiaxing Chengtai Mirror Co., Ltd. es un fabricante líder de espejos LED, de baño y de cuerpo entero.",
+    "companyIntroFallbackBody": "De una sola línea de producción a una instalación integrada de 35.000 m², nuestros espejos llegan ahora a más de 60 países — construidos según las especificaciones de proyectos que exigen calidad constante a escala."
   },
   "contact": {
     "title": "Contáctenos",
-    "formTitle": "Envíenos una Consulta",
-    "name": "Su Nombre",
-    "email": "Correo Electrónico",
+    "formTitle": "Envíenos una consulta",
+    "name": "Su nombre",
+    "email": "Correo",
     "phone": "Teléfono",
-    "company": "Nombre de la Empresa",
+    "company": "Empresa",
     "country": "País",
-    "productInterest": "Producto de Interés",
-    "message": "Su Mensaje",
+    "productInterest": "Categoría de producto",
+    "message": "Su mensaje",
     "submit": "Enviar Consulta",
     "success": "¡Gracias! Su consulta ha sido enviada exitosamente. Nos pondremos en contacto pronto.",
     "error": "Algo salió mal. Por favor intente de nuevo más tarde.",
@@ -78,18 +105,43 @@
     "emailLabel": "Correo",
     "whatsappLabel": "WhatsApp",
     "addressLabel": "Dirección",
-    "optional": "opcional"
+    "optional": "opcional",
+    "eyebrow": "Contacto",
+    "pageIntro": "Comparta los detalles de su proyecto y nuestro equipo de exportación responderá en un día hábil.",
+    "directLine": "¿Prefiere una línea directa?",
+    "hoursLabel": "Horario:",
+    "hoursValue": "Lun–Sáb, 09:00–18:00 (GMT+8)",
+    "inquiringAbout": "Consulta sobre",
+    "successHeading": "Gracias.",
+    "successLabel": "Consulta recibida",
+    "selectCategory": "Seleccione una categoría",
+    "sending": "Enviando…",
+    "sendButton": "Enviar consulta",
+    "replyTime": "Responderemos en un día hábil.",
+    "placeholderWithProduct": "Cantidades, acabados y plazos que busca para {product}…",
+    "placeholderGeneral": "Cuéntenos sobre volúmenes, dimensiones, plazos o certificaciones que necesita…",
+    "clearSelectedProduct": "Eliminar producto seleccionado"
   },
   "footer": {
     "company": "JIAXING CHENGTAI MIRROR CO., LTD",
     "slogan": "Ser un líder global en la industria de espejos inteligentes para el hogar",
     "quickLinks": "Enlaces Rápidos",
     "contactUs": "Contáctenos",
-    "copyright": "© 2025 Jiaxing Chengtai Mirror Co., Ltd. Todos los derechos reservados."
+    "copyright": "© 2025 Jiaxing Chengtai Mirror Co., Ltd. Todos los derechos reservados.",
+    "tagline": "Modelando la luz, reflejada",
+    "sinceLabel": "Desde",
+    "sinceBody": "Dos décadas de artesanía en espejos — LED, baño, armarios y fabricación a medida desde Jiaxing, China.",
+    "startInquiry": "Iniciar una consulta"
   },
   "common": {
     "learnMore": "Más Información",
     "backToProducts": "Volver a Productos",
     "loading": "Cargando..."
+  },
+  "breadcrumb": {
+    "home": "Inicio",
+    "products": "Productos",
+    "about": "Sobre Nosotros",
+    "contact": "Contacto"
   }
 }

@@ -55,6 +55,7 @@ export async function generateMetadata({
 export default async function ContactPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const t = await getTranslations('contact');
+  const breadcrumbT = await getTranslations('breadcrumb');
   const db = getDb();
 
   const allCats = await db
@@ -116,8 +117,8 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Home', item: localizedUrl(locale, '') },
-      { '@type': 'ListItem', position: 2, name: 'Contact', item: localizedUrl(locale, '/contact') },
+      { '@type': 'ListItem', position: 1, name: breadcrumbT('home'), item: localizedUrl(locale, '') },
+      { '@type': 'ListItem', position: 2, name: breadcrumbT('contact'), item: localizedUrl(locale, '/contact') },
     ],
   };
 
@@ -129,13 +130,13 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
         {/* Header — one line, readable, no decorative chrome */}
         <header className="mb-14 md:mb-16">
           <p className="text-[13px] font-body font-medium text-bronze uppercase tracking-[0.18em] mb-5">
-            Contact
+            {t('eyebrow')}
           </p>
           <h1 className="font-display text-4xl md:text-5xl lg:text-[56px] font-normal text-ink tracking-[-0.02em] leading-[1.05]">
-            Send us an inquiry
+            {t('formTitle')}
           </h1>
           <p className="mt-5 text-[17px] md:text-[18px] font-body font-normal text-ink leading-[1.6] max-w-2xl">
-            Share your project details and our export team will reply within one business day.
+            {t('pageIntro')}
           </p>
         </header>
 
@@ -149,26 +150,26 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
           <aside className="lg:col-span-4">
             <div className="bg-sand p-6 md:p-7">
               <h2 className="font-display text-[24px] font-normal text-ink mb-6">
-                Prefer a direct line?
+                {t('directLine')}
               </h2>
 
               <ul className="space-y-5">
                 <ContactRow
                   icon={<Mail size={18} strokeWidth={1.75} />}
-                  label="Email"
+                  label={t('emailLabel')}
                   value="bolen5@cnjxctm.com"
                   href="mailto:bolen5@cnjxctm.com"
                 />
                 <ContactRow
                   icon={<MessageCircle size={18} strokeWidth={1.75} />}
-                  label="WhatsApp"
+                  label={t('whatsappLabel')}
                   value="+86 178 6056 7239"
                   href="https://wa.me/8617860567239"
                   external
                 />
                 <ContactRow
                   icon={<MapPin size={18} strokeWidth={1.75} />}
-                  label="Address"
+                  label={t('addressLabel')}
                   value={
                     <>
                       No. 768 Xinda Road,<br />
@@ -180,8 +181,8 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
               </ul>
 
               <p className="mt-7 pt-5 border-t border-warm-border text-[14px] font-body text-ink">
-                <span className="font-medium">Hours:</span>{' '}
-                <span className="text-ink-mid">Mon&ndash;Sat, 09:00&ndash;18:00 (GMT+8)</span>
+                <span className="font-medium">{t('hoursLabel')}</span>{' '}
+                <span className="text-ink-mid">{t('hoursValue')}</span>
               </p>
             </div>
           </aside>

@@ -36,7 +36,23 @@
     "certDesc": "Our products meet the highest international standards",
     "inquiryCta": "Ready to Start Your Project?",
     "inquiryCtaDesc": "Contact us today for competitive pricing, OEM/ODM services, and fast delivery.",
-    "inquiryCtaBtn": "Get a Quote"
+    "inquiryCtaBtn": "Get a Quote",
+    "factoryEyebrow": "The factory",
+    "factoryHeading": "A studio that ships",
+    "factoryDescription": "Four production lines, an R&D studio, and an export-focused quality system — the craftsmanship of a studio at the throughput of a factory.",
+    "factoryButton": "Inside the factory",
+    "capability1Title": "Vertical integration",
+    "capability1Desc": "In-house glass, coating, LED, and finishing",
+    "capability2Title": "Certified quality",
+    "capability2Desc": "CE, CB, SAA, ETL, IP44, IP54, RoHS, ISO 9001",
+    "capability3Title": "In-house R&D studio",
+    "capability3Desc": "Prototype-to-mold in under 21 days",
+    "capability4Title": "Global logistics",
+    "capability4Desc": "Export-ready to 60+ countries",
+    "statsLabel1": "Square meters",
+    "statsLabel2": "Skilled staff",
+    "statsLabel3": "Units per year",
+    "statsLabel4": "Years of craft"
   },
   "products": {
     "title": "Our Products",
@@ -49,7 +65,9 @@
     "specifications": "Specifications",
     "relatedProducts": "Related Products",
     "modelNumber": "Model No.",
-    "viewAll": "View All Products"
+    "viewAll": "View All Products",
+    "introText": "Mirrors engineered for bathrooms, hospitality, retail, and residential projects — browse the full collection.",
+    "placeholderImageAlt": "Premium Mirror"
   },
   "about": {
     "title": "About Chengtai",
@@ -60,18 +78,26 @@
     "annualCapacity": "Annual Capacity",
     "yearsExperience": "Years of Experience",
     "factoryGallery": "Factory & Workshop",
-    "certifications": "Certifications"
+    "certifications": "Certifications",
+    "eyebrowSince": "Chengtai Mirror Co., Ltd — Since 2005",
+    "introSubtitle": "Jiaxing, China — a 35,000 sqm studio building precision mirrors for global hospitality, retail, and residential brands.",
+    "factoryGalleryTitle": "Inside the studio",
+    "certificationsTitle": "Compliance that travels",
+    "ctaHeading": "Plan a project with Chengtai",
+    "ctaButton": "Start an inquiry",
+    "companyIntroFallbackLead": "Established in 2005, Jiaxing Chengtai Mirror Co., Ltd. is a premier manufacturer of LED, bathroom, and full-body mirrors.",
+    "companyIntroFallbackBody": "From a single production line to an integrated 35,000 sqm facility, our mirrors now reach more than 60 countries — built to the specifications of projects that demand consistent quality at scale."
   },
   "contact": {
     "title": "Contact Us",
-    "formTitle": "Send Us an Inquiry",
-    "name": "Your Name",
-    "email": "Email Address",
-    "phone": "Phone Number",
-    "company": "Company Name",
+    "formTitle": "Send us an inquiry",
+    "name": "Your name",
+    "email": "Email",
+    "phone": "Phone",
+    "company": "Company",
     "country": "Country",
-    "productInterest": "Product of Interest",
-    "message": "Your Message",
+    "productInterest": "Product category",
+    "message": "Your message",
     "submit": "Send Inquiry",
     "success": "Thank you! Your inquiry has been submitted successfully. We will get back to you soon.",
     "error": "Something went wrong. Please try again later.",
@@ -79,18 +105,43 @@
     "emailLabel": "Email",
     "whatsappLabel": "WhatsApp",
     "addressLabel": "Address",
-    "optional": "optional"
+    "optional": "optional",
+    "eyebrow": "Contact",
+    "pageIntro": "Share your project details and our export team will reply within one business day.",
+    "directLine": "Prefer a direct line?",
+    "hoursLabel": "Hours:",
+    "hoursValue": "Mon–Sat, 09:00–18:00 (GMT+8)",
+    "inquiringAbout": "Inquiring about",
+    "successHeading": "Thank you.",
+    "successLabel": "Inquiry received",
+    "selectCategory": "Select a category",
+    "sending": "Sending…",
+    "sendButton": "Send inquiry",
+    "replyTime": "We'll reply within one business day.",
+    "placeholderWithProduct": "Quantities, finishes, lead time you're targeting for the {product}…",
+    "placeholderGeneral": "Tell us about volumes, dimensions, timeline, or certifications you need…",
+    "clearSelectedProduct": "Clear selected product"
   },
   "footer": {
     "company": "JIAXING CHENGTAI MIRROR CO., LTD",
     "slogan": "To be a global leader in the smart home mirror industry",
     "quickLinks": "Quick Links",
     "contactUs": "Contact Us",
-    "copyright": "© 2025 Jiaxing Chengtai Mirror Co., Ltd. All rights reserved."
+    "copyright": "© 2025 Jiaxing Chengtai Mirror Co., Ltd. All rights reserved.",
+    "tagline": "Crafting light, reflected",
+    "sinceLabel": "Since",
+    "sinceBody": "Two decades of mirror craftsmanship — LED, bathroom, cabinet, and bespoke manufacturing from Jiaxing, China.",
+    "startInquiry": "Start an inquiry"
   },
   "common": {
     "learnMore": "Learn More",
     "backToProducts": "Back to Products",
     "loading": "Loading..."
+  },
+  "breadcrumb": {
+    "home": "Home",
+    "products": "Products",
+    "about": "About",
+    "contact": "Contact"
   }
 }

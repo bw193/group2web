@@ -14,17 +14,17 @@ export default async function FacilitySection({ locale, images = [] }: Props) {
   const gallerySrcs = images.filter((v): v is string => !!v);
 
   const capabilities = [
-    { label: 'Vertical integration', note: 'In-house glass, coating, LED, and finishing' },
-    { label: 'Certified quality', note: 'CE, CB, SAA, ETL, IP44, IP54, RoHS, ISO 9001' },
-    { label: 'In-house R&D studio', note: 'Prototype-to-mold in under 21 days' },
-    { label: 'Global logistics', note: 'Export-ready to 60+ countries' },
+    { label: t('capability1Title'), note: t('capability1Desc') },
+    { label: t('capability2Title'), note: t('capability2Desc') },
+    { label: t('capability3Title'), note: t('capability3Desc') },
+    { label: t('capability4Title'), note: t('capability4Desc') },
   ];
 
   const stats = [
-    { to: 35, suffix: ',000', label: 'Square meters' },
-    { to: 200, suffix: '+', label: 'Skilled staff' },
-    { to: 500, suffix: 'K', label: 'Units per year' },
-    { to: 21, suffix: '+', label: 'Years of craft' },
+    { to: 35, suffix: ',000', label: t('statsLabel1') },
+    { to: 200, suffix: '+', label: t('statsLabel2') },
+    { to: 500, suffix: 'K', label: t('statsLabel3') },
+    { to: 21, suffix: '+', label: t('statsLabel4') },
   ];
 
   return (
@@ -39,17 +39,17 @@ export default async function FacilitySection({ locale, images = [] }: Props) {
           {/* Content */}
           <div className="lg:col-span-5 lg:pt-6">
             <p className="text-[13px] font-body font-semibold text-bronze uppercase tracking-[0.18em] mb-5" data-reveal>
-              The factory
+              {t('factoryEyebrow')}
             </p>
             <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-normal text-ink leading-[1.05] tracking-[-0.02em]" data-reveal>
-              A studio that ships
+              {t('factoryHeading')}
             </h2>
 
             <p
               className="text-ink font-body font-normal leading-[1.6] text-[17px] md:text-[18px] mt-6 max-w-md"
               data-reveal
             >
-              Four production lines, an R&D studio, and an export-focused quality system — the craftsmanship of a studio at the throughput of a factory.
+              {t('factoryDescription')}
             </p>
 
             {/* Capability list — readable rows */}
@@ -75,7 +75,7 @@ export default async function FacilitySection({ locale, images = [] }: Props) {
                 href={`/${locale}/about`}
                 className="btn-primary group"
               >
-                Inside the factory
+                {t('factoryButton')}
                 <ArrowRight size={14} strokeWidth={1.75} className="ml-3 transition-transform duration-500 group-hover:translate-x-1" />
               </Link>
             </div>

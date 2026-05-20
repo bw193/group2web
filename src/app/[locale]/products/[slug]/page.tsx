@@ -94,7 +94,11 @@ export async function generateMetadata({
         languages: Object.keys(languages).length ? languages : undefined,
       },
       openGraph: {
-        type: 'website',
+        // `product` is the correct Open Graph object type for catalog
+        // pages — required for richer product cards on link previews.
+        // Next 15's OpenGraphType union doesn't list it yet, but the
+        // value is valid per the Open Graph protocol, so we cast.
+        type: 'product' as 'website',
         url: canonical,
         siteName: SITE_NAME,
         title,
@@ -134,6 +138,7 @@ export default async function ProductDetailPage({
   const { locale, slug } = await params;
   const t = await getTranslations('products');
   const common = await getTranslations('common');
+  const breadcrumbT = await getTranslations('breadcrumb');
   const db = getDb();
 
   const joined = await db
@@ -316,8 +321,8 @@ export default async function ProductDetailPage({
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Home', item: localizedUrl(locale, '') },
-      { '@type': 'ListItem', position: 2, name: 'Products', item: localizedUrl(locale, '/products') },
+      { '@type': 'ListItem', position: 1, name: breadcrumbT('home'), item: localizedUrl(locale, '') },
+      { '@type': 'ListItem', position: 2, name: breadcrumbT('products'), item: localizedUrl(locale, '/products') },
       { '@type': 'ListItem', position: 3, name: trans.name, item: localizedUrl(locale, `/products/${trans.slug}`) },
     ],
   };

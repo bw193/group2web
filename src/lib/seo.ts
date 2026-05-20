@@ -88,7 +88,7 @@ const COPY: Record<Locale, RoutedCopy> = {
         "Browse Chengtai Mirror's full collection of LED, smart, anti-fog, and bathroom mirrors. Wholesale, OEM/ODM, export-ready packaging. Request a quote.",
     },
     about: {
-      title: 'About Chengtai Mirror — 35,000 sqm Factory in Jiaxing, China',
+      title: 'About Chengtai Mirror — Jiaxing LED Mirror Factory',
       description:
         'Founded 2005 in Jiaxing, Zhejiang. 35,000 sqm facility, 200+ staff, 500,000 units/year. CE, CB, SAA, ETL, RoHS, ISO 9001 — shipping to 60+ countries.',
     },
@@ -111,7 +111,7 @@ const COPY: Record<Locale, RoutedCopy> = {
         'Explore la colección completa de espejos LED, inteligentes, antiniebla y de baño de Chengtai Mirror. Mayorista, OEM/ODM, embalaje listo para exportación. Solicite cotización.',
     },
     about: {
-      title: 'Sobre Chengtai Mirror — Fábrica de 35.000 m² en Jiaxing, China',
+      title: 'Sobre Chengtai Mirror — Fábrica en Jiaxing, China',
       description:
         'Fundada en 2005 en Jiaxing, Zhejiang. Planta de 35.000 m², más de 200 empleados, 500.000 unidades/año. Espejos certificados CE, CB, SAA, ETL, IP44, IP54, RoHS, ISO 9001 enviados a más de 60 países.',
     },
@@ -134,7 +134,7 @@ const COPY: Record<Locale, RoutedCopy> = {
         'Explore a coleção completa de espelhos LED, inteligentes, antiembaçantes e de banho da Chengtai Mirror. Atacado, OEM/ODM, embalagem pronta para exportação. Solicite orçamento.',
     },
     about: {
-      title: 'Sobre a Chengtai Mirror — Fábrica de 35.000 m² em Jiaxing, China',
+      title: 'Sobre a Chengtai Mirror — Fábrica em Jiaxing',
       description:
         'Fundada em 2005 em Jiaxing, Zhejiang. Instalação de 35.000 m², mais de 200 funcionários, 500.000 unidades/ano. Espelhos certificados CE, CB, SAA, ETL, IP44, IP54, RoHS, ISO 9001 enviados para mais de 60 países.',
     },
@@ -157,7 +157,7 @@ const COPY: Record<Locale, RoutedCopy> = {
         "Découvrez la collection complète de miroirs LED, intelligents, antibuée et de salle de bain de Chengtai Mirror. Vente en gros, OEM/ODM, emballage prêt à l'export. Demandez un devis.",
     },
     about: {
-      title: 'À Propos de Chengtai Mirror — Usine de 35 000 m² à Jiaxing, Chine',
+      title: 'À Propos de Chengtai Mirror — Usine à Jiaxing',
       description:
         "Fondée en 2005 à Jiaxing, Zhejiang. Site de 35 000 m², plus de 200 employés, capacité de 500 000 unités/an. Miroirs certifiés CE, CB, SAA, ETL, IP44, IP54, RoHS, ISO 9001 expédiés dans plus de 60 pays.",
     },
@@ -180,7 +180,7 @@ const COPY: Record<Locale, RoutedCopy> = {
         "Esplora la collezione completa di specchi LED, smart, antiappannamento e da bagno di Chengtai Mirror. Ingrosso, OEM/ODM, imballaggio pronto per l'export. Richiedi preventivo.",
     },
     about: {
-      title: 'Chi è Chengtai Mirror — Stabilimento di 35.000 mq a Jiaxing, Cina',
+      title: 'Chi è Chengtai Mirror — Stabilimento a Jiaxing',
       description:
         'Fondata nel 2005 a Jiaxing, Zhejiang. Stabilimento di 35.000 mq, oltre 200 dipendenti, 500.000 unità/anno. Specchi certificati CE, CB, SAA, ETL, IP44, IP54, RoHS, ISO 9001 spediti in oltre 60 paesi.',
     },
@@ -203,7 +203,7 @@ const COPY: Record<Locale, RoutedCopy> = {
         'Durchstöbern Sie die komplette Kollektion an LED-, Smart-, Antibeschlag- und Badspiegeln von Chengtai Mirror. Großhandel, OEM/ODM, exportfertige Verpackung. Angebot anfordern.',
     },
     about: {
-      title: 'Über Chengtai Mirror — 35.000 m² Spiegelfabrik in Jiaxing, China',
+      title: 'Über Chengtai Mirror — Spiegelfabrik in Jiaxing',
       description:
         'Gegründet 2005 in Jiaxing, Zhejiang. 35.000 m² Werk, über 200 Mitarbeiter, Jahreskapazität 500.000 Einheiten. CE-, CB-, SAA-, ETL-, IP44-, IP54-, RoHS- und ISO-9001-zertifizierte Spiegel — Lieferung in 60+ Länder.',
     },

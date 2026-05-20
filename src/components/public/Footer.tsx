@@ -20,14 +20,14 @@ export default function Footer() {
               Jiaxing Chengtai Mirror Co., Ltd
             </p>
             <h2 className="font-display text-4xl md:text-5xl font-normal leading-[1.05] text-cream tracking-[-0.01em]">
-              Crafting light, reflected
+              {t('tagline')}
             </h2>
           </div>
           <Link
             href={`/${locale}/contact`}
             className="group inline-flex items-center gap-3 self-start md:self-end bg-cream text-ink px-8 h-12 text-[12px] font-body font-semibold tracking-[0.16em] uppercase hover:bg-bronze-light transition-colors"
           >
-            Start an inquiry
+            {t('startInquiry')}
             <span className="transition-transform duration-500 group-hover:translate-x-1">→</span>
           </Link>
         </div>
@@ -37,11 +37,11 @@ export default function Footer() {
           {/* Since — first column */}
           <div className="md:text-left">
             <p className="text-[13px] font-body font-semibold tracking-[0.16em] uppercase text-bronze-light mb-5">
-              Since
+              {t('sinceLabel')}
             </p>
             <p className="font-display text-5xl md:text-6xl font-normal text-cream leading-none">2005</p>
             <p className="mt-4 text-[14px] font-body font-normal text-cream/80 leading-[1.55] max-w-xs">
-              Two decades of mirror craftsmanship — LED, bathroom, cabinet, and bespoke manufacturing from Jiaxing, China.
+              {t('sinceBody')}
             </p>
           </div>
 

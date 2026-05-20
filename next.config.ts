@@ -11,6 +11,13 @@ const TYPO_SLUG_REDIRECTS: { from: string; to: string }[] = [
   { from: 'silm-framed-bathroom-mirror', to: 'slim-framed-bathroom-mirror' },
 ];
 
+// Static unprefixed English routes that were live before the /en-prefix
+// switch and may still be indexed. 301 them to the /en/... equivalent so
+// crawlers can transfer signal instead of finding 404s.
+// Dynamic /products/<slug> is handled in middleware.ts (Next.js redirects()
+// can't pattern-match dynamic segments cleanly).
+const UNPREFIXED_STATIC_ROUTES = ['/products', '/about', '/contact'];
+
 const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
@@ -42,20 +49,27 @@ const nextConfig = {
     },
   },
   async redirects() {
-    return TYPO_SLUG_REDIRECTS.flatMap(({ from, to }) => [
-      {
-        source: `/:locale/products/${from}`,
-        destination: `/:locale/products/${to}`,
+    return [
+      ...TYPO_SLUG_REDIRECTS.flatMap(({ from, to }) => [
+        {
+          source: `/:locale/products/${from}`,
+          destination: `/:locale/products/${to}`,
+          permanent: true,
+        },
+        // Unprefixed legacy form, in case it was ever indexed before the
+        // `localePrefix: 'always'` switch.
+        {
+          source: `/products/${from}`,
+          destination: `/en/products/${to}`,
+          permanent: true,
+        },
+      ]),
+      ...UNPREFIXED_STATIC_ROUTES.map((path) => ({
+        source: path,
+        destination: `/en${path}`,
         permanent: true,
-      },
-      // Unprefixed legacy form, in case it was ever indexed before the
-      // `localePrefix: 'always'` switch.
-      {
-        source: `/products/${from}`,
-        destination: `/en/products/${to}`,
-        permanent: true,
-      },
-    ]);
+      })),
+    ];
   },
 };
 

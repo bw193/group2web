@@ -8,8 +8,21 @@ const intlMiddleware = createMiddleware({
   localePrefix: 'always',
 });
 
+// Unprefixed product detail URLs (e.g. `/products/foo-mirror`) were live
+// before the `localePrefix: 'always'` switch and may still be indexed.
+// Next.js `redirects()` can't pattern-match dynamic segments, so catch
+// them here and 308 to the /en/... equivalent. The bare `/products`
+// listing is handled by the static redirect list in next.config.ts.
+const LEGACY_PRODUCT_SLUG_RE = /^\/products\/[^/]+\/?$/;
+
 export default function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  if (LEGACY_PRODUCT_SLUG_RE.test(pathname)) {
+    const url = request.nextUrl.clone();
+    url.pathname = `/en${pathname}`;
+    return NextResponse.redirect(url, 308);
+  }
 
   // Skip middleware for CMS, API, and static files
   if (

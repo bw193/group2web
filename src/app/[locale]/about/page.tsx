@@ -59,6 +59,7 @@ export async function generateMetadata({
 export default async function AboutPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const t = await getTranslations('about');
+  const breadcrumbT = await getTranslations('breadcrumb');
   const db = getDb();
 
   let [about] = await db.select().from(aboutPage).where(eq(aboutPage.locale, locale)).limit(1);
@@ -113,8 +114,8 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Home', item: localizedUrl(locale, '') },
-      { '@type': 'ListItem', position: 2, name: 'About', item: localizedUrl(locale, '/about') },
+      { '@type': 'ListItem', position: 1, name: breadcrumbT('home'), item: localizedUrl(locale, '') },
+      { '@type': 'ListItem', position: 2, name: breadcrumbT('about'), item: localizedUrl(locale, '/about') },
     ],
   };
 
@@ -130,7 +131,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-end">
             <div className="lg:col-span-8">
               <p className="text-[13px] font-body font-semibold text-bronze uppercase tracking-[0.18em] mb-5" data-reveal>
-                Chengtai Mirror Co., Ltd — Since 2005
+                {t('eyebrowSince')}
               </p>
               <h1
                 className="font-display text-4xl md:text-5xl lg:text-[64px] font-normal text-ink leading-[1.05] tracking-[-0.02em]"
@@ -141,7 +142,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
             </div>
             <div className="lg:col-span-4 lg:text-right" data-reveal>
               <p className="text-[17px] font-body font-normal text-ink leading-[1.6] max-w-sm lg:ml-auto">
-                Jiaxing, China — a 35,000 sqm studio building precision mirrors for global hospitality, retail, and residential brands.
+                {t('introSubtitle')}
               </p>
             </div>
           </div>
@@ -167,10 +168,10 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
               ) : (
                 <div data-reveal>
                   <p className="font-display text-2xl md:text-3xl font-normal text-ink leading-[1.3] tracking-[-0.01em] mb-6">
-                    Established in 2005, Jiaxing Chengtai Mirror Co., Ltd. is a premier manufacturer of LED, bathroom, and full-body mirrors.
+                    {t('companyIntroFallbackLead')}
                   </p>
                   <p className="text-[17px] font-body font-normal text-ink leading-[1.65] max-w-xl">
-                    From a single production line to an integrated 35,000 sqm facility, our mirrors now reach more than 60 countries — built to the specifications of projects that demand consistent quality at scale.
+                    {t('companyIntroFallbackBody')}
                   </p>
                 </div>
               )}
@@ -215,7 +216,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
                   {t('factoryGallery')}
                 </p>
                 <h2 className="font-display text-3xl md:text-4xl font-normal text-ink tracking-[-0.015em] leading-[1.1]">
-                  Inside the studio
+                  {t('factoryGalleryTitle')}
                 </h2>
               </div>
             </div>
@@ -252,7 +253,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
                 {t('certifications')}
               </p>
               <h2 className="font-display text-3xl md:text-4xl font-normal text-ink tracking-[-0.015em] leading-[1.1]">
-                Compliance that travels
+                {t('certificationsTitle')}
               </h2>
             </div>
           </div>
@@ -303,7 +304,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-end">
             <div className="lg:col-span-8">
               <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-normal text-ink tracking-[-0.02em] leading-[1.05]">
-                Plan a project with Chengtai
+                {t('ctaHeading')}
               </h2>
             </div>
             <div className="lg:col-span-4 lg:text-right">
@@ -311,7 +312,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
                 href={`/${locale}/contact`}
                 className="btn-primary group"
               >
-                Start an inquiry
+                {t('ctaButton')}
                 <ArrowRight size={14} strokeWidth={1.75} className="ml-3 transition-transform duration-500 group-hover:translate-x-1" />
               </Link>
             </div>

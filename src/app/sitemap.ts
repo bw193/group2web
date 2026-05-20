@@ -10,7 +10,7 @@ import {
 
 // Stable date for static routes so Google doesn't see every locale homepage
 // "changing" on each rebuild. Bump manually when nav/footer/structure shifts.
-const STATIC_LAST_MODIFIED = new Date('2026-05-19T00:00:00Z');
+const STATIC_LAST_MODIFIED = new Date('2026-05-20T00:00:00Z');
 
 // Static routes shared across every locale, expressed as the path segment
 // AFTER the (optional) locale prefix. Use '' for the locale's homepage.
