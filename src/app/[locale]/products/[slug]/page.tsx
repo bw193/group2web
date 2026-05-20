@@ -94,11 +94,12 @@ export async function generateMetadata({
         languages: Object.keys(languages).length ? languages : undefined,
       },
       openGraph: {
-        // `product` is the correct Open Graph object type for catalog
-        // pages — required for richer product cards on link previews.
-        // Next 15's OpenGraphType union doesn't list it yet, but the
-        // value is valid per the Open Graph protocol, so we cast.
-        type: 'product' as 'website',
+        // og:type=product would be more accurate per the OG protocol, but
+        // Next 15's runtime OpenGraph resolver hard-rejects values
+        // outside its union (throws "Invalid OpenGraph type: product"
+        // server-side, which surfaces as a 500 on Vercel). Stay on
+        // 'website' until Next adds 'product' to the supported set.
+        type: 'website',
         url: canonical,
         siteName: SITE_NAME,
         title,
