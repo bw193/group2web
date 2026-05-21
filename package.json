@@ -14,6 +14,7 @@
     "db:seed": "tsx src/lib/db/seed.ts"
   },
   "dependencies": {
+    "@next/third-parties": "^16.2.6",
     "@supabase/supabase-js": "^2.49.0",
     "@tiptap/extension-link": "^3.22.4",
     "@tiptap/extension-placeholder": "^3.22.4",
