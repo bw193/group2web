@@ -299,19 +299,6 @@ export default async function ProductDetailPage({
     brand: { '@type': 'Brand', name: SITE_NAME },
     manufacturer: { '@id': `${SITE_URL}/#organization` },
     url: productUrl,
-    // B2B quote-driven catalog: no public price, but availability +
-    // seller info still produce a valid Product offer for crawlers.
-    // Do NOT inject a fabricated `price` here — Google penalizes fake
-    // pricing data and the audit explicitly forbids it.
-    offers: {
-      '@type': 'Offer',
-      url: productUrl,
-      availability: 'https://schema.org/InStock',
-      itemCondition: 'https://schema.org/NewCondition',
-      businessFunction: 'https://schema.org/Sell',
-      areaServed: 'Worldwide',
-      seller: { '@id': `${SITE_URL}/#organization` },
-    },
   };
   if (product.modelNumber) {
     productJsonLd.sku = product.modelNumber;
