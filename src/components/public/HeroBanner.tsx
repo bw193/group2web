@@ -25,6 +25,7 @@ interface HeroBannerProps {
 export default function HeroBanner({ slides, fallbackTitle, fallbackSubtitle, fallbackCta }: HeroBannerProps) {
   const [current, setCurrent] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [ratios, setRatios] = useState<Record<number, number>>({});
 
   const hasSlides = slides.length > 0;
 
@@ -86,8 +87,13 @@ export default function HeroBanner({ slides, fallbackTitle, fallbackSubtitle, fa
     );
   }
 
+  const currentRatio = hasSlides ? ratios[slides[current].id] : undefined;
+
   return (
-    <section className="relative h-[72vh] min-h-[520px] max-h-[820px] md:h-[88vh] md:min-h-[640px] overflow-hidden bg-ink">
+    <section
+      className="relative aspect-[var(--banner-ratio,64/25)] md:aspect-auto md:h-[88vh] md:min-h-[640px] md:max-h-[820px] overflow-hidden bg-ink"
+      style={currentRatio ? ({ ['--banner-ratio' as never]: String(currentRatio) }) : undefined}
+    >
       {/* Background Images — stacked cross-fade layers.
           Only slide 0 gets `priority` so it remains the LCP candidate;
           other slides fetch normally but stay mounted so transitions are instant. */}
@@ -107,6 +113,13 @@ export default function HeroBanner({ slides, fallbackTitle, fallbackSubtitle, fa
             sizes="100vw"
             quality={85}
             className="object-cover scale-[1.03]"
+            onLoad={(e) => {
+              const img = e.currentTarget;
+              if (!img.naturalWidth || !img.naturalHeight) return;
+              setRatios((r) =>
+                r[s.id] ? r : { ...r, [s.id]: img.naturalWidth / img.naturalHeight }
+              );
+            }}
           />
         </div>
       ))}
