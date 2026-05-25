@@ -67,7 +67,13 @@
     "modelNumber": "Nº de Modelo",
     "viewAll": "Ver Todos los Productos",
     "introText": "Espejos diseñados para baños, hostelería, retail y proyectos residenciales — explore la colección completa.",
-    "placeholderImageAlt": "Espejo Premium"
+    "placeholderImageAlt": "Espejo Premium",
+    "detailsTitle": "Detalles",
+    "inquiryPrompt": "Pedidos OEM/ODM y personalizados — envíenos sus requisitos para recibir un presupuesto.",
+    "zoomHint": "Ampliar imagen",
+    "prevImage": "Imagen anterior",
+    "nextImage": "Imagen siguiente",
+    "close": "Cerrar"
   },
   "about": {
     "title": "Sobre Chengtai",

@@ -67,7 +67,13 @@
     "modelNumber": "N° de Modèle",
     "viewAll": "Voir Tous les Produits",
     "introText": "Miroirs conçus pour salles de bain, hôtellerie, retail et projets résidentiels — découvrez la collection complète.",
-    "placeholderImageAlt": "Miroir Premium"
+    "placeholderImageAlt": "Miroir Premium",
+    "detailsTitle": "Détails",
+    "inquiryPrompt": "Commandes OEM/ODM et sur mesure — envoyez-nous vos besoins pour obtenir un devis.",
+    "zoomHint": "Agrandir l'image",
+    "prevImage": "Image précédente",
+    "nextImage": "Image suivante",
+    "close": "Fermer"
   },
   "about": {
     "title": "À Propos de Chengtai",

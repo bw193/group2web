@@ -67,7 +67,13 @@
     "modelNumber": "N. Modello",
     "viewAll": "Vedi Tutti i Prodotti",
     "introText": "Specchi progettati per bagni, hospitality, retail e progetti residenziali — esplora la collezione completa.",
-    "placeholderImageAlt": "Specchio Premium"
+    "placeholderImageAlt": "Specchio Premium",
+    "detailsTitle": "Dettagli",
+    "inquiryPrompt": "Ordini OEM/ODM e personalizzati — inviaci le tue specifiche per un preventivo.",
+    "zoomHint": "Ingrandisci",
+    "prevImage": "Immagine precedente",
+    "nextImage": "Immagine successiva",
+    "close": "Chiudi"
   },
   "about": {
     "title": "Chi è Chengtai",

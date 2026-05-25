@@ -67,7 +67,13 @@
     "modelNumber": "Modellnr.",
     "viewAll": "Alle Produkte Anzeigen",
     "introText": "Spiegel entwickelt für Bäder, Hotellerie, Retail und Wohnprojekte — entdecken Sie die komplette Kollektion.",
-    "placeholderImageAlt": "Premium Spiegel"
+    "placeholderImageAlt": "Premium Spiegel",
+    "detailsTitle": "Details",
+    "inquiryPrompt": "OEM/ODM- und Sonderanfertigungen — senden Sie uns Ihre Anforderungen für ein Angebot.",
+    "zoomHint": "Vergrößern",
+    "prevImage": "Vorheriges Bild",
+    "nextImage": "Nächstes Bild",
+    "close": "Schließen"
   },
   "about": {
     "title": "Über Chengtai",

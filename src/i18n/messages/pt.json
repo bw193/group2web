@@ -67,7 +67,13 @@
     "modelNumber": "Nº do Modelo",
     "viewAll": "Ver Todos os Produtos",
     "introText": "Espelhos projetados para banheiros, hospitalidade, varejo e projetos residenciais — explore a coleção completa.",
-    "placeholderImageAlt": "Espelho Premium"
+    "placeholderImageAlt": "Espelho Premium",
+    "detailsTitle": "Detalhes",
+    "inquiryPrompt": "Pedidos OEM/ODM e personalizados — envie-nos os seus requisitos para um orçamento.",
+    "zoomHint": "Ampliar imagem",
+    "prevImage": "Imagem anterior",
+    "nextImage": "Próxima imagem",
+    "close": "Fechar"
   },
   "about": {
     "title": "Sobre a Chengtai",

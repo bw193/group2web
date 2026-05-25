@@ -67,7 +67,13 @@
     "modelNumber": "Model No.",
     "viewAll": "View All Products",
     "introText": "Mirrors engineered for bathrooms, hospitality, retail, and residential projects — browse the full collection.",
-    "placeholderImageAlt": "Premium Mirror"
+    "placeholderImageAlt": "Premium Mirror",
+    "detailsTitle": "Details",
+    "inquiryPrompt": "OEM/ODM and custom orders welcome — send us your requirements for a quote.",
+    "zoomHint": "Click to enlarge",
+    "prevImage": "Previous image",
+    "nextImage": "Next image",
+    "close": "Close"
   },
   "about": {
     "title": "About Chengtai",
