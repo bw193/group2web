@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { getDb } from '@/lib/db';
 import { faqs, faqTranslations } from '@/lib/db/schema';
 import { eq, and, inArray } from 'drizzle-orm';
@@ -99,6 +100,9 @@ export async function POST(request: NextRequest) {
       answer: t.answer || '',
     });
   }
+
+  // FAQs render on the home page (and feed FAQ JSON-LD) — refresh the site.
+  revalidatePath('/', 'layout');
 
   return NextResponse.json(row, { status: 201 });
 }

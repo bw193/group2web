@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { getDb } from '@/lib/db';
 import {
   products,
@@ -25,22 +25,20 @@ export const revalidate = 300;
 
 export async function generateMetadata({
   params,
-  searchParams,
 }: {
   params: Promise<{ locale: string }>;
-  searchParams?: Promise<{ q?: string | string[] }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const sp = searchParams ? await searchParams : undefined;
-  const hasSearchQuery = Boolean(sp?.q);
   const copy = pageCopy(locale, 'products');
   const url = localizedUrl(locale, '/products');
 
+  // NOTE: intentionally does not read `searchParams`. Doing so would opt this
+  // route back into dynamic rendering. `?q=` search variants are de-duplicated
+  // by the canonical tag below (→ /products) and aren't crawlable links, so
+  // they don't need a separate noindex.
   return {
     title: copy.title,
     description: copy.description,
-    // Filtered/search result pages aren't unique enough to index.
-    robots: hasSearchQuery ? { index: false, follow: true } : undefined,
     alternates: buildAlternates(locale, '/products'),
     openGraph: {
       type: 'website',
@@ -62,6 +60,7 @@ export async function generateMetadata({
 
 export default async function ProductsPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
+  setRequestLocale(locale);
   const t = await getTranslations('products');
   const breadcrumbT = await getTranslations('breadcrumb');
   const db = getDb();

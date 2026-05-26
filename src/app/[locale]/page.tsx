@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { getDb } from '@/lib/db';
 import {
   banners,
@@ -81,6 +81,7 @@ const FALLBACK_FAQ_FOR_SEO: { q: string; a: string }[] = [
 
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
+  setRequestLocale(locale);
   const t = await getTranslations('home');
   const db = getDb();
 

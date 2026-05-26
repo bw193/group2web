@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { ArrowRight, AlertCircle, X, CheckCircle2 } from 'lucide-react';
-import { useSearchParams, useRouter, usePathname } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 
 interface Category {
   id: number;
@@ -14,11 +14,23 @@ export default function InquiryForm({ categories }: { categories: Category[] }) 
   const t = useTranslations('contact');
   const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
 
-  // Deep-link context from a product card / product page.
-  const productParam = searchParams.get('product') || '';
-  const modelParam = searchParams.get('model') || '';
+  // Deep-link context from a product card / product page. Read on the client
+  // after mount (not via useSearchParams) so the contact page can be statically
+  // prerendered instead of bailing into client-only rendering.
+  const [productParam, setProductParam] = useState('');
+  const [modelParam, setModelParam] = useState('');
+
+  useEffect(() => {
+    const read = () => {
+      const sp = new URLSearchParams(window.location.search);
+      setProductParam(sp.get('product') || '');
+      setModelParam(sp.get('model') || '');
+    };
+    read();
+    window.addEventListener('popstate', read);
+    return () => window.removeEventListener('popstate', read);
+  }, []);
 
   const selectedProductLabel = useMemo(() => {
     if (productParam && modelParam) return `${modelParam} — ${productParam}`;

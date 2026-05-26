@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { getDb } from '@/lib/db';
 import { faqs, faqTranslations } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
@@ -55,6 +56,8 @@ export async function PUT(
     }
   }
 
+  revalidatePath('/', 'layout');
+
   return NextResponse.json({ message: 'FAQ updated' });
 }
 
@@ -71,5 +74,7 @@ export async function DELETE(
 
   const db = getDb();
   await db.delete(faqs).where(eq(faqs.id, id));
+  revalidatePath('/', 'layout');
+
   return NextResponse.json({ message: 'FAQ deleted' });
 }

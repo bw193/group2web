@@ -157,10 +157,12 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Bust ISR cache for the products index in every locale with a translation.
+    // Bust ISR cache for the home page (featured grid), the products index,
+    // and the new product's detail page in every locale with a translation.
     if (translations && Array.isArray(translations)) {
       for (const t of translations) {
         if (t?.locale) {
+          revalidatePath(`/${t.locale}`);
           revalidatePath(`/${t.locale}/products`);
           if (t.slug) revalidatePath(`/${t.locale}/products/${t.slug}`);
         }

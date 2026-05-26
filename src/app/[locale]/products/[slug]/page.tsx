@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import { getDb } from '@/lib/db';
@@ -137,6 +137,7 @@ export default async function ProductDetailPage({
   params: Promise<{ locale: string; slug: string }>;
 }) {
   const { locale, slug } = await params;
+  setRequestLocale(locale);
   const t = await getTranslations('products');
   const breadcrumbT = await getTranslations('breadcrumb');
   const db = getDb();

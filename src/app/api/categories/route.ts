@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { getDb } from '@/lib/db';
 import { productCategories, categoryTranslations } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
@@ -72,6 +73,9 @@ export async function POST(request: NextRequest) {
       });
     }
   }
+
+  // Categories appear on the home grid, listing filters, and contact form.
+  revalidatePath('/', 'layout');
 
   return NextResponse.json(category, { status: 201 });
 }

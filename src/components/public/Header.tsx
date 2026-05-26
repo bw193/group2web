@@ -21,6 +21,9 @@ export default function Header() {
     e.preventDefault();
     const q = searchQuery.trim();
     router.push(`/${locale}/products${q ? `?q=${encodeURIComponent(q)}` : ''}`);
+    // If already on /products, ProductsFilter won't remount — notify it so the
+    // grid stays in sync with this search.
+    window.dispatchEvent(new CustomEvent('products:search', { detail: q }));
     setMobileOpen(false);
     setSearchOpen(false);
   };

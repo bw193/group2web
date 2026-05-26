@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { getDb } from '@/lib/db';
 import { aboutPage } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
@@ -48,6 +49,9 @@ export async function PUT(request: NextRequest) {
       annualCapacity: body.annualCapacity,
     });
   }
+
+  // About content shows on /about and the home facility/stats section.
+  revalidatePath('/', 'layout');
 
   return NextResponse.json({ message: 'About page updated' });
 }

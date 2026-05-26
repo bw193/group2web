@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { getDb } from '@/lib/db';
 import { banners, bannerTranslations } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
@@ -63,6 +64,9 @@ export async function POST(request: NextRequest) {
       });
     }
   }
+
+  // Banners drive the home hero — refresh the public site so it shows now.
+  revalidatePath('/', 'layout');
 
   return NextResponse.json(banner, { status: 201 });
 }

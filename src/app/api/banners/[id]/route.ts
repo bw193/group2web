@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { getDb } from '@/lib/db';
 import { banners, bannerTranslations } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
@@ -46,6 +47,8 @@ export async function PUT(
     }
   }
 
+  revalidatePath('/', 'layout');
+
   return NextResponse.json({ message: 'Banner updated' });
 }
 
@@ -61,5 +64,7 @@ export async function DELETE(
   const { id } = await params;
   const db = getDb();
   await db.delete(banners).where(eq(banners.id, parseInt(id)));
+  revalidatePath('/', 'layout');
+
   return NextResponse.json({ message: 'Banner deleted' });
 }

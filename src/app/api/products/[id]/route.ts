@@ -53,6 +53,12 @@ export async function PUT(
     return NextResponse.json({ error: 'Product not found' }, { status: 404 });
   }
 
+  // Capture current slugs before mutating so a slug change also busts the old URL.
+  const prevTrans = await db
+    .select({ locale: productTranslations.locale, slug: productTranslations.slug })
+    .from(productTranslations)
+    .where(eq(productTranslations.productId, productId));
+
   await db.update(products)
     .set({
       categoryId: body.categoryId ?? existing.categoryId,
@@ -108,13 +114,20 @@ export async function PUT(
   }
 
   // Bust ISR cache so CMS edits show up on the public site immediately.
-  const allTrans = await db
+  // Covers both old and new slugs (in case the slug changed) plus the listing
+  // and home (featured grid) once per locale.
+  const newTrans = await db
     .select({ locale: productTranslations.locale, slug: productTranslations.slug })
     .from(productTranslations)
     .where(eq(productTranslations.productId, productId));
-  for (const t of allTrans) {
+  const seenLocales = new Set<string>();
+  for (const t of [...prevTrans, ...newTrans]) {
     revalidatePath(`/${t.locale}/products/${t.slug}`);
-    revalidatePath(`/${t.locale}/products`);
+    if (!seenLocales.has(t.locale)) {
+      seenLocales.add(t.locale);
+      revalidatePath(`/${t.locale}/products`);
+      revalidatePath(`/${t.locale}`);
+    }
   }
 
   return NextResponse.json({ message: 'Product updated' });
@@ -130,7 +143,27 @@ export async function DELETE(
   }
 
   const { id } = await params;
+  const productId = parseInt(id);
   const db = getDb();
-  await db.delete(products).where(eq(products.id, parseInt(id)));
+
+  // Capture localized slugs before deleting so we can bust the detail pages,
+  // listing, and home grid in each locale the product appeared in.
+  const delTrans = await db
+    .select({ locale: productTranslations.locale, slug: productTranslations.slug })
+    .from(productTranslations)
+    .where(eq(productTranslations.productId, productId));
+
+  await db.delete(products).where(eq(products.id, productId));
+
+  const seenLocales = new Set<string>();
+  for (const t of delTrans) {
+    revalidatePath(`/${t.locale}/products/${t.slug}`);
+    if (!seenLocales.has(t.locale)) {
+      seenLocales.add(t.locale);
+      revalidatePath(`/${t.locale}/products`);
+      revalidatePath(`/${t.locale}`);
+    }
+  }
+
   return NextResponse.json({ message: 'Product deleted' });
 }

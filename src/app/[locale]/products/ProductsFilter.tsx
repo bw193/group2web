@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Search, X } from 'lucide-react';
 import ProductCard from '@/components/public/ProductCard';
@@ -29,13 +28,28 @@ interface ProductsFilterProps {
 
 export default function ProductsFilter({ products, categories }: ProductsFilterProps) {
   const t = useTranslations('products');
-  const searchParams = useSearchParams();
-  const [search, setSearch] = useState(searchParams.get('q') || '');
+  // Start empty so the full product grid is statically prerendered (good for
+  // SEO and LCP). The ?q= deep-link is read on the client after mount — using
+  // useSearchParams() here would force this whole grid into client-only
+  // rendering on a now-static page.
+  const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<number | 'all'>('all');
 
   useEffect(() => {
-    setSearch(searchParams.get('q') || '');
-  }, [searchParams]);
+    const readQuery = () =>
+      setSearch(new URLSearchParams(window.location.search).get('q') || '');
+    readQuery();
+    // Back/forward navigation, plus header searches made while already on this
+    // page (Header dispatches 'products:search' after router.push, since
+    // ProductsFilter does not remount on a same-route query change).
+    const onExternal = (e: Event) => setSearch((e as CustomEvent<string>).detail ?? '');
+    window.addEventListener('popstate', readQuery);
+    window.addEventListener('products:search', onExternal as EventListener);
+    return () => {
+      window.removeEventListener('popstate', readQuery);
+      window.removeEventListener('products:search', onExternal as EventListener);
+    };
+  }, []);
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase().trim();

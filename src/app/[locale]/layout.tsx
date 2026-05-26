@@ -1,5 +1,5 @@
 import { NextIntlClientProvider } from 'next-intl';
-import { getMessages } from 'next-intl/server';
+import { getMessages, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
@@ -10,6 +10,10 @@ import Footer from '@/components/public/Footer';
 import AnimationProvider from '@/components/public/AnimationProvider';
 import NavProgress from '@/components/public/NavProgress';
 import { fontDisplay, fontBody } from '@/lib/fonts';
+
+// Run server rendering / ISR regeneration in Dublin (dub1) to colocate with
+// the Supabase database (eu-west-1) and avoid a transatlantic hop per query.
+export const preferredRegion = 'dub1';
 
 export function generateStaticParams() {
   return locales.map((locale) => ({ locale }));
@@ -27,6 +31,11 @@ export default async function LocaleLayout({
   if (!locales.includes(locale as any)) {
     notFound();
   }
+
+  // Opt into static rendering. Without this, next-intl falls back to reading
+  // headers() to resolve the locale, which forces every page into per-request
+  // dynamic rendering and silently disables ISR despite `revalidate`.
+  setRequestLocale(locale);
 
   const messages = await getMessages();
 
