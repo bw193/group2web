@@ -366,7 +366,6 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         maxVisible={8}
       />
 
-
       {/* Factory & Numbers — editorial feature */}
       <FacilitySection
         locale={locale}

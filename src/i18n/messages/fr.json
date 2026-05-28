@@ -4,7 +4,8 @@
     "products": "Produits",
     "about": "À Propos",
     "contact": "Contact",
-    "inquiry": "Envoyer une Demande"
+    "inquiry": "Envoyer une Demande",
+    "whyUs": "Pourquoi nous"
   },
   "home": {
     "heroTitle": "Miroirs LED et Intelligents Premium",
@@ -31,7 +32,7 @@
     "featuredProducts": "Produits Vedettes",
     "viewAll": "Voir Tous les Produits",
     "factoryTitle": "Notre Usine de Fabrication",
-    "factoryDesc": "Installation de 35 000㎡ avec plus de 200 employés et une capacité annuelle de 500 000 unités",
+    "factoryDesc": "Installation de 50 000㎡ avec plus de 200 employés et une capacité annuelle de 500 000 unités",
     "certTitle": "Certifications et Qualité",
     "certDesc": "Nos produits répondent aux normes internationales les plus élevées",
     "inquiryCta": "Prêt à Démarrer Votre Projet ?",
@@ -52,7 +53,13 @@
     "statsLabel1": "Mètres carrés",
     "statsLabel2": "Personnel qualifié",
     "statsLabel3": "Unités par an",
-    "statsLabel4": "Années de savoir-faire"
+    "statsLabel4": "Années de savoir-faire",
+    "whyEyebrow": "Pourquoi Chengtai",
+    "whyHeading": "Conçus pour être le fournisseur que l'on garde",
+    "whyPoint1": "Garantie de 2 ans de série — couverture prolongée pour les partenaires de longue durée",
+    "whyPoint2": "R&D interne avec plus de 50 brevets, fabriqué selon votre cahier des charges",
+    "whyPoint3": "Notre propre usine de 50 000 m² — une qualité maîtrisée de bout en bout",
+    "whyCta": "Pourquoi nous choisir"
   },
   "products": {
     "title": "Nos Produits",
@@ -86,13 +93,13 @@
     "factoryGallery": "Usine et Atelier",
     "certifications": "Certifications",
     "eyebrowSince": "Chengtai Mirror Co., Ltd — Depuis 2005",
-    "introSubtitle": "Jiaxing, Chine — un atelier de 35 000 m² qui fabrique des miroirs de précision pour les marques mondiales d'hôtellerie, retail et résidentiel.",
+    "introSubtitle": "Jiaxing, Chine — un atelier de 50 000 m² qui fabrique des miroirs de précision pour les marques mondiales d'hôtellerie, retail et résidentiel.",
     "factoryGalleryTitle": "À l'intérieur de l'atelier",
     "certificationsTitle": "Une conformité qui voyage",
     "ctaHeading": "Planifiez un projet avec Chengtai",
     "ctaButton": "Démarrer une demande",
     "companyIntroFallbackLead": "Fondée en 2005, Jiaxing Chengtai Mirror Co., Ltd. est un fabricant de premier plan de miroirs LED, de salle de bain et plein pied.",
-    "companyIntroFallbackBody": "D'une seule ligne de production à un site intégré de 35 000 m², nos miroirs sont désormais expédiés dans plus de 60 pays — conçus selon les spécifications de projets exigeant une qualité constante à grande échelle."
+    "companyIntroFallbackBody": "D'une seule ligne de production à un site intégré de 50 000 m², nos miroirs sont désormais expédiés dans plus de 60 pays — conçus selon les spécifications de projets exigeant une qualité constante à grande échelle."
   },
   "contact": {
     "title": "Contactez-Nous",
@@ -149,5 +156,62 @@
     "products": "Produits",
     "about": "À Propos",
     "contact": "Contact"
+  },
+  "whyUs": {
+    "eyebrow": "Pourquoi Chengtai",
+    "title": "Pourquoi choisir Chengtai Mirror comme partenaire",
+    "intro": "S'approvisionner en miroirs est un engagement de longue durée : la garantie, le soutien à la conception, la qualité de fabrication et l'équipe qui suit votre compte déterminent si un projet se déroule sans accroc pendant des années. Voici comment un fabricant direct fort de 21 ans se compare au fournisseur classique.",
+    "ourLabel": "Chengtai Mirror",
+    "theirLabel": "Fournisseur classique",
+    "tableEyebrow": "En un coup d'œil",
+    "tableHeading": "La différence, côte à côte",
+    "heroStats": [
+      { "value": "21+", "label": "Années de savoir-faire" },
+      { "value": "50+", "label": "Brevets" },
+      { "value": "200+", "label": "Personnel qualifié" },
+      { "value": "60+", "label": "Pays desservis" }
+    ],
+    "criteria": [
+      {
+        "label": "Garantie et service après-vente",
+        "us": "Garantie standard de 2 ans, 3 ans pour les grands comptes et couverture à vie pour les partenaires de longue durée.",
+        "them": "Garantie courte ou non garantie, souvent inexistante sur les commandes OEM/ODM.",
+        "heading": "Une garantie qui grandit avec la relation",
+        "body": "Chaque commande est livrée avec une garantie de 2 ans de série. Les grands comptes passent à 3 ans et les partenaires de longue durée sont couverts pendant toute la durée du partenariat, car nous comptons travailler ensemble pendant des années, pas pour une seule expédition."
+      },
+      {
+        "label": "Conception et R&D",
+        "us": "Équipe R&D interne avec plus de 50 brevets, qui conçoit selon votre cahier des charges exact.",
+        "them": "Pas de R&D indépendante : les demandes de conception sur mesure sont difficiles à réaliser.",
+        "heading": "Une équipe R&D interne avec plus de 50 brevets",
+        "body": "Nos propres ingénieurs font passer votre concept du croquis au moule, généralement en moins de trois semaines. Avec plus de 50 brevets, les dimensions, l'éclairage, les commandes tactiles et les finitions sur mesure relèvent de la routine, et non d'une demande que nous devons refuser."
+      },
+      {
+        "label": "Fabrication et qualité",
+        "us": "Notre propre usine de 50 000 m² avec plus de 200 ouvriers qualifiés et des lignes de production modernes.",
+        "them": "Petits ateliers ou sous-traitance, au contrôle qualité irrégulier.",
+        "heading": "Une seule usine, entièrement sous notre contrôle",
+        "body": "Nous fabriquons dans notre propre site de 50 000 m² avec plus de 200 employés qualifiés et des lignes intégrées pour le verre, le traitement, les LED et la finition. La qualité est contrôlée à chaque étape, jamais sous-traitée à des ateliers que nous ne gérons pas."
+      },
+      {
+        "label": "Antécédents",
+        "us": "L'une des marques de miroirs les plus reconnues de Chine : des millions de clients servis au fil des décennies.",
+        "them": "Approche transactionnelle, avec peu de réputation ou de fidélité.",
+        "heading": "Un nom auquel les acheteurs font déjà confiance",
+        "body": "Au fil des décennies, nous sommes devenus l'une des marques de miroirs les plus reconnues de Chine, au service de millions de clients et exportant vers plus de 60 pays. Cette position repose sur la fidélité des clients, le signe le plus clair que nous tenons nos promesses."
+      },
+      {
+        "label": "Vente et accompagnement",
+        "us": "Une équipe commerciale expérimentée — plus de 5 ans en moyenne — avec des réponses rapides et expertes et une vraie souplesse commerciale.",
+        "them": "Forte rotation du personnel : contexte perdu, conditions renégociées et réponses lentes.",
+        "heading": "La même équipe experte, année après année",
+        "body": "Votre compte est suivi par des commerciaux expérimentés qui comptent en moyenne plus de cinq ans chez nous. Vous obtenez des réponses rapides et compétentes, des solutions concrètes et la souplesse qu'offre le dialogue avec des personnes qui peuvent réellement décider, et non un nouvel interlocuteur chaque trimestre."
+      }
+    ],
+    "ctaEyebrow": "Parlons-en",
+    "ctaHeading": "Mettez-nous à l'épreuve",
+    "ctaBody": "Envoyez-nous votre cahier des charges ou une demande d'échantillon : vous verrez la différence dès la réponse.",
+    "ctaPrimary": "Envoyer une demande",
+    "ctaSecondary": "Voir les produits"
   }
 }

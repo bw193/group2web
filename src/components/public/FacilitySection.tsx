@@ -3,6 +3,7 @@ import { getTranslations } from 'next-intl/server';
 import FacilityGallery from './FacilityGallery';
 import { ArrowRight } from 'lucide-react';
 import CountUp from './CountUp';
+import ProofPoints from './ProofPoints';
 
 interface Props {
   locale: string;
@@ -21,7 +22,7 @@ export default async function FacilitySection({ locale, images = [] }: Props) {
   ];
 
   const stats = [
-    { to: 35, suffix: ',000', label: t('statsLabel1') },
+    { to: 50, suffix: ',000', label: t('statsLabel1') },
     { to: 200, suffix: '+', label: t('statsLabel2') },
     { to: 500, suffix: 'K', label: t('statsLabel3') },
     { to: 21, suffix: '+', label: t('statsLabel4') },
@@ -97,6 +98,9 @@ export default async function FacilitySection({ locale, images = [] }: Props) {
             ))}
           </div>
         </div>
+
+        {/* Proof points — what the factory earns the buyer; closes the section */}
+        <ProofPoints className="pt-10 md:pt-12 border-t border-warm-border" />
       </div>
     </section>
   );

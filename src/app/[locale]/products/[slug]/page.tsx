@@ -8,6 +8,7 @@ import { eq, and, ne, inArray } from 'drizzle-orm';
 import { getUploadUrl } from '@/lib/utils';
 import { ArrowRight, ChevronRight } from 'lucide-react';
 import ProductCard from '@/components/public/ProductCard';
+import ProofPoints from '@/components/public/ProofPoints';
 import ImageGallery from './ImageGallery';
 import { JsonLd } from '@/components/seo/JsonLd';
 import {
@@ -411,6 +412,11 @@ export default async function ProductDetailPage({
               </div>
             </div>
           </div>
+
+          {/* Trust strip — the three manufacturer proof points, shared with the
+              homepage factory section. Presentational only (no Product JSON-LD
+              change), so repeating it across product pages stays SEO-neutral. */}
+          <ProofPoints className="mt-16 pt-12 md:mt-20 md:pt-14 border-t border-warm-border" />
 
           {/* Full Description — intentionally not gated behind data-reveal:
               this is primary indexable copy, so it stays always-visible. */}

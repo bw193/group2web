@@ -77,14 +77,14 @@ async function seed() {
   }
 
   // Seed about page content
-  const aboutContent = `<p>Established in 2005, Jiaxing Chengtai Mirror Co., Ltd. is a premier manufacturer specializing in high-end mirror solutions, including LED, bathroom, and full-body mirrors. Our state-of-the-art, self-owned facility spans 35,000 square meters in Jiaxing, Zhejiang — strategically located just 60km from Shanghai Port for efficient global logistics.</p>
+  const aboutContent = `<p>Established in 2005, Jiaxing Chengtai Mirror Co., Ltd. is a premier manufacturer specializing in high-end mirror solutions, including LED, bathroom, and full-body mirrors. Our state-of-the-art, self-owned facility spans 50,000 square meters in Jiaxing, Zhejiang — strategically located just 60km from Shanghai Port for efficient global logistics.</p>
 <p>Driven by our municipal-level R&D center and advanced laboratory, we deliver constant innovation and uncompromising quality. As a National High-Tech Enterprise, safety and sustainability are at our core. Our products are fully certified with CE, SAA, UL, CCC, IP44, IP66, and RoHS, supported by an ISO9001 quality management system.</p>
 <p>With a vast portfolio of over 100,000 SKUs, we provide exceptional flexibility through OBM, OEM, and ODM services. We are proud to serve a global clientele across Europe, the Americas, Australia, ASEAN, and the Middle East. At Chengtai, "Customer First" is more than a slogan — it is the foundation of our partnership.</p>`;
 
   await db.insert(schema.aboutPage).values({
     locale: 'en',
     content: aboutContent,
-    factorySize: '35,000㎡',
+    factorySize: '50,000㎡',
     employeeCount: '200+',
     annualCapacity: '500,000 units',
   }).onConflictDoNothing();
@@ -93,7 +93,7 @@ async function seed() {
   const seoDefaults = [
     { pageSlug: 'home', locale: 'en', metaTitle: 'Chengtai Mirror - Premium LED & Bathroom Mirrors Manufacturer', metaDescription: 'JIAXING CHENGTAI MIRROR CO., LTD - 21 years of manufacturing excellence in LED mirrors, bathroom mirrors, and mirror cabinets. CE/UL/SAA certified. OEM/ODM supported.' },
     { pageSlug: 'products', locale: 'en', metaTitle: 'Products - LED Mirrors, Bathroom Mirrors, Mirror Cabinets | Chengtai', metaDescription: 'Browse our complete range of LED mirrors, bathroom mirrors, full-length mirrors, and mirror cabinets. Over 100,000 SKUs available with full OEM/ODM support.' },
-    { pageSlug: 'about', locale: 'en', metaTitle: 'About Us - Chengtai Mirror | 21 Years of Manufacturing Excellence', metaDescription: 'Learn about Jiaxing Chengtai Mirror Co., Ltd. - 35,000㎡ facility, 200+ employees, globally certified manufacturer serving clients across Europe, Americas, and Asia.' },
+    { pageSlug: 'about', locale: 'en', metaTitle: 'About Us - Chengtai Mirror | 21 Years of Manufacturing Excellence', metaDescription: 'Learn about Jiaxing Chengtai Mirror Co., Ltd. - 50,000㎡ facility, 200+ employees, globally certified manufacturer serving clients across Europe, Americas, and Asia.' },
     { pageSlug: 'contact', locale: 'en', metaTitle: 'Contact Us - Get a Quote | Chengtai Mirror', metaDescription: 'Contact Jiaxing Chengtai Mirror Co., Ltd. for inquiries, quotes, and OEM/ODM partnerships. Email: bolen5@cnjxctm.com | WhatsApp: +86 17860567239' },
   ];
 

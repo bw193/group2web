@@ -4,7 +4,8 @@
     "products": "Produkte",
     "about": "Über Uns",
     "contact": "Kontakt",
-    "inquiry": "Anfrage Senden"
+    "inquiry": "Anfrage Senden",
+    "whyUs": "Warum wir"
   },
   "home": {
     "heroTitle": "Premium LED & Smart Spiegel",
@@ -31,7 +32,7 @@
     "featuredProducts": "Ausgewählte Produkte",
     "viewAll": "Alle Produkte Anzeigen",
     "factoryTitle": "Unsere Produktionsstätte",
-    "factoryDesc": "35.000㎡ hochmoderne Anlage mit über 200 Mitarbeitern und 500.000 Einheiten Jahreskapazität",
+    "factoryDesc": "50.000㎡ hochmoderne Anlage mit über 200 Mitarbeitern und 500.000 Einheiten Jahreskapazität",
     "certTitle": "Zertifizierungen & Qualität",
     "certDesc": "Unsere Produkte erfüllen die höchsten internationalen Standards",
     "inquiryCta": "Bereit, Ihr Projekt zu Starten?",
@@ -52,7 +53,13 @@
     "statsLabel1": "Quadratmeter",
     "statsLabel2": "Fachkräfte",
     "statsLabel3": "Einheiten pro Jahr",
-    "statsLabel4": "Jahre Handwerk"
+    "statsLabel4": "Jahre Handwerk",
+    "whyEyebrow": "Warum Chengtai",
+    "whyHeading": "Gemacht, um der Lieferant zu sein, den man behält",
+    "whyPoint1": "2 Jahre Garantie serienmäßig — längere Garantiedauer für langfristige Partner",
+    "whyPoint2": "Eigene F&E mit über 50 Patenten, gefertigt nach Ihrer Spezifikation",
+    "whyPoint3": "Eigene 50.000 m²-Fabrik — Qualität, die wir von A bis Z kontrollieren",
+    "whyCta": "Warum uns wählen"
   },
   "products": {
     "title": "Unsere Produkte",
@@ -86,13 +93,13 @@
     "factoryGallery": "Fabrik & Werkstatt",
     "certifications": "Zertifizierungen",
     "eyebrowSince": "Chengtai Mirror Co., Ltd — Seit 2005",
-    "introSubtitle": "Jiaxing, China — ein 35.000 m² Studio, das Präzisionsspiegel für globale Hotellerie-, Retail- und Wohnmarken fertigt.",
+    "introSubtitle": "Jiaxing, China — ein 50.000 m² Studio, das Präzisionsspiegel für globale Hotellerie-, Retail- und Wohnmarken fertigt.",
     "factoryGalleryTitle": "Im Studio",
     "certificationsTitle": "Compliance, die mitreist",
     "ctaHeading": "Planen Sie ein Projekt mit Chengtai",
     "ctaButton": "Anfrage starten",
     "companyIntroFallbackLead": "Gegründet 2005, ist Jiaxing Chengtai Mirror Co., Ltd. ein führender Hersteller von LED-, Bad- und Ganzkörperspiegeln.",
-    "companyIntroFallbackBody": "Von einer einzelnen Produktionslinie zu einem integrierten Werk von 35.000 m² — unsere Spiegel erreichen heute mehr als 60 Länder, gefertigt nach den Spezifikationen von Projekten, die konstante Qualität im Maßstab verlangen."
+    "companyIntroFallbackBody": "Von einer einzelnen Produktionslinie zu einem integrierten Werk von 50.000 m² — unsere Spiegel erreichen heute mehr als 60 Länder, gefertigt nach den Spezifikationen von Projekten, die konstante Qualität im Maßstab verlangen."
   },
   "contact": {
     "title": "Kontaktieren Sie Uns",
@@ -149,5 +156,62 @@
     "products": "Produkte",
     "about": "Über Uns",
     "contact": "Kontakt"
+  },
+  "whyUs": {
+    "eyebrow": "Warum Chengtai",
+    "title": "Warum Chengtai Mirror als Partner",
+    "intro": "Der Bezug von Spiegeln ist eine langfristige Entscheidung: Garantie, Designunterstützung, Fertigungsqualität und das Team hinter Ihrem Konto entscheiden, ob ein Projekt über Jahre reibungslos läuft. So schneidet ein direkter Hersteller mit 21 Jahren Erfahrung im Vergleich zum typischen Lieferanten ab.",
+    "ourLabel": "Chengtai Mirror",
+    "theirLabel": "Typischer Lieferant",
+    "tableEyebrow": "Auf einen Blick",
+    "tableHeading": "Der Unterschied, direkt verglichen",
+    "heroStats": [
+      { "value": "21+", "label": "Jahre Handwerk" },
+      { "value": "50+", "label": "Patente" },
+      { "value": "200+", "label": "Fachkräfte" },
+      { "value": "60+", "label": "Belieferte Länder" }
+    ],
+    "criteria": [
+      {
+        "label": "Garantie & Kundendienst",
+        "us": "2 Jahre Standardgarantie, 3 Jahre für Großkunden und lebenslange Abdeckung für langfristige Partner.",
+        "them": "Kurze oder nicht garantierte Gewährleistung — bei OEM/ODM-Aufträgen oft gar keine.",
+        "heading": "Eine Garantie, die mit der Beziehung wächst",
+        "body": "Jeder Auftrag wird serienmäßig mit 2 Jahren Garantie geliefert. Großkunden erhalten 3 Jahre, langfristige Partner sind für die gesamte Dauer der Partnerschaft abgesichert — denn wir rechnen mit einer Zusammenarbeit über Jahre, nicht mit einer einzigen Lieferung."
+      },
+      {
+        "label": "Design & F&E",
+        "us": "Eigenes F&E-Team mit über 50 Patenten, das nach Ihrer exakten Spezifikation entwickelt.",
+        "them": "Keine eigene F&E — individuelle Designwünsche sind kaum umsetzbar.",
+        "heading": "Ein eigenes F&E-Team mit über 50 Patenten",
+        "body": "Unsere eigenen Ingenieure bringen Ihre Idee vom Entwurf zur Form, meist in unter drei Wochen. Mit über 50 Patenten sind individuelle Maße, Beleuchtung, Touch-Steuerung und Oberflächen Routine — keine Anfrage, die wir ablehnen müssen."
+      },
+      {
+        "label": "Fertigung & Qualität",
+        "us": "Eigene 50.000 m²-Fabrik mit über 200 qualifizierten Mitarbeitern und modernen Produktionslinien.",
+        "them": "Kleine oder ausgelagerte Werkstätten mit schwankender Qualitätskontrolle.",
+        "heading": "Eine Fabrik, vollständig unter unserer Kontrolle",
+        "body": "Wir fertigen in unserer eigenen 50.000 m² großen Anlage mit über 200 qualifizierten Mitarbeitern und integrierten Linien für Glas, Beschichtung, LED und Finish. Die Qualität wird in jeder Phase geprüft — nie an Werkstätten vergeben, die wir nicht steuern."
+      },
+      {
+        "label": "Erfolgsbilanz",
+        "us": "Eine der bekanntesten Spiegelmarken Chinas — Millionen Kunden in den letzten Jahrzehnten betreut.",
+        "them": "Transaktionaler Fokus, mit wenig Ruf oder Stammkundschaft.",
+        "heading": "Ein Name, dem Käufer bereits vertrauen",
+        "body": "In den letzten Jahrzehnten sind wir zu einer der bekanntesten Spiegelmarken Chinas geworden, betreuen Millionen Kunden und liefern in über 60 Länder. Dieser Ruf beruht auf Folgeaufträgen — das klarste Zeichen, dass wir halten, was wir versprechen."
+      },
+      {
+        "label": "Vertrieb & Betreuung",
+        "us": "Ein erfahrenes Vertriebsteam — im Schnitt über 5 Jahre — mit schnellen, fachkundigen Antworten und echter kaufmännischer Flexibilität.",
+        "them": "Hohe Personalfluktuation: verlorener Kontext, neu verhandelte Konditionen und langsame Antworten.",
+        "heading": "Dasselbe erfahrene Team, Jahr für Jahr",
+        "body": "Ihr Konto wird von erfahrenen Vertriebsmitarbeitern betreut, die im Schnitt seit über fünf Jahren bei uns sind. Sie erhalten schnelle, fundierte Antworten, praktische Lösungen und die Flexibilität, die der Kontakt mit Menschen bietet, die wirklich entscheiden können — kein neuer Ansprechpartner pro Quartal."
+      }
+    ],
+    "ctaEyebrow": "Sprechen wir",
+    "ctaHeading": "Stellen Sie uns auf die Probe",
+    "ctaBody": "Senden Sie uns Ihre Spezifikation oder eine Musteranfrage — den Unterschied sehen Sie schon an der Antwort.",
+    "ctaPrimary": "Anfrage senden",
+    "ctaSecondary": "Produkte ansehen"
   }
 }

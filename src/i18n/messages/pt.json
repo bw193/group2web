@@ -4,7 +4,8 @@
     "products": "Produtos",
     "about": "Sobre Nós",
     "contact": "Contato",
-    "inquiry": "Enviar Consulta"
+    "inquiry": "Enviar Consulta",
+    "whyUs": "Por que nós"
   },
   "home": {
     "heroTitle": "Espelhos LED e Smart Premium",
@@ -31,7 +32,7 @@
     "featuredProducts": "Produtos em Destaque",
     "viewAll": "Ver Todos os Produtos",
     "factoryTitle": "Nossa Fábrica",
-    "factoryDesc": "Instalação de 35.000㎡ com mais de 200 funcionários e capacidade anual de 500.000 unidades",
+    "factoryDesc": "Instalação de 50.000㎡ com mais de 200 funcionários e capacidade anual de 500.000 unidades",
     "certTitle": "Certificações e Qualidade",
     "certDesc": "Nossos produtos atendem aos mais altos padrões internacionais",
     "inquiryCta": "Pronto para Iniciar Seu Projeto?",
@@ -52,7 +53,13 @@
     "statsLabel1": "Metros quadrados",
     "statsLabel2": "Equipe qualificada",
     "statsLabel3": "Unidades por ano",
-    "statsLabel4": "Anos de ofício"
+    "statsLabel4": "Anos de ofício",
+    "whyEyebrow": "Por que a Chengtai",
+    "whyHeading": "Feitos para ser o fornecedor que você mantém",
+    "whyPoint1": "Garantia de 2 anos de série — cobertura mais longa para parceiros de longo prazo",
+    "whyPoint2": "P&D próprio com mais de 50 patentes, fabricado conforme sua especificação",
+    "whyPoint3": "Fábrica própria de 50.000 m² — qualidade que controlamos do início ao fim",
+    "whyCta": "Por que nos escolher"
   },
   "products": {
     "title": "Nossos Produtos",
@@ -86,13 +93,13 @@
     "factoryGallery": "Fábrica e Oficina",
     "certifications": "Certificações",
     "eyebrowSince": "Chengtai Mirror Co., Ltd — Desde 2005",
-    "introSubtitle": "Jiaxing, China — um estúdio de 35.000 m² que produz espelhos de precisão para marcas globais de hospitalidade, varejo e residencial.",
+    "introSubtitle": "Jiaxing, China — um estúdio de 50.000 m² que produz espelhos de precisão para marcas globais de hospitalidade, varejo e residencial.",
     "factoryGalleryTitle": "Dentro do estúdio",
     "certificationsTitle": "Conformidade que viaja",
     "ctaHeading": "Planeje um projeto com a Chengtai",
     "ctaButton": "Iniciar uma consulta",
     "companyIntroFallbackLead": "Fundada em 2005, a Jiaxing Chengtai Mirror Co., Ltd. é uma fabricante líder de espelhos LED, de banheiro e de corpo inteiro.",
-    "companyIntroFallbackBody": "De uma única linha de produção a uma instalação integrada de 35.000 m², nossos espelhos agora chegam a mais de 60 países — construídos conforme especificações de projetos que exigem qualidade consistente em escala."
+    "companyIntroFallbackBody": "De uma única linha de produção a uma instalação integrada de 50.000 m², nossos espelhos agora chegam a mais de 60 países — construídos conforme especificações de projetos que exigem qualidade consistente em escala."
   },
   "contact": {
     "title": "Contato",
@@ -149,5 +156,62 @@
     "products": "Produtos",
     "about": "Sobre Nós",
     "contact": "Contato"
+  },
+  "whyUs": {
+    "eyebrow": "Por que a Chengtai",
+    "title": "Por que ser parceiro da Chengtai Mirror",
+    "intro": "Comprar espelhos é um compromisso de longo prazo: garantia, apoio de design, qualidade de fabricação e a equipe por trás da sua conta determinam se um projeto corre bem por anos. Veja como um fabricante direto com 21 anos se compara ao fornecedor típico.",
+    "ourLabel": "Chengtai Mirror",
+    "theirLabel": "Fornecedor típico",
+    "tableEyebrow": "Em resumo",
+    "tableHeading": "A diferença, lado a lado",
+    "heroStats": [
+      { "value": "21+", "label": "Anos de ofício" },
+      { "value": "50+", "label": "Patentes" },
+      { "value": "200+", "label": "Equipe qualificada" },
+      { "value": "60+", "label": "Países atendidos" }
+    ],
+    "criteria": [
+      {
+        "label": "Garantia e pós-venda",
+        "us": "Garantia padrão de 2 anos, 3 anos para grandes clientes e cobertura vitalícia para parceiros de longo prazo.",
+        "them": "Garantia curta ou não garantida — muitas vezes inexistente em pedidos OEM/ODM.",
+        "heading": "Uma garantia que cresce com a parceria",
+        "body": "Cada pedido sai com garantia de 2 anos de série. Grandes clientes passam para 3 anos e parceiros de longo prazo ficam cobertos por toda a parceria, porque esperamos trabalhar juntos por anos, não por um único embarque."
+      },
+      {
+        "label": "Design e P&D",
+        "us": "Equipe de P&D própria com mais de 50 patentes, projetando conforme sua especificação exata.",
+        "them": "Sem P&D independente: pedidos de design personalizado são difíceis de realizar.",
+        "heading": "Uma equipe de P&D própria com mais de 50 patentes",
+        "body": "Nossos engenheiros levam seu conceito do esboço ao molde, normalmente em menos de três semanas. Com mais de 50 patentes, dimensões, iluminação, controles de toque e acabamentos personalizados são trabalho de rotina, não um pedido que precisamos recusar."
+      },
+      {
+        "label": "Fabricação e qualidade",
+        "us": "Fábrica própria de 50.000 m² com mais de 200 trabalhadores qualificados e linhas de produção modernas.",
+        "them": "Oficinas pequenas ou terceirizadas com controle de qualidade inconsistente.",
+        "heading": "Uma fábrica, totalmente sob nosso controle",
+        "body": "Fabricamos em nossa própria planta de 50.000 m² com mais de 200 funcionários qualificados e linhas integradas de vidro, revestimento, LED e acabamento. A qualidade é verificada em cada etapa, nunca terceirizada para oficinas que não gerenciamos."
+      },
+      {
+        "label": "Histórico",
+        "us": "Uma das marcas de espelhos mais reconhecidas da China: milhões de clientes atendidos nas últimas décadas.",
+        "them": "Foco transacional, com pouca reputação ou recompra.",
+        "heading": "Um nome em que os compradores já confiam",
+        "body": "Nas últimas décadas, nos tornamos uma das marcas de espelhos mais reconhecidas da China, atendendo milhões de clientes e exportando para mais de 60 países. Essa posição se baseia na recompra, o sinal mais claro de que entregamos o que prometemos."
+      },
+      {
+        "label": "Vendas e suporte",
+        "us": "Uma equipe de vendas sênior — mais de 5 anos em média — com respostas rápidas e especializadas e real flexibilidade comercial.",
+        "them": "Alta rotatividade de pessoal: contexto perdido, condições renegociadas e respostas lentas.",
+        "heading": "A mesma equipe especializada, ano após ano",
+        "body": "Sua conta é atendida por vendedores sênior que estão conosco, em média, há mais de cinco anos. Você tem respostas rápidas e bem informadas, soluções práticas e a flexibilidade de lidar com pessoas que realmente podem decidir, não um novo contato a cada trimestre."
+      }
+    ],
+    "ctaEyebrow": "Vamos conversar",
+    "ctaHeading": "Coloque-nos à prova",
+    "ctaBody": "Envie sua especificação ou um pedido de amostra: você verá a diferença já na resposta.",
+    "ctaPrimary": "Enviar uma consulta",
+    "ctaSecondary": "Ver produtos"
   }
 }
