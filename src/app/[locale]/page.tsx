@@ -16,6 +16,7 @@ import {
 import { eq, and, desc, inArray } from 'drizzle-orm';
 import HeroBanner from '@/components/public/HeroBanner';
 import FeaturedProductsSection from '@/components/public/FeaturedProductsSection';
+import WhyChooseUsTeaser from '@/components/public/WhyChooseUsTeaser';
 import FacilitySection from '@/components/public/FacilitySection';
 import CertificationsSection from '@/components/public/CertificationsSection';
 import FaqSection from '@/components/public/FaqSection';
@@ -366,12 +367,14 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         maxVisible={8}
       />
 
-
       {/* Factory & Numbers — editorial feature */}
       <FacilitySection
         locale={locale}
         images={facilityPhoto.map((p) => p.imageUrl)}
       />
+
+      {/* Why choose us — proof points + link to the full comparison, seamed onto the factory story */}
+      <WhyChooseUsTeaser locale={locale} />
 
       {/* FAQ — Inquiries */}
       <FaqSection backendFaqs={finalFaqs} />

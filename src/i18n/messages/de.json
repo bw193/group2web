@@ -4,7 +4,8 @@
     "products": "Produkte",
     "about": "Über Uns",
     "contact": "Kontakt",
-    "inquiry": "Anfrage Senden"
+    "inquiry": "Anfrage Senden",
+    "whyUs": "Warum wir"
   },
   "home": {
     "heroTitle": "Premium LED & Smart Spiegel",
@@ -52,7 +53,13 @@
     "statsLabel1": "Quadratmeter",
     "statsLabel2": "Fachkräfte",
     "statsLabel3": "Einheiten pro Jahr",
-    "statsLabel4": "Jahre Handwerk"
+    "statsLabel4": "Jahre Handwerk",
+    "whyEyebrow": "Warum Chengtai",
+    "whyHeading": "Gemacht, um der Lieferant zu sein, den man behält",
+    "whyPoint1": "2 Jahre Garantie serienmäßig — bis lebenslang für langfristige Partner",
+    "whyPoint2": "Eigene F&E mit über 50 Patenten, gefertigt nach Ihrer Spezifikation",
+    "whyPoint3": "Eigene 35.000 m²-Fabrik — Qualität, die wir von A bis Z kontrollieren",
+    "whyCta": "Warum uns wählen"
   },
   "products": {
     "title": "Unsere Produkte",
@@ -149,5 +156,62 @@
     "products": "Produkte",
     "about": "Über Uns",
     "contact": "Kontakt"
+  },
+  "whyUs": {
+    "eyebrow": "Warum Chengtai",
+    "title": "Warum Chengtai Mirror als Partner",
+    "intro": "Der Bezug von Spiegeln ist eine langfristige Entscheidung: Garantie, Designunterstützung, Fertigungsqualität und das Team hinter Ihrem Konto entscheiden, ob ein Projekt über Jahre reibungslos läuft. So schneidet ein direkter Hersteller mit 21 Jahren Erfahrung im Vergleich zum typischen Lieferanten ab.",
+    "ourLabel": "Chengtai Mirror",
+    "theirLabel": "Typischer Lieferant",
+    "tableEyebrow": "Auf einen Blick",
+    "tableHeading": "Der Unterschied, direkt verglichen",
+    "heroStats": [
+      { "value": "21+", "label": "Jahre Handwerk" },
+      { "value": "50+", "label": "Patente" },
+      { "value": "200+", "label": "Fachkräfte" },
+      { "value": "60+", "label": "Belieferte Länder" }
+    ],
+    "criteria": [
+      {
+        "label": "Garantie & Kundendienst",
+        "us": "2 Jahre Standardgarantie, 3 Jahre für Großkunden und lebenslange Abdeckung für langfristige Partner.",
+        "them": "Kurze oder nicht garantierte Gewährleistung — bei OEM/ODM-Aufträgen oft gar keine.",
+        "heading": "Eine Garantie, die mit der Beziehung wächst",
+        "body": "Jeder Auftrag wird serienmäßig mit 2 Jahren Garantie geliefert. Großkunden erhalten 3 Jahre, langfristige Partner sind für die gesamte Dauer der Partnerschaft abgesichert — denn wir rechnen mit einer Zusammenarbeit über Jahre, nicht mit einer einzigen Lieferung."
+      },
+      {
+        "label": "Design & F&E",
+        "us": "Eigenes F&E-Team mit über 50 Patenten, das nach Ihrer exakten Spezifikation entwickelt.",
+        "them": "Keine eigene F&E — individuelle Designwünsche sind kaum umsetzbar.",
+        "heading": "Ein eigenes F&E-Team mit über 50 Patenten",
+        "body": "Unsere eigenen Ingenieure bringen Ihre Idee vom Entwurf zur Form, meist in unter drei Wochen. Mit über 50 Patenten sind individuelle Maße, Beleuchtung, Touch-Steuerung und Oberflächen Routine — keine Anfrage, die wir ablehnen müssen."
+      },
+      {
+        "label": "Fertigung & Qualität",
+        "us": "Eigene 35.000 m²-Fabrik mit über 200 qualifizierten Mitarbeitern und modernen Produktionslinien.",
+        "them": "Kleine oder ausgelagerte Werkstätten mit schwankender Qualitätskontrolle.",
+        "heading": "Eine Fabrik, vollständig unter unserer Kontrolle",
+        "body": "Wir fertigen in unserer eigenen 35.000 m² großen Anlage mit über 200 qualifizierten Mitarbeitern und integrierten Linien für Glas, Beschichtung, LED und Finish. Die Qualität wird in jeder Phase geprüft — nie an Werkstätten vergeben, die wir nicht steuern."
+      },
+      {
+        "label": "Erfolgsbilanz",
+        "us": "Eine der bekanntesten Spiegelmarken Chinas — Millionen Kunden in den letzten Jahrzehnten betreut.",
+        "them": "Transaktionaler Fokus, mit wenig Ruf oder Stammkundschaft.",
+        "heading": "Ein Name, dem Käufer bereits vertrauen",
+        "body": "In den letzten Jahrzehnten sind wir zu einer der bekanntesten Spiegelmarken Chinas geworden, betreuen Millionen Kunden und liefern in über 60 Länder. Dieser Ruf beruht auf Folgeaufträgen — das klarste Zeichen, dass wir halten, was wir versprechen."
+      },
+      {
+        "label": "Vertrieb & Betreuung",
+        "us": "Ein erfahrenes Vertriebsteam — im Schnitt über 5 Jahre — mit schnellen, fachkundigen Antworten und echter kaufmännischer Flexibilität.",
+        "them": "Hohe Personalfluktuation: verlorener Kontext, neu verhandelte Konditionen und langsame Antworten.",
+        "heading": "Dasselbe erfahrene Team, Jahr für Jahr",
+        "body": "Ihr Konto wird von erfahrenen Vertriebsmitarbeitern betreut, die im Schnitt seit über fünf Jahren bei uns sind. Sie erhalten schnelle, fundierte Antworten, praktische Lösungen und die Flexibilität, die der Kontakt mit Menschen bietet, die wirklich entscheiden können — kein neuer Ansprechpartner pro Quartal."
+      }
+    ],
+    "ctaEyebrow": "Sprechen wir",
+    "ctaHeading": "Stellen Sie uns auf die Probe",
+    "ctaBody": "Senden Sie uns Ihre Spezifikation oder eine Musteranfrage — den Unterschied sehen Sie schon an der Antwort.",
+    "ctaPrimary": "Anfrage senden",
+    "ctaSecondary": "Produkte ansehen"
   }
 }

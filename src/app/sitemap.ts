@@ -14,7 +14,7 @@ const STATIC_LAST_MODIFIED = new Date('2026-05-20T00:00:00Z');
 
 // Static routes shared across every locale, expressed as the path segment
 // AFTER the (optional) locale prefix. Use '' for the locale's homepage.
-const STATIC_ROUTES = ['', '/about', '/contact', '/products'] as const;
+const STATIC_ROUTES = ['', '/about', '/contact', '/products', '/why-choose-us'] as const;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const entries: MetadataRoute.Sitemap = [];

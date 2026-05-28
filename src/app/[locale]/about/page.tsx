@@ -74,7 +74,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
   ]);
 
   const stats = [
-    { value: about?.factorySize || '35,000', unit: 'sqm', label: t('facilitySize') },
+    { value: about?.factorySize || '50,000', unit: 'sqm', label: t('facilitySize') },
     { value: about?.employeeCount || '200+', unit: '', label: t('employees') },
     { value: about?.annualCapacity || '500,000', unit: 'units', label: t('annualCapacity') },
     { value: '21+', unit: 'years', label: t('yearsExperience') },

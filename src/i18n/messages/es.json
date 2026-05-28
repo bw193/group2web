@@ -4,7 +4,8 @@
     "products": "Productos",
     "about": "Sobre Nosotros",
     "contact": "Contacto",
-    "inquiry": "Enviar Consulta"
+    "inquiry": "Enviar Consulta",
+    "whyUs": "Por qué nosotros"
   },
   "home": {
     "heroTitle": "Espejos LED y Smart Premium",
@@ -52,7 +53,13 @@
     "statsLabel1": "Metros cuadrados",
     "statsLabel2": "Personal cualificado",
     "statsLabel3": "Unidades al año",
-    "statsLabel4": "Años de oficio"
+    "statsLabel4": "Años de oficio",
+    "whyEyebrow": "Por qué Chengtai",
+    "whyHeading": "Hechos para ser el proveedor que se conserva",
+    "whyPoint1": "Garantía de 2 años de serie — hasta de por vida para socios a largo plazo",
+    "whyPoint2": "I+D propio con más de 50 patentes, fabricado según su especificación",
+    "whyPoint3": "Fábrica propia de 35.000 m² — calidad que controlamos de principio a fin",
+    "whyCta": "Por qué elegirnos"
   },
   "products": {
     "title": "Nuestros Productos",
@@ -149,5 +156,62 @@
     "products": "Productos",
     "about": "Sobre Nosotros",
     "contact": "Contacto"
+  },
+  "whyUs": {
+    "eyebrow": "Por qué Chengtai",
+    "title": "Por qué asociarse con Chengtai Mirror",
+    "intro": "Abastecerse de espejos es un compromiso a largo plazo: la garantía, el apoyo de diseño, la calidad de fabricación y el equipo que atiende su cuenta deciden si un proyecto funciona sin problemas durante años. Así se compara un fabricante directo con 21 años de experiencia frente al proveedor típico.",
+    "ourLabel": "Chengtai Mirror",
+    "theirLabel": "Proveedor típico",
+    "tableEyebrow": "De un vistazo",
+    "tableHeading": "La diferencia, lado a lado",
+    "heroStats": [
+      { "value": "21+", "label": "Años de oficio" },
+      { "value": "50+", "label": "Patentes" },
+      { "value": "200+", "label": "Personal cualificado" },
+      { "value": "60+", "label": "Países atendidos" }
+    ],
+    "criteria": [
+      {
+        "label": "Garantía y posventa",
+        "us": "Garantía estándar de 2 años, 3 años para grandes clientes y cobertura de por vida para socios a largo plazo.",
+        "them": "Garantía corta o no garantizada, a menudo inexistente en pedidos OEM/ODM.",
+        "heading": "Una garantía que crece con la relación",
+        "body": "Cada pedido se entrega con una garantía de 2 años de serie. Los grandes clientes pasan a 3 años y los socios a largo plazo quedan cubiertos durante toda la relación, porque esperamos trabajar juntos durante años, no en un solo envío."
+      },
+      {
+        "label": "Diseño e I+D",
+        "us": "Equipo de I+D propio con más de 50 patentes, que diseña según su especificación exacta.",
+        "them": "Sin I+D independiente: las solicitudes de diseño a medida son difíciles de realizar.",
+        "heading": "Un equipo de I+D propio con más de 50 patentes",
+        "body": "Nuestros ingenieros llevan su concepto del boceto al molde, normalmente en menos de tres semanas. Con más de 50 patentes a nuestras espaldas, las dimensiones, la iluminación, los controles táctiles y los acabados personalizados son trabajo rutinario, no una petición que tengamos que rechazar."
+      },
+      {
+        "label": "Fabricación y calidad",
+        "us": "Fábrica propia de 35.000 m² con más de 200 trabajadores cualificados y líneas de producción modernas.",
+        "them": "Talleres pequeños o subcontratados con un control de calidad irregular.",
+        "heading": "Una sola fábrica, totalmente bajo nuestro control",
+        "body": "Fabricamos en nuestra propia planta de 35.000 m² con más de 200 empleados cualificados y líneas integradas de vidrio, recubrimiento, LED y acabado. La calidad se controla en cada etapa, nunca se subcontrata a talleres que no gestionamos."
+      },
+      {
+        "label": "Trayectoria",
+        "us": "Una de las marcas de espejos más reconocidas de China: millones de clientes atendidos en las últimas décadas.",
+        "them": "Enfoque transaccional, con poca reputación o clientes recurrentes.",
+        "heading": "Un nombre en el que los compradores ya confían",
+        "body": "En las últimas décadas nos hemos convertido en una de las marcas de espejos más reconocidas de China, atendiendo a millones de clientes y enviando a más de 60 países. Esa posición se basa en la repetición de pedidos, la señal más clara de que cumplimos lo que prometemos."
+      },
+      {
+        "label": "Ventas y soporte",
+        "us": "Un equipo comercial sénior, con más de 5 años de media, con respuestas rápidas y expertas y verdadera flexibilidad comercial.",
+        "them": "Alta rotación de personal: contexto perdido, condiciones renegociadas y respuestas lentas.",
+        "heading": "El mismo equipo experto, año tras año",
+        "body": "Su cuenta la gestionan comerciales sénior que llevan de media más de cinco años con nosotros. Obtiene respuestas rápidas y fundamentadas, soluciones prácticas y la flexibilidad de tratar con personas que de verdad pueden decidir, no un contacto nuevo cada trimestre."
+      }
+    ],
+    "ctaEyebrow": "Hablemos",
+    "ctaHeading": "Pónganos a prueba",
+    "ctaBody": "Envíenos su especificación o una solicitud de muestra: notará la diferencia en la propia respuesta.",
+    "ctaPrimary": "Enviar una consulta",
+    "ctaSecondary": "Ver productos"
   }
 }

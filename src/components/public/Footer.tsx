@@ -60,6 +60,9 @@ export default function Footer() {
               <Link href={`/${locale}/about`} className="text-cream hover:text-bronze-light transition-colors">
                 {nav('about')}
               </Link>
+              <Link href={`/${locale}/why-choose-us`} className="text-cream hover:text-bronze-light transition-colors">
+                {nav('whyUs')}
+              </Link>
               <Link href={`/${locale}/contact`} className="text-cream hover:text-bronze-light transition-colors">
                 {nav('contact')}
               </Link>

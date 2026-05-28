@@ -4,7 +4,8 @@
     "products": "Products",
     "about": "About Us",
     "contact": "Contact",
-    "inquiry": "Send Inquiry"
+    "inquiry": "Send Inquiry",
+    "whyUs": "Why Us"
   },
   "home": {
     "heroTitle": "Premium LED & Smart Mirrors",
@@ -52,7 +53,13 @@
     "statsLabel1": "Square meters",
     "statsLabel2": "Skilled staff",
     "statsLabel3": "Units per year",
-    "statsLabel4": "Years of craft"
+    "statsLabel4": "Years of craft",
+    "whyEyebrow": "Why Chengtai",
+    "whyHeading": "Built to be the supplier you keep",
+    "whyPoint1": "2-year warranty as standard — up to lifetime for long-term partners",
+    "whyPoint2": "In-house R&D with 50+ patents, built to your specification",
+    "whyPoint3": "Our own 35,000 m² factory — quality we control end to end",
+    "whyCta": "Why choose us"
   },
   "products": {
     "title": "Our Products",
@@ -149,5 +156,62 @@
     "products": "Products",
     "about": "About",
     "contact": "Contact"
+  },
+  "whyUs": {
+    "eyebrow": "Why Chengtai",
+    "title": "Why partner with Chengtai Mirror",
+    "intro": "Sourcing mirrors is a long-term commitment — warranty, design support, build quality and the team behind your account all decide whether a project runs smoothly for years. Here is how a direct, 21-year manufacturer compares with the typical supplier.",
+    "ourLabel": "Chengtai Mirror",
+    "theirLabel": "Typical supplier",
+    "tableEyebrow": "At a glance",
+    "tableHeading": "The difference, side by side",
+    "heroStats": [
+      { "value": "21+", "label": "Years of craft" },
+      { "value": "50+", "label": "Patents" },
+      { "value": "200+", "label": "Skilled staff" },
+      { "value": "60+", "label": "Countries served" }
+    ],
+    "criteria": [
+      {
+        "label": "Warranty & after-sales",
+        "us": "2-year standard warranty, 3 years for large customers, and lifetime cover for long-term partners.",
+        "them": "Short or unguaranteed warranty — often none at all on OEM/ODM orders.",
+        "heading": "A warranty that grows with the relationship",
+        "body": "Every order ships with a 2-year warranty as standard. Large customers move to 3 years, and long-term partners are covered for the lifetime of the partnership — because we expect to work together for years, not for a single shipment."
+      },
+      {
+        "label": "Design & R&D",
+        "us": "In-house R&D team with 50+ patents, engineering to your exact specification.",
+        "them": "No independent R&D — custom design requests are hard to realise.",
+        "heading": "An in-house R&D team with 50+ patents",
+        "body": "Our own engineers take your concept from sketch to mould, usually in under three weeks. With more than 50 patents behind us, custom dimensions, lighting, touch controls and finishes are routine work — not a request we have to turn away."
+      },
+      {
+        "label": "Manufacturing & quality",
+        "us": "Our own 35,000 m² factory with 200+ skilled workers and modern production lines.",
+        "them": "Small or outsourced workshops with inconsistent quality control.",
+        "heading": "One factory, fully under our control",
+        "body": "We manufacture in our own 35,000 m² facility with more than 200 skilled staff and integrated lines for glass, coating, LED and finishing. Quality is checked at every stage — never subcontracted to workshops we do not manage."
+      },
+      {
+        "label": "Track record",
+        "us": "One of China's most recognised mirror brands — millions of customers served over the past decades.",
+        "them": "Transactional focus, with little reputation or repeat business.",
+        "heading": "A name buyers already trust",
+        "body": "Over the past decades we have become one of China's most recognised mirror brands, serving millions of customers and shipping to 60+ countries. That standing is built on repeat business — the clearest sign that what we promise is what we deliver."
+      },
+      {
+        "label": "Sales & support",
+        "us": "A senior sales team — 5+ years on average — with fast, expert answers and real commercial flexibility.",
+        "them": "High staff turnover: lost context, renegotiated terms and slow replies.",
+        "heading": "The same expert team, year after year",
+        "body": "Your account is handled by senior salespeople who average more than five years with us. You get fast, knowledgeable answers, practical solutions and the flexibility that comes from dealing with people who can actually make decisions — not a new contact every quarter."
+      }
+    ],
+    "ctaEyebrow": "Let's talk",
+    "ctaHeading": "Put us to the test",
+    "ctaBody": "Send us your specification or a sample request — you'll see the difference in the response itself.",
+    "ctaPrimary": "Send an inquiry",
+    "ctaSecondary": "Browse products"
   }
 }

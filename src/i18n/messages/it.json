@@ -4,7 +4,8 @@
     "products": "Prodotti",
     "about": "Chi Siamo",
     "contact": "Contatti",
-    "inquiry": "Invia Richiesta"
+    "inquiry": "Invia Richiesta",
+    "whyUs": "Perché noi"
   },
   "home": {
     "heroTitle": "Specchi LED e Smart Premium",
@@ -52,7 +53,13 @@
     "statsLabel1": "Metri quadrati",
     "statsLabel2": "Personale qualificato",
     "statsLabel3": "Unità all'anno",
-    "statsLabel4": "Anni di mestiere"
+    "statsLabel4": "Anni di mestiere",
+    "whyEyebrow": "Perché Chengtai",
+    "whyHeading": "Fatti per essere il fornitore che si conserva",
+    "whyPoint1": "Garanzia di 2 anni di serie — fino a vita per i partner di lungo periodo",
+    "whyPoint2": "R&S interna con oltre 50 brevetti, realizzato secondo le tue specifiche",
+    "whyPoint3": "Stabilimento di proprietà di 35.000 m² — qualità controllata dall'inizio alla fine",
+    "whyCta": "Perché sceglierci"
   },
   "products": {
     "title": "I Nostri Prodotti",
@@ -149,5 +156,62 @@
     "products": "Prodotti",
     "about": "Chi Siamo",
     "contact": "Contatti"
+  },
+  "whyUs": {
+    "eyebrow": "Perché Chengtai",
+    "title": "Perché scegliere Chengtai Mirror come partner",
+    "intro": "Approvvigionarsi di specchi è un impegno di lungo periodo: garanzia, supporto alla progettazione, qualità costruttiva e il team che segue il tuo account determinano se un progetto procede senza intoppi per anni. Ecco come un produttore diretto con 21 anni di esperienza si confronta con il fornitore tipico.",
+    "ourLabel": "Chengtai Mirror",
+    "theirLabel": "Fornitore tipico",
+    "tableEyebrow": "In sintesi",
+    "tableHeading": "La differenza, fianco a fianco",
+    "heroStats": [
+      { "value": "21+", "label": "Anni di mestiere" },
+      { "value": "50+", "label": "Brevetti" },
+      { "value": "200+", "label": "Personale qualificato" },
+      { "value": "60+", "label": "Paesi serviti" }
+    ],
+    "criteria": [
+      {
+        "label": "Garanzia e assistenza",
+        "us": "Garanzia standard di 2 anni, 3 anni per i grandi clienti e copertura a vita per i partner di lungo periodo.",
+        "them": "Garanzia breve o non garantita, spesso assente sugli ordini OEM/ODM.",
+        "heading": "Una garanzia che cresce con il rapporto",
+        "body": "Ogni ordine viene consegnato con una garanzia di 2 anni di serie. I grandi clienti passano a 3 anni e i partner di lungo periodo sono coperti per tutta la durata della collaborazione, perché contiamo di lavorare insieme per anni, non per una singola spedizione."
+      },
+      {
+        "label": "Progettazione e R&S",
+        "us": "Team di R&S interno con oltre 50 brevetti, che progetta secondo le tue specifiche esatte.",
+        "them": "Nessuna R&S indipendente: le richieste di design su misura sono difficili da realizzare.",
+        "heading": "Un team di R&S interno con oltre 50 brevetti",
+        "body": "I nostri ingegneri portano la tua idea dallo schizzo allo stampo, di solito in meno di tre settimane. Con oltre 50 brevetti alle spalle, dimensioni, illuminazione, controlli touch e finiture su misura sono lavoro di routine, non una richiesta da rifiutare."
+      },
+      {
+        "label": "Produzione e qualità",
+        "us": "Stabilimento di proprietà di 35.000 m² con oltre 200 lavoratori qualificati e linee di produzione moderne.",
+        "them": "Piccole officine o terzisti con un controllo qualità incostante.",
+        "heading": "Un solo stabilimento, totalmente sotto il nostro controllo",
+        "body": "Produciamo nel nostro stabilimento di 35.000 m² con oltre 200 dipendenti qualificati e linee integrate per vetro, trattamento, LED e finitura. La qualità è controllata in ogni fase, mai affidata a officine che non gestiamo."
+      },
+      {
+        "label": "Esperienza",
+        "us": "Uno dei marchi di specchi più riconosciuti in Cina: milioni di clienti serviti negli ultimi decenni.",
+        "them": "Approccio transazionale, con scarsa reputazione o clienti abituali.",
+        "heading": "Un nome di cui gli acquirenti già si fidano",
+        "body": "Negli ultimi decenni siamo diventati uno dei marchi di specchi più riconosciuti in Cina, servendo milioni di clienti ed esportando in oltre 60 paesi. Questa posizione si fonda sugli ordini ripetuti, il segnale più chiaro che manteniamo ciò che promettiamo."
+      },
+      {
+        "label": "Vendite e assistenza",
+        "us": "Un team commerciale senior — oltre 5 anni in media — con risposte rapide e competenti e reale flessibilità commerciale.",
+        "them": "Elevato turnover del personale: contesto perso, condizioni rinegoziate e risposte lente.",
+        "heading": "Lo stesso team esperto, anno dopo anno",
+        "body": "Il tuo account è seguito da venditori senior che lavorano con noi in media da più di cinque anni. Ottieni risposte rapide e competenti, soluzioni concrete e la flessibilità di trattare con persone che possono davvero decidere, non un nuovo referente ogni trimestre."
+      }
+    ],
+    "ctaEyebrow": "Parliamone",
+    "ctaHeading": "Mettici alla prova",
+    "ctaBody": "Inviaci le tue specifiche o una richiesta di campione: vedrai la differenza già nella risposta.",
+    "ctaPrimary": "Invia una richiesta",
+    "ctaSecondary": "Vedi i prodotti"
   }
 }

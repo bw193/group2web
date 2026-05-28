@@ -70,12 +70,17 @@ export function buildAlternates(locale: string, pathAfterLocale: string) {
  * SERP-targeted phrasing can be tuned independently of in-page UI copy.
  * Falls back to English if a locale entry is missing.
  */
-type PageKey = 'home' | 'products' | 'about' | 'contact';
+type PageKey = 'home' | 'products' | 'about' | 'contact' | 'why-choose-us';
 type PageEntry = { title: string; description: string; h1?: string };
 type RoutedCopy = Record<PageKey, PageEntry>;
 
 const COPY: Record<Locale, RoutedCopy> = {
   en: {
+    'why-choose-us': {
+      title: 'Why Choose Chengtai Mirror — OEM/ODM LED & Bathroom Mirror Manufacturer',
+      description:
+        'Chengtai vs. a typical supplier: 2-year+ warranty, in-house R&D with 50+ patents, our own 35,000 m² factory, and a senior team that stays. See why B2B mirror buyers choose us.',
+    },
     home: {
       title: 'Chengtai Mirror — LED, Smart & Bathroom Mirror Manufacturer',
       description:
@@ -99,6 +104,11 @@ const COPY: Record<Locale, RoutedCopy> = {
     },
   },
   es: {
+    'why-choose-us': {
+      title: 'Por Qué Elegir Chengtai Mirror — Fabricante OEM/ODM de Espejos LED y de Baño',
+      description:
+        'Chengtai frente a un proveedor típico: garantía de 2+ años, I+D propio con más de 50 patentes, fábrica propia de 35.000 m² y un equipo sénior estable. Descubra por qué los compradores B2B nos eligen.',
+    },
     home: {
       title: 'Chengtai Mirror — Fabricante de Espejos LED, Smart y Baño',
       description:
@@ -122,6 +132,11 @@ const COPY: Record<Locale, RoutedCopy> = {
     },
   },
   pt: {
+    'why-choose-us': {
+      title: 'Por Que Escolher a Chengtai Mirror — Fabricante OEM/ODM de Espelhos LED e de Banho',
+      description:
+        'Chengtai vs. um fornecedor típico: garantia de 2+ anos, P&D próprio com mais de 50 patentes, fábrica própria de 35.000 m² e uma equipe sênior estável. Veja por que os compradores B2B nos escolhem.',
+    },
     home: {
       title: 'Chengtai Mirror — Fabricante de Espelhos LED, Smart e de Banho',
       description:
@@ -145,6 +160,11 @@ const COPY: Record<Locale, RoutedCopy> = {
     },
   },
   fr: {
+    'why-choose-us': {
+      title: 'Pourquoi Choisir Chengtai Mirror — Fabricant OEM/ODM de Miroirs LED et de Salle de Bain',
+      description:
+        'Chengtai face à un fournisseur classique : garantie de 2 ans et plus, R&D interne avec plus de 50 brevets, usine de 35 000 m² en propre et une équipe senior fidèle. Découvrez pourquoi les acheteurs B2B nous choisissent.',
+    },
     home: {
       title: 'Chengtai Mirror — Fabricant de Miroirs LED, Intelligents et de Salle de Bain',
       description:
@@ -168,6 +188,11 @@ const COPY: Record<Locale, RoutedCopy> = {
     },
   },
   it: {
+    'why-choose-us': {
+      title: 'Perché Scegliere Chengtai Mirror — Produttore OEM/ODM di Specchi LED e da Bagno',
+      description:
+        'Chengtai rispetto a un fornitore tipico: garanzia di 2+ anni, R&S interna con oltre 50 brevetti, stabilimento di proprietà di 35.000 m² e un team senior stabile. Scopri perché i buyer B2B ci scelgono.',
+    },
     home: {
       title: 'Chengtai Mirror — Produttore di Specchi LED, Smart e da Bagno',
       description:
@@ -191,6 +216,11 @@ const COPY: Record<Locale, RoutedCopy> = {
     },
   },
   de: {
+    'why-choose-us': {
+      title: 'Warum Chengtai Mirror — OEM/ODM-Hersteller von LED- und Badspiegeln',
+      description:
+        'Chengtai im Vergleich zum typischen Lieferanten: 2+ Jahre Garantie, eigene F&E mit über 50 Patenten, eigene 35.000 m²-Fabrik und ein beständiges Senior-Team. Erfahren Sie, warum B2B-Käufer uns wählen.',
+    },
     home: {
       title: 'Chengtai Mirror — Hersteller von LED-, Smart- & Badspiegeln',
       description:
