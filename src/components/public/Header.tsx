@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useTranslations, useLocale } from 'next-intl';
@@ -16,6 +17,9 @@ export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  // Gate the portal until after mount so the server and the client's first
+  // render agree (createPortal needs `document`, which is absent during SSR).
+  const [mounted, setMounted] = useState(false);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,6 +38,16 @@ export default function Header() {
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  useEffect(() => setMounted(true), []);
+
+  // Lock background scroll while the full-screen mobile overlay is open.
+  useEffect(() => {
+    document.body.style.overflow = mobileOpen ? 'hidden' : '';
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [mobileOpen]);
 
   const navLinks = [
     { href: `/${locale}`, label: t('home') },
@@ -143,12 +157,17 @@ export default function Header() {
         </div>
       </div>
 
-      {/* Mobile Nav */}
-      <div
-        className={`lg:hidden fixed inset-0 top-[72px] bg-cream transition-all duration-500 ease-out-expo ${
-          mobileOpen ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'
-        }`}
-      >
+      {/* Mobile Nav — portaled to <body> so the fixed overlay escapes the
+          backdrop-blurred header's containing block; otherwise it resolves
+          against the 72px header box, collapses to 0 height, and its bg-cream
+          background disappears (the page shows through the menu). */}
+      {mounted &&
+        createPortal(
+          <div
+            className={`lg:hidden fixed inset-0 top-[72px] md:top-20 z-40 overflow-y-auto bg-cream transition-all duration-500 ease-out-expo ${
+              mobileOpen ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'
+            }`}
+          >
         <div className="container-wide pt-10 pb-14">
           <form onSubmit={handleSearch} className="relative mb-10 pb-4 border-b border-warm-border flex items-center gap-3">
             <Search size={16} strokeWidth={1.5} className="text-ink-mid" />
@@ -192,7 +211,9 @@ export default function Header() {
             </Link>
           </div>
         </div>
-      </div>
+          </div>,
+          document.body,
+        )}
     </header>
   );
 }
