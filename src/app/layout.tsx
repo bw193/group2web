@@ -5,11 +5,11 @@ import './globals.css';
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: 'Chengtai Mirror — LED, Smart & Bathroom Mirror Manufacturer',
+    default: 'CE/UL Certified LED & Bathroom Mirror Factory | Chengtai Mirror',
     template: '%s',
   },
   description:
-    'Jiaxing Chengtai Mirror Co., Ltd — 21 years of manufacturing excellence in LED mirrors, bathroom mirrors, and mirror cabinets.',
+    'Chengtai Mirror — specialized factory for premium LED bathroom mirrors, mirror cabinets & full-length mirrors. CE, ETL & RoHS certified for global retail.',
   applicationName: 'Chengtai Mirror',
   authors: [{ name: 'Jiaxing Chengtai Mirror Co., Ltd' }],
   formatDetection: { telephone: false },

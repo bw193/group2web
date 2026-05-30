@@ -77,10 +77,10 @@ type RoutedCopy = Record<PageKey, PageEntry>;
 const COPY: Record<Locale, RoutedCopy> = {
   en: {
     home: {
-      title: 'Chengtai Mirror — LED, Smart & Bathroom Mirror Manufacturer',
+      title: 'CE/UL Certified LED & Bathroom Mirror Factory | Chengtai Mirror',
       description:
-        'Chengtai Mirror — 21 years manufacturing LED, smart & bathroom mirrors for hospitality, retail, and residential projects worldwide. OEM/ODM, CE/ETL certified.',
-      h1: 'LED, Smart & Bathroom Mirror Manufacturer',
+        'Chengtai Mirror — specialized factory for premium LED bathroom mirrors, mirror cabinets & full-length mirrors. CE, ETL & RoHS certified for global retail.',
+      h1: 'Leading Global LED Mirror Manufacturer',
     },
     products: {
       title: 'LED, Smart & Bathroom Mirror Catalog | Chengtai Mirror',
@@ -100,10 +100,10 @@ const COPY: Record<Locale, RoutedCopy> = {
   },
   es: {
     home: {
-      title: 'Chengtai Mirror — Fabricante de Espejos LED, Smart y Baño',
+      title: 'Fábrica de Espejos LED y de Baño Certificada CE/UL | Chengtai Mirror',
       description:
-        'Jiaxing Chengtai Mirror — 21 años fabricando espejos LED, inteligentes y de baño para proyectos hoteleros, retail y residenciales globales. OEM/ODM, certificados CE/CB/SAA/ETL/RoHS/ISO 9001.',
-      h1: 'Fabricante de Espejos LED, Smart y Baño',
+        'Chengtai Mirror — fábrica especializada en espejos LED de baño, armarios con espejo y espejos de cuerpo entero. Certificados CE, ETL y RoHS para la distribución global.',
+      h1: 'Fabricante Líder Mundial de Espejos LED',
     },
     products: {
       title: 'Catálogo de Espejos LED, Smart y Baño | Chengtai Mirror',
@@ -123,10 +123,10 @@ const COPY: Record<Locale, RoutedCopy> = {
   },
   pt: {
     home: {
-      title: 'Chengtai Mirror — Fabricante de Espelhos LED, Smart e de Banho',
+      title: 'Fábrica de Espelhos LED e de Banheiro Certificada CE/UL | Chengtai Mirror',
       description:
-        'Jiaxing Chengtai Mirror — 21 anos fabricando espelhos LED, inteligentes e de banho para projetos hoteleiros, varejo e residenciais globais. OEM/ODM, certificados CE/CB/SAA/ETL/RoHS/ISO 9001.',
-      h1: 'Fabricante de Espelhos LED, Smart e de Banho',
+        'Chengtai Mirror — fábrica especializada em espelhos LED de banheiro, espelheiras e espelhos de corpo inteiro. Certificados CE, ETL e RoHS para o varejo global.',
+      h1: 'Fabricante Líder Mundial de Espelhos LED',
     },
     products: {
       title: 'Catálogo de Espelhos LED, Smart e de Banho | Chengtai Mirror',
@@ -146,10 +146,10 @@ const COPY: Record<Locale, RoutedCopy> = {
   },
   fr: {
     home: {
-      title: 'Chengtai Mirror — Fabricant de Miroirs LED, Intelligents et de Salle de Bain',
+      title: 'Usine de Miroirs LED et de Salle de Bain Certifiée CE/UL | Chengtai Mirror',
       description:
-        "Jiaxing Chengtai Mirror — 21 ans de fabrication de miroirs LED, intelligents et de salle de bain pour les projets hôteliers, retail et résidentiels mondiaux. OEM/ODM, certifiés CE/CB/SAA/ETL/RoHS/ISO 9001.",
-      h1: 'Fabricant de Miroirs LED, Intelligents et de Salle de Bain',
+        'Chengtai Mirror — usine spécialisée en miroirs LED de salle de bain, armoires de toilette et miroirs sur pied. Certifiés CE, ETL et RoHS pour la distribution mondiale.',
+      h1: 'Fabricant Leader Mondial de Miroirs LED',
     },
     products: {
       title: 'Catalogue de Miroirs LED, Intelligents et de Salle de Bain | Chengtai Mirror',
@@ -169,10 +169,10 @@ const COPY: Record<Locale, RoutedCopy> = {
   },
   it: {
     home: {
-      title: 'Chengtai Mirror — Produttore di Specchi LED, Smart e da Bagno',
+      title: 'Fabbrica di Specchi LED e da Bagno Certificata CE/UL | Chengtai Mirror',
       description:
-        "Jiaxing Chengtai Mirror — 21 anni di produzione di specchi LED, smart e da bagno per progetti hospitality, retail e residenziali globali. OEM/ODM, certificati CE/CB/SAA/ETL/RoHS/ISO 9001.",
-      h1: 'Produttore di Specchi LED, Smart e da Bagno',
+        'Chengtai Mirror — fabbrica specializzata in specchi LED da bagno, specchi contenitore e specchi a figura intera. Certificati CE, ETL e RoHS per la distribuzione globale.',
+      h1: 'Produttore Leader Mondiale di Specchi LED',
     },
     products: {
       title: 'Catalogo Specchi LED, Smart e da Bagno | Chengtai Mirror',
@@ -192,10 +192,10 @@ const COPY: Record<Locale, RoutedCopy> = {
   },
   de: {
     home: {
-      title: 'Chengtai Mirror — Hersteller von LED-, Smart- & Badspiegeln',
+      title: 'CE/UL-zertifizierte LED- & Badspiegel-Fabrik | Chengtai Mirror',
       description:
-        'Jiaxing Chengtai Mirror — 21 Jahre Erfahrung in der Fertigung von LED-, Smart- und Badspiegeln für globale Hotellerie-, Retail- und Wohnprojekte. OEM/ODM, CE/CB/SAA/ETL/RoHS/ISO 9001 zertifiziert.',
-      h1: 'Hersteller von LED-, Smart- & Badspiegeln',
+        'Chengtai Mirror — spezialisierte Fabrik für hochwertige LED-Badspiegel, Spiegelschränke und Ganzkörperspiegel. CE-, ETL- und RoHS-zertifiziert für den weltweiten Handel.',
+      h1: 'Weltweit Führender LED-Spiegel-Hersteller',
     },
     products: {
       title: 'LED-, Smart- & Badspiegel Katalog | Chengtai Mirror',
