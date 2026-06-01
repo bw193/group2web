@@ -34,8 +34,8 @@ export default async function CertificationsSection({ images = [] }: Props) {
               Trusted in 60+ countries
             </h2>
           </div>
-          <div className="lg:col-span-5 lg:text-right" data-reveal>
-            <p className="text-[17px] font-body font-normal text-ink leading-[1.6] max-w-md lg:ml-auto">
+          <div className="lg:col-span-5 lg:text-end" data-reveal>
+            <p className="text-[17px] font-body font-normal text-ink leading-[1.6] max-w-md lg:ms-auto">
               Every mirror ships with the paperwork to clear the most demanding markets — from European bathrooms to North American hospitality projects.
             </p>
           </div>
@@ -79,7 +79,7 @@ export default async function CertificationsSection({ images = [] }: Props) {
                   <p className="font-display text-4xl md:text-5xl font-normal text-ink leading-none whitespace-nowrap">
                     {cert}
                   </p>
-                  <span className="ml-10 md:ml-16 h-1 w-1 rounded-full bg-bronze/70" aria-hidden />
+                  <span className="ms-10 md:ms-16 h-1 w-1 rounded-full bg-bronze/70" aria-hidden />
                 </div>
               ))}
             </div>

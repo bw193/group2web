@@ -32,7 +32,7 @@
     "featuredProducts": "Produtos em Destaque",
     "viewAll": "Ver Todos os Produtos",
     "factoryTitle": "Nossa Fábrica",
-    "factoryDesc": "Instalação de 50.000㎡ com mais de 200 funcionários e capacidade anual de 500.000 unidades",
+    "factoryDesc": "Instalação de 50.000㎡ com mais de 200 funcionários e capacidade anual de 2.000.000 unidades",
     "certTitle": "Certificações e Qualidade",
     "certDesc": "Nossos produtos atendem aos mais altos padrões internacionais",
     "inquiryCta": "Pronto para Iniciar Seu Projeto?",
@@ -57,7 +57,7 @@
     "whyEyebrow": "Por que a Chengtai",
     "whyHeading": "Feitos para ser o fornecedor que você mantém",
     "whyPoint1": "Garantia de 2 anos de série — cobertura mais longa para parceiros de longo prazo",
-    "whyPoint2": "P&D próprio com mais de 50 patentes, fabricado conforme sua especificação",
+    "whyPoint2": "P&D próprio com mais de 70 patentes, fabricado conforme sua especificação",
     "whyPoint3": "Fábrica própria de 50.000 m² — qualidade que controlamos do início ao fim",
     "whyCta": "Por que nos escolher"
   },
@@ -167,7 +167,7 @@
     "tableHeading": "A diferença, lado a lado",
     "heroStats": [
       { "value": "21+", "label": "Anos de ofício" },
-      { "value": "50+", "label": "Patentes" },
+      { "value": "70+", "label": "Patentes" },
       { "value": "200+", "label": "Equipe qualificada" },
       { "value": "60+", "label": "Países atendidos" }
     ],
@@ -181,10 +181,10 @@
       },
       {
         "label": "Design e P&D",
-        "us": "Equipe de P&D própria com mais de 50 patentes, projetando conforme sua especificação exata.",
+        "us": "Equipe de P&D própria com mais de 70 patentes, projetando conforme sua especificação exata.",
         "them": "Sem P&D independente: pedidos de design personalizado são difíceis de realizar.",
-        "heading": "Uma equipe de P&D própria com mais de 50 patentes",
-        "body": "Nossos engenheiros levam seu conceito do esboço ao molde, normalmente em menos de três semanas. Com mais de 50 patentes, dimensões, iluminação, controles de toque e acabamentos personalizados são trabalho de rotina, não um pedido que precisamos recusar."
+        "heading": "Uma equipe de P&D própria com mais de 70 patentes",
+        "body": "Nossos engenheiros levam seu conceito do esboço ao molde, normalmente em menos de três semanas. Com mais de 70 patentes, dimensões, iluminação, controles de toque e acabamentos personalizados são trabalho de rotina, não um pedido que precisamos recusar."
       },
       {
         "label": "Fabricação e qualidade",

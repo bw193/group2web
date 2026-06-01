@@ -32,7 +32,7 @@
     "featuredProducts": "Featured Products",
     "viewAll": "View All Products",
     "factoryTitle": "Our Manufacturing Facility",
-    "factoryDesc": "50,000㎡ state-of-the-art facility with 200+ employees and 500,000 units annual capacity",
+    "factoryDesc": "50,000㎡ state-of-the-art facility with 200+ employees and 2,000,000 units annual capacity",
     "certTitle": "Certifications & Quality",
     "certDesc": "Our products meet the highest international standards",
     "inquiryCta": "Ready to Start Your Project?",
@@ -57,7 +57,7 @@
     "whyEyebrow": "Why Chengtai",
     "whyHeading": "Built to be the supplier you keep",
     "whyPoint1": "2-year warranty as standard — longer cover for long-term partners",
-    "whyPoint2": "In-house R&D with 50+ patents, built to your specification",
+    "whyPoint2": "In-house R&D with 70+ patents, built to your specification",
     "whyPoint3": "Our own 50,000 m² factory — quality we control end to end",
     "whyCta": "Why choose us"
   },
@@ -167,7 +167,7 @@
     "tableHeading": "The difference, side by side",
     "heroStats": [
       { "value": "21+", "label": "Years of craft" },
-      { "value": "50+", "label": "Patents" },
+      { "value": "70+", "label": "Patents" },
       { "value": "200+", "label": "Skilled staff" },
       { "value": "60+", "label": "Countries served" }
     ],
@@ -181,10 +181,10 @@
       },
       {
         "label": "Design & R&D",
-        "us": "In-house R&D team with 50+ patents, engineering to your exact specification.",
+        "us": "In-house R&D team with 70+ patents, engineering to your exact specification.",
         "them": "No independent R&D — custom design requests are hard to realise.",
-        "heading": "An in-house R&D team with 50+ patents",
-        "body": "Our own engineers take your concept from sketch to mould, usually in under three weeks. With more than 50 patents behind us, custom dimensions, lighting, touch controls and finishes are routine work — not a request we have to turn away."
+        "heading": "An in-house R&D team with 70+ patents",
+        "body": "Our own engineers take your concept from sketch to mould, usually in under three weeks. With more than 70 patents behind us, custom dimensions, lighting, touch controls and finishes are routine work — not a request we have to turn away."
       },
       {
         "label": "Manufacturing & quality",

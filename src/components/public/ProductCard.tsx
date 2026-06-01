@@ -62,7 +62,7 @@ export default function ProductCard({
         )}
 
         {isFeatured && (
-          <span className="absolute top-4 right-4 bg-cream text-ink text-[11px] font-body font-semibold px-3 py-1 uppercase tracking-[0.14em]">
+          <span className="absolute top-4 end-4 bg-cream text-ink text-[11px] font-body font-semibold px-3 py-1 uppercase tracking-[0.14em]">
             {t('featured')}
           </span>
         )}
@@ -85,7 +85,7 @@ export default function ProductCard({
         <h3 className="font-display text-[22px] font-normal text-ink leading-[1.2] mb-3 tracking-[-0.005em] line-clamp-2 min-h-[calc(2*1.2em)]">
           <Link
             href={`/${locale}/products/${slug}`}
-            className="bg-left-bottom bg-gradient-to-r from-ink to-ink bg-[length:0%_1px] bg-no-repeat transition-[background-size] duration-500 group-hover:bg-[length:100%_1px]"
+            className="bg-left-bottom rtl:bg-right-bottom bg-gradient-to-r from-ink to-ink bg-[length:0%_1px] bg-no-repeat transition-[background-size] duration-500 group-hover:bg-[length:100%_1px]"
           >
             {name}
           </Link>

@@ -86,7 +86,7 @@ async function seed() {
     content: aboutContent,
     factorySize: '50,000㎡',
     employeeCount: '200+',
-    annualCapacity: '500,000 units',
+    annualCapacity: '2,000,000 units',
   }).onConflictDoNothing();
 
   // Seed SEO defaults

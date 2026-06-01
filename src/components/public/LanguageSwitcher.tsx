@@ -56,7 +56,7 @@ export default function LanguageSwitcher() {
       </button>
 
       <div
-        className={`absolute right-0 top-full mt-3 bg-cream border border-warm-border py-1 min-w-[180px] z-50 transition-all duration-300 origin-top-right ${
+        className={`absolute end-0 top-full mt-3 bg-cream border border-warm-border py-1 min-w-[180px] z-50 transition-all duration-300 origin-top-right rtl:origin-top-left ${
           open ? 'opacity-100 scale-100 pointer-events-auto' : 'opacity-0 scale-95 pointer-events-none'
         }`}
       >

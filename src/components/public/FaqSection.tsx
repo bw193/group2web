@@ -53,7 +53,7 @@ export default function FaqSection({ backendFaqs = [] }: Props) {
                 className="btn-primary group"
               >
                 Ask a question
-                <ArrowRight size={14} strokeWidth={1.75} className="ml-3 transition-transform duration-500 group-hover:translate-x-1" />
+                <ArrowRight size={14} strokeWidth={1.75} className="ms-3 transition-transform duration-500 group-hover:translate-x-1 rtl:-scale-x-100" />
               </Link>
             </div>
           </aside>
@@ -69,7 +69,7 @@ export default function FaqSection({ backendFaqs = [] }: Props) {
                     onClick={() => toggle(i)}
                     aria-expanded={isOpen}
                     aria-controls={`faq-answer-${i}`}
-                    className="w-full flex items-start gap-6 py-7 md:py-8 text-left group"
+                    className="w-full flex items-start gap-6 py-7 md:py-8 text-start group"
                   >
                     <h3
                       className={`flex-1 font-display text-[19px] md:text-[22px] font-normal leading-snug tracking-[-0.005em] transition-colors duration-300 ${
@@ -96,7 +96,7 @@ export default function FaqSection({ backendFaqs = [] }: Props) {
                     }`}
                   >
                     <div className="overflow-hidden">
-                      <div className="pr-4 md:pr-12">
+                      <div className="pe-4 md:pe-12">
                         <p
                           className="text-[16px] font-body font-normal text-ink leading-[1.65] max-w-[62ch]"
                           style={{

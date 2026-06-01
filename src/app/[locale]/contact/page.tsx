@@ -108,7 +108,7 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
           email: CONTACT_EMAIL,
           telephone: CONTACT_PHONE,
           areaServed: 'Worldwide',
-          availableLanguage: ['English', 'Spanish', 'Portuguese', 'French', 'Italian', 'German'],
+          availableLanguage: ['English', 'Spanish', 'Portuguese', 'French', 'Italian', 'German', 'Hebrew'],
         },
       ],
     },

@@ -244,7 +244,7 @@ export default function AboutManagementPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           <StatField label={t('about.stats.facilitySize')} value={factorySize} onChange={setFactorySize} placeholder="50,000㎡" />
           <StatField label={t('about.stats.employees')} value={employeeCount} onChange={setEmployeeCount} placeholder="200+" />
-          <StatField label={t('about.stats.capacity')} value={annualCapacity} onChange={setAnnualCapacity} placeholder="500,000 units" />
+          <StatField label={t('about.stats.capacity')} value={annualCapacity} onChange={setAnnualCapacity} placeholder="2,000,000 units" />
         </div>
       </Section>
     </div>

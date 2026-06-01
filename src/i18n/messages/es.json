@@ -32,7 +32,7 @@
     "featuredProducts": "Productos Destacados",
     "viewAll": "Ver Todos los Productos",
     "factoryTitle": "Nuestra Planta de Fabricación",
-    "factoryDesc": "Instalación de 50,000㎡ con más de 200 empleados y capacidad anual de 500,000 unidades",
+    "factoryDesc": "Instalación de 50,000㎡ con más de 200 empleados y capacidad anual de 2,000,000 unidades",
     "certTitle": "Certificaciones y Calidad",
     "certDesc": "Nuestros productos cumplen los más altos estándares internacionales",
     "inquiryCta": "¿Listo para Iniciar su Proyecto?",
@@ -57,7 +57,7 @@
     "whyEyebrow": "Por qué Chengtai",
     "whyHeading": "Hechos para ser el proveedor que se conserva",
     "whyPoint1": "Garantía de 2 años de serie — cobertura más larga para socios a largo plazo",
-    "whyPoint2": "I+D propio con más de 50 patentes, fabricado según su especificación",
+    "whyPoint2": "I+D propio con más de 70 patentes, fabricado según su especificación",
     "whyPoint3": "Fábrica propia de 50.000 m² — calidad que controlamos de principio a fin",
     "whyCta": "Por qué elegirnos"
   },
@@ -167,7 +167,7 @@
     "tableHeading": "La diferencia, lado a lado",
     "heroStats": [
       { "value": "21+", "label": "Años de oficio" },
-      { "value": "50+", "label": "Patentes" },
+      { "value": "70+", "label": "Patentes" },
       { "value": "200+", "label": "Personal cualificado" },
       { "value": "60+", "label": "Países atendidos" }
     ],
@@ -181,10 +181,10 @@
       },
       {
         "label": "Diseño e I+D",
-        "us": "Equipo de I+D propio con más de 50 patentes, que diseña según su especificación exacta.",
+        "us": "Equipo de I+D propio con más de 70 patentes, que diseña según su especificación exacta.",
         "them": "Sin I+D independiente: las solicitudes de diseño a medida son difíciles de realizar.",
-        "heading": "Un equipo de I+D propio con más de 50 patentes",
-        "body": "Nuestros ingenieros llevan su concepto del boceto al molde, normalmente en menos de tres semanas. Con más de 50 patentes a nuestras espaldas, las dimensiones, la iluminación, los controles táctiles y los acabados personalizados son trabajo rutinario, no una petición que tengamos que rechazar."
+        "heading": "Un equipo de I+D propio con más de 70 patentes",
+        "body": "Nuestros ingenieros llevan su concepto del boceto al molde, normalmente en menos de tres semanas. Con más de 70 patentes a nuestras espaldas, las dimensiones, la iluminación, los controles táctiles y los acabados personalizados son trabajo rutinario, no una petición que tengamos que rechazar."
       },
       {
         "label": "Fabricación y calidad",

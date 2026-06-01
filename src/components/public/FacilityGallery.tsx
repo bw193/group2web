@@ -47,7 +47,7 @@ export default function FacilityGallery({ images }: Props) {
         )}
 
         {/* Counter — bottom-left */}
-        <div className="absolute bottom-6 left-6 flex items-center gap-4 text-cream">
+        <div className="absolute bottom-6 start-6 flex items-center gap-4 text-cream">
           <span className="font-display text-3xl font-light leading-none">
             {String(activeIdx + 1).padStart(2, '0')}
           </span>

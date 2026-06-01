@@ -4,12 +4,12 @@ import { notFound } from 'next/navigation';
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { GoogleAnalytics } from '@next/third-parties/google';
-import { locales } from '@/i18n/config';
+import { locales, isRtlLocale } from '@/i18n/config';
 import Header from '@/components/public/Header';
 import Footer from '@/components/public/Footer';
 import AnimationProvider from '@/components/public/AnimationProvider';
 import NavProgress from '@/components/public/NavProgress';
-import { fontDisplay, fontBody } from '@/lib/fonts';
+import { fontDisplay, fontBody, fontDisplayHe, fontBodyHe } from '@/lib/fonts';
 
 // Run server rendering / ISR regeneration in Dublin (dub1) to colocate with
 // the Supabase database (eu-west-1) and avoid a transatlantic hop per query.
@@ -39,8 +39,14 @@ export default async function LocaleLayout({
 
   const messages = await getMessages();
 
+  // Hebrew is RTL and uses Hebrew-glyph faces bound to the same CSS variables.
+  const rtl = isRtlLocale(locale);
+  const fontVars = rtl
+    ? `${fontDisplayHe.variable} ${fontBodyHe.variable}`
+    : `${fontDisplay.variable} ${fontBody.variable}`;
+
   return (
-    <html lang={locale} className={`${fontDisplay.variable} ${fontBody.variable}`}>
+    <html lang={locale} dir={rtl ? 'rtl' : 'ltr'} className={fontVars}>
       <body className="min-h-screen flex flex-col bg-cream relative">
         {/* Page-wide film grain — fixed, non-interactive */}
         <div className="atmosphere-grain" aria-hidden />

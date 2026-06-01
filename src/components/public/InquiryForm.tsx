@@ -258,7 +258,7 @@ export default function InquiryForm({ categories }: { categories: Category[] }) 
           <ArrowRight
             size={16}
             strokeWidth={2}
-            className="ml-3 transition-transform duration-300 group-hover:translate-x-1"
+            className="ms-3 transition-transform duration-300 group-hover:translate-x-1 rtl:-scale-x-100"
           />
         </button>
         <p className="mt-3 text-[13px] font-body text-ink-mid">
@@ -324,7 +324,7 @@ function SelectField({
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full h-12 bg-sand border border-transparent hover:border-warm-border focus:border-ink px-4 pr-10 text-[15px] font-body text-ink focus:outline-none appearance-none cursor-pointer transition-colors"
+        className="w-full h-12 bg-sand border border-transparent hover:border-warm-border focus:border-ink px-4 pe-10 text-[15px] font-body text-ink focus:outline-none appearance-none cursor-pointer transition-colors"
       >
         <option value="">{placeholder}</option>
         {extraOption && <option value={extraOption.value}>{extraOption.label}</option>}
@@ -336,7 +336,7 @@ function SelectField({
       </select>
       <span
         aria-hidden
-        className="pointer-events-none absolute right-4 bottom-4 text-ink-mid text-[12px]"
+        className="pointer-events-none absolute end-4 bottom-4 text-ink-mid text-[12px]"
       >
         ▾
       </span>

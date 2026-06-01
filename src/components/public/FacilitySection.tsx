@@ -24,7 +24,7 @@ export default async function FacilitySection({ locale, images = [] }: Props) {
   const stats = [
     { to: 50, suffix: ',000', label: t('statsLabel1') },
     { to: 200, suffix: '+', label: t('statsLabel2') },
-    { to: 500, suffix: 'K', label: t('statsLabel3') },
+    { to: 2, suffix: 'M', label: t('statsLabel3') },
     { to: 21, suffix: '+', label: t('statsLabel4') },
   ];
 
@@ -77,7 +77,7 @@ export default async function FacilitySection({ locale, images = [] }: Props) {
                 className="btn-primary group"
               >
                 {t('factoryButton')}
-                <ArrowRight size={14} strokeWidth={1.75} className="ml-3 transition-transform duration-500 group-hover:translate-x-1" />
+                <ArrowRight size={14} strokeWidth={1.75} className="ms-3 transition-transform duration-500 group-hover:translate-x-1 rtl:-scale-x-100" />
               </Link>
             </div>
           </div>
@@ -87,7 +87,7 @@ export default async function FacilitySection({ locale, images = [] }: Props) {
         <div className="mt-20 md:mt-24 py-12 md:py-16 border-t border-warm-border">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-10 items-center" data-reveal-stagger>
             {stats.map((s) => (
-              <div key={s.label} data-reveal className="flex flex-col justify-center md:border-r md:border-warm-border md:pr-8 md:last:border-r-0">
+              <div key={s.label} data-reveal className="flex flex-col justify-center md:border-e md:border-warm-border md:pe-8 md:last:border-e-0">
                 <p className="font-display text-5xl md:text-[56px] font-normal text-ink leading-none tracking-[-0.02em]">
                   <CountUp to={s.to} suffix={s.suffix} />
                 </p>

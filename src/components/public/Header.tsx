@@ -76,7 +76,7 @@ export default function Header() {
             <span className="font-display text-[22px] md:text-[26px] font-normal text-ink tracking-[0.01em] leading-none">
               Chengtai
             </span>
-            <span className="hidden md:inline-block text-[11px] font-body font-semibold text-ink-mid tracking-[0.16em] uppercase border-l border-warm-border pl-3">
+            <span className="hidden md:inline-block text-[11px] font-body font-semibold text-ink-mid tracking-[0.16em] uppercase border-s border-warm-border ps-3">
               Mirror Co., Ltd
             </span>
           </Link>
@@ -194,7 +194,7 @@ export default function Header() {
                   <span className={`font-display text-3xl font-normal leading-none ${active ? 'text-ink' : 'text-ink'}`}>
                     {link.label}
                   </span>
-                  <span className="text-bronze transition-transform duration-300 group-hover:translate-x-1">→</span>
+                  <span className="text-bronze transition-transform duration-300 group-hover:translate-x-1 rtl:-scale-x-100">→</span>
                 </Link>
               );
             })}

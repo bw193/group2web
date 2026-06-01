@@ -142,7 +142,7 @@ export default function HeroBanner({ slides, fallbackTitle, fallbackSubtitle, fa
                   }`} />
                 </button>
               ))}
-              <span className="text-cream/40 text-xs font-body ml-3 tracking-widest">
+              <span className="text-cream/40 text-xs font-body ms-3 tracking-widest">
                 {String(current + 1).padStart(2, '0')} / {String(slides.length).padStart(2, '0')}
               </span>
             </div>

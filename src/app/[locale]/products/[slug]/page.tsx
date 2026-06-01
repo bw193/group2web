@@ -404,7 +404,7 @@ export default async function ProductDetailPage({
                   className="btn-primary group w-full sm:w-auto"
                 >
                   {t('sendInquiry')}
-                  <ArrowRight size={14} strokeWidth={1.75} className="ml-3 transition-transform duration-500 group-hover:translate-x-1" />
+                  <ArrowRight size={14} strokeWidth={1.75} className="ms-3 transition-transform duration-500 group-hover:translate-x-1 rtl:-scale-x-100" />
                 </Link>
                 <p className="mt-4 text-[13px] font-body text-ink-mid leading-[1.6]">
                   {t('inquiryPrompt')}

@@ -89,7 +89,7 @@ export default function ProductsFilter({ products, categories }: ProductsFilterP
                   >
                     {tab.label}
                     <span
-                      className={`absolute left-0 bottom-0 h-0.5 bg-bronze transition-all duration-500 ease-out ${
+                      className={`absolute start-0 bottom-0 h-0.5 bg-bronze transition-all duration-500 ease-out ${
                         active ? 'w-full' : 'w-0'
                       }`}
                     />
@@ -103,21 +103,21 @@ export default function ProductsFilter({ products, categories }: ProductsFilterP
               <Search
                 size={15}
                 strokeWidth={1.75}
-                className="absolute left-0 top-1/2 -translate-y-1/2 text-ink-mid"
+                className="absolute start-0 top-1/2 -translate-y-1/2 text-ink-mid"
               />
               <input
                 type="text"
                 placeholder={t('search')}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-7 pr-8 py-2.5 text-[15px] font-body font-normal text-ink placeholder:text-ink-mid bg-transparent border-0 border-b border-warm-border focus:outline-none focus:border-ink transition-colors"
+                className="w-full ps-7 pe-8 py-2.5 text-[15px] font-body font-normal text-ink placeholder:text-ink-mid bg-transparent border-0 border-b border-warm-border focus:outline-none focus:border-ink transition-colors"
               />
               {search && (
                 <button
                   type="button"
                   onClick={() => setSearch('')}
                   aria-label="Clear search"
-                  className="absolute right-0 top-1/2 -translate-y-1/2 text-ink-mid hover:text-ink transition-colors"
+                  className="absolute end-0 top-1/2 -translate-y-1/2 text-ink-mid hover:text-ink transition-colors"
                 >
                   <X size={15} strokeWidth={1.75} />
                 </button>

@@ -183,8 +183,8 @@ export default async function ProductsPage({ params }: { params: Promise<{ local
                 {t('title')}
               </h1>
             </div>
-            <div className="lg:col-span-4 lg:text-right" data-reveal>
-              <p className="text-[17px] font-body font-normal text-ink leading-[1.6] max-w-sm lg:ml-auto">
+            <div className="lg:col-span-4 lg:text-end" data-reveal>
+              <p className="text-[17px] font-body font-normal text-ink leading-[1.6] max-w-sm lg:ms-auto">
                 {t('introText')}
               </p>
             </div>

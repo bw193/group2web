@@ -28,14 +28,14 @@ export default function Footer() {
             className="group inline-flex items-center gap-3 self-start md:self-end bg-cream text-ink px-8 h-12 text-[12px] font-body font-semibold tracking-[0.16em] uppercase hover:bg-bronze-light transition-colors"
           >
             {t('startInquiry')}
-            <span className="transition-transform duration-500 group-hover:translate-x-1">→</span>
+            <span className="transition-transform duration-500 group-hover:translate-x-1 rtl:-scale-x-100">→</span>
           </Link>
         </div>
 
         {/* Info grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8 pt-14">
           {/* Since — first column */}
-          <div className="md:text-left">
+          <div className="md:text-start">
             <p className="text-[13px] font-body font-semibold tracking-[0.16em] uppercase text-bronze-light mb-5">
               {t('sinceLabel')}
             </p>
@@ -67,7 +67,7 @@ export default function Footer() {
           </div>
 
           {/* Contact — third column */}
-          <div className="md:text-left">
+          <div className="md:text-start">
             <p className="text-[13px] font-body font-semibold tracking-[0.16em] uppercase text-bronze-light mb-5">
               {t('contactUs')}
             </p>
@@ -105,7 +105,7 @@ export default function Footer() {
             className="group inline-flex items-center gap-2 text-[12px] font-body font-semibold tracking-[0.14em] uppercase text-cream/60 transition-colors duration-300 hover:text-bronze-light focus-visible:text-bronze-light focus-visible:outline-none"
           >
             Staff Portal
-            <span aria-hidden className="inline-block transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-px">
+            <span aria-hidden className="inline-block transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-px rtl:-scale-x-100">
               ↗
             </span>
           </Link>

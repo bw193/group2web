@@ -32,7 +32,7 @@
     "featuredProducts": "Ausgewählte Produkte",
     "viewAll": "Alle Produkte Anzeigen",
     "factoryTitle": "Unsere Produktionsstätte",
-    "factoryDesc": "50.000㎡ hochmoderne Anlage mit über 200 Mitarbeitern und 500.000 Einheiten Jahreskapazität",
+    "factoryDesc": "50.000㎡ hochmoderne Anlage mit über 200 Mitarbeitern und 2.000.000 Einheiten Jahreskapazität",
     "certTitle": "Zertifizierungen & Qualität",
     "certDesc": "Unsere Produkte erfüllen die höchsten internationalen Standards",
     "inquiryCta": "Bereit, Ihr Projekt zu Starten?",
@@ -57,7 +57,7 @@
     "whyEyebrow": "Warum Chengtai",
     "whyHeading": "Gemacht, um der Lieferant zu sein, den man behält",
     "whyPoint1": "2 Jahre Garantie serienmäßig — längere Garantiedauer für langfristige Partner",
-    "whyPoint2": "Eigene F&E mit über 50 Patenten, gefertigt nach Ihrer Spezifikation",
+    "whyPoint2": "Eigene F&E mit über 70 Patenten, gefertigt nach Ihrer Spezifikation",
     "whyPoint3": "Eigene 50.000 m²-Fabrik — Qualität, die wir von A bis Z kontrollieren",
     "whyCta": "Warum uns wählen"
   },
@@ -167,7 +167,7 @@
     "tableHeading": "Der Unterschied, direkt verglichen",
     "heroStats": [
       { "value": "21+", "label": "Jahre Handwerk" },
-      { "value": "50+", "label": "Patente" },
+      { "value": "70+", "label": "Patente" },
       { "value": "200+", "label": "Fachkräfte" },
       { "value": "60+", "label": "Belieferte Länder" }
     ],
@@ -181,10 +181,10 @@
       },
       {
         "label": "Design & F&E",
-        "us": "Eigenes F&E-Team mit über 50 Patenten, das nach Ihrer exakten Spezifikation entwickelt.",
+        "us": "Eigenes F&E-Team mit über 70 Patenten, das nach Ihrer exakten Spezifikation entwickelt.",
         "them": "Keine eigene F&E — individuelle Designwünsche sind kaum umsetzbar.",
-        "heading": "Ein eigenes F&E-Team mit über 50 Patenten",
-        "body": "Unsere eigenen Ingenieure bringen Ihre Idee vom Entwurf zur Form, meist in unter drei Wochen. Mit über 50 Patenten sind individuelle Maße, Beleuchtung, Touch-Steuerung und Oberflächen Routine — keine Anfrage, die wir ablehnen müssen."
+        "heading": "Ein eigenes F&E-Team mit über 70 Patenten",
+        "body": "Unsere eigenen Ingenieure bringen Ihre Idee vom Entwurf zur Form, meist in unter drei Wochen. Mit über 70 Patenten sind individuelle Maße, Beleuchtung, Touch-Steuerung und Oberflächen Routine — keine Anfrage, die wir ablehnen müssen."
       },
       {
         "label": "Fertigung & Qualität",

@@ -21,7 +21,7 @@ export default async function ProofPoints({ className = '' }: { className?: stri
           <div
             key={i}
             data-reveal
-            className="flex items-start gap-4 md:pr-10 md:border-r md:border-warm-border md:last:border-r-0 md:last:pr-0"
+            className="flex items-start gap-4 md:pe-10 md:border-e md:border-warm-border md:last:border-e-0 md:last:pe-0"
           >
             <Check size={20} strokeWidth={1.75} className="text-bronze mt-1 shrink-0" aria-hidden />
             <p className="text-[16px] md:text-[17px] font-body font-normal text-ink leading-[1.55]">{p}</p>

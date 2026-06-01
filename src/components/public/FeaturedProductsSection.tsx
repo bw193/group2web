@@ -93,7 +93,7 @@ export default function FeaturedProductsSection({
                     >
                       {tab.label}
                       <span
-                        className={`absolute left-0 bottom-0 h-0.5 bg-bronze transition-all duration-500 ease-out ${
+                        className={`absolute start-0 bottom-0 h-0.5 bg-bronze transition-all duration-500 ease-out ${
                           active ? 'w-full' : 'w-0'
                         }`}
                       />
@@ -110,7 +110,7 @@ export default function FeaturedProductsSection({
               className="btn-primary group"
             >
               {t('viewAll')}
-              <ArrowRight size={14} strokeWidth={1.75} className="ml-3 transition-transform duration-500 group-hover:translate-x-1" />
+              <ArrowRight size={14} strokeWidth={1.75} className="ms-3 transition-transform duration-500 group-hover:translate-x-1 rtl:-scale-x-100" />
             </Link>
           </div>
         </div>

@@ -32,7 +32,7 @@
     "featuredProducts": "Prodotti in Evidenza",
     "viewAll": "Vedi Tutti i Prodotti",
     "factoryTitle": "Il Nostro Stabilimento",
-    "factoryDesc": "Stabilimento di 50.000㎡ con oltre 200 dipendenti e capacità annuale di 500.000 unità",
+    "factoryDesc": "Stabilimento di 50.000㎡ con oltre 200 dipendenti e capacità annuale di 2.000.000 unità",
     "certTitle": "Certificazioni e Qualità",
     "certDesc": "I nostri prodotti soddisfano i più alti standard internazionali",
     "inquiryCta": "Pronto per Iniziare il Tuo Progetto?",
@@ -57,7 +57,7 @@
     "whyEyebrow": "Perché Chengtai",
     "whyHeading": "Fatti per essere il fornitore che si conserva",
     "whyPoint1": "Garanzia di 2 anni di serie — copertura più lunga per i partner di lungo periodo",
-    "whyPoint2": "R&S interna con oltre 50 brevetti, realizzato secondo le tue specifiche",
+    "whyPoint2": "R&S interna con oltre 70 brevetti, realizzato secondo le tue specifiche",
     "whyPoint3": "Stabilimento di proprietà di 50.000 m² — qualità controllata dall'inizio alla fine",
     "whyCta": "Perché sceglierci"
   },
@@ -167,7 +167,7 @@
     "tableHeading": "La differenza, fianco a fianco",
     "heroStats": [
       { "value": "21+", "label": "Anni di mestiere" },
-      { "value": "50+", "label": "Brevetti" },
+      { "value": "70+", "label": "Brevetti" },
       { "value": "200+", "label": "Personale qualificato" },
       { "value": "60+", "label": "Paesi serviti" }
     ],
@@ -181,10 +181,10 @@
       },
       {
         "label": "Progettazione e R&S",
-        "us": "Team di R&S interno con oltre 50 brevetti, che progetta secondo le tue specifiche esatte.",
+        "us": "Team di R&S interno con oltre 70 brevetti, che progetta secondo le tue specifiche esatte.",
         "them": "Nessuna R&S indipendente: le richieste di design su misura sono difficili da realizzare.",
-        "heading": "Un team di R&S interno con oltre 50 brevetti",
-        "body": "I nostri ingegneri portano la tua idea dallo schizzo allo stampo, di solito in meno di tre settimane. Con oltre 50 brevetti alle spalle, dimensioni, illuminazione, controlli touch e finiture su misura sono lavoro di routine, non una richiesta da rifiutare."
+        "heading": "Un team di R&S interno con oltre 70 brevetti",
+        "body": "I nostri ingegneri portano la tua idea dallo schizzo allo stampo, di solito in meno di tre settimane. Con oltre 70 brevetti alle spalle, dimensioni, illuminazione, controlli touch e finiture su misura sono lavoro di routine, non una richiesta da rifiutare."
       },
       {
         "label": "Produzione e qualità",

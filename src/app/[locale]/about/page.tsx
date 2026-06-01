@@ -76,7 +76,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
   const stats = [
     { value: about?.factorySize || '50,000', unit: 'sqm', label: t('facilitySize') },
     { value: about?.employeeCount || '200+', unit: '', label: t('employees') },
-    { value: about?.annualCapacity || '500,000', unit: 'units', label: t('annualCapacity') },
+    { value: about?.annualCapacity || '2,000,000', unit: 'units', label: t('annualCapacity') },
     { value: '21+', unit: 'years', label: t('yearsExperience') },
   ];
 
@@ -99,7 +99,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
         email: CONTACT_EMAIL,
         telephone: CONTACT_PHONE,
         areaServed: 'Worldwide',
-        availableLanguage: ['English', 'Spanish', 'Portuguese', 'French', 'Italian', 'German'],
+        availableLanguage: ['English', 'Spanish', 'Portuguese', 'French', 'Italian', 'German', 'Hebrew'],
       },
     ],
   };
@@ -141,8 +141,8 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
                 {t('title')}
               </h1>
             </div>
-            <div className="lg:col-span-4 lg:text-right" data-reveal>
-              <p className="text-[17px] font-body font-normal text-ink leading-[1.6] max-w-sm lg:ml-auto">
+            <div className="lg:col-span-4 lg:text-end" data-reveal>
+              <p className="text-[17px] font-body font-normal text-ink leading-[1.6] max-w-sm lg:ms-auto">
                 {t('introSubtitle')}
               </p>
             </div>
@@ -189,7 +189,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
           </p>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-y-12 gap-x-8 border-t border-cream/15 pt-12" data-reveal-stagger>
             {stats.map((stat, i) => (
-              <div key={i} data-reveal className="md:border-r md:border-cream/15 md:pr-8 md:last:border-r-0">
+              <div key={i} data-reveal className="md:border-e md:border-cream/15 md:pe-8 md:last:border-e-0">
                 <p className="font-display text-5xl md:text-[56px] font-normal text-cream leading-none tracking-[-0.02em]">
                   {stat.value}
                 </p>
@@ -260,11 +260,11 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
           </div>
 
           {certPhotos.length > 0 ? (
-            <div className="grid grid-cols-2 md:grid-cols-4 border-t border-l border-warm-border" data-reveal-stagger>
+            <div className="grid grid-cols-2 md:grid-cols-4 border-t border-s border-warm-border" data-reveal-stagger>
               {certPhotos.map((cert, i) => (
                 <div
                   key={cert.id}
-                  className="aspect-square border-r border-b border-warm-border flex items-center justify-center p-4 md:p-6 bg-cream"
+                  className="aspect-square border-e border-b border-warm-border flex items-center justify-center p-4 md:p-6 bg-cream"
                   data-reveal
                 >
                   <Image
@@ -279,11 +279,11 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-4 border-t border-l border-warm-border" data-reveal-stagger>
+            <div className="grid grid-cols-2 md:grid-cols-4 border-t border-s border-warm-border" data-reveal-stagger>
               {['CE', 'CB', 'SAA', 'ETL', 'IP44', 'IP54', 'RoHS', 'ISO 9001'].map((cert) => (
                 <div
                   key={cert}
-                  className="aspect-square border-r border-b border-warm-border flex flex-col items-center justify-center text-center group hover:bg-sand transition-colors duration-300"
+                  className="aspect-square border-e border-b border-warm-border flex flex-col items-center justify-center text-center group hover:bg-sand transition-colors duration-300"
                   data-reveal
                 >
                   <p className="font-display text-3xl md:text-4xl font-normal text-ink group-hover:text-bronze transition-colors duration-300">
@@ -308,13 +308,13 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
                 {t('ctaHeading')}
               </h2>
             </div>
-            <div className="lg:col-span-4 lg:text-right">
+            <div className="lg:col-span-4 lg:text-end">
               <Link
                 href={`/${locale}/contact`}
                 className="btn-primary group"
               >
                 {t('ctaButton')}
-                <ArrowRight size={14} strokeWidth={1.75} className="ml-3 transition-transform duration-500 group-hover:translate-x-1" />
+                <ArrowRight size={14} strokeWidth={1.75} className="ms-3 transition-transform duration-500 group-hover:translate-x-1 rtl:-scale-x-100" />
               </Link>
             </div>
           </div>

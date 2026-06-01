@@ -30,6 +30,10 @@ import { productTranslations, productSpecifications } from '../src/lib/db/schema
 type Entry = {
   productId: number;
   name: string;
+  // Optional explicit slug. For locales whose script slugifies to empty
+  // (e.g. Hebrew), pass the English slug so URLs stay clean ASCII instead of
+  // falling back to `product-<id>`.
+  slug?: string;
   shortDescription: string;
   fullDescription: string;
   specs: { key: string; value: string }[];
@@ -64,7 +68,10 @@ async function main() {
   const usedSlugs = new Set<string>();
   const finalSlugs = new Map<number, string>();
   for (const e of entries) {
-    let base = slugify(e.name);
+    // Prefer an explicit English slug when provided (Hebrew/other non-Latin
+    // names slugify to stray Latin tokens like "led", so the name is unsafe);
+    // otherwise slugify the translated name. Fall back to the product id.
+    let base = e.slug ? slugify(e.slug) : slugify(e.name);
     if (!base) base = `product-${e.productId}`;
     let candidate = base;
     let n = 2;

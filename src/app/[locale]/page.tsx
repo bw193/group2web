@@ -269,7 +269,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         email: CONTACT_EMAIL,
         telephone: CONTACT_PHONE,
         areaServed: 'Worldwide',
-        availableLanguage: ['English', 'Spanish', 'Portuguese', 'French', 'Italian', 'German'],
+        availableLanguage: ['English', 'Spanish', 'Portuguese', 'French', 'Italian', 'German', 'Hebrew'],
       },
     ],
   };
@@ -334,7 +334,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                 <div
                   key={i}
                   className={`group relative flex flex-col items-center text-center py-5 md:py-3 md:px-8 lg:px-10 ${
-                    i < capabilities.length - 1 ? 'border-b md:border-b-0 md:border-r border-warm-border' : ''
+                    i < capabilities.length - 1 ? 'border-b md:border-b-0 md:border-e border-warm-border' : ''
                   }`}
                   data-reveal
                 >

@@ -109,7 +109,11 @@ export default function ImageGallery({ images, productName }: { images: string[]
   const arrowHide = 'opacity-0 pointer-events-none';
 
   return (
-    <div>
+    // Force LTR: the carousel browses via a flex track moved by
+    // translateX(-selected*100%); inheriting the page's RTL would lay the
+    // track out right-to-left and send slides the wrong way. Images are
+    // direction-neutral, so a standard LTR carousel is correct on every locale.
+    <div dir="ltr">
       {/* Main image — drag/swipe to browse, tap to zoom */}
       <div
         ref={viewportRef}
@@ -149,7 +153,7 @@ export default function ImageGallery({ images, productName }: { images: string[]
           type="button"
           onClick={() => setZoomed(true)}
           aria-label={t('zoomHint')}
-          className="absolute top-4 right-4 z-10 inline-flex items-center gap-1.5 bg-cream/85 backdrop-blur-sm text-ink px-3 py-2 text-[10px] font-body font-semibold uppercase tracking-[0.16em] opacity-0 transition-opacity duration-300 group-hover:opacity-100 focus-visible:opacity-100 max-sm:opacity-100 focus:outline-none focus-visible:ring-1 focus-visible:ring-bronze"
+          className="absolute top-4 end-4 z-10 inline-flex items-center gap-1.5 bg-cream/85 backdrop-blur-sm text-ink px-3 py-2 text-[10px] font-body font-semibold uppercase tracking-[0.16em] opacity-0 transition-opacity duration-300 group-hover:opacity-100 focus-visible:opacity-100 max-sm:opacity-100 focus:outline-none focus-visible:ring-1 focus-visible:ring-bronze"
         >
           <Maximize2 size={12} strokeWidth={2} aria-hidden />
           <span aria-hidden>{t('zoomHint')}</span>
@@ -162,23 +166,23 @@ export default function ImageGallery({ images, productName }: { images: string[]
               type="button"
               onClick={clampPrev}
               aria-label={t('prevImage')}
-              className={`${arrowBase} left-4 ${atStart ? arrowHide : arrowShow}`}
+              className={`${arrowBase} start-4 ${atStart ? arrowHide : arrowShow}`}
             >
-              <ChevronLeft size={18} strokeWidth={1.75} />
+              <ChevronLeft size={18} strokeWidth={1.75} className="rtl:-scale-x-100" />
             </button>
             <button
               type="button"
               onClick={clampNext}
               aria-label={t('nextImage')}
-              className={`${arrowBase} right-4 ${atEnd ? arrowHide : arrowShow}`}
+              className={`${arrowBase} end-4 ${atEnd ? arrowHide : arrowShow}`}
             >
-              <ChevronRight size={18} strokeWidth={1.75} />
+              <ChevronRight size={18} strokeWidth={1.75} className="rtl:-scale-x-100" />
             </button>
 
             {/* Counter */}
             <span
               aria-hidden
-              className="absolute bottom-4 left-4 z-10 bg-ink/70 text-cream px-2.5 py-1 text-[11px] font-body tracking-[0.12em] tabular-nums"
+              className="absolute bottom-4 start-4 z-10 bg-ink/70 text-cream px-2.5 py-1 text-[11px] font-body tracking-[0.12em] tabular-nums"
             >
               {String(selected + 1).padStart(2, '0')} / {String(count).padStart(2, '0')}
             </span>
@@ -219,6 +223,7 @@ export default function ImageGallery({ images, productName }: { images: string[]
         zoomed &&
         createPortal(
           <div
+            dir="ltr"
             className="fixed inset-0 z-[1000] bg-ink/95 flex items-center justify-center p-4"
             onClick={() => setZoomed(false)}
           >
@@ -243,7 +248,7 @@ export default function ImageGallery({ images, productName }: { images: string[]
             <button
               onClick={() => setZoomed(false)}
               aria-label={t('close')}
-              className="absolute top-5 right-5 w-11 h-11 flex items-center justify-center bg-ink/50 backdrop-blur-sm border border-cream/30 text-cream hover:bg-ink/80 hover:border-cream/60 transition-colors z-10 focus:outline-none focus-visible:ring-2 focus-visible:ring-cream/70"
+              className="absolute top-5 end-5 w-11 h-11 flex items-center justify-center bg-ink/50 backdrop-blur-sm border border-cream/30 text-cream hover:bg-ink/80 hover:border-cream/60 transition-colors z-10 focus:outline-none focus-visible:ring-2 focus-visible:ring-cream/70"
             >
               <X size={20} strokeWidth={1.75} />
             </button>
@@ -253,16 +258,16 @@ export default function ImageGallery({ images, productName }: { images: string[]
                 <button
                   onClick={(e) => { e.stopPropagation(); goPrev(); }}
                   aria-label={t('prevImage')}
-                  className="absolute left-5 top-1/2 -translate-y-1/2 w-11 h-11 flex items-center justify-center bg-ink/50 backdrop-blur-sm border border-cream/30 text-cream hover:bg-ink/80 hover:border-cream/60 transition-colors z-10 focus:outline-none focus-visible:ring-2 focus-visible:ring-cream/70"
+                  className="absolute start-5 top-1/2 -translate-y-1/2 w-11 h-11 flex items-center justify-center bg-ink/50 backdrop-blur-sm border border-cream/30 text-cream hover:bg-ink/80 hover:border-cream/60 transition-colors z-10 focus:outline-none focus-visible:ring-2 focus-visible:ring-cream/70"
                 >
-                  <ChevronLeft size={20} />
+                  <ChevronLeft size={20} className="rtl:-scale-x-100" />
                 </button>
                 <button
                   onClick={(e) => { e.stopPropagation(); goNext(); }}
                   aria-label={t('nextImage')}
-                  className="absolute right-5 top-1/2 -translate-y-1/2 w-11 h-11 flex items-center justify-center bg-ink/50 backdrop-blur-sm border border-cream/30 text-cream hover:bg-ink/80 hover:border-cream/60 transition-colors z-10 focus:outline-none focus-visible:ring-2 focus-visible:ring-cream/70"
+                  className="absolute end-5 top-1/2 -translate-y-1/2 w-11 h-11 flex items-center justify-center bg-ink/50 backdrop-blur-sm border border-cream/30 text-cream hover:bg-ink/80 hover:border-cream/60 transition-colors z-10 focus:outline-none focus-visible:ring-2 focus-visible:ring-cream/70"
                 >
-                  <ChevronRight size={20} />
+                  <ChevronRight size={20} className="rtl:-scale-x-100" />
                 </button>
               </>
             )}
