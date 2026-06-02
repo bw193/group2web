@@ -83,11 +83,20 @@ export default async function FacilitySection({ locale, images = [] }: Props) {
           </div>
         </div>
 
-        {/* Stats band */}
-        <div className="mt-20 md:mt-24 py-12 md:py-16 border-t border-warm-border">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-10 items-center" data-reveal-stagger>
+        {/* Credentials — the figures, and the promises they earn, as one open
+            block. A single hairline opens the unit; the four numbers and the
+            three promises are then bound only by shared whitespace and one
+            continuous reveal (no card, no dividing rule) so it stays as airy as
+            the rest of the page while reading as a single statement. */}
+        <div className="mt-20 md:mt-24 pt-12 md:pt-16 border-t border-warm-border" data-reveal-stagger>
+          {/* Figures */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-10">
             {stats.map((s) => (
-              <div key={s.label} data-reveal className="flex flex-col justify-center md:border-e md:border-warm-border md:pe-8 md:last:border-e-0">
+              <div
+                key={s.label}
+                data-reveal
+                className="text-center md:border-e md:border-warm-border md:last:border-e-0"
+              >
                 <p className="font-display text-5xl md:text-[56px] font-normal text-ink leading-none tracking-[-0.02em]">
                   <CountUp to={s.to} suffix={s.suffix} />
                 </p>
@@ -97,10 +106,12 @@ export default async function FacilitySection({ locale, images = [] }: Props) {
               </div>
             ))}
           </div>
-        </div>
 
-        {/* Proof points — what the factory earns the buyer; closes the section */}
-        <ProofPoints className="pt-10 md:pt-12 border-t border-warm-border" />
+          {/* Promises — set just beneath the numbers, no dividing rule. stagger=false
+              lets the block's own stagger fold these into the numbers' reveal as one
+              continuous sequence (numbers, then the promises they earn). */}
+          <ProofPoints stagger={false} align="center" className="mt-11 md:mt-14" />
+        </div>
       </div>
     </section>
   );
