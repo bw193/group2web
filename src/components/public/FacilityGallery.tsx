@@ -1,8 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
-import { getUploadUrl } from '@/lib/utils';
+import GalleryImage from './GalleryImage';
 
 interface Props {
   images: string[];
@@ -31,9 +30,9 @@ export default function FacilityGallery({ images }: Props) {
               </span>
             </div>
           ) : (
-            <Image
+            <GalleryImage
               key={`${src}-${i}`}
-              src={src.startsWith('/') ? src : getUploadUrl(src)}
+              path={src}
               alt={`Chengtai Mirror manufacturing facility in Jiaxing — view ${i + 1}`}
               fill
               sizes="(max-width: 1024px) 100vw, 58vw"
@@ -77,8 +76,8 @@ export default function FacilityGallery({ images }: Props) {
             >
               {!isPlaceholder ? (
                 <>
-                  <Image
-                    src={src.startsWith('/') ? src : getUploadUrl(src)}
+                  <GalleryImage
+                    path={src}
                     alt=""
                     fill
                     sizes="(max-width: 768px) 25vw, 15vw"

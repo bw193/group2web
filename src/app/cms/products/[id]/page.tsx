@@ -76,6 +76,9 @@ export default function ProductEditPage() {
       const fd = new FormData();
       fd.append('file', file);
       fd.append('folder', 'products');
+      // Name the stored file after the product so URLs are clean/descriptive
+      // (e.g. asymmetrical-led-mirror-3f9k2a.webp) instead of the camera filename.
+      fd.append('slug', form.slug || slugify(form.name));
       const res = await fetch('/api/upload', { method: 'POST', body: fd });
       if (res.ok) {
         const data = await res.json();

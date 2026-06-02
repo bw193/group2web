@@ -1,5 +1,4 @@
-import Image from 'next/image';
-import { getUploadUrl } from '@/lib/utils';
+import GalleryImage from './GalleryImage';
 
 interface Props {
   images?: (string | null)[];
@@ -53,8 +52,8 @@ export default async function CertificationsSection({ images = [] }: Props) {
                   className="relative flex items-center justify-center w-[260px] md:w-[320px] h-[130px] md:h-[160px] mx-8 md:mx-12 shrink-0"
                   aria-hidden={i >= photos.length}
                 >
-                  <Image
-                    src={getUploadUrl(src)}
+                  <GalleryImage
+                    path={src}
                     alt={
                       i < photos.length
                         ? `Chengtai Mirror product certification ${(i % photos.length) + 1} (CE / CB / SAA / ETL / RoHS / ISO 9001 family)`

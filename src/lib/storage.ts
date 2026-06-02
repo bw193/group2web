@@ -17,7 +17,10 @@ export async function uploadFile(
 ): Promise<string> {
   const { error } = await supabase.storage
     .from(BUCKET)
-    .upload(key, body, { contentType, upsert: true });
+    // 1-year immutable cache: keys are unique per upload, so the bytes at a
+    // given key never change. Critical for gallery images served straight from
+    // Supabase's CDN (they don't get Vercel's cache otherwise).
+    .upload(key, body, { contentType, upsert: true, cacheControl: '31536000' });
 
   if (error) throw error;
 

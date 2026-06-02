@@ -1,11 +1,10 @@
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
-import Image from 'next/image';
+import GalleryImage from '@/components/public/GalleryImage';
 import Link from 'next/link';
 import { getDb } from '@/lib/db';
 import { aboutPage, aboutGallery } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
-import { getUploadUrl } from '@/lib/utils';
 import { JsonLd } from '@/components/seo/JsonLd';
 import {
   ADDRESS,
@@ -230,13 +229,12 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
                   }`}
                   data-reveal
                 >
-                  <Image
-                    src={getUploadUrl(photo.imageUrl)}
+                  <GalleryImage
+                    path={photo.imageUrl}
                     alt={`Chengtai Mirror factory in Jiaxing — production view ${i + 1}`}
                     fill
                     sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                     className="object-cover transition-transform duration-[1.4s] ease-out group-hover:scale-[1.04]"
-                    loading="lazy"
                   />
                 </div>
               ))}
@@ -267,13 +265,13 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
                   className="aspect-square border-e border-b border-warm-border flex items-center justify-center p-4 md:p-6 bg-cream"
                   data-reveal
                 >
-                  <Image
-                    src={getUploadUrl(cert.imageUrl)}
+                  <GalleryImage
+                    path={cert.imageUrl}
                     alt={`Chengtai Mirror product certification ${i + 1} (CE / CB / SAA / ETL / RoHS / ISO 9001 family)`}
                     width={420}
                     height={420}
+                    sizes="(max-width: 768px) 45vw, 22vw"
                     className="max-h-full max-w-full w-auto h-auto object-contain grayscale hover:grayscale-0 transition-all duration-500"
-                    loading="lazy"
                   />
                 </div>
               ))}
