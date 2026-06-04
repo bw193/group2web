@@ -1,9 +1,10 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { useTranslations } from 'next-intl';
-import { ArrowRight, AlertCircle, X, CheckCircle2 } from 'lucide-react';
+import { useTranslations, useLocale } from 'next-intl';
+import { ArrowRight, AlertCircle, X } from 'lucide-react';
 import { useRouter, usePathname } from 'next/navigation';
+import { sendGAEvent } from '@next/third-parties/google';
 
 interface Category {
   id: number;
@@ -12,6 +13,7 @@ interface Category {
 
 export default function InquiryForm({ categories }: { categories: Category[] }) {
   const t = useTranslations('contact');
+  const locale = useLocale();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -52,7 +54,7 @@ export default function InquiryForm({ categories }: { categories: Category[] }) 
     message: '',
     honeypot: '',
   });
-  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [status, setStatus] = useState<'idle' | 'loading' | 'error'>('idle');
 
   useEffect(() => {
     setSelectedProduct({ name: productParam, model: modelParam });
@@ -95,42 +97,17 @@ export default function InquiryForm({ categories }: { categories: Category[] }) 
         }),
       });
       if (res.ok) {
-        setStatus('success');
-        setFormData({
-          name: '',
-          email: '',
-          phone: '',
-          company: '',
-          country: '',
-          productInterest: '',
-          message: '',
-          honeypot: '',
-        });
+        // Fire the GA4 / Google Ads lead-conversion event, then send the user to
+        // the dedicated thank-you URL (the Ads "Submit lead form" destination and
+        // a clean confirmation). Soft SPA nav — GA4 still tracks the pageview.
+        sendGAEvent('event', 'generate_lead', { form: 'contact', value: 1 });
+        router.push(`/${locale}/contact/thank-you`);
       } else {
         setStatus('error');
       }
     } catch {
       setStatus('error');
     }
-  }
-
-  if (status === 'success') {
-    return (
-      <div className="bg-sand p-8 md:p-10">
-        <div className="flex items-center gap-3 text-bronze mb-4">
-          <CheckCircle2 size={24} strokeWidth={1.75} />
-          <span className="text-[13px] font-body font-semibold uppercase tracking-[0.15em]">
-            {t('successLabel')}
-          </span>
-        </div>
-        <h3 className="font-display text-3xl md:text-4xl font-normal text-ink leading-tight mb-3">
-          {t('successHeading')}
-        </h3>
-        <p className="text-[16px] font-body text-ink leading-[1.6] max-w-md">
-          {t('success')}
-        </p>
-      </div>
-    );
   }
 
   return (
