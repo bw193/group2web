@@ -112,7 +112,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       .from(aboutGallery)
       .where(eq(aboutGallery.imageType, 'factory'))
       .orderBy(aboutGallery.displayOrder)
-      .limit(4),
+      .limit(8),
     db
       .select()
       .from(aboutGallery)
