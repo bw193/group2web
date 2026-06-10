@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
-import { notFound, redirect } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 import { getDb } from '@/lib/db';
 import { products, productTranslations, productSpecifications, productImages } from '@/lib/db/schema';
 import { eq, and, ne, inArray } from 'drizzle-orm';
@@ -185,7 +185,7 @@ export default async function ProductDetailPage({
       .limit(1);
 
     if (localizedSlugRow[0]?.slug && localizedSlugRow[0].slug !== slug) {
-      redirect(localizedPath(locale, `/products/${localizedSlugRow[0].slug}`));
+      permanentRedirect(localizedPath(locale, `/products/${localizedSlugRow[0].slug}`));
     }
 
     // No translation for this locale — render whatever we have to avoid 404,
