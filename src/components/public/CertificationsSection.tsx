@@ -35,7 +35,7 @@ export default async function CertificationsSection({ images = [] }: Props) {
           </div>
           <div className="lg:col-span-5 lg:text-end" data-reveal>
             <p className="text-[17px] font-body font-normal text-ink leading-[1.6] max-w-md lg:ms-auto">
-              Every mirror ships with the paperwork to clear the most demanding markets — from European bathrooms to North American hospitality projects.
+              Every mirror ships with the paperwork to clear the most demanding markets — from European bathrooms to North American hotel, retail projects.
             </p>
           </div>
         </div>
