@@ -118,11 +118,21 @@ function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
  */
 export async function withDbRetry<T>(
   fn: () => Promise<T>,
-  // 8s per attempt rides out a slow long-haul TLS handshake (~2.5s observed)
-  // plus queueing, while a fully-failed triple cycle (~24.5s) — or two
-  // sequential ones on the homepage (~49s) — still fits Next's 60s
-  // static-generation budget per page.
-  { attempts = 3, timeoutMs = 8_000 }: { attempts?: number; timeoutMs?: number } = {},
+  // Build phase: when many pages prerender at once, the pooler (Supavisor)
+  // queues the burst of fresh connection setups and a query can legitimately
+  // take 10–20s to get a connection — while the Postgres server sits nearly
+  // idle. An 8s timeout converts that slow-but-successful wait into a failed
+  // build (observed on Vercel: insight pages threw DbTimeoutError at 8000ms;
+  // main, which never times out, builds fine at full parallelism). And a
+  // retry cannot cancel the abandoned attempt, so short timeouts only deepen
+  // the setup queue. So during builds wait like main does: 2 × 25s (~50s)
+  // stays inside Next's 60s per-page budget while outlasting the queue.
+  // Runtime keeps 3 × 8s — that is what stops CMS routes from hanging for
+  // minutes on a wedged dev-link connection.
+  {
+    attempts = isBuildPhase ? 2 : 3,
+    timeoutMs = isBuildPhase ? 25_000 : 8_000,
+  }: { attempts?: number; timeoutMs?: number } = {},
 ): Promise<T> {
   let lastErr: unknown;
   for (let attempt = 1; attempt <= attempts; attempt++) {
