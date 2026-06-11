@@ -1,32 +1,44 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
-import { getDb } from '@/lib/db';
+import { getDb, withDbRetry } from '@/lib/db';
 import { banners, bannerTranslations } from '@/lib/db/schema';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, inArray } from 'drizzle-orm';
 import { getSession } from '@/lib/auth';
 
 export async function GET(request: NextRequest) {
   const locale = new URL(request.url).searchParams.get('locale') || 'en';
 
   const db = getDb();
-  const allBanners = await db.select().from(banners).orderBy(banners.displayOrder);
-
-  const result = await Promise.all(
-    allBanners.map(async (b) => {
-      const [trans] = await db
-        .select()
-        .from(bannerTranslations)
-        .where(and(eq(bannerTranslations.bannerId, b.id), eq(bannerTranslations.locale, locale)))
-        .limit(1);
-
-      return {
-        ...b,
-        title: trans?.title,
-        subtitle: trans?.subtitle,
-        ctaText: trans?.ctaText,
-      };
-    })
+  // Two batched sequential reads instead of one query per banner: N
+  // simultaneous queries force the pool to open fresh connections, which is
+  // exactly what stalls on the long-haul dev link.
+  const allBanners = await withDbRetry(() =>
+    db.select().from(banners).orderBy(banners.displayOrder),
   );
+  if (allBanners.length === 0) return NextResponse.json([]);
+
+  const trans = await withDbRetry(() =>
+    db
+      .select()
+      .from(bannerTranslations)
+      .where(
+        and(
+          inArray(bannerTranslations.bannerId, allBanners.map((b) => b.id)),
+          eq(bannerTranslations.locale, locale),
+        ),
+      ),
+  );
+  const transMap = new Map(trans.map((t) => [t.bannerId, t]));
+
+  const result = allBanners.map((b) => {
+    const t = transMap.get(b.id);
+    return {
+      ...b,
+      title: t?.title,
+      subtitle: t?.subtitle,
+      ctaText: t?.ctaText,
+    };
+  });
 
   return NextResponse.json(result);
 }

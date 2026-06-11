@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getDb } from '@/lib/db';
+import { getDb, withDbRetry } from '@/lib/db';
 import { inquiries } from '@/lib/db/schema';
 import { desc } from 'drizzle-orm';
 import { getSession } from '@/lib/auth';
@@ -22,7 +22,9 @@ export async function GET(request: NextRequest) {
   }
 
   const db = getDb();
-  const allInquiries = await db.select().from(inquiries).orderBy(desc(inquiries.createdAt));
+  const allInquiries = await withDbRetry(() =>
+    db.select().from(inquiries).orderBy(desc(inquiries.createdAt)),
+  );
   return NextResponse.json(allInquiries);
 }
 

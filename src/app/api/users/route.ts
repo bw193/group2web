@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getDb } from '@/lib/db';
+import { getDb, withDbRetry } from '@/lib/db';
 import { users } from '@/lib/db/schema';
 import { desc } from 'drizzle-orm';
 import { getSession } from '@/lib/auth';
@@ -11,8 +11,9 @@ export async function GET() {
   }
 
   const db = getDb();
-  const allUsers = await db
-    .select({
+  const allUsers = await withDbRetry(() =>
+    db
+      .select({
       id: users.id,
       username: users.username,
       email: users.email,
@@ -21,8 +22,9 @@ export async function GET() {
       status: users.status,
       createdAt: users.createdAt,
     })
-    .from(users)
-    .orderBy(desc(users.createdAt));
+      .from(users)
+      .orderBy(desc(users.createdAt)),
+  );
 
   return NextResponse.json(allUsers);
 }

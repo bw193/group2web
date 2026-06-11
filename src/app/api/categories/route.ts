@@ -1,47 +1,57 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
-import { getDb } from '@/lib/db';
+import { getDb, withDbRetry } from '@/lib/db';
 import { productCategories, categoryTranslations } from '@/lib/db/schema';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, inArray } from 'drizzle-orm';
 import { getSession } from '@/lib/auth';
 
 export async function GET(request: NextRequest) {
   const locale = new URL(request.url).searchParams.get('locale') || 'en';
 
   const db = getDb();
-  const categories = await db
-    .select()
-    .from(productCategories)
-    .where(eq(productCategories.isActive, true))
-    .orderBy(productCategories.displayOrder);
-
-  const result = await Promise.all(
-    categories.map(async (cat) => {
-      let transRows = await db
-        .select()
-        .from(categoryTranslations)
-        .where(and(eq(categoryTranslations.categoryId, cat.id), eq(categoryTranslations.locale, locale)))
-        .limit(1);
-
-      if (!transRows[0] && locale !== 'en') {
-        transRows = await db
-          .select()
-          .from(categoryTranslations)
-          .where(and(eq(categoryTranslations.categoryId, cat.id), eq(categoryTranslations.locale, 'en')))
-          .limit(1);
-      }
-      const trans = transRows[0];
-
-      return {
-        id: cat.id,
-        name: trans?.name || `Category ${cat.id}`,
-        slug: trans?.slug || `category-${cat.id}`,
-        parentId: cat.parentId,
-        imageUrl: cat.imageUrl,
-        displayOrder: cat.displayOrder,
-      };
-    })
+  // Batched sequential reads instead of up to two queries per category: N
+  // simultaneous queries force the pool to open fresh connections, which is
+  // exactly what stalls on the long-haul dev link.
+  const categories = await withDbRetry(() =>
+    db
+      .select()
+      .from(productCategories)
+      .where(eq(productCategories.isActive, true))
+      .orderBy(productCategories.displayOrder),
   );
+  if (categories.length === 0) return NextResponse.json([]);
+  const catIds = categories.map((c) => c.id);
+
+  const trans = await withDbRetry(() =>
+    db
+      .select()
+      .from(categoryTranslations)
+      .where(and(inArray(categoryTranslations.categoryId, catIds), eq(categoryTranslations.locale, locale))),
+  );
+  const transEn =
+    locale === 'en'
+      ? []
+      : await withDbRetry(() =>
+          db
+            .select()
+            .from(categoryTranslations)
+            .where(and(inArray(categoryTranslations.categoryId, catIds), eq(categoryTranslations.locale, 'en'))),
+        );
+
+  const transMap = new Map(trans.map((t) => [t.categoryId, t]));
+  const transEnMap = new Map(transEn.map((t) => [t.categoryId, t]));
+
+  const result = categories.map((cat) => {
+    const t = transMap.get(cat.id) || transEnMap.get(cat.id);
+    return {
+      id: cat.id,
+      name: t?.name || `Category ${cat.id}`,
+      slug: t?.slug || `category-${cat.id}`,
+      parentId: cat.parentId,
+      imageUrl: cat.imageUrl,
+      displayOrder: cat.displayOrder,
+    };
+  });
 
   return NextResponse.json(result);
 }

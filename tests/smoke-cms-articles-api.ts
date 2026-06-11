@@ -25,7 +25,21 @@ async function main() {
 
   const headers = { Cookie: `auth-token=${token}` };
 
-  for (const path of ['/api/auth/me', '/api/articles', '/api/article-categories']) {
+  const paths = [
+    '/api/auth/me',
+    '/api/articles',
+    '/api/article-categories',
+    '/api/banners?locale=en',
+    '/api/categories?locale=en',
+    '/api/faqs?all=1',
+    '/api/inquiries',
+    '/api/products?locale=en&limit=500',
+    '/api/users',
+    '/api/settings',
+    '/api/about?locale=en',
+    '/api/about/gallery',
+  ];
+  for (const path of paths) {
     const t0 = Date.now();
     try {
       const res = await fetch(`${BASE}${path}`, { headers });

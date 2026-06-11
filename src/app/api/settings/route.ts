@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getDb } from '@/lib/db';
+import { getDb, withDbRetry } from '@/lib/db';
 import { siteSettings } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { getSession } from '@/lib/auth';
 
 export async function GET() {
   const db = getDb();
-  const allSettings = await db.select().from(siteSettings);
+  const allSettings = await withDbRetry(() => db.select().from(siteSettings));
   const result: Record<string, string> = {};
   for (const s of allSettings) {
     result[s.key] = s.value || '';

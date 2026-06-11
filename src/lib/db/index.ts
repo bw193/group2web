@@ -39,13 +39,15 @@ const client =
     // can use a wider local pool without multiplying into too many concurrent
     // Supabase pooler clients.
     max: isBuildPhase ? 10 : 3,
-    // Runtime on Vercel: recycle briskly (10s idle) so a silently-dropped
-    // socket isn't reused after an idle gap — reuse is what hangs until the
-    // ~60s OS TCP timeout. Local runtime: keep connections warm longer (60s)
-    // because every fresh handshake on the long-haul link is a wedge risk and
-    // CMS clicks arrive more than 10s apart; withDbRetry covers the stale-
-    // socket case. Build: hold sockets for the whole run.
-    idle_timeout: isBuildPhase ? undefined : process.env.VERCEL ? 10 : 60,
+    // Runtime: recycle idle sockets briskly. A connection that sits idle
+    // between CMS clicks gets silently dropped by NAT/proxy boxes on the
+    // long-haul link; reusing it surfaces as `write CONNECTION_CLOSED` only
+    // after a ~2min OS TCP timeout. A short idle window (10s Vercel / 20s
+    // local, matching main's historical 20s) keeps the dead-reuse window
+    // small, and withDbRetry turns any residual stale-socket hit into an ~8s
+    // retry instead of a minutes-long hang. Build: hold sockets for the run —
+    // constant traffic keeps them honest.
+    idle_timeout: isBuildPhase ? undefined : process.env.VERCEL ? 10 : 20,
     max_lifetime: 60 * 30,
     connect_timeout: 10,
   });
