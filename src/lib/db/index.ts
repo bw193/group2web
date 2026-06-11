@@ -35,9 +35,10 @@ const client =
     // get a wider pool: withDbRetry's timeout cannot cancel an in-flight
     // query, so on a slow link a stalled query parks a connection — with
     // only 3, the retries then queue behind the stall and time out in a
-    // pile-up. Vercel builds (dub1, sub-ms to the DB) keep the small pool so
-    // full build parallelism doesn't multiply into the pooler's client cap.
-    max: isBuildPhase && !process.env.VERCEL ? 10 : 3,
+    // pile-up. Static generation is throttled in next.config.ts, so the build
+    // can use a wider local pool without multiplying into too many concurrent
+    // Supabase pooler clients.
+    max: isBuildPhase ? 10 : 3,
     // Runtime on Vercel: recycle briskly (10s idle) so a silently-dropped
     // socket isn't reused after an idle gap — reuse is what hangs until the
     // ~60s OS TCP timeout. Local runtime: keep connections warm longer (60s)
