@@ -1,5 +1,6 @@
 {
   "nav": {
+    "insight": "Insight",
     "home": "Inicio",
     "products": "Productos",
     "about": "Sobre Nosotros",
@@ -151,7 +152,22 @@
     "backToProducts": "Volver a Productos",
     "loading": "Cargando..."
   },
+  "insight": {
+    "kicker": "El diario de Chengtai",
+    "heroTitle": "Notas de campo desde la fábrica de espejos",
+    "latest": "Última historia",
+    "all": "Todas las historias",
+    "count": "{count, plural, one {# historia} other {# historias}}",
+    "readTime": "{minutes} min de lectura",
+    "readStory": "Leer la historia",
+    "back": "Todas las historias",
+    "continueReading": "Seguir leyendo",
+    "featuredProducts": "Productos de esta historia",
+    "viewAllProducts": "Ver todos los productos",
+    "empty": "Pronto publicaremos nuevas historias."
+  },
   "breadcrumb": {
+    "insight": "Insight",
     "home": "Inicio",
     "products": "Productos",
     "about": "Sobre Nosotros",

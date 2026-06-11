@@ -209,6 +209,102 @@
 .prose-content img { @apply my-6 max-w-full; }
 
 /* ============================================================================
+   ARTICLE PROSE — Insight long-form reading column
+   Styles exactly the tags the stored article HTML uses (<p> <h2> <h3>
+   <blockquote><cite> <ul> <ol> <a> <strong> <em> <hr> <figure>). Logical
+   properties throughout, so Hebrew (RTL) mirrors for free.
+   ============================================================================ */
+
+.article-prose { max-width: 66ch; margin-inline: auto; }
+
+.article-prose p {
+  @apply font-body text-ink;
+  font-size: 18px;
+  line-height: 1.85;
+  margin-block: 0 1.6em;
+}
+
+/* Larger lead-in on the opening paragraph — quiet print convention. */
+.article-prose > p:first-child {
+  font-size: 21px;
+  line-height: 1.7;
+}
+
+.article-prose h2,
+.article-prose h3 {
+  @apply font-display font-normal text-ink;
+  letter-spacing: -0.015em;
+  line-height: 1.18;
+  margin-block: 2.4em 0.8em;
+}
+.article-prose h2 { font-size: 30px; }
+.article-prose h3 { font-size: 26px; }
+
+.article-prose ul,
+.article-prose ol {
+  @apply font-body text-ink;
+  margin-block: 0 1.6em;
+  padding-inline-start: 1.35em;
+}
+.article-prose ul { list-style: disc; }
+.article-prose ol { list-style: decimal; }
+.article-prose li {
+  font-size: 18px;
+  line-height: 1.8;
+  margin-block-end: 0.45em;
+}
+.article-prose li::marker { @apply text-bronze; }
+
+.article-prose a {
+  @apply text-ink underline decoration-bronze decoration-1 underline-offset-4 transition-colors duration-300;
+}
+.article-prose a:hover { @apply decoration-ink; }
+.article-prose strong { font-weight: 600; }
+.article-prose em { font-style: italic; }
+.article-prose hr {
+  @apply border-0 border-t border-warm-border;
+  margin-block: 3em;
+}
+
+/* Pull-quote: a quotation set between hairline rules, cite in bronze caps. */
+.article-prose blockquote {
+  @apply border-y border-warm-border;
+  margin-block: 2.6em;
+  padding-block: 1.6em;
+}
+.article-prose blockquote p {
+  @apply font-display font-light;
+  font-size: 27px;
+  line-height: 1.32;
+  letter-spacing: -0.01em;
+  margin-block: 0 0.6em;
+}
+.article-prose blockquote p:last-child { margin-block-end: 0; }
+.article-prose blockquote cite {
+  @apply font-body not-italic font-semibold text-bronze uppercase;
+  font-size: 12px;
+  letter-spacing: 0.16em;
+}
+
+.article-prose figure { margin-block: 2.4em; }
+.article-prose figure img { max-width: 100%; }
+.article-prose figcaption {
+  @apply font-body text-ink-mid;
+  font-size: 13px;
+  line-height: 1.5;
+  margin-block-start: 0.8em;
+}
+
+@media (max-width: 768px) {
+  .article-prose p,
+  .article-prose li { font-size: 16.5px; }
+  .article-prose > p:first-child { font-size: 19px; }
+  .article-prose h2 { font-size: 26px; }
+  .article-prose h3 { font-size: 23px; }
+  .article-prose blockquote p { font-size: 23px; }
+}
+
+/* ============================================================================
    SCROLLBAR
    ============================================================================ */
 

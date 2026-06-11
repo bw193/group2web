@@ -71,7 +71,7 @@ export function buildAlternates(locale: string, pathAfterLocale: string) {
  * SERP-targeted phrasing can be tuned independently of in-page UI copy.
  * Falls back to English if a locale entry is missing.
  */
-type PageKey = 'home' | 'products' | 'about' | 'contact';
+type PageKey = 'home' | 'products' | 'about' | 'contact' | 'insight';
 type PageEntry = { title: string; description: string; h1?: string };
 type RoutedCopy = Record<PageKey, PageEntry>;
 
@@ -98,6 +98,11 @@ const COPY: Record<Locale, RoutedCopy> = {
       description:
         "Share your project details with Chengtai Mirror's export team. We reply within one business day. Email, WhatsApp, and direct phone available.",
     },
+    insight: {
+      title: 'LED Mirror Insights | Factory Notes from Chengtai Mirror',
+      description:
+        'Explore LED mirror design, manufacturing, quality control, certifications, and sourcing tips from Chengtai Mirror, a professional LED mirror factory.',
+    },
   },
   es: {
     home: {
@@ -120,6 +125,11 @@ const COPY: Record<Locale, RoutedCopy> = {
       title: 'Contactar Chengtai Mirror — Solicitar Cotización',
       description:
         'Comparta los detalles de su proyecto con el equipo de exportación de Chengtai Mirror. Respondemos en un día hábil. Correo, WhatsApp y teléfono directo disponibles.',
+    },
+    insight: {
+      title: 'Insight — Diario de Diseño y Compra de Espejos LED | Chengtai Mirror',
+      description:
+        'Historias desde una fábrica de espejos en activo: tendencias de diseño de espejos LED, artesanía de fabricación, proyectos reales y guías de compra OEM/ODM.',
     },
   },
   pt: {
@@ -144,6 +154,11 @@ const COPY: Record<Locale, RoutedCopy> = {
       description:
         'Compartilhe os detalhes do seu projeto com a equipe de exportação da Chengtai Mirror. Respondemos em um dia útil. E-mail, WhatsApp e telefone direto disponíveis.',
     },
+    insight: {
+      title: 'Insight — Jornal de Design e Sourcing de Espelhos LED | Chengtai Mirror',
+      description:
+        'Histórias de uma fábrica de espelhos em atividade: tendências de design de espelhos LED, artesanato de fabricação, estudos de projetos e guias de sourcing OEM/ODM.',
+    },
   },
   fr: {
     home: {
@@ -166,6 +181,11 @@ const COPY: Record<Locale, RoutedCopy> = {
       title: 'Contacter Chengtai Mirror — Demander un Devis',
       description:
         "Partagez les détails de votre projet avec l'équipe d'export de Chengtai Mirror. Réponse sous un jour ouvré. E-mail, WhatsApp et téléphone direct disponibles.",
+    },
+    insight: {
+      title: 'Insight — Journal du Design et du Sourcing de Miroirs LED | Chengtai Mirror',
+      description:
+        "Histoires d'une usine de miroirs en activité : tendances du design de miroirs LED, savoir-faire de fabrication, études de projets et guides de sourcing OEM/ODM.",
     },
   },
   it: {
@@ -190,6 +210,11 @@ const COPY: Record<Locale, RoutedCopy> = {
       description:
         "Condividi i dettagli del tuo progetto con il team export di Chengtai Mirror. Rispondiamo entro un giorno lavorativo. Email, WhatsApp e telefono diretto disponibili.",
     },
+    insight: {
+      title: 'Insight — Giornale di Design e Sourcing di Specchi LED | Chengtai Mirror',
+      description:
+        'Storie da una fabbrica di specchi in attività: tendenze del design di specchi LED, artigianato produttivo, casi studio di progetti e guide al sourcing OEM/ODM.',
+    },
   },
   de: {
     home: {
@@ -213,6 +238,11 @@ const COPY: Record<Locale, RoutedCopy> = {
       description:
         'Teilen Sie Ihre Projektdetails mit dem Exportteam von Chengtai Mirror. Wir antworten innerhalb eines Werktags. E-Mail, WhatsApp und Direkttelefon verfügbar.',
     },
+    insight: {
+      title: 'Insight — Journal für LED-Spiegel-Design & Beschaffung | Chengtai Mirror',
+      description:
+        'Geschichten aus einer aktiven Spiegelfabrik: LED-Spiegel-Designtrends, Fertigungshandwerk, Projektberichte und OEM/ODM-Beschaffungsleitfäden für globale Einkäufer.',
+    },
   },
   he: {
     home: {
@@ -235,6 +265,11 @@ const COPY: Record<Locale, RoutedCopy> = {
       title: 'צרו קשר עם Chengtai Mirror — בקשת הצעת מחיר',
       description:
         'שתפו את פרטי הפרויקט שלכם עם צוות הייצוא של Chengtai Mirror. אנו משיבים תוך יום עסקים אחד. אימייל, וואטסאפ וטלפון ישיר זמינים.',
+    },
+    insight: {
+      title: 'Insight — יומן עיצוב ורכש מראות LED | Chengtai Mirror',
+      description:
+        'סיפורים ממפעל מראות פעיל: מגמות עיצוב מראות LED, אומנות הייצור, מקרי בוחן של פרויקטים ומדריכי רכש OEM/ODM לקונים גלובליים.',
     },
   },
 };

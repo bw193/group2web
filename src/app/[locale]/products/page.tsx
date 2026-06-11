@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
-import { getDb } from '@/lib/db';
+import { getDb, withDbRetry } from '@/lib/db';
 import {
   products,
   productTranslations,
@@ -65,47 +65,68 @@ export default async function ProductsPage({ params }: { params: Promise<{ local
   const breadcrumbT = await getTranslations('breadcrumb');
   const db = getDb();
 
-  const [allProducts, allCats] = await Promise.all([
-    db.select().from(products).where(eq(products.isActive, true)).orderBy(desc(products.createdAt)),
-    db
-      .select()
-      .from(productCategories)
-      .where(eq(productCategories.isActive, true))
-      .orderBy(productCategories.displayOrder),
-  ]);
+  // Degrade-don't-die: a transient DB failure renders an empty catalog page
+  // (refreshed by ISR) instead of failing the request or the build.
+  let allProducts: (typeof products.$inferSelect)[] = [];
+  let allCats: (typeof productCategories.$inferSelect)[] = [];
+  try {
+    [allProducts, allCats] = await withDbRetry(() =>
+      Promise.all([
+        db.select().from(products).where(eq(products.isActive, true)).orderBy(desc(products.createdAt)),
+        db
+          .select()
+          .from(productCategories)
+          .where(eq(productCategories.isActive, true))
+          .orderBy(productCategories.displayOrder),
+      ]),
+    );
+  } catch (e) {
+    console.error('products list: catalog unavailable; rendering empty grid:', e);
+  }
 
   const productIds = allProducts.map((p) => p.id);
   const catIds = allCats.map((c) => c.id);
 
-  const [prodTrans, prodTransEn, prodImgs, catTrans, catTransEn] = await Promise.all([
-    productIds.length
-      ? db
-          .select()
-          .from(productTranslations)
-          .where(and(inArray(productTranslations.productId, productIds), eq(productTranslations.locale, locale)))
-      : Promise.resolve([]),
-    productIds.length && locale !== 'en'
-      ? db
-          .select()
-          .from(productTranslations)
-          .where(and(inArray(productTranslations.productId, productIds), eq(productTranslations.locale, 'en')))
-      : Promise.resolve([]),
-    productIds.length
-      ? db.select().from(productImages).where(inArray(productImages.productId, productIds))
-      : Promise.resolve([]),
-    catIds.length
-      ? db
-          .select()
-          .from(categoryTranslations)
-          .where(and(inArray(categoryTranslations.categoryId, catIds), eq(categoryTranslations.locale, locale)))
-      : Promise.resolve([]),
-    catIds.length && locale !== 'en'
-      ? db
-          .select()
-          .from(categoryTranslations)
-          .where(and(inArray(categoryTranslations.categoryId, catIds), eq(categoryTranslations.locale, 'en')))
-      : Promise.resolve([]),
-  ]);
+  let prodTrans: (typeof productTranslations.$inferSelect)[] = [];
+  let prodTransEn: (typeof productTranslations.$inferSelect)[] = [];
+  let prodImgs: (typeof productImages.$inferSelect)[] = [];
+  let catTrans: (typeof categoryTranslations.$inferSelect)[] = [];
+  let catTransEn: (typeof categoryTranslations.$inferSelect)[] = [];
+  try {
+    [prodTrans, prodTransEn, prodImgs, catTrans, catTransEn] = await withDbRetry(() =>
+      Promise.all([
+        productIds.length
+          ? db
+              .select()
+              .from(productTranslations)
+              .where(and(inArray(productTranslations.productId, productIds), eq(productTranslations.locale, locale)))
+          : Promise.resolve([]),
+        productIds.length && locale !== 'en'
+          ? db
+              .select()
+              .from(productTranslations)
+              .where(and(inArray(productTranslations.productId, productIds), eq(productTranslations.locale, 'en')))
+          : Promise.resolve([]),
+        productIds.length
+          ? db.select().from(productImages).where(inArray(productImages.productId, productIds))
+          : Promise.resolve([]),
+        catIds.length
+          ? db
+              .select()
+              .from(categoryTranslations)
+              .where(and(inArray(categoryTranslations.categoryId, catIds), eq(categoryTranslations.locale, locale)))
+          : Promise.resolve([]),
+        catIds.length && locale !== 'en'
+          ? db
+              .select()
+              .from(categoryTranslations)
+              .where(and(inArray(categoryTranslations.categoryId, catIds), eq(categoryTranslations.locale, 'en')))
+          : Promise.resolve([]),
+      ]),
+    );
+  } catch (e) {
+    console.error('products list: translations/images unavailable; using fallbacks:', e);
+  }
 
   const prodTransMap = new Map(prodTrans.map((t) => [t.productId, t]));
   const prodTransEnMap = new Map(prodTransEn.map((t) => [t.productId, t]));

@@ -47,6 +47,15 @@ const nextConfig = {
       dynamic: 30,
       static: 180,
     },
+    // Local builds run far from the eu-west-1 database over a lossy long-haul
+    // link; the default export parallelism (one worker per core × 8 pages)
+    // opens dozens of simultaneous DB connections and the TLS handshakes
+    // start timing out. Throttling static generation locally keeps each
+    // page's queries near-serial and lets withDbRetry absorb the blips.
+    // Vercel builds in dub1 next to the DB, so they keep full parallelism.
+    ...(process.env.VERCEL
+      ? {}
+      : { cpus: 2, staticGenerationMaxConcurrency: 2, staticGenerationRetryCount: 3 }),
   },
   async redirects() {
     return [

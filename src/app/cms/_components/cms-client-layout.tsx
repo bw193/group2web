@@ -5,7 +5,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import {
   LayoutDashboard, Image, Package, FolderTree, Info, MessageSquare,
-  Users, Settings, LogOut, Menu, X, ChevronRight, KeyRound, HelpCircle, Home, Languages
+  Users, Settings, LogOut, Menu, X, ChevronRight, KeyRound, HelpCircle, Home, Languages, Newspaper
 } from 'lucide-react';
 import { useT } from '../_lib/i18n';
 import type { CmsKey } from '../_lib/translations';
@@ -41,6 +41,7 @@ const sidebarItems: SidebarItem[] = [
   // Catalog
   { href: '/cms/products', icon: Package, labelKey: 'sidebar.products', group: 'catalog' },
   { href: '/cms/categories', icon: FolderTree, labelKey: 'sidebar.categories', group: 'catalog' },
+  { href: '/cms/insight', icon: Newspaper, labelKey: 'sidebar.insight', group: 'catalog' },
 
   // Company / About — facility & certification galleries live here too
   { href: '/cms/about', icon: Info, labelKey: 'sidebar.about', group: 'company' },
@@ -126,6 +127,7 @@ export default function CMSClientLayout({ children }: { children: React.ReactNod
     faqs: 'sidebar.faqs',
     products: 'sidebar.products',
     categories: 'sidebar.categories',
+    insight: 'sidebar.insight',
     about: 'sidebar.about',
     inquiries: 'sidebar.inquiries',
     users: 'sidebar.users',

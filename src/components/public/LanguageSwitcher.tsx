@@ -42,10 +42,12 @@ export default function LanguageSwitcher() {
         onClick={() => setOpen(!open)}
         aria-haspopup="listbox"
         aria-expanded={open}
-        className="flex items-center gap-1.5 text-[13px] font-body font-semibold tracking-[0.12em] uppercase text-ink-mid hover:text-ink transition-colors"
+        className="flex items-center gap-1.5 whitespace-nowrap text-[13px] font-body font-semibold tracking-[0.12em] uppercase text-ink-mid hover:text-ink transition-colors"
       >
         <span>{(locale as string).toUpperCase()}</span>
-        <span className="text-ink-mid font-normal normal-case tracking-normal hidden xl:inline-block">
+        {/* Long language name only at 2xl — at xl it competes with the five
+            nav items in long-label locales (FR/DE) and used to wrap. */}
+        <span className="text-ink-mid font-normal normal-case tracking-normal whitespace-nowrap hidden 2xl:inline-block">
           — {currentLabel}
         </span>
         <ChevronDown

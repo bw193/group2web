@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next';
-import { getDb } from '@/lib/db';
-import { productTranslations, products } from '@/lib/db/schema';
+import { getDb, withDbRetry } from '@/lib/db';
+import { productTranslations, products, articleTranslations, articles } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { locales, defaultLocale } from '@/i18n/config';
 import {
@@ -14,7 +14,7 @@ const STATIC_LAST_MODIFIED = new Date('2026-05-20T00:00:00Z');
 
 // Static routes shared across every locale, expressed as the path segment
 // AFTER the (optional) locale prefix. Use '' for the locale's homepage.
-const STATIC_ROUTES = ['', '/about', '/contact', '/products'] as const;
+const STATIC_ROUTES = ['', '/about', '/contact', '/products', '/insight'] as const;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const entries: MetadataRoute.Sitemap = [];
@@ -39,16 +39,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // the static entries only.
   try {
     const db = getDb();
-    const rows = await db
-      .select({
-        locale: productTranslations.locale,
-        slug: productTranslations.slug,
-        productId: productTranslations.productId,
-        updatedAt: products.updatedAt,
-        isActive: products.isActive,
-      })
-      .from(productTranslations)
-      .innerJoin(products, eq(products.id, productTranslations.productId));
+    const rows = await withDbRetry(() =>
+      db
+        .select({
+          locale: productTranslations.locale,
+          slug: productTranslations.slug,
+          productId: productTranslations.productId,
+          updatedAt: products.updatedAt,
+          isActive: products.isActive,
+        })
+        .from(productTranslations)
+        .innerJoin(products, eq(products.id, productTranslations.productId)),
+    );
 
     // Group translations by productId so each product yields one sitemap entry
     // (with hreflang alternates pointing at the per-locale slugs).
@@ -98,6 +100,67 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   } catch {
     // DB unavailable — return what we have. The static routes are still useful.
+  }
+
+  // Dynamic Insight article pages — the same per-locale-slug grouping as
+  // products, keyed on article id.
+  try {
+    const db = getDb();
+    const rows = await withDbRetry(() =>
+      db
+        .select({
+          locale: articleTranslations.locale,
+          slug: articleTranslations.slug,
+          articleId: articleTranslations.articleId,
+          updatedAt: articles.updatedAt,
+          isActive: articles.isActive,
+        })
+        .from(articleTranslations)
+        .innerJoin(articles, eq(articles.id, articleTranslations.articleId)),
+    );
+
+    const byArticle = new Map<
+      number,
+      { updatedAt: string; isActive: boolean; slugs: Record<string, string> }
+    >();
+    for (const r of rows) {
+      const existing = byArticle.get(r.articleId) ?? {
+        updatedAt: r.updatedAt,
+        isActive: r.isActive,
+        slugs: {} as Record<string, string>,
+      };
+      existing.slugs[r.locale] = r.slug;
+      byArticle.set(r.articleId, existing);
+    }
+
+    for (const [, { updatedAt, isActive, slugs }] of byArticle) {
+      if (!isActive) continue;
+
+      const languages: Record<string, string> = {};
+      for (const loc of locales) {
+        const slug = slugs[loc];
+        if (slug) languages[loc] = localizedUrl(loc, `/insight/${slug}`);
+      }
+      const defaultSlug = slugs[defaultLocale];
+      if (defaultSlug) {
+        languages['x-default'] = localizedUrl(defaultLocale, `/insight/${defaultSlug}`);
+      }
+
+      for (const loc of locales) {
+        const slug = slugs[loc];
+        if (!slug) continue;
+        const lastModified = updatedAt ? new Date(updatedAt) : STATIC_LAST_MODIFIED;
+        entries.push({
+          url: localizedUrl(loc, `/insight/${slug}`),
+          lastModified: Number.isNaN(lastModified.getTime()) ? STATIC_LAST_MODIFIED : lastModified,
+          changeFrequency: 'monthly',
+          priority: 0.7,
+          alternates: { languages },
+        });
+      }
+    }
+  } catch {
+    // DB unavailable — article entries simply omitted.
   }
 
   return entries;

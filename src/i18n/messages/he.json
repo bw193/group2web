@@ -1,5 +1,6 @@
 {
   "nav": {
+    "insight": "Insight",
     "home": "בית",
     "products": "מוצרים",
     "about": "אודות",
@@ -151,7 +152,22 @@
     "backToProducts": "חזרה למוצרים",
     "loading": "טוען..."
   },
+  "insight": {
+    "kicker": "היומן של Chengtai",
+    "heroTitle": "רשימות שטח ממפעל המראות",
+    "latest": "הסיפור האחרון",
+    "all": "כל הסיפורים",
+    "count": "{count, plural, one {סיפור אחד} other {# סיפורים}}",
+    "readTime": "{minutes} דקות קריאה",
+    "readStory": "לקריאת הסיפור",
+    "back": "כל הסיפורים",
+    "continueReading": "המשך קריאה",
+    "featuredProducts": "מוצרים מהסיפור הזה",
+    "viewAllProducts": "לכל המוצרים",
+    "empty": "סיפורים חדשים בדרך."
+  },
   "breadcrumb": {
+    "insight": "Insight",
     "home": "בית",
     "products": "מוצרים",
     "about": "אודות",

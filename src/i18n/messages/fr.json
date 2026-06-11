@@ -1,5 +1,6 @@
 {
   "nav": {
+    "insight": "Insight",
     "home": "Accueil",
     "products": "Produits",
     "about": "À Propos",
@@ -151,7 +152,22 @@
     "backToProducts": "Retour aux Produits",
     "loading": "Chargement..."
   },
+  "insight": {
+    "kicker": "Le journal de Chengtai",
+    "heroTitle": "Notes de terrain depuis la fabrique de miroirs",
+    "latest": "Dernière histoire",
+    "all": "Toutes les histoires",
+    "count": "{count, plural, one {# histoire} other {# histoires}}",
+    "readTime": "{minutes} min de lecture",
+    "readStory": "Lire l'histoire",
+    "back": "Toutes les histoires",
+    "continueReading": "Poursuivre la lecture",
+    "featuredProducts": "Produits de cette histoire",
+    "viewAllProducts": "Voir tous les produits",
+    "empty": "De nouvelles histoires arrivent bientôt."
+  },
   "breadcrumb": {
+    "insight": "Insight",
     "home": "Accueil",
     "products": "Produits",
     "about": "À Propos",
