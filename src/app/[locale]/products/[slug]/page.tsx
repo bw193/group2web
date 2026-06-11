@@ -245,9 +245,6 @@ export default async function ProductDetailPage({
   }[] = [];
 
   if (product.categoryId) {
-    // Related products are a nicety — degrade to none on a transient failure
-    // rather than failing the whole page.
-    try {
     const relatedProducts = await withDbRetry(() =>
       db
         .select()
@@ -304,9 +301,6 @@ export default async function ProductDetailPage({
           isFeatured: p.isFeatured,
         };
       });
-    }
-    } catch (e) {
-      console.error('product related-products unavailable; rendering without them:', e);
     }
   }
 

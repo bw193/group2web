@@ -59,44 +59,37 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
   const breadcrumbT = await getTranslations('breadcrumb');
   const db = getDb();
 
-  // The category dropdown is a nicety on this page — retry transient DB
-  // failures, but never let them take the contact page (or its build) down.
-  let categories: { id: number; name: string }[] = [];
-  try {
-    categories = await withDbRetry(async () => {
-      const allCats = await db
-        .select()
-        .from(productCategories)
-        .where(eq(productCategories.isActive, true))
-        .orderBy(productCategories.displayOrder);
+  const categories = await withDbRetry(async () => {
+    const allCats = await db
+      .select()
+      .from(productCategories)
+      .where(eq(productCategories.isActive, true))
+      .orderBy(productCategories.displayOrder);
 
-      const catIds = allCats.map((c) => c.id);
-      const [catTrans, catTransEn] = catIds.length
-        ? await Promise.all([
-            db
-              .select()
-              .from(categoryTranslations)
-              .where(and(inArray(categoryTranslations.categoryId, catIds), eq(categoryTranslations.locale, locale))),
-            locale !== 'en'
-              ? db
-                  .select()
-                  .from(categoryTranslations)
-                  .where(and(inArray(categoryTranslations.categoryId, catIds), eq(categoryTranslations.locale, 'en')))
-              : Promise.resolve([]),
-          ])
-        : [[], []];
+    const catIds = allCats.map((c) => c.id);
+    const [catTrans, catTransEn] = catIds.length
+      ? await Promise.all([
+          db
+            .select()
+            .from(categoryTranslations)
+            .where(and(inArray(categoryTranslations.categoryId, catIds), eq(categoryTranslations.locale, locale))),
+          locale !== 'en'
+            ? db
+                .select()
+                .from(categoryTranslations)
+                .where(and(inArray(categoryTranslations.categoryId, catIds), eq(categoryTranslations.locale, 'en')))
+            : Promise.resolve([]),
+        ])
+      : [[], []];
 
-      const transMap = new Map(catTrans.map((t) => [t.categoryId, t]));
-      const transEnMap = new Map(catTransEn.map((t) => [t.categoryId, t]));
+    const transMap = new Map(catTrans.map((t) => [t.categoryId, t]));
+    const transEnMap = new Map(catTransEn.map((t) => [t.categoryId, t]));
 
-      return allCats.map((cat) => ({
-        id: cat.id,
-        name: transMap.get(cat.id)?.name || transEnMap.get(cat.id)?.name || `Category ${cat.id}`,
-      }));
-    });
-  } catch (e) {
-    console.error('contact categories unavailable; rendering form without them:', e);
-  }
+    return allCats.map((cat) => ({
+      id: cat.id,
+      name: transMap.get(cat.id)?.name || transEnMap.get(cat.id)?.name || `Category ${cat.id}`,
+    }));
+  });
 
   const contactJsonLd = {
     '@context': 'https://schema.org',

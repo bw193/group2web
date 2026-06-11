@@ -47,14 +47,15 @@ const nextConfig = {
       dynamic: 30,
       static: 180,
     },
-    // Vercel Preview builds have been created in sfo1 while the Supabase
-    // pooler is in eu-west-1. Full static-generation parallelism opens many
-    // long-haul DB reads at once and trips withDbRetry's 8s timeout. Keep build
-    // prerendering narrow in every environment; runtime still uses dub1 via
-    // preferredRegion in the locale layout.
-    cpus: 2,
-    staticGenerationMaxConcurrency: 2,
-    staticGenerationRetryCount: 3,
+    // LOCAL builds only: this dev machine reaches the eu-west-1 pooler over a
+    // lossy long-haul link, and full static-generation parallelism opens more
+    // simultaneous connections than that link can establish. Vercel builds
+    // keep Next's default parallelism — main has always built there at full
+    // speed, and the build-phase withDbRetry budget (2×25s) absorbs the
+    // pooler's connection-setup queue the same way main's unbounded waits do.
+    ...(process.env.VERCEL
+      ? {}
+      : { cpus: 2, staticGenerationMaxConcurrency: 2, staticGenerationRetryCount: 3 }),
   },
   async redirects() {
     return [

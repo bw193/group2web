@@ -44,46 +44,41 @@ async function categoriesTableExists(db: ReturnType<typeof getDb>): Promise<bool
 
 /**
  * CMS-managed categories for a locale, in editor order, with the usual
- * English fallback per name (then the title-cased key). Returns [] when the
- * tables don't exist yet or the DB is briefly unavailable — pages then render
- * without category tabs and label rows by their raw key.
+ * English fallback per name (then the title-cased key). Returns [] only for
+ * the legitimate empty cases (tables not yet migrated, no rows); a DB failure
+ * throws so the caller fails loudly instead of silently dropping the tabs.
  */
 export async function getArticleCategories(locale: string): Promise<ArticleCategory[]> {
-  try {
-    return await withDbRetry(async () => {
-      const db = getDb();
-      if (!(await categoriesTableExists(db))) return [];
-      const cats = await db
-        .select()
-        .from(articleCategories)
-        .orderBy(articleCategories.displayOrder, articleCategories.id);
-      if (cats.length === 0) return [];
+  return withDbRetry(async () => {
+    const db = getDb();
+    if (!(await categoriesTableExists(db))) return [];
+    const cats = await db
+      .select()
+      .from(articleCategories)
+      .orderBy(articleCategories.displayOrder, articleCategories.id);
+    if (cats.length === 0) return [];
 
-      const ids = cats.map((c) => c.id);
-      const trans = await db
-        .select()
-        .from(articleCategoryTranslations)
-        .where(inArray(articleCategoryTranslations.categoryId, ids));
+    const ids = cats.map((c) => c.id);
+    const trans = await db
+      .select()
+      .from(articleCategoryTranslations)
+      .where(inArray(articleCategoryTranslations.categoryId, ids));
 
-      const byCat = new Map<number, Map<string, string>>();
-      for (const t of trans) {
-        const m = byCat.get(t.categoryId) ?? new Map<string, string>();
-        m.set(t.locale, t.name);
-        byCat.set(t.categoryId, m);
-      }
+    const byCat = new Map<number, Map<string, string>>();
+    for (const t of trans) {
+      const m = byCat.get(t.categoryId) ?? new Map<string, string>();
+      m.set(t.locale, t.name);
+      byCat.set(t.categoryId, m);
+    }
 
-      return cats.map((c) => {
-        const names = byCat.get(c.id);
-        return {
-          key: c.key,
-          name: names?.get(locale) || names?.get('en') || categoryFallbackLabel(c.key),
-        };
-      });
+    return cats.map((c) => {
+      const names = byCat.get(c.id);
+      return {
+        key: c.key,
+        name: names?.get(locale) || names?.get('en') || categoryFallbackLabel(c.key),
+      };
     });
-  } catch (e) {
-    console.error('getArticleCategories failed; returning none:', e);
-    return [];
-  }
+  });
 }
 
 export interface ArticleListItem {
@@ -102,14 +97,12 @@ export interface ArticleListItem {
 /**
  * Active articles for a locale, newest first. Batch-loads the locale's
  * translations plus an English fallback in parallel (the products-list
- * recipe); articles with no translation in either are dropped. Returns []
- * instead of throwing so a DB hiccup degrades to an empty journal, matching
- * the sitemap / generateStaticParams fallbacks.
+ * recipe); articles with no translation in either are dropped. A DB failure
+ * throws — pages fail loudly and ISR keeps serving the last good render.
  */
 export async function getArticleList(locale: string): Promise<ArticleListItem[]> {
-  try {
-    return await withDbRetry(async () => {
-      const db = getDb();
+  return withDbRetry(async () => {
+    const db = getDb();
       const base = await db
         .select()
         .from(articles)
@@ -152,11 +145,7 @@ export async function getArticleList(locale: string): Promise<ArticleListItem[]>
           },
         ];
       });
-    });
-  } catch (e) {
-    console.error('getArticleList failed; rendering empty journal:', e);
-    return [];
-  }
+  });
 }
 
 export interface ArticleRelatedProduct {
@@ -178,8 +167,7 @@ export async function getArticleProducts(
   articleId: number,
   locale: string,
 ): Promise<ArticleRelatedProduct[]> {
-  try {
-    return await withDbRetry(async () => {
+  return withDbRetry(async () => {
       const db = getDb();
       const links = await db
         .select()
@@ -229,11 +217,7 @@ export async function getArticleProducts(
           },
         ];
       });
-    });
-  } catch (e) {
-    console.error('getArticleProducts failed; returning none:', e);
-    return [];
-  }
+  });
 }
 
 /** Locale-aware "12 May 2026" style label for an article's publish date. */

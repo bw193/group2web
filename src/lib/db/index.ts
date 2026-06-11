@@ -30,24 +30,21 @@ const client =
     prepare: false, // required for Supabase transaction pooler (port 6543)
     // Supabase's transaction pooler already multiplexes across all
     // clients, so each serverless instance only needs a small local
-    // pool. 3 is plenty at runtime and keeps us well under the pooler's
-    // limit when many function instances spin up concurrently. LOCAL builds
-    // get a wider pool: withDbRetry's timeout cannot cancel an in-flight
-    // query, so on a slow link a stalled query parks a connection — with
-    // only 3, the retries then queue behind the stall and time out in a
-    // pile-up. Static generation is throttled in next.config.ts, so the build
-    // can use a wider local pool without multiplying into too many concurrent
-    // Supabase pooler clients.
-    max: isBuildPhase ? 10 : 3,
-    // Runtime: recycle idle sockets briskly. A connection that sits idle
-    // between CMS clicks gets silently dropped by NAT/proxy boxes on the
-    // long-haul link; reusing it surfaces as `write CONNECTION_CLOSED` only
-    // after a ~2min OS TCP timeout. A short idle window (10s Vercel / 20s
-    // local, matching main's historical 20s) keeps the dead-reuse window
-    // small, and withDbRetry turns any residual stale-socket hit into an ~8s
-    // retry instead of a minutes-long hang. Build: hold sockets for the run —
-    // constant traffic keeps them honest.
-    idle_timeout: isBuildPhase ? undefined : process.env.VERCEL ? 10 : 20,
+    // pool. 3 is plenty and keeps us well under the pooler's limit
+    // when many function instances spin up concurrently (same as main).
+    // Exception — builds on THIS dev machine: withDbRetry's timeout cannot
+    // cancel an in-flight query, so on the lossy long-haul link a stalled
+    // query parks a connection and, with only 3, retries pile up behind it
+    // (verified: local builds fail at 3, pass at 10). Vercel builds keep 3.
+    max: isBuildPhase && !process.env.VERCEL ? 10 : 3,
+    // Runtime: recycle idle sockets after 20s (main's historical value). A
+    // connection that sits idle between CMS clicks gets silently dropped by
+    // NAT/proxy boxes on the long-haul dev link; reusing it surfaces as
+    // `write CONNECTION_CLOSED` only after a ~2min OS TCP timeout, so a short
+    // idle window keeps the dead-reuse risk small and withDbRetry turns any
+    // residual hit into an ~8s retry. Build: hold sockets for the whole run —
+    // constant traffic keeps them honest and skips needless re-handshakes.
+    idle_timeout: isBuildPhase ? undefined : 20,
     max_lifetime: 60 * 30,
     connect_timeout: 10,
   });

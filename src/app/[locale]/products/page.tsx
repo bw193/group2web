@@ -65,36 +65,22 @@ export default async function ProductsPage({ params }: { params: Promise<{ local
   const breadcrumbT = await getTranslations('breadcrumb');
   const db = getDb();
 
-  // Degrade-don't-die: a transient DB failure renders an empty catalog page
-  // (refreshed by ISR) instead of failing the request or the build.
-  let allProducts: (typeof products.$inferSelect)[] = [];
-  let allCats: (typeof productCategories.$inferSelect)[] = [];
-  try {
-    [allProducts, allCats] = await withDbRetry(() =>
-      Promise.all([
-        db.select().from(products).where(eq(products.isActive, true)).orderBy(desc(products.createdAt)),
-        db
-          .select()
-          .from(productCategories)
-          .where(eq(productCategories.isActive, true))
-          .orderBy(productCategories.displayOrder),
-      ]),
-    );
-  } catch (e) {
-    console.error('products list: catalog unavailable; rendering empty grid:', e);
-  }
+  const [allProducts, allCats] = await withDbRetry(() =>
+    Promise.all([
+      db.select().from(products).where(eq(products.isActive, true)).orderBy(desc(products.createdAt)),
+      db
+        .select()
+        .from(productCategories)
+        .where(eq(productCategories.isActive, true))
+        .orderBy(productCategories.displayOrder),
+    ]),
+  );
 
   const productIds = allProducts.map((p) => p.id);
   const catIds = allCats.map((c) => c.id);
 
-  let prodTrans: (typeof productTranslations.$inferSelect)[] = [];
-  let prodTransEn: (typeof productTranslations.$inferSelect)[] = [];
-  let prodImgs: (typeof productImages.$inferSelect)[] = [];
-  let catTrans: (typeof categoryTranslations.$inferSelect)[] = [];
-  let catTransEn: (typeof categoryTranslations.$inferSelect)[] = [];
-  try {
-    [prodTrans, prodTransEn, prodImgs, catTrans, catTransEn] = await withDbRetry(() =>
-      Promise.all([
+  const [prodTrans, prodTransEn, prodImgs, catTrans, catTransEn] = await withDbRetry(() =>
+    Promise.all([
         productIds.length
           ? db
               .select()
@@ -122,11 +108,8 @@ export default async function ProductsPage({ params }: { params: Promise<{ local
               .from(categoryTranslations)
               .where(and(inArray(categoryTranslations.categoryId, catIds), eq(categoryTranslations.locale, 'en')))
           : Promise.resolve([]),
-      ]),
-    );
-  } catch (e) {
-    console.error('products list: translations/images unavailable; using fallbacks:', e);
-  }
+    ]),
+  );
 
   const prodTransMap = new Map(prodTrans.map((t) => [t.productId, t]));
   const prodTransEnMap = new Map(prodTransEn.map((t) => [t.productId, t]));
