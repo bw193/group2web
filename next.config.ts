@@ -47,15 +47,16 @@ const nextConfig = {
       dynamic: 30,
       static: 180,
     },
-    // LOCAL builds only: this dev machine reaches the eu-west-1 pooler over a
-    // lossy long-haul link, and full static-generation parallelism opens more
-    // simultaneous connections than that link can establish. Vercel builds
-    // keep Next's default parallelism — main has always built there at full
-    // speed, and the build-phase withDbRetry budget (2×25s) absorbs the
-    // pooler's connection-setup queue the same way main's unbounded waits do.
-    ...(process.env.VERCEL
-      ? {}
-      : { cpus: 2, staticGenerationMaxConcurrency: 2, staticGenerationRetryCount: 3 }),
+    // Throttle static generation in EVERY build environment. Empirically
+    // settled by A/B on Vercel previews: with this throttle the build passed
+    // twice (04d2b4c, 984a603); removing it for Vercel failed immediately
+    // (b93b9f9). Full parallelism queues so many simultaneous pooler
+    // connection setups that pages exceed even the 2×25s withDbRetry budget;
+    // main survives only because it waits unboundedly. Cost: ~3min slower
+    // Vercel builds. Runtime is unaffected (functions run in dub1).
+    cpus: 2,
+    staticGenerationMaxConcurrency: 2,
+    staticGenerationRetryCount: 3,
   },
   async redirects() {
     return [

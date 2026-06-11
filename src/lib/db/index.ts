@@ -32,11 +32,12 @@ const client =
     // clients, so each serverless instance only needs a small local
     // pool. 3 is plenty and keeps us well under the pooler's limit
     // when many function instances spin up concurrently (same as main).
-    // Exception — builds on THIS dev machine: withDbRetry's timeout cannot
-    // cancel an in-flight query, so on the lossy long-haul link a stalled
-    // query parks a connection and, with only 3, retries pile up behind it
-    // (verified: local builds fail at 3, pass at 10). Vercel builds keep 3.
-    max: isBuildPhase && !process.env.VERCEL ? 10 : 3,
+    // Exception — all builds get a wider pool: withDbRetry's timeout cannot
+    // cancel an in-flight query, so a stalled connection setup parks a slot
+    // and, with only 3, retries pile up behind it. Verified on both sides:
+    // local builds fail at 3 / pass at 10, and the two green Vercel previews
+    // (04d2b4c, 984a603) ran with 10 while the pool-3 attempt failed.
+    max: isBuildPhase ? 10 : 3,
     // Runtime: recycle idle sockets after 20s (main's historical value). A
     // connection that sits idle between CMS clicks gets silently dropped by
     // NAT/proxy boxes on the long-haul dev link; reusing it surfaces as
