@@ -123,9 +123,17 @@ export async function generateMetadata({
 export async function generateStaticParams() {
   try {
     const db = getDb();
+    // Prerender only the default-locale slugs. Other locales render on
+    // demand via ISR: first request to /<loc>/products/<slug> cold-renders
+    // and caches for `revalidate` seconds; subsequent requests serve from
+    // the cache. 483 prerender targets across 7 locales was the build
+    // burst that starved /[locale]/insight and /[locale]/contact at the
+    // Supavisor pooler; restricting to en cuts that ~5x while keeping
+    // every URL reachable.
     const rows = await db
       .select({ locale: productTranslations.locale, slug: productTranslations.slug })
-      .from(productTranslations);
+      .from(productTranslations)
+      .where(eq(productTranslations.locale, defaultLocale));
     return rows.map((r) => ({ locale: r.locale, slug: r.slug }));
   } catch {
     return [];
