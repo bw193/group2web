@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
 import { notFound, permanentRedirect } from 'next/navigation';
-import { getDb, withDbRetry } from '@/lib/db';
+import { getDb } from '@/lib/db';
 import { products, productTranslations, productSpecifications, productImages } from '@/lib/db/schema';
 import { eq, and, ne, inArray } from 'drizzle-orm';
 import { getUploadUrl } from '@/lib/utils';
@@ -33,20 +33,18 @@ export async function generateMetadata({
 
   try {
     const db = getDb();
-    const joined = await withDbRetry(() =>
-      db
-        .select({ product: products, trans: productTranslations })
-        .from(productTranslations)
-        .innerJoin(products, eq(products.id, productTranslations.productId))
-        .where(
-          and(
-            eq(productTranslations.slug, slug),
-            eq(productTranslations.locale, locale),
-            eq(products.isActive, true),
-          ),
-        )
-        .limit(1),
-    );
+    const joined = await db
+      .select({ product: products, trans: productTranslations })
+      .from(productTranslations)
+      .innerJoin(products, eq(products.id, productTranslations.productId))
+      .where(
+        and(
+          eq(productTranslations.slug, slug),
+          eq(productTranslations.locale, locale),
+          eq(products.isActive, true),
+        ),
+      )
+      .limit(1);
 
     const row = joined[0];
     if (!row) {
@@ -55,12 +53,10 @@ export async function generateMetadata({
     }
 
     // Per-locale slugs for hreflang on this specific product.
-    const allTrans = await withDbRetry(() =>
-      db
-        .select({ locale: productTranslations.locale, slug: productTranslations.slug })
-        .from(productTranslations)
-        .where(eq(productTranslations.productId, row.product.id)),
-    );
+    const allTrans = await db
+      .select({ locale: productTranslations.locale, slug: productTranslations.slug })
+      .from(productTranslations)
+      .where(eq(productTranslations.productId, row.product.id));
 
     const languages: Record<string, string> = {};
     for (const t of allTrans) {
@@ -73,14 +69,12 @@ export async function generateMetadata({
       languages['x-default'] = localizedUrl(defaultLocale, `/products/${defaultRow.slug}`);
     }
 
-    const primaryImg = await withDbRetry(() =>
-      db
-        .select({ imageUrl: productImages.imageUrl })
-        .from(productImages)
-        .where(eq(productImages.productId, row.product.id))
-        .orderBy(productImages.displayOrder)
-        .limit(1),
-    );
+    const primaryImg = await db
+      .select({ imageUrl: productImages.imageUrl })
+      .from(productImages)
+      .where(eq(productImages.productId, row.product.id))
+      .orderBy(productImages.displayOrder)
+      .limit(1);
 
     const ogImage = primaryImg[0]?.imageUrl
       ? getUploadUrl(primaryImg[0].imageUrl)
@@ -129,11 +123,9 @@ export async function generateMetadata({
 export async function generateStaticParams() {
   try {
     const db = getDb();
-    const rows = await withDbRetry(() =>
-      db
-        .select({ locale: productTranslations.locale, slug: productTranslations.slug })
-        .from(productTranslations),
-    );
+    const rows = await db
+      .select({ locale: productTranslations.locale, slug: productTranslations.slug })
+      .from(productTranslations);
     return rows.map((r) => ({ locale: r.locale, slug: r.slug }));
   } catch {
     return [];
@@ -151,20 +143,18 @@ export default async function ProductDetailPage({
   const breadcrumbT = await getTranslations('breadcrumb');
   const db = getDb();
 
-  const joined = await withDbRetry(() =>
-    db
-      .select({ product: products, trans: productTranslations })
-      .from(productTranslations)
-      .innerJoin(products, eq(products.id, productTranslations.productId))
-      .where(
-        and(
-          eq(productTranslations.slug, slug),
-          eq(productTranslations.locale, locale),
-          eq(products.isActive, true),
-        ),
-      )
-      .limit(1),
-  );
+  const joined = await db
+    .select({ product: products, trans: productTranslations })
+    .from(productTranslations)
+    .innerJoin(products, eq(products.id, productTranslations.productId))
+    .where(
+      and(
+        eq(productTranslations.slug, slug),
+        eq(productTranslations.locale, locale),
+        eq(products.isActive, true),
+      ),
+    )
+    .limit(1);
 
   let product = joined[0]?.product;
   let translation = joined[0]?.trans;
@@ -174,29 +164,25 @@ export default async function ProductDetailPage({
     // in *any* locale, then redirect to its translation in the requested
     // locale if one exists. This preserves URL ↔ language consistency
     // (no English content under /fr/, etc.) and avoids duplicate content.
-    const any = await withDbRetry(() =>
-      db
-        .select({ product: products, trans: productTranslations })
-        .from(productTranslations)
-        .innerJoin(products, eq(products.id, productTranslations.productId))
-        .where(and(eq(productTranslations.slug, slug), eq(products.isActive, true)))
-        .limit(1),
-    );
+    const any = await db
+      .select({ product: products, trans: productTranslations })
+      .from(productTranslations)
+      .innerJoin(products, eq(products.id, productTranslations.productId))
+      .where(and(eq(productTranslations.slug, slug), eq(products.isActive, true)))
+      .limit(1);
     const target = any[0];
     if (!target) notFound();
 
-    const localizedSlugRow = await withDbRetry(() =>
-      db
-        .select({ slug: productTranslations.slug })
-        .from(productTranslations)
-        .where(
-          and(
-            eq(productTranslations.productId, target.product.id),
-            eq(productTranslations.locale, locale),
-          ),
-        )
-        .limit(1),
-    );
+    const localizedSlugRow = await db
+      .select({ slug: productTranslations.slug })
+      .from(productTranslations)
+      .where(
+        and(
+          eq(productTranslations.productId, target.product.id),
+          eq(productTranslations.locale, locale),
+        ),
+      )
+      .limit(1);
 
     if (localizedSlugRow[0]?.slug && localizedSlugRow[0].slug !== slug) {
       permanentRedirect(localizedPath(locale, `/products/${localizedSlugRow[0].slug}`));
@@ -209,27 +195,25 @@ export default async function ProductDetailPage({
   }
   if (!product || !translation) notFound();
 
-  const [specs, images, localeTrans] = await withDbRetry(() =>
-    Promise.all([
-      db
-        .select()
-        .from(productSpecifications)
-        .where(and(eq(productSpecifications.productId, product.id), eq(productSpecifications.locale, locale))),
-      db
-        .select()
-        .from(productImages)
-        .where(eq(productImages.productId, product.id))
-        .orderBy(productImages.displayOrder),
-      translation.locale === locale
-        ? Promise.resolve(null)
-        : db
-            .select()
-            .from(productTranslations)
-            .where(and(eq(productTranslations.productId, product.id), eq(productTranslations.locale, locale)))
-            .limit(1)
-            .then((r) => r[0] ?? null),
-    ]),
-  );
+  const [specs, images, localeTrans] = await Promise.all([
+    db
+      .select()
+      .from(productSpecifications)
+      .where(and(eq(productSpecifications.productId, product.id), eq(productSpecifications.locale, locale))),
+    db
+      .select()
+      .from(productImages)
+      .where(eq(productImages.productId, product.id))
+      .orderBy(productImages.displayOrder),
+    translation.locale === locale
+      ? Promise.resolve(null)
+      : db
+          .select()
+          .from(productTranslations)
+          .where(and(eq(productTranslations.productId, product.id), eq(productTranslations.locale, locale)))
+          .limit(1)
+          .then((r) => r[0] ?? null),
+  ]);
 
   if (localeTrans) translation = localeTrans;
   const trans = translation;
@@ -245,38 +229,34 @@ export default async function ProductDetailPage({
   }[] = [];
 
   if (product.categoryId) {
-    const relatedProducts = await withDbRetry(() =>
-      db
-        .select()
-        .from(products)
-        .where(
-          and(
-            eq(products.categoryId, product.categoryId!),
-            ne(products.id, product.id),
-            eq(products.isActive, true),
-          ),
-        )
-        .limit(3),
-    );
+    const relatedProducts = await db
+      .select()
+      .from(products)
+      .where(
+        and(
+          eq(products.categoryId, product.categoryId),
+          ne(products.id, product.id),
+          eq(products.isActive, true),
+        ),
+      )
+      .limit(3);
 
     const relatedIds = relatedProducts.map((p) => p.id);
 
     if (relatedIds.length) {
-      const [relTrans, relTransEn, relImages] = await withDbRetry(() =>
-        Promise.all([
-          db
-            .select()
-            .from(productTranslations)
-            .where(and(inArray(productTranslations.productId, relatedIds), eq(productTranslations.locale, locale))),
-          locale !== 'en'
-            ? db
-                .select()
-                .from(productTranslations)
-                .where(and(inArray(productTranslations.productId, relatedIds), eq(productTranslations.locale, 'en')))
-            : Promise.resolve([]),
-          db.select().from(productImages).where(inArray(productImages.productId, relatedIds)),
-        ]),
-      );
+      const [relTrans, relTransEn, relImages] = await Promise.all([
+        db
+          .select()
+          .from(productTranslations)
+          .where(and(inArray(productTranslations.productId, relatedIds), eq(productTranslations.locale, locale))),
+        locale !== 'en'
+          ? db
+              .select()
+              .from(productTranslations)
+              .where(and(inArray(productTranslations.productId, relatedIds), eq(productTranslations.locale, 'en')))
+          : Promise.resolve([]),
+        db.select().from(productImages).where(inArray(productImages.productId, relatedIds)),
+      ]);
 
       const relTransMap = new Map(relTrans.map((t) => [t.productId, t]));
       const relTransEnMap = new Map(relTransEn.map((t) => [t.productId, t]));

@@ -1,5 +1,5 @@
 import 'server-only';
-import { getDb, withDbRetry } from '@/lib/db';
+import { getDb } from '@/lib/db';
 import {
   articles,
   articleTranslations,
@@ -49,35 +49,34 @@ async function categoriesTableExists(db: ReturnType<typeof getDb>): Promise<bool
  * throws so the caller fails loudly instead of silently dropping the tabs.
  */
 export async function getArticleCategories(locale: string): Promise<ArticleCategory[]> {
-  return withDbRetry(async () => {
-    const db = getDb();
-    if (!(await categoriesTableExists(db))) return [];
-    const cats = await db
-      .select()
-      .from(articleCategories)
-      .orderBy(articleCategories.displayOrder, articleCategories.id);
-    if (cats.length === 0) return [];
+  const db = getDb();
+  if (!(await categoriesTableExists(db))) return [];
 
-    const ids = cats.map((c) => c.id);
-    const trans = await db
-      .select()
-      .from(articleCategoryTranslations)
-      .where(inArray(articleCategoryTranslations.categoryId, ids));
+  const cats = await db
+    .select()
+    .from(articleCategories)
+    .orderBy(articleCategories.displayOrder, articleCategories.id);
+  if (cats.length === 0) return [];
 
-    const byCat = new Map<number, Map<string, string>>();
-    for (const t of trans) {
-      const m = byCat.get(t.categoryId) ?? new Map<string, string>();
-      m.set(t.locale, t.name);
-      byCat.set(t.categoryId, m);
-    }
+  const ids = cats.map((c) => c.id);
+  const trans = await db
+    .select()
+    .from(articleCategoryTranslations)
+    .where(inArray(articleCategoryTranslations.categoryId, ids));
 
-    return cats.map((c) => {
-      const names = byCat.get(c.id);
-      return {
-        key: c.key,
-        name: names?.get(locale) || names?.get('en') || categoryFallbackLabel(c.key),
-      };
-    });
+  const byCat = new Map<number, Map<string, string>>();
+  for (const t of trans) {
+    const m = byCat.get(t.categoryId) ?? new Map<string, string>();
+    m.set(t.locale, t.name);
+    byCat.set(t.categoryId, m);
+  }
+
+  return cats.map((c) => {
+    const names = byCat.get(c.id);
+    return {
+      key: c.key,
+      name: names?.get(locale) || names?.get('en') || categoryFallbackLabel(c.key),
+    };
   });
 }
 
@@ -101,48 +100,46 @@ export interface ArticleListItem {
  * throws — pages fail loudly and ISR keeps serving the last good render.
  */
 export async function getArticleList(locale: string): Promise<ArticleListItem[]> {
-  return withDbRetry(async () => {
-    const db = getDb();
-      const base = await db
-        .select()
-        .from(articles)
-        .where(eq(articles.isActive, true))
-        .orderBy(desc(articles.publishedAt), desc(articles.id));
-      if (base.length === 0) return [];
+  const db = getDb();
+  const base = await db
+    .select()
+    .from(articles)
+    .where(eq(articles.isActive, true))
+    .orderBy(desc(articles.publishedAt), desc(articles.id));
+  if (base.length === 0) return [];
 
-      const ids = base.map((a) => a.id);
-      // One batched query covers the locale and its English fallback.
-      const allTrans = await db
-        .select()
-        .from(articleTranslations)
-        .where(
-          and(
-            inArray(articleTranslations.articleId, ids),
-            inArray(articleTranslations.locale, locale === 'en' ? ['en'] : [locale, 'en']),
-          ),
-        );
+  const ids = base.map((a) => a.id);
+  // One batched query covers the locale and its English fallback.
+  const allTrans = await db
+    .select()
+    .from(articleTranslations)
+    .where(
+      and(
+        inArray(articleTranslations.articleId, ids),
+        inArray(articleTranslations.locale, locale === 'en' ? ['en'] : [locale, 'en']),
+      ),
+    );
 
-      const transMap = new Map(allTrans.filter((t) => t.locale === locale).map((t) => [t.articleId, t]));
-      const transEnMap = new Map(allTrans.filter((t) => t.locale === 'en').map((t) => [t.articleId, t]));
+  const transMap = new Map(allTrans.filter((t) => t.locale === locale).map((t) => [t.articleId, t]));
+  const transEnMap = new Map(allTrans.filter((t) => t.locale === 'en').map((t) => [t.articleId, t]));
 
-      return base.flatMap((a): ArticleListItem[] => {
-        const t = transMap.get(a.id) || transEnMap.get(a.id);
-        if (!t) return [];
-        return [
-          {
-            id: a.id,
-            category: a.category,
-            slug: t.slug,
-            title: t.title,
-            dek: t.dek,
-            author: t.author,
-            readMinutes: a.readMinutes,
-            publishedAt: a.publishedAt,
-            coverImageUrl: a.coverImageUrl,
-            thumbnailUrl: a.thumbnailUrl,
-          },
-        ];
-      });
+  return base.flatMap((a): ArticleListItem[] => {
+    const t = transMap.get(a.id) || transEnMap.get(a.id);
+    if (!t) return [];
+    return [
+      {
+        id: a.id,
+        category: a.category,
+        slug: t.slug,
+        title: t.title,
+        dek: t.dek,
+        author: t.author,
+        readMinutes: a.readMinutes,
+        publishedAt: a.publishedAt,
+        coverImageUrl: a.coverImageUrl,
+        thumbnailUrl: a.thumbnailUrl,
+      },
+    ];
   });
 }
 
@@ -165,56 +162,54 @@ export async function getArticleProducts(
   articleId: number,
   locale: string,
 ): Promise<ArticleRelatedProduct[]> {
-  return withDbRetry(async () => {
-      const db = getDb();
-      // Three batched queries total (links⋈products join, both-locale
-      // translations, images) — article pages need only card-level product
-      // fields, never specifications or full descriptions.
-      const rows = await db
-        .select({ link: articleProducts, product: products })
-        .from(articleProducts)
-        .innerJoin(
-          products,
-          and(eq(products.id, articleProducts.productId), eq(products.isActive, true)),
-        )
-        .where(eq(articleProducts.articleId, articleId))
-        .orderBy(articleProducts.displayOrder);
-      const pids = rows.map((r) => r.product.id);
-      if (pids.length === 0) return [];
+  const db = getDb();
+  // Three batched queries total (links⋈products join, both-locale
+  // translations, images) — article pages need only card-level product
+  // fields, never specifications or full descriptions.
+  const rows = await db
+    .select({ link: articleProducts, product: products })
+    .from(articleProducts)
+    .innerJoin(
+      products,
+      and(eq(products.id, articleProducts.productId), eq(products.isActive, true)),
+    )
+    .where(eq(articleProducts.articleId, articleId))
+    .orderBy(articleProducts.displayOrder);
+  const pids = rows.map((r) => r.product.id);
+  if (pids.length === 0) return [];
 
-      const [allTrans, imgs] = await Promise.all([
-        db
-          .select()
-          .from(productTranslations)
-          .where(
-            and(
-              inArray(productTranslations.productId, pids),
-              inArray(productTranslations.locale, locale === 'en' ? ['en'] : [locale, 'en']),
-            ),
-          ),
-        db.select().from(productImages).where(inArray(productImages.productId, pids)),
-      ]);
+  const [allTrans, imgs] = await Promise.all([
+    db
+      .select()
+      .from(productTranslations)
+      .where(
+        and(
+          inArray(productTranslations.productId, pids),
+          inArray(productTranslations.locale, locale === 'en' ? ['en'] : [locale, 'en']),
+        ),
+      ),
+    db.select().from(productImages).where(inArray(productImages.productId, pids)),
+  ]);
 
-      const transMap = new Map(allTrans.filter((t) => t.locale === locale).map((t) => [t.productId, t]));
-      const transEnMap = new Map(allTrans.filter((t) => t.locale === 'en').map((t) => [t.productId, t]));
-      const imgMap = new Map<number, (typeof imgs)[number]>();
-      for (const img of imgs) {
-        const existing = imgMap.get(img.productId);
-        if (!existing || (img.isPrimary && !existing.isPrimary)) imgMap.set(img.productId, img);
-      }
+  const transMap = new Map(allTrans.filter((t) => t.locale === locale).map((t) => [t.productId, t]));
+  const transEnMap = new Map(allTrans.filter((t) => t.locale === 'en').map((t) => [t.productId, t]));
+  const imgMap = new Map<number, (typeof imgs)[number]>();
+  for (const img of imgs) {
+    const existing = imgMap.get(img.productId);
+    if (!existing || (img.isPrimary && !existing.isPrimary)) imgMap.set(img.productId, img);
+  }
 
-      return rows.map(({ product: p }): ArticleRelatedProduct => {
-        const t = transMap.get(p.id) || transEnMap.get(p.id);
-        return {
-          id: p.id,
-          name: t?.name || 'Product',
-          slug: t?.slug || `product-${p.id}`,
-          shortDescription: t?.shortDescription ?? null,
-          modelNumber: p.modelNumber,
-          imageUrl: imgMap.get(p.id)?.imageUrl ?? null,
-          isFeatured: p.isFeatured,
-        };
-      });
+  return rows.map(({ product: p }): ArticleRelatedProduct => {
+    const t = transMap.get(p.id) || transEnMap.get(p.id);
+    return {
+      id: p.id,
+      name: t?.name || 'Product',
+      slug: t?.slug || `product-${p.id}`,
+      shortDescription: t?.shortDescription ?? null,
+      modelNumber: p.modelNumber,
+      imageUrl: imgMap.get(p.id)?.imageUrl ?? null,
+      isFeatured: p.isFeatured,
+    };
   });
 }
 

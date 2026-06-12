@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
-import { getDb, withDbRetry } from '@/lib/db';
+import { getDb } from '@/lib/db';
 import {
   products,
   productTranslations,
@@ -65,51 +65,47 @@ export default async function ProductsPage({ params }: { params: Promise<{ local
   const breadcrumbT = await getTranslations('breadcrumb');
   const db = getDb();
 
-  const [allProducts, allCats] = await withDbRetry(() =>
-    Promise.all([
-      db.select().from(products).where(eq(products.isActive, true)).orderBy(desc(products.createdAt)),
-      db
-        .select()
-        .from(productCategories)
-        .where(eq(productCategories.isActive, true))
-        .orderBy(productCategories.displayOrder),
-    ]),
-  );
+  const [allProducts, allCats] = await Promise.all([
+    db.select().from(products).where(eq(products.isActive, true)).orderBy(desc(products.createdAt)),
+    db
+      .select()
+      .from(productCategories)
+      .where(eq(productCategories.isActive, true))
+      .orderBy(productCategories.displayOrder),
+  ]);
 
   const productIds = allProducts.map((p) => p.id);
   const catIds = allCats.map((c) => c.id);
 
-  const [prodTrans, prodTransEn, prodImgs, catTrans, catTransEn] = await withDbRetry(() =>
-    Promise.all([
-        productIds.length
-          ? db
-              .select()
-              .from(productTranslations)
-              .where(and(inArray(productTranslations.productId, productIds), eq(productTranslations.locale, locale)))
-          : Promise.resolve([]),
-        productIds.length && locale !== 'en'
-          ? db
-              .select()
-              .from(productTranslations)
-              .where(and(inArray(productTranslations.productId, productIds), eq(productTranslations.locale, 'en')))
-          : Promise.resolve([]),
-        productIds.length
-          ? db.select().from(productImages).where(inArray(productImages.productId, productIds))
-          : Promise.resolve([]),
-        catIds.length
-          ? db
-              .select()
-              .from(categoryTranslations)
-              .where(and(inArray(categoryTranslations.categoryId, catIds), eq(categoryTranslations.locale, locale)))
-          : Promise.resolve([]),
-        catIds.length && locale !== 'en'
-          ? db
-              .select()
-              .from(categoryTranslations)
-              .where(and(inArray(categoryTranslations.categoryId, catIds), eq(categoryTranslations.locale, 'en')))
-          : Promise.resolve([]),
-    ]),
-  );
+  const [prodTrans, prodTransEn, prodImgs, catTrans, catTransEn] = await Promise.all([
+    productIds.length
+      ? db
+          .select()
+          .from(productTranslations)
+          .where(and(inArray(productTranslations.productId, productIds), eq(productTranslations.locale, locale)))
+      : Promise.resolve([]),
+    productIds.length && locale !== 'en'
+      ? db
+          .select()
+          .from(productTranslations)
+          .where(and(inArray(productTranslations.productId, productIds), eq(productTranslations.locale, 'en')))
+      : Promise.resolve([]),
+    productIds.length
+      ? db.select().from(productImages).where(inArray(productImages.productId, productIds))
+      : Promise.resolve([]),
+    catIds.length
+      ? db
+          .select()
+          .from(categoryTranslations)
+          .where(and(inArray(categoryTranslations.categoryId, catIds), eq(categoryTranslations.locale, locale)))
+      : Promise.resolve([]),
+    catIds.length && locale !== 'en'
+      ? db
+          .select()
+          .from(categoryTranslations)
+          .where(and(inArray(categoryTranslations.categoryId, catIds), eq(categoryTranslations.locale, 'en')))
+      : Promise.resolve([]),
+  ]);
 
   const prodTransMap = new Map(prodTrans.map((t) => [t.productId, t]));
   const prodTransEnMap = new Map(prodTransEn.map((t) => [t.productId, t]));

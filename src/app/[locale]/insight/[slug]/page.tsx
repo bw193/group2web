@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
 import { notFound, permanentRedirect } from 'next/navigation';
-import { getDb, withDbRetry } from '@/lib/db';
+import { getDb } from '@/lib/db';
 import { articles, articleTranslations } from '@/lib/db/schema';
 import { and, eq } from 'drizzle-orm';
 import { ChevronRight } from 'lucide-react';
@@ -35,11 +35,9 @@ export const revalidate = 600;
 export async function generateStaticParams() {
   try {
     const db = getDb();
-    const rows = await withDbRetry(() =>
-      db
-        .select({ locale: articleTranslations.locale, slug: articleTranslations.slug })
-        .from(articleTranslations),
-    );
+    const rows = await db
+      .select({ locale: articleTranslations.locale, slug: articleTranslations.slug })
+      .from(articleTranslations);
     return rows.map((r) => ({ locale: r.locale, slug: r.slug }));
   } catch {
     return [];
@@ -55,20 +53,18 @@ export async function generateMetadata({
 
   try {
     const db = getDb();
-    const joined = await withDbRetry(() =>
-      db
-        .select({ article: articles, trans: articleTranslations })
-        .from(articleTranslations)
-        .innerJoin(articles, eq(articles.id, articleTranslations.articleId))
-        .where(
-          and(
-            eq(articleTranslations.slug, slug),
-            eq(articleTranslations.locale, locale),
-            eq(articles.isActive, true),
-          ),
-        )
-        .limit(1),
-    );
+    const joined = await db
+      .select({ article: articles, trans: articleTranslations })
+      .from(articleTranslations)
+      .innerJoin(articles, eq(articles.id, articleTranslations.articleId))
+      .where(
+        and(
+          eq(articleTranslations.slug, slug),
+          eq(articleTranslations.locale, locale),
+          eq(articles.isActive, true),
+        ),
+      )
+      .limit(1);
 
     const row = joined[0];
     if (!row) {
@@ -78,12 +74,10 @@ export async function generateMetadata({
     }
 
     // hreflang built from the translations that actually exist.
-    const allTrans = await withDbRetry(() =>
-      db
-        .select({ locale: articleTranslations.locale, slug: articleTranslations.slug })
-        .from(articleTranslations)
-        .where(eq(articleTranslations.articleId, row.article.id)),
-    );
+    const allTrans = await db
+      .select({ locale: articleTranslations.locale, slug: articleTranslations.slug })
+      .from(articleTranslations)
+      .where(eq(articleTranslations.articleId, row.article.id));
 
     const languages: Record<string, string> = {};
     for (const tr of allTrans) {
@@ -143,20 +137,18 @@ export default async function ArticlePage({
   const breadcrumbT = await getTranslations('breadcrumb');
   const db = getDb();
 
-  const joined = await withDbRetry(() =>
-    db
-      .select({ article: articles, trans: articleTranslations })
-      .from(articleTranslations)
-      .innerJoin(articles, eq(articles.id, articleTranslations.articleId))
-      .where(
-        and(
-          eq(articleTranslations.slug, slug),
-          eq(articleTranslations.locale, locale),
-          eq(articles.isActive, true),
-        ),
-      )
-      .limit(1),
-  );
+  const joined = await db
+    .select({ article: articles, trans: articleTranslations })
+    .from(articleTranslations)
+    .innerJoin(articles, eq(articles.id, articleTranslations.articleId))
+    .where(
+      and(
+        eq(articleTranslations.slug, slug),
+        eq(articleTranslations.locale, locale),
+        eq(articles.isActive, true),
+      ),
+    )
+    .limit(1);
 
   let article = joined[0]?.article;
   let translation = joined[0]?.trans;
@@ -166,29 +158,25 @@ export default async function ArticlePage({
     // to the localized slug when one exists — same URL ↔ language consistency
     // rule as the product detail page. Otherwise render the found translation
     // as a fallback (metadata above already marks that case noindex).
-    const any = await withDbRetry(() =>
-      db
-        .select({ article: articles, trans: articleTranslations })
-        .from(articleTranslations)
-        .innerJoin(articles, eq(articles.id, articleTranslations.articleId))
-        .where(and(eq(articleTranslations.slug, slug), eq(articles.isActive, true)))
-        .limit(1),
-    );
+    const any = await db
+      .select({ article: articles, trans: articleTranslations })
+      .from(articleTranslations)
+      .innerJoin(articles, eq(articles.id, articleTranslations.articleId))
+      .where(and(eq(articleTranslations.slug, slug), eq(articles.isActive, true)))
+      .limit(1);
     const target = any[0];
     if (!target) notFound();
 
-    const localizedSlugRow = await withDbRetry(() =>
-      db
-        .select({ slug: articleTranslations.slug })
-        .from(articleTranslations)
-        .where(
-          and(
-            eq(articleTranslations.articleId, target.article.id),
-            eq(articleTranslations.locale, locale),
-          ),
-        )
-        .limit(1),
-    );
+    const localizedSlugRow = await db
+      .select({ slug: articleTranslations.slug })
+      .from(articleTranslations)
+      .where(
+        and(
+          eq(articleTranslations.articleId, target.article.id),
+          eq(articleTranslations.locale, locale),
+        ),
+      )
+      .limit(1);
 
     if (localizedSlugRow[0]?.slug && localizedSlugRow[0].slug !== slug) {
       permanentRedirect(localizedPath(locale, `/insight/${localizedSlugRow[0].slug}`));

@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
-import { getDb, withDbRetry } from '@/lib/db';
+import { getDb } from '@/lib/db';
 import {
   banners,
   bannerTranslations,
@@ -85,44 +85,40 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   const t = await getTranslations('home');
   const db = getDb();
 
-  // Fetch banners, featured products, categories, factory photos, and certs in
-  // parallel. withDbRetry bounds a stalled connection; a real failure throws —
-  // for ISR that is the right outcome (Next keeps serving the last good page).
-  const [bannerData, featuredProducts, allCats, facilityPhoto, certPhotos] = await withDbRetry(() =>
-    Promise.all([
-      db
-        .select()
-        .from(banners)
-        .where(eq(banners.isActive, true))
-        .orderBy(banners.displayOrder),
-      // Fetch generously here — the section caps the grid at maxVisible=8
-      // via FeaturedProductsSection, but it needs the full set so every
-      // category that has a featured item gets a tab (otherwise the newest
-      // 12 happen to bunch into 2 categories and the others disappear).
-      db
-        .select()
-        .from(products)
-        .where(and(eq(products.isFeatured, true), eq(products.isActive, true)))
-        .orderBy(desc(products.createdAt))
-        .limit(60),
-      db
-        .select()
-        .from(productCategories)
-        .where(eq(productCategories.isActive, true))
-        .orderBy(productCategories.displayOrder),
-      db
-        .select()
-        .from(aboutGallery)
-        .where(eq(aboutGallery.imageType, 'factory'))
-        .orderBy(aboutGallery.displayOrder)
-        .limit(8),
-      db
-        .select()
-        .from(aboutGallery)
-        .where(eq(aboutGallery.imageType, 'certification'))
-        .orderBy(aboutGallery.displayOrder),
-    ]),
-  );
+  // Fetch banners, featured products, categories, factory photos, and certs in parallel
+  const [bannerData, featuredProducts, allCats, facilityPhoto, certPhotos] = await Promise.all([
+    db
+      .select()
+      .from(banners)
+      .where(eq(banners.isActive, true))
+      .orderBy(banners.displayOrder),
+    // Fetch generously here — the section caps the grid at maxVisible=8
+    // via FeaturedProductsSection, but it needs the full set so every
+    // category that has a featured item gets a tab (otherwise the newest
+    // 12 happen to bunch into 2 categories and the others disappear).
+    db
+      .select()
+      .from(products)
+      .where(and(eq(products.isFeatured, true), eq(products.isActive, true)))
+      .orderBy(desc(products.createdAt))
+      .limit(60),
+    db
+      .select()
+      .from(productCategories)
+      .where(eq(productCategories.isActive, true))
+      .orderBy(productCategories.displayOrder),
+    db
+      .select()
+      .from(aboutGallery)
+      .where(eq(aboutGallery.imageType, 'factory'))
+      .orderBy(aboutGallery.displayOrder)
+      .limit(8),
+    db
+      .select()
+      .from(aboutGallery)
+      .where(eq(aboutGallery.imageType, 'certification'))
+      .orderBy(aboutGallery.displayOrder),
+  ]);
 
   const bannerIds = bannerData.map((b) => b.id);
   const productIds = featuredProducts.map((p) => p.id);
@@ -130,43 +126,41 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
   // Batch all translation + image queries in parallel
   const [bannerTrans, productTrans, productTransEn, productImgs, catTrans, catTransEn] =
-    await withDbRetry(() =>
-      Promise.all([
-        bannerIds.length
-          ? db
-              .select()
-              .from(bannerTranslations)
-              .where(and(inArray(bannerTranslations.bannerId, bannerIds), eq(bannerTranslations.locale, locale)))
-          : Promise.resolve([]),
-        productIds.length
-          ? db
-              .select()
-              .from(productTranslations)
-              .where(and(inArray(productTranslations.productId, productIds), eq(productTranslations.locale, locale)))
-          : Promise.resolve([]),
-        productIds.length && locale !== 'en'
-          ? db
-              .select()
-              .from(productTranslations)
-              .where(and(inArray(productTranslations.productId, productIds), eq(productTranslations.locale, 'en')))
-          : Promise.resolve([]),
-        productIds.length
-          ? db.select().from(productImages).where(inArray(productImages.productId, productIds))
-          : Promise.resolve([]),
-        catIds.length
-          ? db
-              .select()
-              .from(categoryTranslations)
-              .where(and(inArray(categoryTranslations.categoryId, catIds), eq(categoryTranslations.locale, locale)))
-          : Promise.resolve([]),
-        catIds.length && locale !== 'en'
-          ? db
-              .select()
-              .from(categoryTranslations)
-              .where(and(inArray(categoryTranslations.categoryId, catIds), eq(categoryTranslations.locale, 'en')))
-          : Promise.resolve([]),
-      ]),
-    );
+    await Promise.all([
+      bannerIds.length
+        ? db
+            .select()
+            .from(bannerTranslations)
+            .where(and(inArray(bannerTranslations.bannerId, bannerIds), eq(bannerTranslations.locale, locale)))
+        : Promise.resolve([]),
+      productIds.length
+        ? db
+            .select()
+            .from(productTranslations)
+            .where(and(inArray(productTranslations.productId, productIds), eq(productTranslations.locale, locale)))
+        : Promise.resolve([]),
+      productIds.length && locale !== 'en'
+        ? db
+            .select()
+            .from(productTranslations)
+            .where(and(inArray(productTranslations.productId, productIds), eq(productTranslations.locale, 'en')))
+        : Promise.resolve([]),
+      productIds.length
+        ? db.select().from(productImages).where(inArray(productImages.productId, productIds))
+        : Promise.resolve([]),
+      catIds.length
+        ? db
+            .select()
+            .from(categoryTranslations)
+            .where(and(inArray(categoryTranslations.categoryId, catIds), eq(categoryTranslations.locale, locale)))
+        : Promise.resolve([]),
+      catIds.length && locale !== 'en'
+        ? db
+            .select()
+            .from(categoryTranslations)
+            .where(and(inArray(categoryTranslations.categoryId, catIds), eq(categoryTranslations.locale, 'en')))
+        : Promise.resolve([]),
+    ]);
 
   const bannerTransMap = new Map(bannerTrans.map((t) => [t.bannerId, t]));
   const productTransMap = new Map(productTrans.map((t) => [t.productId, t]));
@@ -215,31 +209,29 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     name: catTransMap.get(c.id)?.name || catTransEnMap.get(c.id)?.name || `Category ${c.id}`,
   }));
 
-  // Fetch FAQs securely on the server (FALLBACK_FAQ_FOR_SEO still covers the
-  // legitimate empty-table case below, as on main).
-  const [faqData, faqTrans, faqTransEn] = await withDbRetry(async () => {
-    const data = await db
-      .select()
-      .from(faqs)
-      .where(eq(faqs.isActive, true))
-      .orderBy(faqs.displayOrder);
-    const ids = data.map((f) => f.id);
-    const [trans, transEn] = await Promise.all([
-      ids.length
-        ? db
-            .select()
-            .from(faqTranslations)
-            .where(and(inArray(faqTranslations.faqId, ids), eq(faqTranslations.locale, locale)))
-        : Promise.resolve([]),
-      ids.length && locale !== 'en'
-        ? db
-            .select()
-            .from(faqTranslations)
-            .where(and(inArray(faqTranslations.faqId, ids), eq(faqTranslations.locale, 'en')))
-        : Promise.resolve([]),
-    ]);
-    return [data, trans, transEn] as const;
-  });
+  // Fetch FAQs securely on the server
+  const faqData = await db
+    .select()
+    .from(faqs)
+    .where(eq(faqs.isActive, true))
+    .orderBy(faqs.displayOrder);
+
+  const faqIds = faqData.map((f) => f.id);
+
+  const [faqTrans, faqTransEn] = await Promise.all([
+    faqIds.length
+      ? db
+          .select()
+          .from(faqTranslations)
+          .where(and(inArray(faqTranslations.faqId, faqIds), eq(faqTranslations.locale, locale)))
+      : Promise.resolve([]),
+    faqIds.length && locale !== 'en'
+      ? db
+          .select()
+          .from(faqTranslations)
+          .where(and(inArray(faqTranslations.faqId, faqIds), eq(faqTranslations.locale, 'en')))
+      : Promise.resolve([]),
+  ]);
 
   const faqTransMap = new Map(faqTrans.map((t) => [t.faqId, t]));
   const faqTransEnMap = new Map(faqTransEn.map((t) => [t.faqId, t]));

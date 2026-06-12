@@ -16,13 +16,6 @@ const globalForDb = globalThis as unknown as {
   drizzleDb?: ReturnType<typeof drizzle<typeof schema>>;
 };
 
-// During `next build`, queries flow continuously, and on a congested
-// long-haul link it's the TCP/TLS *handshake* that fails — established
-// connections answer in ~300ms. So while building, hold connections open for
-// the whole run (few handshakes); at runtime, recycle idle sockets briskly so
-// a NAT-killed connection isn't reused after sitting cold between requests.
-const isBuildPhase = process.env.NEXT_PHASE === 'phase-production-build';
-
 const client =
   globalForDb.pgClient ??
   postgres(connectionString, {
@@ -31,22 +24,9 @@ const client =
     // Supabase's transaction pooler already multiplexes across all
     // clients, so each serverless instance only needs a small local
     // pool. 3 is plenty and keeps us well under the pooler's limit
-    // when many function instances spin up concurrently (same as main).
-    // Exception — all builds get a wider pool: withDbRetry's timeout cannot
-    // cancel an in-flight query, so a stalled connection setup parks a slot
-    // and, with only 3, retries pile up behind it. Verified on both sides:
-    // local builds fail at 3 / pass at 10, and the two green Vercel previews
-    // (04d2b4c, 984a603) ran with 10 while the pool-3 attempt failed.
-    max: isBuildPhase ? 10 : 3,
-    // Runtime: recycle idle sockets after 20s (main's historical value). A
-    // connection that sits idle between CMS clicks gets silently dropped by
-    // NAT/proxy boxes on the long-haul dev link; reusing it surfaces as
-    // `write CONNECTION_CLOSED` only after a ~2min OS TCP timeout, so a short
-    // idle window keeps the dead-reuse risk small and withDbRetry turns any
-    // residual hit into an ~8s retry. Build: hold sockets for the whole run —
-    // constant traffic keeps them honest and skips needless re-handshakes.
-    idle_timeout: isBuildPhase ? undefined : 20,
-    max_lifetime: 60 * 30,
+    // when many function instances spin up concurrently.
+    max: 3,
+    idle_timeout: 20,
     connect_timeout: 10,
   });
 
