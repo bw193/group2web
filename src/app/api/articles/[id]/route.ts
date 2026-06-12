@@ -1,13 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { getDb, withDbRetryFast } from '@/lib/db';
 import { articles, articleTranslations, articleProducts } from '@/lib/db/schema';
 import { eq, and, ne } from 'drizzle-orm';
 import { getSession } from '@/lib/auth';
 import { slugify } from '@/lib/utils';
 import { locales } from '@/i18n/config';
+import { INSIGHT_TAGS } from '@/lib/insight';
 
+// See sibling route.ts: revalidateTag busts the unstable_cache data layer,
+// revalidatePath busts the rendered HTML/RSC. Keep both.
 function revalidateInsightIndexes() {
+  revalidateTag(INSIGHT_TAGS.articles);
   for (const loc of locales) {
     revalidatePath(`/${loc}/insight`);
   }

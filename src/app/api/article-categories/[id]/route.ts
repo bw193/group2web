@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { getDb } from '@/lib/db';
 import {
   articles,
@@ -10,8 +10,13 @@ import {
 import { and, eq, sql } from 'drizzle-orm';
 import { getSession } from '@/lib/auth';
 import { locales } from '@/i18n/config';
+import { INSIGHT_TAGS } from '@/lib/insight';
 
+// Bust both the categories data-cache and the article data-cache (detail
+// pages render the category label inline) plus the rendered routes.
 function revalidateInsightIndexes() {
+  revalidateTag(INSIGHT_TAGS.categories);
+  revalidateTag(INSIGHT_TAGS.articles);
   for (const loc of locales) {
     revalidatePath(`/${loc}/insight`);
   }
