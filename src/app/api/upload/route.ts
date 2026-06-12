@@ -11,9 +11,11 @@ const MAX_SIZE = 10 * 1024 * 1024; // 10MB
 
 // Folders whose images are served straight from Supabase's CDN (bypassing
 // Vercel image optimization). These get several pre-generated WebP widths so
-// the browser can pick per device. Everything else gets a single compressed
-// WebP that Vercel still resizes downstream (hero/products stay on Vercel).
-const GALLERY_FOLDERS = new Set(['facility', 'certifications']);
+// the browser can pick per device. `products` was added here after the
+// Vercel image-transformation quota was hit; new product uploads now go
+// direct from Supabase too. Everything else (banners, misc) gets a single
+// compressed WebP that Vercel still resizes downstream.
+const GALLERY_FOLDERS = new Set(['facility', 'certifications', 'products']);
 const SINGLE_WIDTH = 2000;
 const LARGEST = OPTIMIZED_WIDTHS[OPTIMIZED_WIDTHS.length - 1];
 
