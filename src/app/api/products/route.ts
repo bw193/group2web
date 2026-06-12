@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
-import { getDb, withDbRetry } from '@/lib/db';
+import { getDb, withDbRetryFast } from '@/lib/db';
 import { products, productTranslations, productImages, productSpecifications } from '@/lib/db/schema';
 import { eq, and, desc, inArray, type SQL } from 'drizzle-orm';
 import { getSession } from '@/lib/auth';
@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
     conditions.push(eq(products.isFeatured, true));
   }
 
-  const allProducts = await withDbRetry(() =>
+  const allProducts = await withDbRetryFast(() =>
     db
       .select()
       .from(products)
@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
   // Batched and sequential (3 queries instead of 2N, one at a time): parallel
   // reads force extra pool connections, whose fresh handshakes are what stall
   // on the long-haul dev link.
-  const trans = await withDbRetry(() =>
+  const trans = await withDbRetryFast(() =>
     db
       .select()
       .from(productTranslations)
@@ -51,14 +51,14 @@ export async function GET(request: NextRequest) {
   );
   const transEn =
     locale !== 'en'
-      ? await withDbRetry(() =>
+      ? await withDbRetryFast(() =>
           db
             .select()
             .from(productTranslations)
             .where(and(inArray(productTranslations.productId, productIds), eq(productTranslations.locale, 'en'))),
         )
       : [];
-  const imgs = await withDbRetry(() =>
+  const imgs = await withDbRetryFast(() =>
     db.select().from(productImages).where(inArray(productImages.productId, productIds)),
   );
 

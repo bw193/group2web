@@ -111,21 +111,19 @@ export async function getArticleList(locale: string): Promise<ArticleListItem[]>
       if (base.length === 0) return [];
 
       const ids = base.map((a) => a.id);
-      const [trans, transEn] = await Promise.all([
-        db
-          .select()
-          .from(articleTranslations)
-          .where(and(inArray(articleTranslations.articleId, ids), eq(articleTranslations.locale, locale))),
-        locale !== 'en'
-          ? db
-              .select()
-              .from(articleTranslations)
-              .where(and(inArray(articleTranslations.articleId, ids), eq(articleTranslations.locale, 'en')))
-          : Promise.resolve([] as (typeof articleTranslations.$inferSelect)[]),
-      ]);
+      // One batched query covers the locale and its English fallback.
+      const allTrans = await db
+        .select()
+        .from(articleTranslations)
+        .where(
+          and(
+            inArray(articleTranslations.articleId, ids),
+            inArray(articleTranslations.locale, locale === 'en' ? ['en'] : [locale, 'en']),
+          ),
+        );
 
-      const transMap = new Map(trans.map((t) => [t.articleId, t]));
-      const transEnMap = new Map(transEn.map((t) => [t.articleId, t]));
+      const transMap = new Map(allTrans.filter((t) => t.locale === locale).map((t) => [t.articleId, t]));
+      const transEnMap = new Map(allTrans.filter((t) => t.locale === 'en').map((t) => [t.articleId, t]));
 
       return base.flatMap((a): ArticleListItem[] => {
         const t = transMap.get(a.id) || transEnMap.get(a.id);
@@ -169,53 +167,53 @@ export async function getArticleProducts(
 ): Promise<ArticleRelatedProduct[]> {
   return withDbRetry(async () => {
       const db = getDb();
-      const links = await db
-        .select()
+      // Three batched queries total (links⋈products join, both-locale
+      // translations, images) — article pages need only card-level product
+      // fields, never specifications or full descriptions.
+      const rows = await db
+        .select({ link: articleProducts, product: products })
         .from(articleProducts)
+        .innerJoin(
+          products,
+          and(eq(products.id, articleProducts.productId), eq(products.isActive, true)),
+        )
         .where(eq(articleProducts.articleId, articleId))
         .orderBy(articleProducts.displayOrder);
-      const pids = links.map((l) => l.productId);
+      const pids = rows.map((r) => r.product.id);
       if (pids.length === 0) return [];
 
-      const [prods, trans, transEn, imgs] = await Promise.all([
-        db.select().from(products).where(and(inArray(products.id, pids), eq(products.isActive, true))),
+      const [allTrans, imgs] = await Promise.all([
         db
           .select()
           .from(productTranslations)
-          .where(and(inArray(productTranslations.productId, pids), eq(productTranslations.locale, locale))),
-        locale !== 'en'
-          ? db
-              .select()
-              .from(productTranslations)
-              .where(and(inArray(productTranslations.productId, pids), eq(productTranslations.locale, 'en')))
-          : Promise.resolve([] as (typeof productTranslations.$inferSelect)[]),
+          .where(
+            and(
+              inArray(productTranslations.productId, pids),
+              inArray(productTranslations.locale, locale === 'en' ? ['en'] : [locale, 'en']),
+            ),
+          ),
         db.select().from(productImages).where(inArray(productImages.productId, pids)),
       ]);
 
-      const prodMap = new Map(prods.map((p) => [p.id, p]));
-      const transMap = new Map(trans.map((t) => [t.productId, t]));
-      const transEnMap = new Map(transEn.map((t) => [t.productId, t]));
+      const transMap = new Map(allTrans.filter((t) => t.locale === locale).map((t) => [t.productId, t]));
+      const transEnMap = new Map(allTrans.filter((t) => t.locale === 'en').map((t) => [t.productId, t]));
       const imgMap = new Map<number, (typeof imgs)[number]>();
       for (const img of imgs) {
         const existing = imgMap.get(img.productId);
         if (!existing || (img.isPrimary && !existing.isPrimary)) imgMap.set(img.productId, img);
       }
 
-      return links.flatMap((l): ArticleRelatedProduct[] => {
-        const p = prodMap.get(l.productId);
-        if (!p) return [];
+      return rows.map(({ product: p }): ArticleRelatedProduct => {
         const t = transMap.get(p.id) || transEnMap.get(p.id);
-        return [
-          {
-            id: p.id,
-            name: t?.name || 'Product',
-            slug: t?.slug || `product-${p.id}`,
-            shortDescription: t?.shortDescription ?? null,
-            modelNumber: p.modelNumber,
-            imageUrl: imgMap.get(p.id)?.imageUrl ?? null,
-            isFeatured: p.isFeatured,
-          },
-        ];
+        return {
+          id: p.id,
+          name: t?.name || 'Product',
+          slug: t?.slug || `product-${p.id}`,
+          shortDescription: t?.shortDescription ?? null,
+          modelNumber: p.modelNumber,
+          imageUrl: imgMap.get(p.id)?.imageUrl ?? null,
+          isFeatured: p.isFeatured,
+        };
       });
   });
 }

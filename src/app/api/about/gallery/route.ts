@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getDb, withDbRetry } from '@/lib/db';
+import { getDb, withDbRetryFast } from '@/lib/db';
 import { aboutGallery } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { getSession } from '@/lib/auth';
@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
   const type = new URL(request.url).searchParams.get('type');
   const db = getDb();
 
-  const rows = await withDbRetry(() =>
+  const rows = await withDbRetryFast(() =>
     type
       ? db
           .select()

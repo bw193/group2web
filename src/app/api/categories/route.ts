@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
-import { getDb, withDbRetry } from '@/lib/db';
+import { getDb, withDbRetryFast } from '@/lib/db';
 import { productCategories, categoryTranslations } from '@/lib/db/schema';
 import { eq, and, inArray } from 'drizzle-orm';
 import { getSession } from '@/lib/auth';
@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
   // Batched sequential reads instead of up to two queries per category: N
   // simultaneous queries force the pool to open fresh connections, which is
   // exactly what stalls on the long-haul dev link.
-  const categories = await withDbRetry(() =>
+  const categories = await withDbRetryFast(() =>
     db
       .select()
       .from(productCategories)
@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
   if (categories.length === 0) return NextResponse.json([]);
   const catIds = categories.map((c) => c.id);
 
-  const trans = await withDbRetry(() =>
+  const trans = await withDbRetryFast(() =>
     db
       .select()
       .from(categoryTranslations)
@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
   const transEn =
     locale === 'en'
       ? []
-      : await withDbRetry(() =>
+      : await withDbRetryFast(() =>
           db
             .select()
             .from(categoryTranslations)

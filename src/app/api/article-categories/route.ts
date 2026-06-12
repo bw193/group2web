@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
-import { getDb, withDbRetry } from '@/lib/db';
+import { getDb, withDbRetryFast } from '@/lib/db';
 import { articles, articleCategories, articleCategoryTranslations } from '@/lib/db/schema';
 import { eq, sql } from 'drizzle-orm';
 import { getSession } from '@/lib/auth';
@@ -22,14 +22,14 @@ export async function GET() {
 
   const db = getDb();
   // Deliberately sequential: parallel queries force the pool to open extra
-  // connections, and on the long-haul dev link a fresh handshake can wedge —
-  // sequential reads ride the one warm connection. withDbRetry caps any
+  // connections, and on the long-haul dev link a fresh handshake can wedge 鈥?
+  // sequential reads ride the one warm connection. withDbRetryFast caps any
   // residual stall instead of letting the route hang.
-  const cats = await withDbRetry(() =>
+  const cats = await withDbRetryFast(() =>
     db.select().from(articleCategories).orderBy(articleCategories.displayOrder, articleCategories.id),
   );
-  const trans = await withDbRetry(() => db.select().from(articleCategoryTranslations));
-  const counts = await withDbRetry(() =>
+  const trans = await withDbRetryFast(() => db.select().from(articleCategoryTranslations));
+  const counts = await withDbRetryFast(() =>
     db
       .select({ category: articles.category, n: sql<number>`count(*)::int` })
       .from(articles)

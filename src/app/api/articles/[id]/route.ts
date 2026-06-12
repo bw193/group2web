@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
-import { getDb, withDbRetry } from '@/lib/db';
+import { getDb, withDbRetryFast } from '@/lib/db';
 import { articles, articleTranslations, articleProducts } from '@/lib/db/schema';
 import { eq, and, ne } from 'drizzle-orm';
 import { getSession } from '@/lib/auth';
@@ -29,7 +29,7 @@ export async function GET(
   }
 
   const db = getDb();
-  const [article] = await withDbRetry(() =>
+  const [article] = await withDbRetryFast(() =>
     db.select().from(articles).where(eq(articles.id, articleId)).limit(1),
   );
   if (!article) {
@@ -38,10 +38,10 @@ export async function GET(
 
   // Sequential on purpose — see /api/article-categories: parallel queries
   // demand extra pool connections and fresh handshakes wedge on the dev link.
-  const translations = await withDbRetry(() =>
+  const translations = await withDbRetryFast(() =>
     db.select().from(articleTranslations).where(eq(articleTranslations.articleId, articleId)),
   );
-  const links = await withDbRetry(() =>
+  const links = await withDbRetryFast(() =>
     db
       .select()
       .from(articleProducts)

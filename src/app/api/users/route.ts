@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getDb, withDbRetry } from '@/lib/db';
+import { getDb, withDbRetryFast } from '@/lib/db';
 import { users } from '@/lib/db/schema';
 import { desc } from 'drizzle-orm';
 import { getSession } from '@/lib/auth';
@@ -11,7 +11,7 @@ export async function GET() {
   }
 
   const db = getDb();
-  const allUsers = await withDbRetry(() =>
+  const allUsers = await withDbRetryFast(() =>
     db
       .select({
       id: users.id,

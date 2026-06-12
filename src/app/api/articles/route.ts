@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
-import { getDb, withDbRetry } from '@/lib/db';
+import { getDb, withDbRetryFast } from '@/lib/db';
 import { articles, articleTranslations, articleProducts } from '@/lib/db/schema';
 import { eq, and, desc, inArray } from 'drizzle-orm';
 import { getSession } from '@/lib/auth';
@@ -17,7 +17,7 @@ function revalidateInsightIndexes() {
 }
 
 // CMS-only API: unlike products there is no public consumer, and the list
-// includes hidden drafts — so even GET requires a session.
+// includes hidden drafts 鈥?so even GET requires a session.
 export async function GET() {
   const session = await getSession();
   if (!session) {
@@ -25,13 +25,13 @@ export async function GET() {
   }
 
   const db = getDb();
-  const all = await withDbRetry(() =>
+  const all = await withDbRetryFast(() =>
     db.select().from(articles).orderBy(desc(articles.publishedAt), desc(articles.id)),
   );
   if (all.length === 0) return NextResponse.json([]);
 
   const ids = all.map((a) => a.id);
-  const trans = await withDbRetry(() =>
+  const trans = await withDbRetryFast(() =>
     db.select().from(articleTranslations).where(inArray(articleTranslations.articleId, ids)),
   );
 
@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
 
     const db = getDb();
 
-    // (locale, slug) is the routing key — reject duplicates up front so the
+    // (locale, slug) is the routing key 鈥?reject duplicates up front so the
     // editor gets a usable message instead of a raw unique-index failure.
     for (const t of translations) {
       const slug = t.slug?.trim() || slugify(t.title || '');

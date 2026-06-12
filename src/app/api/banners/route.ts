@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
-import { getDb, withDbRetry } from '@/lib/db';
+import { getDb, withDbRetryFast } from '@/lib/db';
 import { banners, bannerTranslations } from '@/lib/db/schema';
 import { eq, and, inArray } from 'drizzle-orm';
 import { getSession } from '@/lib/auth';
@@ -12,12 +12,12 @@ export async function GET(request: NextRequest) {
   // Two batched sequential reads instead of one query per banner: N
   // simultaneous queries force the pool to open fresh connections, which is
   // exactly what stalls on the long-haul dev link.
-  const allBanners = await withDbRetry(() =>
+  const allBanners = await withDbRetryFast(() =>
     db.select().from(banners).orderBy(banners.displayOrder),
   );
   if (allBanners.length === 0) return NextResponse.json([]);
 
-  const trans = await withDbRetry(() =>
+  const trans = await withDbRetryFast(() =>
     db
       .select()
       .from(bannerTranslations)
@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  // Banners drive the home hero — refresh the public site so it shows now.
+  // Banners drive the home hero 鈥?refresh the public site so it shows now.
   revalidatePath('/', 'layout');
 
   return NextResponse.json(banner, { status: 201 });

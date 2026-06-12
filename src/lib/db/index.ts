@@ -115,23 +115,22 @@ function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
  * Run an idempotent read, capping each attempt with a client-side timeout and
  * retrying transient connection failures with a fresh connection. Do NOT use
  * for mutations.
+ *
+ * Default budget: 2 × 25s. When many pages render at once (builds, ISR
+ * bursts) the pooler queues fresh connection setups and a query can
+ * legitimately take 10–20s to get a connection while the Postgres server
+ * sits nearly idle. Short timeouts convert that slow-but-successful wait
+ * into failures (observed twice: Vercel builds threw DbTimeoutError at
+ * 8000ms, and later preview *runtime* ISR renders 500'd the same way —
+ * main, which never times out, just waits and succeeds). A retry cannot
+ * cancel the abandoned attempt, so a patient budget is strictly better for
+ * public pages; ~50s also stays inside Next's 60s per-page build budget.
  */
 export async function withDbRetry<T>(
   fn: () => Promise<T>,
-  // Build phase: when many pages prerender at once, the pooler (Supavisor)
-  // queues the burst of fresh connection setups and a query can legitimately
-  // take 10–20s to get a connection — while the Postgres server sits nearly
-  // idle. An 8s timeout converts that slow-but-successful wait into a failed
-  // build (observed on Vercel: insight pages threw DbTimeoutError at 8000ms;
-  // main, which never times out, builds fine at full parallelism). And a
-  // retry cannot cancel the abandoned attempt, so short timeouts only deepen
-  // the setup queue. So during builds wait like main does: 2 × 25s (~50s)
-  // stays inside Next's 60s per-page budget while outlasting the queue.
-  // Runtime keeps 3 × 8s — that is what stops CMS routes from hanging for
-  // minutes on a wedged dev-link connection.
   {
-    attempts = isBuildPhase ? 2 : 3,
-    timeoutMs = isBuildPhase ? 25_000 : 8_000,
+    attempts = 2,
+    timeoutMs = 25_000,
   }: { attempts?: number; timeoutMs?: number } = {},
 ): Promise<T> {
   let lastErr: unknown;
@@ -146,4 +145,14 @@ export async function withDbRetry<T>(
     }
   }
   throw lastErr; // unreachable; keeps TypeScript's control-flow analysis happy
+}
+
+/**
+ * CMS-API variant: fail fast (3 × 8s) so an admin screen on a wedged
+ * dev-machine connection errors in seconds instead of hanging for minutes.
+ * Public pages must NOT use this — they get the patient default above,
+ * matching main's wait-it-out semantics under ISR/build bursts.
+ */
+export function withDbRetryFast<T>(fn: () => Promise<T>): Promise<T> {
+  return withDbRetry(fn, { attempts: 3, timeoutMs: 8_000 });
 }
