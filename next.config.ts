@@ -47,6 +47,17 @@ const nextConfig = {
       dynamic: 30,
       static: 180,
     },
+    // Throttle static generation in every build environment. Insight added
+    // enough DB-backed prerender targets that full parallelism queues more
+    // simultaneous Supavisor connection setups than the 60s per-page budget
+    // tolerates (verified: c5c24fa failed at /en/insight 60s × 3 even after
+    // unstable_cache + indexes + EN-only product reduction). With this cap,
+    // a previous A/B settled it: throttle on → built green twice (04d2b4c,
+    // 984a603, d25f814); throttle off → failed immediately (b93b9f9, f1ec642,
+    // c5c24fa). Cost: builds take ~3 min longer. Runtime unaffected.
+    cpus: 2,
+    staticGenerationMaxConcurrency: 2,
+    staticGenerationRetryCount: 3,
   },
   async redirects() {
     return [
