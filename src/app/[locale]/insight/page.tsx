@@ -78,7 +78,11 @@ export default async function InsightPage({ params }: { params: Promise<{ locale
     title: a.title,
     dek: a.dek,
     author: a.author,
-    href: `/${locale}/insight/${a.slug}`,
+    // Link to the locale where the translation actually exists, not the
+    // current page locale. Prevents English-fallback cards on /pt/insight
+    // from creating phantom /pt/insight/<en-slug> URLs that ISR would have
+    // to render dynamically — the root cause of the DbTimeoutErrors.
+    href: `/${a.translationLocale}/insight/${a.slug}`,
     imagePath: a.thumbnailUrl || a.coverImageUrl,
     indexLabel: String(i + 1).padStart(2, '0'),
   }));

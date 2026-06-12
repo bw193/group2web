@@ -1,4 +1,5 @@
 import 'server-only';
+import { cache } from 'react';
 import { getDb } from '@/lib/db';
 import {
   articles,
@@ -10,7 +11,7 @@ import {
   productTranslations,
   productImages,
 } from '@/lib/db/schema';
-import { and, desc, eq, inArray, sql } from 'drizzle-orm';
+import { and, desc, eq, inArray, ne, sql } from 'drizzle-orm';
 
 export interface ArticleCategory {
   key: string;
@@ -91,6 +92,12 @@ export interface ArticleListItem {
   publishedAt: string;
   coverImageUrl: string | null;
   thumbnailUrl: string | null;
+  // The locale that produced this row's translation. Equal to the requested
+  // locale when its own translation exists, otherwise 'en' (the fallback).
+  // Used by the list page to link English fallback cards to /en/ rather than
+  // creating phantom /pt/, /fr/, etc. detail URLs that ISR has to render
+  // dynamically on every hit.
+  translationLocale: string;
 }
 
 /**
@@ -138,9 +145,102 @@ export async function getArticleList(locale: string): Promise<ArticleListItem[]>
         publishedAt: a.publishedAt,
         coverImageUrl: a.coverImageUrl,
         thumbnailUrl: a.thumbnailUrl,
+        translationLocale: t.locale,
       },
     ];
   });
+}
+
+/**
+ * Article + translation lookup for `(locale, slug)`, wrapped in React.cache so
+ * `generateMetadata` and the page body share one query per request. Returns
+ * null when the locale doesn't have its own translation with this slug.
+ */
+export const getArticleRouteData = cache(async (locale: string, slug: string) => {
+  const db = getDb();
+  const joined = await db
+    .select({ article: articles, trans: articleTranslations })
+    .from(articleTranslations)
+    .innerJoin(articles, eq(articles.id, articleTranslations.articleId))
+    .where(
+      and(
+        eq(articleTranslations.slug, slug),
+        eq(articleTranslations.locale, locale),
+        eq(articles.isActive, true),
+      ),
+    )
+    .limit(1);
+  return joined[0] ?? null;
+});
+
+/**
+ * All `(locale, slug)` pairs for an article, used by the detail page's
+ * `generateMetadata` to build hreflang. React.cache-wrapped so repeated calls
+ * within the same request collapse to a single query.
+ */
+export const getArticleAllTranslations = cache(async (articleId: number) => {
+  const db = getDb();
+  return db
+    .select({ locale: articleTranslations.locale, slug: articleTranslations.slug })
+    .from(articleTranslations)
+    .where(eq(articleTranslations.articleId, articleId));
+});
+
+/**
+ * "More from Insight" data for the detail page: the newest `limit` articles
+ * excluding the one being read. Excludes in SQL (over `getArticleList` +
+ * `.filter().slice()`), over-fetches by ×3 so the locale/EN fallback step
+ * can drop rows without leaving the list short, then slices to `limit`.
+ */
+export async function getMoreStories(
+  locale: string,
+  excludeArticleId: number,
+  limit = 3,
+): Promise<ArticleListItem[]> {
+  const db = getDb();
+  const base = await db
+    .select()
+    .from(articles)
+    .where(and(eq(articles.isActive, true), ne(articles.id, excludeArticleId)))
+    .orderBy(desc(articles.publishedAt), desc(articles.id))
+    .limit(limit * 3);
+  if (base.length === 0) return [];
+
+  const ids = base.map((a) => a.id);
+  const allTrans = await db
+    .select()
+    .from(articleTranslations)
+    .where(
+      and(
+        inArray(articleTranslations.articleId, ids),
+        inArray(articleTranslations.locale, locale === 'en' ? ['en'] : [locale, 'en']),
+      ),
+    );
+
+  const transMap = new Map(allTrans.filter((t) => t.locale === locale).map((t) => [t.articleId, t]));
+  const transEnMap = new Map(allTrans.filter((t) => t.locale === 'en').map((t) => [t.articleId, t]));
+
+  return base
+    .flatMap((a): ArticleListItem[] => {
+      const t = transMap.get(a.id) || transEnMap.get(a.id);
+      if (!t) return [];
+      return [
+        {
+          id: a.id,
+          category: a.category,
+          slug: t.slug,
+          title: t.title,
+          dek: t.dek,
+          author: t.author,
+          readMinutes: a.readMinutes,
+          publishedAt: a.publishedAt,
+          coverImageUrl: a.coverImageUrl,
+          thumbnailUrl: a.thumbnailUrl,
+          translationLocale: t.locale,
+        },
+      ];
+    })
+    .slice(0, limit);
 }
 
 export interface ArticleRelatedProduct {

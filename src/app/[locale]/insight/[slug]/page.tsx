@@ -11,9 +11,11 @@ import ProductCard from '@/components/public/ProductCard';
 import MoreStories from '@/components/public/insight/MoreStories';
 import { JsonLd } from '@/components/seo/JsonLd';
 import {
-  getArticleList,
+  getArticleRouteData,
+  getArticleAllTranslations,
   getArticleProducts,
   getArticleCategories,
+  getMoreStories,
   formatArticleDate,
   articleExcerpt,
   categoryFallbackLabel,
@@ -52,32 +54,17 @@ export async function generateMetadata({
   const { locale, slug } = await params;
 
   try {
-    const db = getDb();
-    const joined = await db
-      .select({ article: articles, trans: articleTranslations })
-      .from(articleTranslations)
-      .innerJoin(articles, eq(articles.id, articleTranslations.articleId))
-      .where(
-        and(
-          eq(articleTranslations.slug, slug),
-          eq(articleTranslations.locale, locale),
-          eq(articles.isActive, true),
-        ),
-      )
-      .limit(1);
-
-    const row = joined[0];
+    const row = await getArticleRouteData(locale, slug);
     if (!row) {
-      // No translation in this locale — the page may still render the English
-      // fallback, but it must not be indexed (avoids duplicate content).
+      // No translation in this locale — the page itself redirects to the
+      // real translation locale (see ArticlePage below), so this branch is
+      // only hit when crawlers request the redirect target's metadata.
+      // Mark it non-indexable defensively.
       return { title: `Insight — ${SITE_NAME}`, robots: { index: false, follow: true } };
     }
 
     // hreflang built from the translations that actually exist.
-    const allTrans = await db
-      .select({ locale: articleTranslations.locale, slug: articleTranslations.slug })
-      .from(articleTranslations)
-      .where(eq(articleTranslations.articleId, row.article.id));
+    const allTrans = await getArticleAllTranslations(row.article.id);
 
     const languages: Record<string, string> = {};
     for (const tr of allTrans) {
@@ -135,29 +122,18 @@ export default async function ArticlePage({
   setRequestLocale(locale);
   const t = await getTranslations('insight');
   const breadcrumbT = await getTranslations('breadcrumb');
-  const db = getDb();
 
-  const joined = await db
-    .select({ article: articles, trans: articleTranslations })
-    .from(articleTranslations)
-    .innerJoin(articles, eq(articles.id, articleTranslations.articleId))
-    .where(
-      and(
-        eq(articleTranslations.slug, slug),
-        eq(articleTranslations.locale, locale),
-        eq(articles.isActive, true),
-      ),
-    )
-    .limit(1);
+  const row = await getArticleRouteData(locale, slug);
 
-  let article = joined[0]?.article;
-  let translation = joined[0]?.trans;
-
-  if (!article) {
-    // Slug not present in this locale. Find it in any locale, then redirect
-    // to the localized slug when one exists — same URL ↔ language consistency
-    // rule as the product detail page. Otherwise render the found translation
-    // as a fallback (metadata above already marks that case noindex).
+  if (!row) {
+    // Slug not present in this locale. Find it in any locale, then either
+    // redirect to this locale's own slug for that article (URL ↔ language
+    // consistency, same rule as the product detail page) or — when this
+    // locale has no translation at all — redirect to the locale where the
+    // translation actually exists. We never render English content under
+    // /pt/, /fr/, etc.; that was the source of the phantom dynamic-render
+    // routes behind the DbTimeoutErrors.
+    const db = getDb();
     const any = await db
       .select({ article: articles, trans: articleTranslations })
       .from(articleTranslations)
@@ -182,17 +158,16 @@ export default async function ArticlePage({
       permanentRedirect(localizedPath(locale, `/insight/${localizedSlugRow[0].slug}`));
     }
 
-    article = target.article;
-    translation = target.trans;
+    permanentRedirect(localizedPath(target.trans.locale, `/insight/${target.trans.slug}`));
   }
-  if (!article || !translation) notFound();
 
-  const [relatedProducts, allStories, categories] = await Promise.all([
+  const { article, trans: translation } = row;
+
+  const [relatedProducts, moreStories, categories] = await Promise.all([
     getArticleProducts(article.id, locale),
-    getArticleList(locale),
+    getMoreStories(locale, article.id, 3),
     getArticleCategories(locale),
   ]);
-  const moreStories = allStories.filter((a) => a.id !== article.id).slice(0, 3);
   const catMap = new Map(categories.map((c) => [c.key, c.name]));
   const catLabel = (key: string) => catMap.get(key) ?? categoryFallbackLabel(key);
 
@@ -345,7 +320,7 @@ export default async function ArticlePage({
         allStoriesLabel={t('back')}
         allStoriesHref={`/${locale}/insight`}
         items={moreStories.map((m) => ({
-          href: `/${locale}/insight/${m.slug}`,
+          href: `/${m.translationLocale}/insight/${m.slug}`,
           categoryLabel: catLabel(m.category),
           dateLabel: formatArticleDate(m.publishedAt, locale),
           title: m.title,
