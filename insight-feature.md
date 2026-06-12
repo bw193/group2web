@@ -257,3 +257,5 @@ rather than from scratch, cherry-pick from there.
   `tests/insert-article-translations.ts`
 - **Original backup-branch doc:** `insight-feature.md` (the 141-line version
   that this file was distilled from)
+
+<!-- Vercel preview rebuild trigger: 2026-06-12T07:25:00Z -->
