@@ -22,6 +22,13 @@ const intlMiddleware = createMiddleware({
   alternateLinks: false,
 });
 
+// Recognized search engine + social crawler UA strings. Hits cover Googlebot
+// (Search + Image + Smartphone), Bingbot, Baidu, Yandex, DuckDuckGo, Apple's
+// Spotlight/Siri bot, Yahoo's Slurp, plus the link-preview fetchers used by
+// Facebook, Twitter/X, and LinkedIn — anything that benefits from a clean
+// deterministic canonical instead of the language-detected 307.
+const CRAWLER_UA = /googlebot|bingbot|baiduspider|yandex|duckduckbot|applebot|slurp|facebookexternalhit|twitterbot|linkedinbot/i;
+
 export default function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
@@ -37,12 +44,28 @@ export default function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Anything without a locale prefix (except `/`, which falls through to
-  // next-intl's language detection below) is the pre-`localePrefix:
-  // 'always'` URL structure, still indexed and linked externally:
-  // `/about`, `/products/<slug>`, … 308 it to the /en equivalent —
-  // permanent and identical for every caller, so crawlers can transfer
-  // signal instead of parking the URL under "Page with redirect".
+  // Apex `/`: humans keep next-intl's Accept-Language + NEXT_LOCALE cookie
+  // detection (it serves a 307 + Set-Cookie below) so a French visitor still
+  // lands on /fr, a returning German visitor on /de, etc. Crawlers don't send
+  // either — they were seeing the varying 307 as the canonical for the bare
+  // domain and surfacing it in GSC as "Page with redirect", which degraded
+  // the brand-name search ranking. Serve crawlers a deterministic 308 to /en
+  // so the property has a single clean canonical to consolidate signal under.
+  if (pathname === '/' && CRAWLER_UA.test(request.headers.get('user-agent') ?? '')) {
+    const url = request.nextUrl.clone();
+    url.pathname = `/${defaultLocale}`;
+    const res = NextResponse.redirect(url, 308);
+    // If any downstream cache keeps this redirect, it must differentiate by UA
+    // so a human request never receives the crawler response.
+    res.headers.set('Vary', 'User-Agent');
+    return res;
+  }
+
+  // Anything without a locale prefix (except `/`, handled above) is the
+  // pre-`localePrefix: 'always'` URL structure, still indexed and linked
+  // externally: `/about`, `/products/<slug>`, … 308 to /en — permanent and
+  // identical for every caller, so crawlers transfer signal instead of
+  // parking under "Page with redirect".
   const hasLocalePrefix = locales.some(
     (loc) => pathname === `/${loc}` || pathname.startsWith(`/${loc}/`),
   );
