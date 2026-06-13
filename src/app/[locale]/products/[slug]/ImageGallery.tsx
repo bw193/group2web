@@ -6,6 +6,57 @@ import { createPortal } from 'react-dom';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { X, ChevronLeft, ChevronRight, Maximize2 } from 'lucide-react';
+import { isOptimizedKey, optimizedSrc, optimizedSrcSet } from '@/lib/optimized-images';
+
+// Render strategy per image: pre-optimized `-opt@<w>.webp` URLs go straight to
+// Supabase's CDN via <img srcSet> (bypassing Vercel image optimization, which
+// is metered); everything else keeps next/image. The src ALREADY carries the
+// full Supabase URL from getUploadUrl(), so we hand it to the helpers as-is.
+function PicSrcSet({
+  src,
+  alt,
+  sizes,
+  priority,
+  loading,
+  className,
+  draggable,
+}: {
+  src: string;
+  alt: string;
+  sizes: string;
+  priority?: boolean;
+  loading?: 'eager' | 'lazy';
+  className?: string;
+  draggable?: boolean;
+}) {
+  if (isOptimizedKey(src)) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={optimizedSrc(src)}
+        srcSet={optimizedSrcSet(src)}
+        sizes={sizes}
+        alt={alt}
+        loading={priority ? 'eager' : loading}
+        decoding="async"
+        draggable={draggable}
+        className={`absolute inset-0 h-full w-full ${className ?? ''}`}
+      />
+    );
+  }
+  return (
+    <Image
+      src={src}
+      alt={alt}
+      fill
+      sizes={sizes}
+      priority={priority}
+      loading={loading}
+      draggable={draggable}
+      className={className}
+    />
+  );
+}
 
 export default function ImageGallery({ images, productName }: { images: string[]; productName: string }) {
   const [selected, setSelected] = useState(0);
@@ -130,17 +181,15 @@ export default function ImageGallery({ images, productName }: { images: string[]
         >
           {images.map((img, i) => (
             <div key={i} className="relative min-w-full shrink-0 h-full">
-              <Image
+              <PicSrcSet
                 src={img}
                 alt={productName}
-                fill
+                sizes="(max-width: 1024px) 100vw, 58vw"
                 priority={i === 0}
                 // First image is the LCP element (priority). Eager-load only the
                 // current image's neighbours so the next swipe is ready instantly;
                 // defer the rest to keep the initial payload small.
                 loading={i === 0 ? undefined : Math.abs(i - selected) <= 1 ? 'eager' : 'lazy'}
-                sizes="(max-width: 1024px) 100vw, 58vw"
-                quality={85}
                 draggable={false}
                 className="object-cover pointer-events-none"
               />
@@ -205,12 +254,10 @@ export default function ImageGallery({ images, productName }: { images: string[]
                   : 'opacity-60 hover:opacity-100'
               }`}
             >
-              <Image
+              <PicSrcSet
                 src={img}
                 alt=""
-                fill
                 sizes="80px"
-                quality={60}
                 className="object-cover"
               />
             </button>
@@ -233,12 +280,10 @@ export default function ImageGallery({ images, productName }: { images: string[]
               onPointerDown={onLightboxDown}
               onPointerUp={onLightboxUp}
             >
-              <Image
+              <PicSrcSet
                 src={images[selected]}
                 alt={productName}
-                fill
                 sizes="100vw"
-                quality={90}
                 draggable={false}
                 className="object-contain pointer-events-none"
               />

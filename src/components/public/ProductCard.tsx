@@ -1,9 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
 import { useTranslations, useLocale } from 'next-intl';
-import { getUploadUrl } from '@/lib/utils';
+import GalleryImage from '@/components/public/GalleryImage';
 
 interface ProductCardProps {
   id: number;
@@ -44,13 +43,15 @@ export default function ProductCard({
       >
         {imageUrl ? (
           <>
-            <Image
-              src={getUploadUrl(imageUrl)}
+            {/* GalleryImage serves -opt@ images straight from Supabase's CDN
+                (bypassing Vercel image optimization, which is rate-limited)
+                and falls back to next/image for legacy paths. */}
+            <GalleryImage
+              path={imageUrl}
               alt={name}
               fill
               sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
               className="object-cover transition-transform duration-[1.4s] ease-out group-hover:scale-[1.05]"
-              loading="lazy"
             />
             <span className="absolute inset-0 bg-ink/0 group-hover:bg-ink/10 transition-colors duration-700" />
           </>
