@@ -77,19 +77,26 @@ export default function CMSClientLayout({ children }: { children: React.ReactNod
       return;
     }
 
+    // Only bounce to login on a real auth failure (401/403). A 500 means the
+    // DB hiccupped — kicking the user out turns a transient blip into a logout.
     fetch('/api/auth/me')
       .then((res) => {
-        if (!res.ok) throw new Error('Not authenticated');
+        if (res.status === 401 || res.status === 403) {
+          router.push('/cms/login');
+          return null;
+        }
+        if (!res.ok) return null;
         return res.json();
       })
       .then((data) => {
+        if (!data) return;
         setUser(data);
         if (data.mustChangePassword && pathname !== '/cms/change-password') {
           router.push('/cms/change-password');
         }
       })
       .catch(() => {
-        router.push('/cms/login');
+        // Network failure — next navigation retries.
       })
       .finally(() => setLoading(false));
   }, [pathname, isAuthPage, router]);

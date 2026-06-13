@@ -42,30 +42,59 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    Promise.all([
-      fetch('/api/banners?locale=en').then((r) => (r.ok ? r.json() : [])).catch(() => []),
-      fetch('/api/products?locale=en').then((r) => (r.ok ? r.json() : [])).catch(() => []),
-      fetch('/api/about/gallery?type=factory').then((r) => (r.ok ? r.json() : [])).catch(() => []),
-      fetch('/api/about/gallery?type=certification').then((r) => (r.ok ? r.json() : [])).catch(() => []),
-      fetch('/api/faqs?all=1').then((r) => (r.ok ? r.json() : [])).catch(() => []),
-      fetch('/api/inquiries').then((r) => (r.ok ? r.json() : [])).catch(() => []),
-    ])
-      .then(([banners, products, factory, cert, faqs, inquiries]) => {
-        setCounts({
-          banners: banners.length,
-          bannersActive: banners.filter((b: any) => b.isActive).length,
-          totalProducts: products.length,
-          featuredProducts: products.filter((p: any) => p.isFeatured).length,
-          facilityImages: factory.length,
-          certImages: cert.length,
-          faqs: faqs.length,
-          faqsActive: faqs.filter((f: any) => f.isActive).length,
-          inquiries: inquiries.length,
-          unreadInquiries: inquiries.filter((i: any) => !i.isRead).length,
-        });
-        setRecentInquiries(Array.isArray(inquiries) ? inquiries.slice(0, 5) : []);
-      })
-      .finally(() => setLoading(false));
+    // Sequential, not Promise.all: 6 parallel fetches saturate the pg pool
+    // and trip the 8s withDbRetryFast budget. Serial lets counts populate.
+    let cancelled = false;
+    const safeFetch = (u: string) =>
+      fetch(u)
+        .then((r) => (r.ok ? r.json() : []))
+        .catch(() => []);
+    (async () => {
+      const banners = await safeFetch('/api/banners?locale=en');
+      if (cancelled) return;
+      setCounts((c) => ({
+        ...c,
+        banners: banners.length,
+        bannersActive: banners.filter((b: any) => b.isActive).length,
+      }));
+
+      const products = await safeFetch('/api/products?locale=en');
+      if (cancelled) return;
+      setCounts((c) => ({
+        ...c,
+        totalProducts: products.length,
+        featuredProducts: products.filter((p: any) => p.isFeatured).length,
+      }));
+
+      const factory = await safeFetch('/api/about/gallery?type=factory');
+      if (cancelled) return;
+      setCounts((c) => ({ ...c, facilityImages: factory.length }));
+
+      const cert = await safeFetch('/api/about/gallery?type=certification');
+      if (cancelled) return;
+      setCounts((c) => ({ ...c, certImages: cert.length }));
+
+      const faqs = await safeFetch('/api/faqs?all=1');
+      if (cancelled) return;
+      setCounts((c) => ({
+        ...c,
+        faqs: faqs.length,
+        faqsActive: faqs.filter((f: any) => f.isActive).length,
+      }));
+
+      const inquiries = await safeFetch('/api/inquiries');
+      if (cancelled) return;
+      setCounts((c) => ({
+        ...c,
+        inquiries: inquiries.length,
+        unreadInquiries: inquiries.filter((i: any) => !i.isRead).length,
+      }));
+      setRecentInquiries(Array.isArray(inquiries) ? inquiries.slice(0, 5) : []);
+      setLoading(false);
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   // Mirrors the home-page section ordering & eyebrow numerals
