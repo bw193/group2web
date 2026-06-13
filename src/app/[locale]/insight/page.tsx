@@ -22,16 +22,6 @@ import { getUploadUrl } from '@/lib/utils';
 
 export const revalidate = 600;
 
-// Only the default locale's insight list is prerendered at build time. The
-// other 6 locale lists ISR cold-render on first request (300s runtime budget
-// vs the 60s build budget) and cache for `revalidate` seconds. Without this,
-// each cold build risks blowing the 60s budget on one unlucky locale's
-// cold-pool connection setup — observed twice (b492d16 /de/insight, 278a4ef
-// /it/insight). The /insight/[slug] detail pages are unaffected.
-export async function generateStaticParams() {
-  return [{ locale: 'en' }];
-}
-
 export async function generateMetadata({
   params,
 }: {
