@@ -1,8 +1,7 @@
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import {
-  getArticleList,
-  getArticleCategories,
+  getInsightIndexData,
   formatArticleDate,
   categoryFallbackLabel,
 } from '@/lib/insight';
@@ -62,10 +61,9 @@ export default async function InsightPage({ params }: { params: Promise<{ locale
   // as generateMetadata), so on-page copy and the snippet can never drift.
   const copy = pageCopy(locale, 'insight');
 
-  const [list, categories] = await Promise.all([
-    getArticleList(locale),
-    getArticleCategories(locale),
-  ]);
+  // One cached call, one cold-connection setup. Both pieces are needed
+  // to render and share an invalidation cadence anyway.
+  const { list, categories } = await getInsightIndexData(locale);
   const catMap = new Map(categories.map((c) => [c.key, c.name]));
   const catLabel = (key: string) => catMap.get(key) ?? categoryFallbackLabel(key);
 

@@ -177,6 +177,117 @@ export const getArticleList = unstable_cache(
 );
 
 /**
+ * Combined data needed by the public /[locale]/insight index page: the
+ * article list AND the category tabs, in ONE cached call running all
+ * queries sequentially on a single pooled connection.
+ *
+ * Why this exists: the index page used to fire Promise.all of
+ * `getArticleList` + `getArticleCategories`. Each is its own
+ * unstable_cache key — so on a cold cache (every fresh build, every
+ * tag-bust) the page paid TWO cold-connection setups in parallel,
+ * which on a long-haul/flaky link routinely blew Next's 60s
+ * per-page prerender budget (observed locally and on Vercel). Doing
+ * the work sequentially on one connection trades a small bit of
+ * wall-time on a warm cache for a much tighter cold-build worst case.
+ *
+ * Invalidated by both content tags: editing an article OR editing
+ * categories busts this entry. Slightly wider than strictly necessary
+ * but cheap — both pieces re-fetch together anyway.
+ */
+export const getInsightIndexData = unstable_cache(
+  async (
+    locale: string,
+  ): Promise<{ list: ArticleListItem[]; categories: ArticleCategory[] }> => {
+    const db = getDb();
+
+    // ---- articles + translations (sequential, one connection) ----
+    const base = await db
+      .select()
+      .from(articles)
+      .where(eq(articles.isActive, true))
+      .orderBy(desc(articles.publishedAt), desc(articles.id));
+
+    let list: ArticleListItem[] = [];
+    if (base.length > 0) {
+      const ids = base.map((a) => a.id);
+      const allTrans = await db
+        .select()
+        .from(articleTranslations)
+        .where(
+          and(
+            inArray(articleTranslations.articleId, ids),
+            inArray(articleTranslations.locale, locale === 'en' ? ['en'] : [locale, 'en']),
+          ),
+        );
+
+      const transMap = new Map(
+        allTrans.filter((t) => t.locale === locale).map((t) => [t.articleId, t]),
+      );
+      const transEnMap = new Map(
+        allTrans.filter((t) => t.locale === 'en').map((t) => [t.articleId, t]),
+      );
+
+      list = base.flatMap((a): ArticleListItem[] => {
+        const t = transMap.get(a.id) || transEnMap.get(a.id);
+        if (!t) return [];
+        return [
+          {
+            id: a.id,
+            category: a.category,
+            slug: t.slug,
+            title: t.title,
+            dek: t.dek,
+            author: t.author,
+            readMinutes: a.readMinutes,
+            publishedAt: a.publishedAt,
+            coverImageUrl: a.coverImageUrl,
+            thumbnailUrl: a.thumbnailUrl,
+            translationLocale: t.locale,
+          },
+        ];
+      });
+    }
+
+    // ---- categories (sequential, same connection now warmed) ----
+    if (!(await categoriesTableExists(db))) {
+      return { list, categories: [] };
+    }
+    const cats = await db
+      .select()
+      .from(articleCategories)
+      .orderBy(articleCategories.displayOrder, articleCategories.id);
+    if (cats.length === 0) return { list, categories: [] };
+
+    const catTrans = await db
+      .select()
+      .from(articleCategoryTranslations)
+      .where(inArray(articleCategoryTranslations.categoryId, cats.map((c) => c.id)));
+
+    const byCat = new Map<number, Map<string, string>>();
+    for (const ct of catTrans) {
+      const m = byCat.get(ct.categoryId) ?? new Map<string, string>();
+      m.set(ct.locale, ct.name);
+      byCat.set(ct.categoryId, m);
+    }
+
+    const categories: ArticleCategory[] = cats.map((c) => {
+      const names = byCat.get(c.id);
+      return {
+        key: c.key,
+        name: names?.get(locale) || names?.get('en') || categoryFallbackLabel(c.key),
+      };
+    });
+
+    return { list, categories };
+  },
+  ['insight-index-v1'],
+  {
+    tags: [INSIGHT_TAGS.articles, INSIGHT_TAGS.categories],
+    revalidate: INSIGHT_REVALIDATE_SECONDS,
+  },
+);
+
+/**
  * Article + translation lookup for `(locale, slug)`. Cached so that
  * `generateMetadata` and the page body share one query per request (and
  * subsequent requests skip the DB until a content edit busts the tag).
