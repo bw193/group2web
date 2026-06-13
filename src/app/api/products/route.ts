@@ -4,6 +4,7 @@ import { getDb } from '@/lib/db';
 import { products, productTranslations, productImages, productSpecifications } from '@/lib/db/schema';
 import { eq, and, desc, inArray, type SQL } from 'drizzle-orm';
 import { getSession } from '@/lib/auth';
+import { disambiguateProductSlug } from '@/lib/products';
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -110,66 +111,78 @@ export async function POST(request: NextRequest) {
 
     const db = getDb();
 
-    const [product] = await db.insert(products).values({
-      categoryId: categoryId || null,
-      modelNumber: modelNumber || null,
-      isFeatured: isFeatured || false,
-      isActive: isActive !== false,
-      tags: tags ? JSON.stringify(tags) : null,
-      createdBy: session.userId,
-    }).returning();
+    // Single transaction: a translation slug collision (or any other failure)
+    // rolls back the product row too, so the public site never sees a product
+    // with missing locale translations.
+    const { product, finalTranslations } = await db.transaction(async (tx) => {
+      const [created] = await tx.insert(products).values({
+        categoryId: categoryId || null,
+        modelNumber: modelNumber || null,
+        isFeatured: isFeatured || false,
+        isActive: isActive !== false,
+        tags: tags ? JSON.stringify(tags) : null,
+        createdBy: session.userId,
+      }).returning();
 
-    if (translations && Array.isArray(translations)) {
-      for (const t of translations) {
-        await db.insert(productTranslations).values({
-          productId: product.id,
-          locale: t.locale,
-          name: t.name,
-          slug: t.slug,
-          shortDescription: t.shortDescription || null,
-          fullDescription: t.fullDescription || null,
-        });
+      const finalT: { locale: string; slug: string }[] = [];
+      if (translations && Array.isArray(translations)) {
+        for (const t of translations) {
+          if (!t?.locale || !t?.slug) continue;
+          const finalSlug = await disambiguateProductSlug(tx, {
+            locale: t.locale,
+            slug: t.slug,
+            modelNumber: modelNumber || null,
+            productId: created.id,
+          });
+          await tx.insert(productTranslations).values({
+            productId: created.id,
+            locale: t.locale,
+            name: t.name,
+            slug: finalSlug,
+            shortDescription: t.shortDescription || null,
+            fullDescription: t.fullDescription || null,
+          });
+          finalT.push({ locale: t.locale, slug: finalSlug });
+        }
       }
-    }
 
-    if (specifications && Array.isArray(specifications)) {
-      for (const spec of specifications) {
-        await db.insert(productSpecifications).values({
-          productId: product.id,
-          locale: spec.locale || 'en',
-          specKey: spec.key,
-          specValue: spec.value,
-        });
+      if (specifications && Array.isArray(specifications)) {
+        for (const spec of specifications) {
+          await tx.insert(productSpecifications).values({
+            productId: created.id,
+            locale: spec.locale || 'en',
+            specKey: spec.key,
+            specValue: spec.value,
+          });
+        }
       }
-    }
 
-    if (images && Array.isArray(images) && images.length > 0) {
-      const hasPrimary = images.some((img: any) => img.isPrimary);
-      for (let i = 0; i < images.length; i++) {
-        const img = images[i];
-        if (!img?.imageUrl) continue;
-        await db.insert(productImages).values({
-          productId: product.id,
-          imageUrl: img.imageUrl,
-          isPrimary: img.isPrimary ?? (!hasPrimary && i === 0),
-          displayOrder: typeof img.displayOrder === 'number' ? img.displayOrder : i,
-        });
+      if (images && Array.isArray(images) && images.length > 0) {
+        const hasPrimary = images.some((img: any) => img.isPrimary);
+        for (let i = 0; i < images.length; i++) {
+          const img = images[i];
+          if (!img?.imageUrl) continue;
+          await tx.insert(productImages).values({
+            productId: created.id,
+            imageUrl: img.imageUrl,
+            isPrimary: img.isPrimary ?? (!hasPrimary && i === 0),
+            displayOrder: typeof img.displayOrder === 'number' ? img.displayOrder : i,
+          });
+        }
       }
-    }
+
+      return { product: created, finalTranslations: finalT };
+    });
 
     // Bust ISR cache for the home page (featured grid), the products index,
     // and the new product's detail page in every locale with a translation.
-    if (translations && Array.isArray(translations)) {
-      for (const t of translations) {
-        if (t?.locale) {
-          revalidatePath(`/${t.locale}`);
-          revalidatePath(`/${t.locale}/products`);
-          if (t.slug) revalidatePath(`/${t.locale}/products/${t.slug}`);
-        }
-      }
+    for (const t of finalTranslations) {
+      revalidatePath(`/${t.locale}`);
+      revalidatePath(`/${t.locale}/products`);
+      revalidatePath(`/${t.locale}/products/${t.slug}`);
     }
 
-    return NextResponse.json(product, { status: 201 });
+    return NextResponse.json({ ...product, translations: finalTranslations }, { status: 201 });
   } catch (error) {
     console.error('Create product error:', error);
     return NextResponse.json({ error: 'Failed to create product' }, { status: 500 });
