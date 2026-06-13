@@ -57,7 +57,10 @@ const nextConfig = {
     // c5c24fa). Cost: builds take ~3 min longer. Runtime unaffected.
     cpus: 2,
     staticGenerationMaxConcurrency: 2,
-    staticGenerationRetryCount: 3,
+    // 3 was just barely too tight: the merge invalidated prerender cache and
+    // /de/insight exhausted all 3 attempts on cold-connection slowness while
+    // every other locale recovered by attempt 2. 5 covers the unlucky case.
+    staticGenerationRetryCount: 5,
   },
   async redirects() {
     return [
