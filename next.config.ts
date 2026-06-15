@@ -47,19 +47,17 @@ const nextConfig = {
       dynamic: 30,
       static: 180,
     },
-    // Throttle static generation in every build environment. Insight added
-    // enough DB-backed prerender targets that full parallelism queues more
-    // simultaneous Supavisor connection setups than the 60s per-page budget
-    // tolerates (verified: c5c24fa failed at /en/insight 60s × 3 even after
-    // unstable_cache + indexes + EN-only product reduction). With this cap,
-    // a previous A/B settled it: throttle on → built green twice (04d2b4c,
-    // 984a603, d25f814); throttle off → failed immediately (b93b9f9, f1ec642,
-    // c5c24fa). Cost: builds take ~3 min longer. Runtime unaffected.
-    cpus: 2,
-    staticGenerationMaxConcurrency: 2,
-    // 3 was just barely too tight: the merge invalidated prerender cache and
-    // /de/insight exhausted all 3 attempts on cold-connection slowness while
-    // every other locale recovered by attempt 2. 5 covers the unlucky case.
+    // Build with full parallelism, like main. The earlier throttle (cpus: 2 +
+    // staticGenerationMaxConcurrency: 2) was a band-aid for the insight
+    // unstable_cache cold-connection storm: every isolated cache key opened its
+    // own cold Supavisor connection, and full parallelism multiplied that into
+    // a storm that blew the 60s/page budget — so the A/B at the time read
+    // "throttle on = green, off = fail". That cache layer is gone; insight now
+    // uses the shared postgres pool (max 3, kept warm) exactly like the product
+    // pages. The cap is no longer needed and actively hurt: throttled
+    // throughput let pooled connections idle past idle_timeout and re-cold-
+    // setup between small batches, timing out even /en. retryCount stays as a
+    // cushion for the occasional unlucky straggler.
     staticGenerationRetryCount: 5,
   },
   async redirects() {
