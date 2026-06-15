@@ -91,16 +91,13 @@ export default async function WorldwideExhibitionSection({ locale, photos }: Pro
                   />
                 </div>
 
-                <figcaption className="mt-5 flex items-baseline gap-4">
-                  <span className="font-body text-[12px] font-semibold text-bronze tracking-[0.18em] tabular-nums shrink-0">
-                    {String(it.index).padStart(2, '0')}
-                  </span>
-                  {it.caption && (
+                {it.caption && (
+                  <figcaption className="mt-5">
                     <p className="font-display text-[18px] md:text-[19px] font-normal text-ink leading-[1.3] tracking-[-0.005em] transition-colors duration-300 group-hover:text-bronze">
                       {it.caption}
                     </p>
-                  )}
-                </figcaption>
+                  </figcaption>
+                )}
               </figure>
             </li>
           ))}
