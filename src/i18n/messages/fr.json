@@ -59,7 +59,33 @@
     "whyPoint1": "Garantie de 2 ans de série — couverture prolongée pour les partenaires de longue durée",
     "whyPoint2": "R&D interne avec plus de 70 brevets, fabriqué selon votre cahier des charges",
     "whyPoint3": "Notre propre usine de 50 000 m² — une qualité maîtrisée de bout en bout",
-    "whyCta": "Pourquoi nous choisir"
+    "whyCta": "Pourquoi nous choisir",
+    "workflow": {
+      "eyebrow": "Notre Processus",
+      "heading": "Processus de Personnalisation",
+      "body": "De la première conversation à la production finale — un parcours clair en trois étapes vers votre programme de miroirs personnalisés.",
+      "step1Title": "Consultation et Recueil des Besoins",
+      "step1Desc": "Notre équipe commerciale professionnelle collabore étroitement avec vous pour comprendre pleinement vos exigences produit, vos spécifications et les objectifs de votre projet.",
+      "step2Title": "Développement d'Échantillons",
+      "step2Desc": "Nous créons des échantillons et des prototypes personnalisés à partir de vos exigences confirmées, pour votre examen et votre approbation.",
+      "step3Title": "Production en Série et Assurance Qualité",
+      "step3Desc": "Après approbation de l'échantillon, nous lançons la production en série à grande échelle avec un contrôle qualité rigoureux à chaque étape."
+    },
+    "exhibition": {
+
+      "eyebrow": "Salons internationaux",
+
+      "heading": "Rencontrez Chengtai Mirror dans les Salons Internationaux",
+
+      "body": "Nous accueillons les acheteurs, distributeurs et partenaires de projet du monde entier pour visiter notre stand, découvrir nos derniers designs de miroirs et discuter de solutions sur mesure pour vos futurs projets.",
+
+      "defaultCaption": "Salon international {n}",
+
+      "counterLabel": "Salons dans le monde",
+
+      "plateLabel": "Salon international"
+
+    }
   },
   "products": {
     "title": "Nos Produits",

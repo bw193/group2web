@@ -5,7 +5,7 @@ import { eq } from 'drizzle-orm';
 import { getSession } from '@/lib/auth';
 import { revalidatePath } from 'next/cache';
 
-const VALID_TYPES = new Set(['factory', 'certification', 'team', 'product']);
+const VALID_TYPES = new Set(['factory', 'certification', 'team', 'product', 'exhibition']);
 
 // GET ?type=factory|certification (defaults to all)
 export async function GET(request: NextRequest) {
@@ -28,11 +28,16 @@ export async function POST(request: NextRequest) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
 
-  const body = (await request.json()) as { imageUrl?: string; imageType?: string; displayOrder?: number };
+  const body = (await request.json()) as {
+    imageUrl?: string;
+    imageType?: string;
+    displayOrder?: number;
+    caption?: string;
+  };
 
   if (!body.imageUrl) return NextResponse.json({ error: 'imageUrl required' }, { status: 400 });
   if (!body.imageType || !VALID_TYPES.has(body.imageType)) {
-    return NextResponse.json({ error: 'imageType must be one of: factory, certification, team, product' }, { status: 400 });
+    return NextResponse.json({ error: 'imageType must be one of: factory, certification, team, product, exhibition' }, { status: 400 });
   }
 
   const db = getDb();
@@ -42,6 +47,7 @@ export async function POST(request: NextRequest) {
       imageUrl: body.imageUrl,
       imageType: body.imageType,
       displayOrder: body.displayOrder ?? 0,
+      caption: body.caption?.trim() || null,
     })
     .returning();
 

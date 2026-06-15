@@ -59,7 +59,33 @@
     "whyPoint1": "2 Jahre Garantie serienmäßig — längere Garantiedauer für langfristige Partner",
     "whyPoint2": "Eigene F&E mit über 70 Patenten, gefertigt nach Ihrer Spezifikation",
     "whyPoint3": "Eigene 50.000 m²-Fabrik — Qualität, die wir von A bis Z kontrollieren",
-    "whyCta": "Warum uns wählen"
+    "whyCta": "Warum uns wählen",
+    "workflow": {
+      "eyebrow": "Unser Prozess",
+      "heading": "Maßgeschneiderter Fertigungsablauf",
+      "body": "Vom ersten Gespräch bis zur fertigen Produktion — ein klarer Weg in drei Schritten zu Ihrem individuellen Spiegelprogramm.",
+      "step1Title": "Beratung & Anforderungsanalyse",
+      "step1Desc": "Unser professionelles Vertriebsteam arbeitet eng mit Ihnen zusammen, um Ihre Produktanforderungen, Spezifikationen und Projektziele vollständig zu verstehen.",
+      "step2Title": "Musterentwicklung",
+      "step2Desc": "Wir erstellen individuelle Muster und Prototypen auf Basis Ihrer bestätigten Anforderungen zur Prüfung und Freigabe.",
+      "step3Title": "Serienproduktion & Qualitätssicherung",
+      "step3Desc": "Nach Freigabe des Musters gehen wir in die großserielle Produktion mit strenger Qualitätskontrolle in jeder Phase."
+    },
+    "exhibition": {
+
+      "eyebrow": "Weltweite Messen",
+
+      "heading": "Treffen Sie Chengtai Mirror auf internationalen Messen",
+
+      "body": "Wir heißen Einkäufer, Händler und Projektpartner aus aller Welt an unserem Stand willkommen, um unsere neuesten Spiegeldesigns zu entdecken und maßgeschneiderte Lösungen für kommende Projekte zu besprechen.",
+
+      "defaultCaption": "Internationale Messe {n}",
+
+      "counterLabel": "Messen weltweit",
+
+      "plateLabel": "Internationale Messe"
+
+    }
   },
   "products": {
     "title": "Unsere Produkte",

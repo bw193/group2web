@@ -124,6 +124,7 @@ export const aboutGallery = pgTable('about_gallery', {
   imageUrl: text('image_url').notNull(),
   imageType: text('image_type').notNull(),
   displayOrder: integer('display_order').notNull().default(0),
+  caption: text('caption'),
 });
 
 export const faqs = pgTable('faqs', {
