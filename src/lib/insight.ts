@@ -1,5 +1,4 @@
 import 'server-only';
-import { unstable_cache } from 'next/cache';
 import { getDb } from '@/lib/db';
 import {
   articles,
@@ -11,24 +10,16 @@ import {
   productTranslations,
   productImages,
 } from '@/lib/db/schema';
-import { and, desc, eq, inArray, ne, sql } from 'drizzle-orm';
+import { and, desc, eq, inArray, ne } from 'drizzle-orm';
 
-// Cache tags for Next.js Data Cache. CMS write routes
-// (src/app/api/articles/**, src/app/api/article-categories/**) call
-// revalidateTag with these exact strings — keep in sync. Re-fetching
-// Insight data on every public render path was the load that pushed the
-// Vercel preview build past the 60s per-page budget; tag-busting reads
-// hit Supabase only on a content edit, not on every ISR regeneration.
-export const INSIGHT_TAGS = {
-  /** Bust every article-derived read (list, route-data, more-stories, products). */
-  articles: 'insight:articles',
-  /** Bust the categories list. */
-  categories: 'insight:categories',
-} as const;
-
-// Self-healing revalidation window — if a CMS write somehow misses the tag
-// bust, cached entries still refresh on next request after this interval.
-const INSIGHT_REVALIDATE_SECONDS = 3600;
+// Insight reads mirror the product pages: direct, batched Drizzle queries on
+// the shared pooled connection, cached ONLY by page-level ISR (`export const
+// revalidate` on each route). There is intentionally no second `unstable_cache`
+// data layer — stacking the Data Cache + tag-busting on top of ISR was what
+// produced the cold-connection storms that timed out both the build (iad1 →
+// eu-west-1 cold setup × N isolated keys > 60s/page) and runtime (a deploy or
+// a `revalidateTag` forced a synchronous cold refetch of every isolated key).
+// CMS writes invalidate with `revalidatePath`, exactly like the product routes.
 
 export interface ArticleCategory {
   key: string;
@@ -40,67 +31,40 @@ export function categoryFallbackLabel(key: string): string {
   return key ? key.charAt(0).toUpperCase() + key.slice(1) : key;
 }
 
-// Until drizzle/0005 has been applied, selecting from article_categories
-// raises `42P01 undefined_table`. An ERROR through the transaction pooler is
-// worse than wasted latency: it can leave the pooled server connection in a
-// bad state that an unrelated page then inherits (observed as random pages
-// hanging during builds). So never send the doomed query — probe pg_tables
-// (a valid query) once per process and skip categories while absent.
-let categoriesTablePresent: boolean | undefined;
-
-async function categoriesTableExists(db: ReturnType<typeof getDb>): Promise<boolean> {
-  if (categoriesTablePresent !== undefined) return categoriesTablePresent;
-  const rows = await db.execute(
-    sql`select 1 from pg_catalog.pg_tables where schemaname = current_schema() and tablename = 'article_categories' limit 1`,
-  );
-  categoriesTablePresent = rows.length > 0;
-  if (!categoriesTablePresent) {
-    console.error('article_categories table missing (run drizzle/0005); categories disabled for this process');
-  }
-  return categoriesTablePresent;
-}
-
 /**
- * CMS-managed categories for a locale, in editor order, with the usual
- * English fallback per name (then the title-cased key). Returns [] only for
- * the legitimate empty cases (tables not yet migrated, no rows); a DB failure
- * throws so the caller fails loudly instead of silently dropping the tabs.
+ * CMS-managed categories for a locale, in editor order, with the usual English
+ * fallback per name (then the title-cased key). Returns [] only for the
+ * legitimate empty case (no rows); a DB failure throws so the caller fails
+ * loudly instead of silently dropping the tabs.
  */
-export const getArticleCategories = unstable_cache(
-  async (locale: string): Promise<ArticleCategory[]> => {
-    const db = getDb();
-    if (!(await categoriesTableExists(db))) return [];
+export async function getArticleCategories(locale: string): Promise<ArticleCategory[]> {
+  const db = getDb();
+  const cats = await db
+    .select()
+    .from(articleCategories)
+    .orderBy(articleCategories.displayOrder, articleCategories.id);
+  if (cats.length === 0) return [];
 
-    const cats = await db
-      .select()
-      .from(articleCategories)
-      .orderBy(articleCategories.displayOrder, articleCategories.id);
-    if (cats.length === 0) return [];
+  const trans = await db
+    .select()
+    .from(articleCategoryTranslations)
+    .where(inArray(articleCategoryTranslations.categoryId, cats.map((c) => c.id)));
 
-    const ids = cats.map((c) => c.id);
-    const trans = await db
-      .select()
-      .from(articleCategoryTranslations)
-      .where(inArray(articleCategoryTranslations.categoryId, ids));
+  const byCat = new Map<number, Map<string, string>>();
+  for (const t of trans) {
+    const m = byCat.get(t.categoryId) ?? new Map<string, string>();
+    m.set(t.locale, t.name);
+    byCat.set(t.categoryId, m);
+  }
 
-    const byCat = new Map<number, Map<string, string>>();
-    for (const t of trans) {
-      const m = byCat.get(t.categoryId) ?? new Map<string, string>();
-      m.set(t.locale, t.name);
-      byCat.set(t.categoryId, m);
-    }
-
-    return cats.map((c) => {
-      const names = byCat.get(c.id);
-      return {
-        key: c.key,
-        name: names?.get(locale) || names?.get('en') || categoryFallbackLabel(c.key),
-      };
-    });
-  },
-  ['insight-categories-v1'],
-  { tags: [INSIGHT_TAGS.categories], revalidate: INSIGHT_REVALIDATE_SECONDS },
-);
+  return cats.map((c) => {
+    const names = byCat.get(c.id);
+    return {
+      key: c.key,
+      name: names?.get(locale) || names?.get('en') || categoryFallbackLabel(c.key),
+    };
+  });
+}
 
 export interface ArticleListItem {
   id: number;
@@ -115,283 +79,170 @@ export interface ArticleListItem {
   thumbnailUrl: string | null;
   // The locale that produced this row's translation. Equal to the requested
   // locale when its own translation exists, otherwise 'en' (the fallback).
-  // Used by the list page to link English fallback cards to /en/ rather than
-  // creating phantom /pt/, /fr/, etc. detail URLs that ISR has to render
-  // dynamically on every hit.
+  // The list page links English-fallback cards to /en/ rather than creating
+  // phantom /pt/, /fr/, … detail URLs.
   translationLocale: string;
 }
 
+// Shared shaping for a list row from an article + its chosen translation.
+function toListItem(
+  a: typeof articles.$inferSelect,
+  t: typeof articleTranslations.$inferSelect,
+): ArticleListItem {
+  return {
+    id: a.id,
+    category: a.category,
+    slug: t.slug,
+    title: t.title,
+    dek: t.dek,
+    author: t.author,
+    readMinutes: a.readMinutes,
+    publishedAt: a.publishedAt,
+    coverImageUrl: a.coverImageUrl,
+    thumbnailUrl: a.thumbnailUrl,
+    translationLocale: t.locale,
+  };
+}
+
+// Resolve each article to its locale translation, falling back to English;
+// articles with neither are dropped.
+function resolveList(
+  base: (typeof articles.$inferSelect)[],
+  allTrans: (typeof articleTranslations.$inferSelect)[],
+  locale: string,
+): ArticleListItem[] {
+  const transMap = new Map(allTrans.filter((t) => t.locale === locale).map((t) => [t.articleId, t]));
+  const transEnMap = new Map(allTrans.filter((t) => t.locale === 'en').map((t) => [t.articleId, t]));
+  return base.flatMap((a) => {
+    const t = transMap.get(a.id) || transEnMap.get(a.id);
+    return t ? [toListItem(a, t)] : [];
+  });
+}
+
 /**
- * Active articles for a locale, newest first. Batch-loads the locale's
- * translations plus an English fallback in parallel (the products-list
- * recipe); articles with no translation in either are dropped. A DB failure
- * throws — pages fail loudly and ISR keeps serving the last good render.
+ * Combined data for the public /[locale]/insight index: the article list AND
+ * the category tabs. Two query waves on the shared pool (the products-list
+ * recipe): first the two base tables in parallel, then their translations in
+ * parallel. A DB failure throws; ISR keeps serving the last good render.
  */
-export const getArticleList = unstable_cache(
-  async (locale: string): Promise<ArticleListItem[]> => {
-    const db = getDb();
-    const base = await db
+export async function getInsightIndexData(
+  locale: string,
+): Promise<{ list: ArticleListItem[]; categories: ArticleCategory[] }> {
+  const db = getDb();
+  const localesWanted = locale === 'en' ? ['en'] : [locale, 'en'];
+
+  // Wave 1 — base rows for both sections in parallel.
+  const [base, cats] = await Promise.all([
+    db
       .select()
       .from(articles)
       .where(eq(articles.isActive, true))
-      .orderBy(desc(articles.publishedAt), desc(articles.id));
-    if (base.length === 0) return [];
-
-    const ids = base.map((a) => a.id);
-    // One batched query covers the locale and its English fallback.
-    const allTrans = await db
-      .select()
-      .from(articleTranslations)
-      .where(
-        and(
-          inArray(articleTranslations.articleId, ids),
-          inArray(articleTranslations.locale, locale === 'en' ? ['en'] : [locale, 'en']),
-        ),
-      );
-
-    const transMap = new Map(allTrans.filter((t) => t.locale === locale).map((t) => [t.articleId, t]));
-    const transEnMap = new Map(allTrans.filter((t) => t.locale === 'en').map((t) => [t.articleId, t]));
-
-    return base.flatMap((a): ArticleListItem[] => {
-      const t = transMap.get(a.id) || transEnMap.get(a.id);
-      if (!t) return [];
-      return [
-        {
-          id: a.id,
-          category: a.category,
-          slug: t.slug,
-          title: t.title,
-          dek: t.dek,
-          author: t.author,
-          readMinutes: a.readMinutes,
-          publishedAt: a.publishedAt,
-          coverImageUrl: a.coverImageUrl,
-          thumbnailUrl: a.thumbnailUrl,
-          translationLocale: t.locale,
-        },
-      ];
-    });
-  },
-  ['insight-list-v1'],
-  { tags: [INSIGHT_TAGS.articles], revalidate: INSIGHT_REVALIDATE_SECONDS },
-);
-
-/**
- * Combined data needed by the public /[locale]/insight index page: the
- * article list AND the category tabs, in ONE cached call running all
- * queries sequentially on a single pooled connection.
- *
- * Why this exists: the index page used to fire Promise.all of
- * `getArticleList` + `getArticleCategories`. Each is its own
- * unstable_cache key — so on a cold cache (every fresh build, every
- * tag-bust) the page paid TWO cold-connection setups in parallel,
- * which on a long-haul/flaky link routinely blew Next's 60s
- * per-page prerender budget (observed locally and on Vercel). Doing
- * the work sequentially on one connection trades a small bit of
- * wall-time on a warm cache for a much tighter cold-build worst case.
- *
- * Invalidated by both content tags: editing an article OR editing
- * categories busts this entry. Slightly wider than strictly necessary
- * but cheap — both pieces re-fetch together anyway.
- */
-export const getInsightIndexData = unstable_cache(
-  async (
-    locale: string,
-  ): Promise<{ list: ArticleListItem[]; categories: ArticleCategory[] }> => {
-    const db = getDb();
-
-    // ---- articles + translations (sequential, one connection) ----
-    const base = await db
-      .select()
-      .from(articles)
-      .where(eq(articles.isActive, true))
-      .orderBy(desc(articles.publishedAt), desc(articles.id));
-
-    let list: ArticleListItem[] = [];
-    if (base.length > 0) {
-      const ids = base.map((a) => a.id);
-      const allTrans = await db
-        .select()
-        .from(articleTranslations)
-        .where(
-          and(
-            inArray(articleTranslations.articleId, ids),
-            inArray(articleTranslations.locale, locale === 'en' ? ['en'] : [locale, 'en']),
-          ),
-        );
-
-      const transMap = new Map(
-        allTrans.filter((t) => t.locale === locale).map((t) => [t.articleId, t]),
-      );
-      const transEnMap = new Map(
-        allTrans.filter((t) => t.locale === 'en').map((t) => [t.articleId, t]),
-      );
-
-      list = base.flatMap((a): ArticleListItem[] => {
-        const t = transMap.get(a.id) || transEnMap.get(a.id);
-        if (!t) return [];
-        return [
-          {
-            id: a.id,
-            category: a.category,
-            slug: t.slug,
-            title: t.title,
-            dek: t.dek,
-            author: t.author,
-            readMinutes: a.readMinutes,
-            publishedAt: a.publishedAt,
-            coverImageUrl: a.coverImageUrl,
-            thumbnailUrl: a.thumbnailUrl,
-            translationLocale: t.locale,
-          },
-        ];
-      });
-    }
-
-    // ---- categories (sequential, same connection now warmed) ----
-    if (!(await categoriesTableExists(db))) {
-      return { list, categories: [] };
-    }
-    const cats = await db
+      .orderBy(desc(articles.publishedAt), desc(articles.id)),
+    db
       .select()
       .from(articleCategories)
-      .orderBy(articleCategories.displayOrder, articleCategories.id);
-    if (cats.length === 0) return { list, categories: [] };
+      .orderBy(articleCategories.displayOrder, articleCategories.id),
+  ]);
 
-    const catTrans = await db
-      .select()
-      .from(articleCategoryTranslations)
-      .where(inArray(articleCategoryTranslations.categoryId, cats.map((c) => c.id)));
+  // Wave 2 — translations for whatever the base rows produced, in parallel.
+  const [allTrans, catTrans] = await Promise.all([
+    base.length
+      ? db
+          .select()
+          .from(articleTranslations)
+          .where(
+            and(
+              inArray(articleTranslations.articleId, base.map((a) => a.id)),
+              inArray(articleTranslations.locale, localesWanted),
+            ),
+          )
+      : Promise.resolve([] as (typeof articleTranslations.$inferSelect)[]),
+    cats.length
+      ? db
+          .select()
+          .from(articleCategoryTranslations)
+          .where(inArray(articleCategoryTranslations.categoryId, cats.map((c) => c.id)))
+      : Promise.resolve([] as (typeof articleCategoryTranslations.$inferSelect)[]),
+  ]);
 
-    const byCat = new Map<number, Map<string, string>>();
-    for (const ct of catTrans) {
-      const m = byCat.get(ct.categoryId) ?? new Map<string, string>();
-      m.set(ct.locale, ct.name);
-      byCat.set(ct.categoryId, m);
-    }
+  const byCat = new Map<number, Map<string, string>>();
+  for (const ct of catTrans) {
+    const m = byCat.get(ct.categoryId) ?? new Map<string, string>();
+    m.set(ct.locale, ct.name);
+    byCat.set(ct.categoryId, m);
+  }
+  const categories: ArticleCategory[] = cats.map((c) => {
+    const names = byCat.get(c.id);
+    return {
+      key: c.key,
+      name: names?.get(locale) || names?.get('en') || categoryFallbackLabel(c.key),
+    };
+  });
 
-    const categories: ArticleCategory[] = cats.map((c) => {
-      const names = byCat.get(c.id);
-      return {
-        key: c.key,
-        name: names?.get(locale) || names?.get('en') || categoryFallbackLabel(c.key),
-      };
-    });
-
-    return { list, categories };
-  },
-  ['insight-index-v1'],
-  {
-    tags: [INSIGHT_TAGS.articles, INSIGHT_TAGS.categories],
-    revalidate: INSIGHT_REVALIDATE_SECONDS,
-  },
-);
-
-/**
- * Article + translation lookup for `(locale, slug)`. Cached so that
- * `generateMetadata` and the page body share one query per request (and
- * subsequent requests skip the DB until a content edit busts the tag).
- * Returns null when the locale doesn't have its own translation with this slug.
- */
-export const getArticleRouteData = unstable_cache(
-  async (locale: string, slug: string) => {
-    const db = getDb();
-    const joined = await db
-      .select({ article: articles, trans: articleTranslations })
-      .from(articleTranslations)
-      .innerJoin(articles, eq(articles.id, articleTranslations.articleId))
-      .where(
-        and(
-          eq(articleTranslations.slug, slug),
-          eq(articleTranslations.locale, locale),
-          eq(articles.isActive, true),
-        ),
-      )
-      .limit(1);
-    return joined[0] ?? null;
-  },
-  ['insight-route-v1'],
-  { tags: [INSIGHT_TAGS.articles], revalidate: INSIGHT_REVALIDATE_SECONDS },
-);
+  return { list: resolveList(base, allTrans, locale), categories };
+}
 
 /**
- * All `(locale, slug)` pairs for an article, used by the detail page's
- * `generateMetadata` to build hreflang.
+ * Article + translation lookup for `(locale, slug)`. Returns null when the
+ * locale doesn't have its own translation with this slug.
  */
-export const getArticleAllTranslations = unstable_cache(
-  async (articleId: number) => {
-    const db = getDb();
-    return db
-      .select({ locale: articleTranslations.locale, slug: articleTranslations.slug })
-      .from(articleTranslations)
-      .where(eq(articleTranslations.articleId, articleId));
-  },
-  ['insight-all-translations-v1'],
-  { tags: [INSIGHT_TAGS.articles], revalidate: INSIGHT_REVALIDATE_SECONDS },
-);
+export async function getArticleRouteData(locale: string, slug: string) {
+  const db = getDb();
+  const joined = await db
+    .select({ article: articles, trans: articleTranslations })
+    .from(articleTranslations)
+    .innerJoin(articles, eq(articles.id, articleTranslations.articleId))
+    .where(
+      and(
+        eq(articleTranslations.slug, slug),
+        eq(articleTranslations.locale, locale),
+        eq(articles.isActive, true),
+      ),
+    )
+    .limit(1);
+  return joined[0] ?? null;
+}
+
+/** All `(locale, slug)` pairs for an article — used to build hreflang. */
+export async function getArticleAllTranslations(articleId: number) {
+  const db = getDb();
+  return db
+    .select({ locale: articleTranslations.locale, slug: articleTranslations.slug })
+    .from(articleTranslations)
+    .where(eq(articleTranslations.articleId, articleId));
+}
 
 /**
- * "More from Insight" data for the detail page: the newest `limit` articles
- * excluding the one being read. Excludes in SQL (over `getArticleList` +
- * `.filter().slice()`), over-fetches by ×3 so the locale/EN fallback step
- * can drop rows without leaving the list short, then slices to `limit`.
- * `limit` is required (no default) so callers cannot accidentally split the
- * cache key between `(locale, id)` and `(locale, id, 3)`.
+ * "More from Insight": the newest `limit` active articles excluding the one
+ * being read. Over-fetches ×3 so the locale/EN fallback can drop rows without
+ * leaving the list short, then slices to `limit`.
  */
-export const getMoreStories = unstable_cache(
-  async (
-    locale: string,
-    excludeArticleId: number,
-    limit: number,
-  ): Promise<ArticleListItem[]> => {
-    const db = getDb();
-    const base = await db
-      .select()
-      .from(articles)
-      .where(and(eq(articles.isActive, true), ne(articles.id, excludeArticleId)))
-      .orderBy(desc(articles.publishedAt), desc(articles.id))
-      .limit(limit * 3);
-    if (base.length === 0) return [];
+export async function getMoreStories(
+  locale: string,
+  excludeArticleId: number,
+  limit: number,
+): Promise<ArticleListItem[]> {
+  const db = getDb();
+  const base = await db
+    .select()
+    .from(articles)
+    .where(and(eq(articles.isActive, true), ne(articles.id, excludeArticleId)))
+    .orderBy(desc(articles.publishedAt), desc(articles.id))
+    .limit(limit * 3);
+  if (base.length === 0) return [];
 
-    const ids = base.map((a) => a.id);
-    const allTrans = await db
-      .select()
-      .from(articleTranslations)
-      .where(
-        and(
-          inArray(articleTranslations.articleId, ids),
-          inArray(articleTranslations.locale, locale === 'en' ? ['en'] : [locale, 'en']),
-        ),
-      );
+  const allTrans = await db
+    .select()
+    .from(articleTranslations)
+    .where(
+      and(
+        inArray(articleTranslations.articleId, base.map((a) => a.id)),
+        inArray(articleTranslations.locale, locale === 'en' ? ['en'] : [locale, 'en']),
+      ),
+    );
 
-    const transMap = new Map(allTrans.filter((t) => t.locale === locale).map((t) => [t.articleId, t]));
-    const transEnMap = new Map(allTrans.filter((t) => t.locale === 'en').map((t) => [t.articleId, t]));
-
-    return base
-      .flatMap((a): ArticleListItem[] => {
-        const t = transMap.get(a.id) || transEnMap.get(a.id);
-        if (!t) return [];
-        return [
-          {
-            id: a.id,
-            category: a.category,
-            slug: t.slug,
-            title: t.title,
-            dek: t.dek,
-            author: t.author,
-            readMinutes: a.readMinutes,
-            publishedAt: a.publishedAt,
-            coverImageUrl: a.coverImageUrl,
-            thumbnailUrl: a.thumbnailUrl,
-            translationLocale: t.locale,
-          },
-        ];
-      })
-      .slice(0, limit);
-  },
-  ['insight-more-stories-v1'],
-  { tags: [INSIGHT_TAGS.articles], revalidate: INSIGHT_REVALIDATE_SECONDS },
-);
+  return resolveList(base, allTrans, locale).slice(0, limit);
+}
 
 export interface ArticleRelatedProduct {
   id: number;
@@ -406,68 +257,59 @@ export interface ArticleRelatedProduct {
 /**
  * Catalog products an article features, in editor order — shaped for
  * `ProductCard`. Locale translation + English fallback + primary image,
- * restricted to active products.
- *
- * Tagged under `insight:articles` so a content edit on the source article
- * (which controls the product link list) refreshes this. Edits to the
- * underlying product rows (name, image) currently don't bust this cache —
- * a known gap tracked separately; the 1h revalidate window self-heals.
+ * restricted to active products. Reads (never writes) the product tables.
  */
-export const getArticleProducts = unstable_cache(
-  async (articleId: number, locale: string): Promise<ArticleRelatedProduct[]> => {
-    const db = getDb();
-    // Three batched queries total (links⋈products join, both-locale
-    // translations, images) — article pages need only card-level product
-    // fields, never specifications or full descriptions.
-    const rows = await db
-      .select({ link: articleProducts, product: products })
-      .from(articleProducts)
-      .innerJoin(
-        products,
-        and(eq(products.id, articleProducts.productId), eq(products.isActive, true)),
-      )
-      .where(eq(articleProducts.articleId, articleId))
-      .orderBy(articleProducts.displayOrder);
-    const pids = rows.map((r) => r.product.id);
-    if (pids.length === 0) return [];
+export async function getArticleProducts(
+  articleId: number,
+  locale: string,
+): Promise<ArticleRelatedProduct[]> {
+  const db = getDb();
+  const rows = await db
+    .select({ link: articleProducts, product: products })
+    .from(articleProducts)
+    .innerJoin(
+      products,
+      and(eq(products.id, articleProducts.productId), eq(products.isActive, true)),
+    )
+    .where(eq(articleProducts.articleId, articleId))
+    .orderBy(articleProducts.displayOrder);
+  const pids = rows.map((r) => r.product.id);
+  if (pids.length === 0) return [];
 
-    const [allTrans, imgs] = await Promise.all([
-      db
-        .select()
-        .from(productTranslations)
-        .where(
-          and(
-            inArray(productTranslations.productId, pids),
-            inArray(productTranslations.locale, locale === 'en' ? ['en'] : [locale, 'en']),
-          ),
+  const [allTrans, imgs] = await Promise.all([
+    db
+      .select()
+      .from(productTranslations)
+      .where(
+        and(
+          inArray(productTranslations.productId, pids),
+          inArray(productTranslations.locale, locale === 'en' ? ['en'] : [locale, 'en']),
         ),
-      db.select().from(productImages).where(inArray(productImages.productId, pids)),
-    ]);
+      ),
+    db.select().from(productImages).where(inArray(productImages.productId, pids)),
+  ]);
 
-    const transMap = new Map(allTrans.filter((t) => t.locale === locale).map((t) => [t.productId, t]));
-    const transEnMap = new Map(allTrans.filter((t) => t.locale === 'en').map((t) => [t.productId, t]));
-    const imgMap = new Map<number, (typeof imgs)[number]>();
-    for (const img of imgs) {
-      const existing = imgMap.get(img.productId);
-      if (!existing || (img.isPrimary && !existing.isPrimary)) imgMap.set(img.productId, img);
-    }
+  const transMap = new Map(allTrans.filter((t) => t.locale === locale).map((t) => [t.productId, t]));
+  const transEnMap = new Map(allTrans.filter((t) => t.locale === 'en').map((t) => [t.productId, t]));
+  const imgMap = new Map<number, (typeof imgs)[number]>();
+  for (const img of imgs) {
+    const existing = imgMap.get(img.productId);
+    if (!existing || (img.isPrimary && !existing.isPrimary)) imgMap.set(img.productId, img);
+  }
 
-    return rows.map(({ product: p }): ArticleRelatedProduct => {
-      const t = transMap.get(p.id) || transEnMap.get(p.id);
-      return {
-        id: p.id,
-        name: t?.name || 'Product',
-        slug: t?.slug || `product-${p.id}`,
-        shortDescription: t?.shortDescription ?? null,
-        modelNumber: p.modelNumber,
-        imageUrl: imgMap.get(p.id)?.imageUrl ?? null,
-        isFeatured: p.isFeatured,
-      };
-    });
-  },
-  ['insight-article-products-v1'],
-  { tags: [INSIGHT_TAGS.articles], revalidate: INSIGHT_REVALIDATE_SECONDS },
-);
+  return rows.map(({ product: p }): ArticleRelatedProduct => {
+    const t = transMap.get(p.id) || transEnMap.get(p.id);
+    return {
+      id: p.id,
+      name: t?.name || 'Product',
+      slug: t?.slug || `product-${p.id}`,
+      shortDescription: t?.shortDescription ?? null,
+      modelNumber: p.modelNumber,
+      imageUrl: imgMap.get(p.id)?.imageUrl ?? null,
+      isFeatured: p.isFeatured,
+    };
+  });
+}
 
 /** Locale-aware "12 May 2026" style label for an article's publish date. */
 export function formatArticleDate(publishedAt: string, locale: string): string {

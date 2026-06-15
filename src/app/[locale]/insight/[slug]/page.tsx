@@ -37,6 +37,9 @@ export const revalidate = 600;
 export async function generateStaticParams() {
   try {
     const db = getDb();
+    // Prerender every (locale, slug) — same as the product detail page. With
+    // the unstable_cache layer gone, each page is one route lookup + a single
+    // batched Promise.all on the shared pool, well inside the per-page budget.
     const rows = await db
       .select({ locale: articleTranslations.locale, slug: articleTranslations.slug })
       .from(articleTranslations);

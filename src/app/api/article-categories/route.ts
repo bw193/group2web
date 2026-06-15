@@ -1,18 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { revalidatePath, revalidateTag } from 'next/cache';
+import { revalidatePath } from 'next/cache';
 import { getDb, withDbRetryFast } from '@/lib/db';
 import { articles, articleCategories, articleCategoryTranslations } from '@/lib/db/schema';
 import { eq, sql } from 'drizzle-orm';
 import { getSession } from '@/lib/auth';
 import { slugify } from '@/lib/utils';
 import { locales } from '@/i18n/config';
-import { INSIGHT_TAGS } from '@/lib/insight';
 
-// Bust both data-cache (unstable_cache: categories + articles, since the
-// list page joins category labels onto article rows) and rendered HTML/RSC.
+// Refresh the insight index in every locale (the list joins category labels
+// onto article rows). Page-path ISR invalidation, exactly like the product routes.
 function revalidateInsightIndexes() {
-  revalidateTag(INSIGHT_TAGS.categories);
-  revalidateTag(INSIGHT_TAGS.articles);
   for (const loc of locales) {
     revalidatePath(`/${loc}/insight`);
   }
