@@ -16,8 +16,10 @@ import {
 import { eq, and, desc, inArray } from 'drizzle-orm';
 import HeroBanner from '@/components/public/HeroBanner';
 import FeaturedProductsSection from '@/components/public/FeaturedProductsSection';
+import CustomizationWorkflowSection from '@/components/public/CustomizationWorkflowSection';
 import FacilitySection from '@/components/public/FacilitySection';
 import CertificationsSection from '@/components/public/CertificationsSection';
+import WorldwideExhibitionSection from '@/components/public/WorldwideExhibitionSection';
 import FaqSection from '@/components/public/FaqSection';
 import { JsonLd } from '@/components/seo/JsonLd';
 import {
@@ -85,8 +87,11 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   const t = await getTranslations('home');
   const db = getDb();
 
-  // Fetch banners, featured products, categories, factory photos, and certs in parallel
-  const [bannerData, featuredProducts, allCats, facilityPhoto, certPhotos] = await Promise.all([
+  // Fetch banners, featured products, categories, factory photos, certs and
+  // exhibition photos in parallel. All 6 queries hit the same Supavisor pool —
+  // adding the 6th to this batch does NOT cost an extra round trip; it's one
+  // small scan on the same about_gallery rows already in cache.
+  const [bannerData, featuredProducts, allCats, facilityPhoto, certPhotos, exhibitionPhotos] = await Promise.all([
     db
       .select()
       .from(banners)
@@ -117,6 +122,14 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       .select()
       .from(aboutGallery)
       .where(eq(aboutGallery.imageType, 'certification'))
+      .orderBy(aboutGallery.displayOrder),
+    db
+      .select({
+        imageUrl: aboutGallery.imageUrl,
+        caption: aboutGallery.caption,
+      })
+      .from(aboutGallery)
+      .where(eq(aboutGallery.imageType, 'exhibition'))
       .orderBy(aboutGallery.displayOrder),
   ]);
 
@@ -338,10 +351,10 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                   }`}
                   data-reveal
                 >
-                  <div className="mb-3">
+                  <div className="mb-4">
                     <Icon
-                      size={20}
-                      strokeWidth={1.25}
+                      size={32}
+                      strokeWidth={1.5}
                       className="text-bronze transition-transform duration-700 ease-out group-hover:-translate-y-0.5"
                     />
                   </div>
@@ -366,6 +379,9 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         maxVisible={8}
       />
 
+      {/* Customization Workflow — OEM/ODM process */}
+      <CustomizationWorkflowSection locale={locale} />
+
       {/* Factory & Numbers — editorial feature */}
       <FacilitySection
         locale={locale}
@@ -377,6 +393,9 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
       {/* Certifications */}
       <CertificationsSection images={certPhotos.map((p) => p.imageUrl)} />
+
+      {/* Worldwide Exhibitions — hidden when no photos are uploaded */}
+      <WorldwideExhibitionSection locale={locale} photos={exhibitionPhotos} />
     </>
   );
 }

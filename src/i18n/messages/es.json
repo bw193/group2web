@@ -59,7 +59,33 @@
     "whyPoint1": "Garantía de 2 años de serie — cobertura más larga para socios a largo plazo",
     "whyPoint2": "I+D propio con más de 70 patentes, fabricado según su especificación",
     "whyPoint3": "Fábrica propia de 50.000 m² — calidad que controlamos de principio a fin",
-    "whyCta": "Por qué elegirnos"
+    "whyCta": "Por qué elegirnos",
+    "workflow": {
+      "eyebrow": "Nuestro Proceso",
+      "heading": "Flujo de Personalización",
+      "body": "Desde la primera conversación hasta la producción final: un camino claro de tres pasos hacia su programa de espejos personalizados.",
+      "step1Title": "Consulta y Recopilación de Requisitos",
+      "step1Desc": "Nuestro equipo comercial profesional colabora estrechamente con usted para comprender plenamente sus requisitos de producto, especificaciones y objetivos del proyecto.",
+      "step2Title": "Desarrollo de Muestras",
+      "step2Desc": "Creamos muestras y prototipos personalizados según sus requisitos confirmados para su revisión y aprobación.",
+      "step3Title": "Producción en Serie y Control de Calidad",
+      "step3Desc": "Tras la aprobación de la muestra, procedemos a la producción en serie a gran escala con un riguroso control de calidad en cada etapa."
+    },
+    "exhibition": {
+
+      "eyebrow": "Exposiciones internacionales",
+
+      "heading": "Conozca a Chengtai Mirror en Ferias Internacionales",
+
+      "body": "Damos la bienvenida a compradores, distribuidores y socios de proyectos de todo el mundo para que visiten nuestro stand, descubran nuestros últimos diseños de espejos y comenten soluciones a medida para próximos proyectos.",
+
+      "defaultCaption": "Exposición internacional {n}",
+
+      "counterLabel": "Exposiciones en el mundo",
+
+      "plateLabel": "Exposición internacional"
+
+    }
   },
   "products": {
     "title": "Nuestros Productos",

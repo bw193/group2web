@@ -69,7 +69,7 @@ export default function FaqSection({ backendFaqs = [] }: Props) {
                     onClick={() => toggle(i)}
                     aria-expanded={isOpen}
                     aria-controls={`faq-answer-${i}`}
-                    className="w-full flex items-start gap-6 py-7 md:py-8 text-start group"
+                    className="w-full flex items-start gap-6 py-5 md:py-6 text-start group"
                   >
                     <h3
                       className={`flex-1 font-display text-[19px] md:text-[22px] font-normal leading-snug tracking-[-0.005em] transition-colors duration-300 ${
@@ -92,7 +92,7 @@ export default function FaqSection({ backendFaqs = [] }: Props) {
                   <div
                     id={`faq-answer-${i}`}
                     className={`grid transition-[grid-template-rows,opacity] duration-[700ms] ease-out-expo ${
-                      isOpen ? 'grid-rows-[1fr] opacity-100 pb-8' : 'grid-rows-[0fr] opacity-0'
+                      isOpen ? 'grid-rows-[1fr] opacity-100 pb-6' : 'grid-rows-[0fr] opacity-0'
                     }`}
                   >
                     <div className="overflow-hidden">

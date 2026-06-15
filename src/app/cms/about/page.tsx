@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Save, Upload, Trash2, Image as ImageIcon, Building2, Award, Plus, ExternalLink } from 'lucide-react';
+import { Save, Upload, Trash2, Image as ImageIcon, Building2, Award, Globe2, Plus, ExternalLink } from 'lucide-react';
 import { getUploadUrl } from '@/lib/utils';
 import { useT } from '../_lib/i18n';
 
@@ -10,7 +10,15 @@ interface GalleryItem {
   imageUrl: string;
   imageType: string;
   displayOrder: number;
+  caption?: string | null;
 }
+
+type GalleryKind = 'factory' | 'certification' | 'exhibition';
+const KIND_TO_FOLDER: Record<GalleryKind, string> = {
+  factory: 'facility',
+  certification: 'certifications',
+  exhibition: 'exhibitions',
+};
 
 export default function AboutManagementPage() {
   const { t } = useT();
@@ -25,7 +33,8 @@ export default function AboutManagementPage() {
   // Galleries
   const [facility, setFacility] = useState<GalleryItem[]>([]);
   const [certs, setCerts] = useState<GalleryItem[]>([]);
-  const [uploadingType, setUploadingType] = useState<'factory' | 'certification' | null>(null);
+  const [exhibitions, setExhibitions] = useState<GalleryItem[]>([]);
+  const [uploadingType, setUploadingType] = useState<GalleryKind | null>(null);
 
   useEffect(() => {
     fetch('/api/about')
@@ -43,12 +52,14 @@ export default function AboutManagementPage() {
   }, []);
 
   async function loadGalleries() {
-    const [f, c] = await Promise.all([
+    const [f, c, e] = await Promise.all([
       fetch('/api/about/gallery?type=factory').then((r) => (r.ok ? r.json() : [])).catch(() => []),
       fetch('/api/about/gallery?type=certification').then((r) => (r.ok ? r.json() : [])).catch(() => []),
+      fetch('/api/about/gallery?type=exhibition').then((r) => (r.ok ? r.json() : [])).catch(() => []),
     ]);
     setFacility(f);
     setCerts(c);
+    setExhibitions(e);
   }
 
   async function handleSave() {
@@ -63,12 +74,12 @@ export default function AboutManagementPage() {
     setTimeout(() => setSaved(false), 3000);
   }
 
-  async function handleUpload(file: File, type: 'factory' | 'certification', nextOrder: number) {
+  async function handleUpload(file: File, type: GalleryKind, nextOrder: number) {
     setUploadingType(type);
     try {
       const fd = new FormData();
       fd.append('file', file);
-      fd.append('folder', type === 'factory' ? 'facility' : 'certifications');
+      fd.append('folder', KIND_TO_FOLDER[type]);
       const upRes = await fetch('/api/upload', { method: 'POST', body: fd });
       if (!upRes.ok) {
         alert(t('about.uploadFailed'));
@@ -86,8 +97,13 @@ export default function AboutManagementPage() {
     }
   }
 
-  async function deleteImage(id: number, type: 'factory' | 'certification') {
-    const msg = type === 'factory' ? t('about.confirmDeleteFacility') : t('about.confirmDeleteCert');
+  async function deleteImage(id: number, type: GalleryKind) {
+    const msg =
+      type === 'factory'
+        ? t('about.confirmDeleteFacility')
+        : type === 'exhibition'
+        ? t('about.confirmDeleteExhibition')
+        : t('about.confirmDeleteCert');
     if (!confirm(msg)) return;
     await fetch(`/api/about/gallery/${id}`, { method: 'DELETE' });
     await loadGalleries();
@@ -100,6 +116,15 @@ export default function AboutManagementPage() {
       body: JSON.stringify({ displayOrder: item.displayOrder + delta }),
     });
     await loadGalleries();
+  }
+
+  async function saveCaption(id: number, caption: string) {
+    await fetch(`/api/about/gallery/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ caption }),
+    });
+    // Optimistic — no reload required; local state already updated via the input.
   }
 
   return (
@@ -211,6 +236,44 @@ export default function AboutManagementPage() {
         {certs.length === 0 && (
           <p className="text-[11px] text-gray-500 bg-gray-50 border border-gray-200 px-3 py-2 mt-4">
             {t('about.cert.empty')}
+          </p>
+        )}
+      </Section>
+
+      {/* === Worldwide Exhibitions — caption-aware ============================== */}
+      <Section
+        eyebrow="05"
+        title={t('about.exhibition.title')}
+        emphasis={t('about.exhibition.emphasis')}
+        description={t('about.exhibition.desc')}
+        icon={Globe2}
+        meta={t(exhibitions.length === 1 ? 'about.exhibition.metaOne' : 'about.exhibition.metaMany', { n: exhibitions.length })}
+      >
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+          {exhibitions.map((p, i) => (
+            <ExhibitionCard
+              key={p.id}
+              index={i}
+              item={p}
+              total={exhibitions.length}
+              placeholder={t('about.exhibition.captionPlaceholder')}
+              onCaptionChange={(value) =>
+                setExhibitions((prev) => prev.map((x) => (x.id === p.id ? { ...x, caption: value } : x)))
+              }
+              onCaptionCommit={(value) => saveCaption(p.id, value)}
+              onDelete={() => deleteImage(p.id, 'exhibition')}
+              onReorder={(delta) => reorder(p, delta)}
+            />
+          ))}
+          <ExhibitionUploader
+            uploading={uploadingType === 'exhibition'}
+            nextOrder={(exhibitions[exhibitions.length - 1]?.displayOrder ?? -1) + 1}
+            onUpload={(f, ord) => handleUpload(f, 'exhibition', ord)}
+          />
+        </div>
+        {exhibitions.length === 0 && (
+          <p className="text-[11px] text-gray-500 bg-gray-50 border border-gray-200 px-3 py-2 mt-4">
+            {t('about.exhibition.empty')}
           </p>
         )}
       </Section>
@@ -462,6 +525,108 @@ function CertUploader({
       <Plus size={18} className="text-gray-300 group-hover:text-[#9A8266] transition-colors" strokeWidth={1.5} />
       <span className="text-[10px] tracking-[0.2em] text-gray-400 uppercase">
         {uploading ? t('pe.uploading') : t('about.addCert')}
+      </span>
+    </label>
+  );
+}
+
+function ExhibitionCard({
+  index,
+  item,
+  total,
+  placeholder,
+  onCaptionChange,
+  onCaptionCommit,
+  onDelete,
+  onReorder,
+}: {
+  index: number;
+  item: GalleryItem;
+  total: number;
+  placeholder: string;
+  onCaptionChange: (value: string) => void;
+  onCaptionCommit: (value: string) => void;
+  onDelete: () => void;
+  onReorder: (delta: number) => void;
+}) {
+  const { t } = useT();
+  return (
+    <div className="group relative bg-gray-50 border border-gray-200 hover:border-[#9A8266] transition-colors overflow-hidden">
+      <div className="relative aspect-[4/3] overflow-hidden">
+        <img
+          src={getUploadUrl(item.imageUrl)}
+          alt=""
+          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+        />
+        <span className="absolute top-2 left-2 text-[9px] tracking-[0.15em] text-white bg-black/50 backdrop-blur-sm px-1.5 py-0.5 font-mono">
+          {String(index + 1).padStart(String(total).length, '0')}
+          <span className="opacity-60 ml-1">/ {total}</span>
+        </span>
+        <div className="absolute inset-x-0 bottom-0 bg-white/95 backdrop-blur-sm border-t border-gray-100 flex opacity-0 group-hover:opacity-100 transition-all translate-y-1 group-hover:translate-y-0">
+          <button
+            type="button"
+            onClick={() => onReorder(-1)}
+            className="flex-1 py-1.5 text-[10px] text-gray-500 hover:text-[#9A8266] hover:bg-gray-50 transition-colors tracking-wider"
+            title={t('about.tooltip.moveUp')}
+          >
+            ↑
+          </button>
+          <button
+            type="button"
+            onClick={() => onReorder(1)}
+            className="flex-1 py-1.5 text-[10px] text-gray-500 hover:text-[#9A8266] hover:bg-gray-50 transition-colors tracking-wider border-l border-gray-100"
+            title={t('about.tooltip.moveDown')}
+          >
+            ↓
+          </button>
+          <button
+            type="button"
+            onClick={onDelete}
+            className="flex-1 py-1.5 text-[10px] text-gray-500 hover:text-red-600 hover:bg-red-50 transition-colors tracking-wider border-l border-gray-100"
+            title={t('about.tooltip.delete')}
+          >
+            <Trash2 size={11} className="inline" />
+          </button>
+        </div>
+      </div>
+      <input
+        type="text"
+        value={item.caption ?? ''}
+        onChange={(e) => onCaptionChange(e.target.value)}
+        onBlur={(e) => onCaptionCommit(e.target.value.trim())}
+        placeholder={placeholder}
+        className="w-full px-3 py-2 text-[11px] text-gray-700 border-t border-gray-200 focus:outline-none focus:bg-[#9A8266]/[0.04] focus:border-[#9A8266] transition-colors"
+      />
+    </div>
+  );
+}
+
+function ExhibitionUploader({
+  uploading,
+  nextOrder,
+  onUpload,
+}: {
+  uploading: boolean;
+  nextOrder: number;
+  onUpload: (f: File, order: number) => void;
+}) {
+  const { t } = useT();
+  return (
+    <label className="group relative aspect-[4/3] border border-dashed border-gray-300 hover:border-[#9A8266] hover:bg-[#9A8266]/[0.02] transition-colors cursor-pointer flex flex-col items-center justify-center gap-2">
+      <input
+        type="file"
+        accept="image/*"
+        className="hidden"
+        disabled={uploading}
+        onChange={(e) => {
+          const f = e.target.files?.[0];
+          if (f) onUpload(f, nextOrder);
+          e.target.value = '';
+        }}
+      />
+      <Plus size={18} className="text-gray-300 group-hover:text-[#9A8266] transition-colors" strokeWidth={1.5} />
+      <span className="text-[10px] tracking-[0.2em] text-gray-400 uppercase">
+        {uploading ? t('pe.uploading') : t('about.addExhibition')}
       </span>
     </label>
   );
