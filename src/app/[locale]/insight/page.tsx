@@ -21,6 +21,16 @@ import { getUploadUrl } from '@/lib/utils';
 
 export const revalidate = 600;
 
+// Insight pages are NOT prerendered at build. Rendering them during the build's
+// concurrent burst exhausts/poisons the small DB pool (every build that
+// prerendered insight failed — even a single locale — while main + 300 more
+// product pages builds fine; the queries themselves run in ~200ms). They render
+// on-demand at runtime from the dub1 region (next to the eu-west-1 DB, fast) and
+// cache for `revalidate`. SEO unchanged — crawlers get fully rendered HTML.
+export function generateStaticParams() {
+  return [];
+}
+
 export async function generateMetadata({
   params,
 }: {

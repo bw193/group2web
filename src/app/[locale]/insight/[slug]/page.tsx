@@ -34,17 +34,11 @@ import { getUploadUrl } from '@/lib/utils';
 
 export const revalidate = 600;
 
-export async function generateStaticParams() {
-  try {
-    const db = getDb();
-    // Prerender every (locale, slug), like the product detail page.
-    const rows = await db
-      .select({ locale: articleTranslations.locale, slug: articleTranslations.slug })
-      .from(articleTranslations);
-    return rows.map((r) => ({ locale: r.locale, slug: r.slug }));
-  } catch {
-    return [];
-  }
+export function generateStaticParams() {
+  // Not prerendered at build — see the insight list page. Insight pages render
+  // on-demand at runtime (dub1, next to the DB) and cache for `revalidate`;
+  // prerendering them at build exhausts the DB pool and fails the build.
+  return [];
 }
 
 export async function generateMetadata({
