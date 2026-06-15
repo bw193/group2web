@@ -21,6 +21,18 @@ import { and, desc, eq, inArray, ne } from 'drizzle-orm';
 // a `revalidateTag` forced a synchronous cold refetch of every isolated key).
 // CMS writes invalidate with `revalidatePath`, exactly like the product routes.
 
+// TEMP diagnostic — remove once the insight prerender hang is root-caused.
+// Logs each read's wall time so the Vercel build logs pinpoint which query
+// stalls (and whether it's query execution or connection acquisition).
+async function timed<T>(label: string, fn: () => Promise<T>): Promise<T> {
+  const t0 = Date.now();
+  try {
+    return await fn();
+  } finally {
+    console.log(`[itiming] ${label}: ${Date.now() - t0}ms`);
+  }
+}
+
 export interface ArticleCategory {
   key: string;
   name: string;
@@ -39,16 +51,20 @@ export function categoryFallbackLabel(key: string): string {
  */
 export async function getArticleCategories(locale: string): Promise<ArticleCategory[]> {
   const db = getDb();
-  const cats = await db
-    .select()
-    .from(articleCategories)
-    .orderBy(articleCategories.displayOrder, articleCategories.id);
+  const cats = await timed('cat.list', () =>
+    db
+      .select()
+      .from(articleCategories)
+      .orderBy(articleCategories.displayOrder, articleCategories.id),
+  );
   if (cats.length === 0) return [];
 
-  const trans = await db
-    .select()
-    .from(articleCategoryTranslations)
-    .where(inArray(articleCategoryTranslations.categoryId, cats.map((c) => c.id)));
+  const trans = await timed('cat.trans', () =>
+    db
+      .select()
+      .from(articleCategoryTranslations)
+      .where(inArray(articleCategoryTranslations.categoryId, cats.map((c) => c.id))),
+  );
 
   const byCat = new Map<number, Map<string, string>>();
   for (const t of trans) {
@@ -131,39 +147,49 @@ export async function getInsightIndexData(
   const db = getDb();
   const localesWanted = locale === 'en' ? ['en'] : [locale, 'en'];
 
+  const tAll = Date.now();
   // Wave 1 — base rows for both sections in parallel.
   const [base, cats] = await Promise.all([
-    db
-      .select()
-      .from(articles)
-      .where(eq(articles.isActive, true))
-      .orderBy(desc(articles.publishedAt), desc(articles.id)),
-    db
-      .select()
-      .from(articleCategories)
-      .orderBy(articleCategories.displayOrder, articleCategories.id),
+    timed('idx.articles', () =>
+      db
+        .select()
+        .from(articles)
+        .where(eq(articles.isActive, true))
+        .orderBy(desc(articles.publishedAt), desc(articles.id)),
+    ),
+    timed('idx.categories', () =>
+      db
+        .select()
+        .from(articleCategories)
+        .orderBy(articleCategories.displayOrder, articleCategories.id),
+    ),
   ]);
 
   // Wave 2 — translations for whatever the base rows produced, in parallel.
   const [allTrans, catTrans] = await Promise.all([
     base.length
-      ? db
-          .select()
-          .from(articleTranslations)
-          .where(
-            and(
-              inArray(articleTranslations.articleId, base.map((a) => a.id)),
-              inArray(articleTranslations.locale, localesWanted),
+      ? timed('idx.articleTrans', () =>
+          db
+            .select()
+            .from(articleTranslations)
+            .where(
+              and(
+                inArray(articleTranslations.articleId, base.map((a) => a.id)),
+                inArray(articleTranslations.locale, localesWanted),
+              ),
             ),
-          )
+        )
       : Promise.resolve([] as (typeof articleTranslations.$inferSelect)[]),
     cats.length
-      ? db
-          .select()
-          .from(articleCategoryTranslations)
-          .where(inArray(articleCategoryTranslations.categoryId, cats.map((c) => c.id)))
+      ? timed('idx.catTrans', () =>
+          db
+            .select()
+            .from(articleCategoryTranslations)
+            .where(inArray(articleCategoryTranslations.categoryId, cats.map((c) => c.id))),
+        )
       : Promise.resolve([] as (typeof articleCategoryTranslations.$inferSelect)[]),
   ]);
+  console.log(`[itiming] idx.TOTAL(${locale}): ${Date.now() - tAll}ms`);
 
   const byCat = new Map<number, Map<string, string>>();
   for (const ct of catTrans) {
@@ -188,18 +214,20 @@ export async function getInsightIndexData(
  */
 export async function getArticleRouteData(locale: string, slug: string) {
   const db = getDb();
-  const joined = await db
-    .select({ article: articles, trans: articleTranslations })
-    .from(articleTranslations)
-    .innerJoin(articles, eq(articles.id, articleTranslations.articleId))
-    .where(
-      and(
-        eq(articleTranslations.slug, slug),
-        eq(articleTranslations.locale, locale),
-        eq(articles.isActive, true),
-      ),
-    )
-    .limit(1);
+  const joined = await timed('route', () =>
+    db
+      .select({ article: articles, trans: articleTranslations })
+      .from(articleTranslations)
+      .innerJoin(articles, eq(articles.id, articleTranslations.articleId))
+      .where(
+        and(
+          eq(articleTranslations.slug, slug),
+          eq(articleTranslations.locale, locale),
+          eq(articles.isActive, true),
+        ),
+      )
+      .limit(1),
+  );
   return joined[0] ?? null;
 }
 
@@ -223,23 +251,27 @@ export async function getMoreStories(
   limit: number,
 ): Promise<ArticleListItem[]> {
   const db = getDb();
-  const base = await db
-    .select()
-    .from(articles)
-    .where(and(eq(articles.isActive, true), ne(articles.id, excludeArticleId)))
-    .orderBy(desc(articles.publishedAt), desc(articles.id))
-    .limit(limit * 3);
+  const base = await timed('more.base', () =>
+    db
+      .select()
+      .from(articles)
+      .where(and(eq(articles.isActive, true), ne(articles.id, excludeArticleId)))
+      .orderBy(desc(articles.publishedAt), desc(articles.id))
+      .limit(limit * 3),
+  );
   if (base.length === 0) return [];
 
-  const allTrans = await db
-    .select()
-    .from(articleTranslations)
-    .where(
-      and(
-        inArray(articleTranslations.articleId, base.map((a) => a.id)),
-        inArray(articleTranslations.locale, locale === 'en' ? ['en'] : [locale, 'en']),
+  const allTrans = await timed('more.trans', () =>
+    db
+      .select()
+      .from(articleTranslations)
+      .where(
+        and(
+          inArray(articleTranslations.articleId, base.map((a) => a.id)),
+          inArray(articleTranslations.locale, locale === 'en' ? ['en'] : [locale, 'en']),
+        ),
       ),
-    );
+  );
 
   return resolveList(base, allTrans, locale).slice(0, limit);
 }
@@ -264,29 +296,35 @@ export async function getArticleProducts(
   locale: string,
 ): Promise<ArticleRelatedProduct[]> {
   const db = getDb();
-  const rows = await db
-    .select({ link: articleProducts, product: products })
-    .from(articleProducts)
-    .innerJoin(
-      products,
-      and(eq(products.id, articleProducts.productId), eq(products.isActive, true)),
-    )
-    .where(eq(articleProducts.articleId, articleId))
-    .orderBy(articleProducts.displayOrder);
+  const rows = await timed('prod.links', () =>
+    db
+      .select({ link: articleProducts, product: products })
+      .from(articleProducts)
+      .innerJoin(
+        products,
+        and(eq(products.id, articleProducts.productId), eq(products.isActive, true)),
+      )
+      .where(eq(articleProducts.articleId, articleId))
+      .orderBy(articleProducts.displayOrder),
+  );
   const pids = rows.map((r) => r.product.id);
   if (pids.length === 0) return [];
 
   const [allTrans, imgs] = await Promise.all([
-    db
-      .select()
-      .from(productTranslations)
-      .where(
-        and(
-          inArray(productTranslations.productId, pids),
-          inArray(productTranslations.locale, locale === 'en' ? ['en'] : [locale, 'en']),
+    timed('prod.trans', () =>
+      db
+        .select()
+        .from(productTranslations)
+        .where(
+          and(
+            inArray(productTranslations.productId, pids),
+            inArray(productTranslations.locale, locale === 'en' ? ['en'] : [locale, 'en']),
+          ),
         ),
-      ),
-    db.select().from(productImages).where(inArray(productImages.productId, pids)),
+    ),
+    timed('prod.imgs', () =>
+      db.select().from(productImages).where(inArray(productImages.productId, pids)),
+    ),
   ]);
 
   const transMap = new Map(allTrans.filter((t) => t.locale === locale).map((t) => [t.productId, t]));

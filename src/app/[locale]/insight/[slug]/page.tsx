@@ -37,17 +37,10 @@ export const revalidate = 600;
 export async function generateStaticParams() {
   try {
     const db = getDb();
-    // Prerender only the default locale. Insight pages are DB-heavy and the
-    // build runs in iad1, far from the eu-west-1 DB — prerendering all 7
-    // locales reliably blows Next's 60s/page budget (proven across three
-    // builds: cache on/off, throttle on/off). The other locales ISR-render on
-    // first request from the dub1 runtime (next to the DB, so fast) and cache
-    // for `revalidate`. Crawlers still receive fully rendered HTML, so SEO is
-    // unchanged — same trade-off product detail already makes for cold paths.
+    // Prerender every (locale, slug), like the product detail page.
     const rows = await db
       .select({ locale: articleTranslations.locale, slug: articleTranslations.slug })
-      .from(articleTranslations)
-      .where(eq(articleTranslations.locale, defaultLocale));
+      .from(articleTranslations);
     return rows.map((r) => ({ locale: r.locale, slug: r.slug }));
   } catch {
     return [];

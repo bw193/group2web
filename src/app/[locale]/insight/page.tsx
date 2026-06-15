@@ -18,18 +18,8 @@ import {
   pageCopy,
 } from '@/lib/seo';
 import { getUploadUrl } from '@/lib/utils';
-import { defaultLocale } from '@/i18n/config';
 
 export const revalidate = 600;
-
-// Prerender only the default-locale index. Insight is DB-heavy and the build
-// (iad1) is far from the DB (eu-west-1); prerendering all 7 locales reliably
-// blows Next's 60s/page budget (proven across three builds). The other locales
-// ISR-render on first request from the dub1 runtime (next to the DB) and cache
-// for `revalidate`. SEO unchanged — crawlers still get fully rendered HTML.
-export function generateStaticParams() {
-  return [{ locale: defaultLocale }];
-}
 
 export async function generateMetadata({
   params,
