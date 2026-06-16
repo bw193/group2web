@@ -142,39 +142,36 @@ export async function getInsightIndexData(
   const db = getDb();
   const localesWanted = locale === 'en' ? ['en'] : [locale, 'en'];
 
-  // Wave 1 — base rows for both sections in parallel.
-  const [base, cats] = await Promise.all([
-    db
-      .select()
-      .from(articles)
-      .where(eq(articles.isActive, true))
-      .orderBy(desc(articles.publishedAt), desc(articles.id)),
-    db
-      .select()
-      .from(articleCategories)
-      .orderBy(articleCategories.displayOrder, articleCategories.id),
-  ]);
+  // Sequential, product-like: one pooled connection at a time (the product
+  // pages fetch the same way). A parallel fan-out demanded more cold
+  // connections than the max-3 build pool could set up inside the 60s budget.
+  const base = await db
+    .select()
+    .from(articles)
+    .where(eq(articles.isActive, true))
+    .orderBy(desc(articles.publishedAt), desc(articles.id));
+  const cats = await db
+    .select()
+    .from(articleCategories)
+    .orderBy(articleCategories.displayOrder, articleCategories.id);
 
-  // Wave 2 — light translations + category names, in parallel.
-  const [allTrans, catTrans] = await Promise.all([
-    base.length
-      ? db
-          .select(listTransColumns)
-          .from(articleTranslations)
-          .where(
-            and(
-              inArray(articleTranslations.articleId, base.map((a) => a.id)),
-              inArray(articleTranslations.locale, localesWanted),
-            ),
-          )
-      : Promise.resolve([] as ListTrans[]),
-    cats.length
-      ? db
-          .select()
-          .from(articleCategoryTranslations)
-          .where(inArray(articleCategoryTranslations.categoryId, cats.map((c) => c.id)))
-      : Promise.resolve([] as (typeof articleCategoryTranslations.$inferSelect)[]),
-  ]);
+  const allTrans = base.length
+    ? await db
+        .select(listTransColumns)
+        .from(articleTranslations)
+        .where(
+          and(
+            inArray(articleTranslations.articleId, base.map((a) => a.id)),
+            inArray(articleTranslations.locale, localesWanted),
+          ),
+        )
+    : ([] as ListTrans[]);
+  const catTrans = cats.length
+    ? await db
+        .select()
+        .from(articleCategoryTranslations)
+        .where(inArray(articleCategoryTranslations.categoryId, cats.map((c) => c.id)))
+    : ([] as (typeof articleCategoryTranslations.$inferSelect)[]);
 
   const byCat = new Map<number, Map<string, string>>();
   for (const ct of catTrans) {
@@ -305,18 +302,17 @@ export async function getArticleProducts(
   const pids = rows.map((r) => r.product.id);
   if (pids.length === 0) return [];
 
-  const [allTrans, imgs] = await Promise.all([
-    db
-      .select()
-      .from(productTranslations)
-      .where(
-        and(
-          inArray(productTranslations.productId, pids),
-          inArray(productTranslations.locale, locale === 'en' ? ['en'] : [locale, 'en']),
-        ),
+  // Sequential, product-like (see getInsightIndexData).
+  const allTrans = await db
+    .select()
+    .from(productTranslations)
+    .where(
+      and(
+        inArray(productTranslations.productId, pids),
+        inArray(productTranslations.locale, locale === 'en' ? ['en'] : [locale, 'en']),
       ),
-    db.select().from(productImages).where(inArray(productImages.productId, pids)),
-  ]);
+    );
+  const imgs = await db.select().from(productImages).where(inArray(productImages.productId, pids));
 
   const transMap = new Map(allTrans.filter((t) => t.locale === locale).map((t) => [t.productId, t]));
   const transEnMap = new Map(allTrans.filter((t) => t.locale === 'en').map((t) => [t.productId, t]));

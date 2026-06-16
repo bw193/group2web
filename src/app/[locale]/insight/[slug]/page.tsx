@@ -36,11 +36,20 @@ import { getUploadUrl } from '@/lib/utils';
 
 export const revalidate = 600;
 
-export function generateStaticParams() {
-  // Not prerendered at build — see the insight list page. Insight pages render
-  // on-demand at runtime (dub1, next to the DB) and cache for `revalidate`;
-  // prerendering them at build exhausts the DB pool and fails the build.
-  return [];
+export async function generateStaticParams() {
+  // Product-alike: prerender every article translation at build, exactly like
+  // the product detail page. The body-split made these reads as light as
+  // product_translations, so the build's concurrent burst should no longer
+  // exhaust the pool. Falls back to on-demand only if the slug query fails.
+  try {
+    const db = getDb();
+    const rows = await db
+      .select({ locale: articleTranslations.locale, slug: articleTranslations.slug })
+      .from(articleTranslations);
+    return rows.map((r) => ({ locale: r.locale, slug: r.slug }));
+  } catch {
+    return [];
+  }
 }
 
 export async function generateMetadata({
@@ -163,15 +172,15 @@ export default async function ArticlePage({
 
   const { article, trans: translation } = row;
 
-  // The detail page is the only path that loads the heavy body (from
-  // article_translation_bodies, keyed by the translation id). Fetched in
-  // parallel with the related products / more-stories / category waves.
-  const [body, relatedProducts, moreStories, categories] = await Promise.all([
-    getArticleBody(translation.id),
-    getArticleProducts(article.id, locale),
-    getMoreStories(locale, article.id, 3),
-    getArticleCategories(locale),
-  ]);
+  // Sequential, product-like: one pooled connection at a time. A parallel
+  // Promise.all here fanned out ~8 concurrent queries per page (each branch
+  // makes its own) and blew the 60s build budget on the max-3 pool's cold
+  // connection setups. The detail page is the only path that loads the heavy
+  // body (from article_translation_bodies, keyed by the translation id).
+  const body = await getArticleBody(translation.id);
+  const relatedProducts = await getArticleProducts(article.id, locale);
+  const moreStories = await getMoreStories(locale, article.id, 3);
+  const categories = await getArticleCategories(locale);
   const catMap = new Map(categories.map((c) => [c.key, c.name]));
   const catLabel = (key: string) => catMap.get(key) ?? categoryFallbackLabel(key);
 

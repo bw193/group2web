@@ -111,9 +111,9 @@ export const articles = pgTable('articles', {
 });
 
 // Light, product_translations-style routing/SEO table. The heavy article HTML
-// lives in article_translation_bodies (split out in 0006) so list / index /
-// metadata / more-stories paths never load body. `body` is kept here during the
-// transition (dual-written) and dropped in a later migration once deployed.
+// lives in article_translation_bodies — list / index / metadata / more-stories
+// never load it; only the detail page (getArticleBody) and the CMS editor read
+// it. The legacy `body` column here was dropped in migration 0007.
 export const articleTranslations = pgTable('article_translations', {
   id: serial('id').primaryKey(),
   articleId: integer('article_id').notNull().references(() => articles.id, { onDelete: 'cascade' }),
@@ -121,7 +121,6 @@ export const articleTranslations = pgTable('article_translations', {
   slug: text('slug').notNull(),
   title: text('title').notNull(),
   dek: text('dek'),
-  body: text('body'), // DEPRECATED: read from articleTranslationBodies; dropped in a later migration
   author: text('author'),
 });
 

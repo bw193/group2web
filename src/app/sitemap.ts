@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next';
 import { getDb } from '@/lib/db';
-import { productTranslations, products } from '@/lib/db/schema';
+import { productTranslations, products, articleTranslations, articles } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { locales, defaultLocale } from '@/i18n/config';
 import {
@@ -14,7 +14,7 @@ const STATIC_LAST_MODIFIED = new Date('2026-05-20T00:00:00Z');
 
 // Static routes shared across every locale, expressed as the path segment
 // AFTER the (optional) locale prefix. Use '' for the locale's homepage.
-const STATIC_ROUTES = ['', '/about', '/contact', '/products'] as const;
+const STATIC_ROUTES = ['', '/about', '/contact', '/products', '/insight'] as const;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const entries: MetadataRoute.Sitemap = [];
@@ -98,6 +98,67 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   } catch {
     // DB unavailable — return what we have. The static routes are still useful.
+  }
+
+  // Dynamic Insight article pages. Per-locale (locale, slug) live in
+  // article_translations; the body lives in article_translation_bodies and is
+  // never selected here (light, product-like). One entry per locale that has a
+  // real translation, with hreflang alternates grouped by article.
+  try {
+    const db = getDb();
+    const rows = await db
+      .select({
+        locale: articleTranslations.locale,
+        slug: articleTranslations.slug,
+        articleId: articleTranslations.articleId,
+        updatedAt: articles.updatedAt,
+        isActive: articles.isActive,
+      })
+      .from(articleTranslations)
+      .innerJoin(articles, eq(articles.id, articleTranslations.articleId));
+
+    const byArticle = new Map<
+      number,
+      { updatedAt: string; isActive: boolean; slugs: Record<string, string> }
+    >();
+    for (const r of rows) {
+      const existing = byArticle.get(r.articleId) ?? {
+        updatedAt: r.updatedAt,
+        isActive: r.isActive,
+        slugs: {} as Record<string, string>,
+      };
+      existing.slugs[r.locale] = r.slug;
+      byArticle.set(r.articleId, existing);
+    }
+
+    for (const [, { updatedAt, isActive, slugs }] of byArticle) {
+      if (!isActive) continue;
+
+      const languages: Record<string, string> = {};
+      for (const loc of locales) {
+        const slug = slugs[loc];
+        if (slug) languages[loc] = localizedUrl(loc, `/insight/${slug}`);
+      }
+      const defaultSlug = slugs[defaultLocale];
+      if (defaultSlug) {
+        languages['x-default'] = localizedUrl(defaultLocale, `/insight/${defaultSlug}`);
+      }
+
+      for (const loc of locales) {
+        const slug = slugs[loc];
+        if (!slug) continue;
+        const lastModified = updatedAt ? new Date(updatedAt) : STATIC_LAST_MODIFIED;
+        entries.push({
+          url: localizedUrl(loc, `/insight/${slug}`),
+          lastModified: Number.isNaN(lastModified.getTime()) ? STATIC_LAST_MODIFIED : lastModified,
+          changeFrequency: 'monthly',
+          priority: 0.7,
+          alternates: { languages },
+        });
+      }
+    }
+  } catch {
+    // DB unavailable — static + product entries already pushed.
   }
 
   return entries;
