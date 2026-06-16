@@ -3,6 +3,7 @@ import { getDb } from '@/lib/db';
 import {
   articles,
   articleTranslations,
+  articleTranslationBodies,
   articleProducts,
   articleCategories,
   articleCategoryTranslations,
@@ -13,13 +14,11 @@ import {
 import { and, desc, eq, inArray, ne } from 'drizzle-orm';
 
 // Insight reads mirror the product pages: direct, batched Drizzle queries on
-// the shared pooled connection, cached ONLY by page-level ISR (`export const
-// revalidate` on each route). There is intentionally no second `unstable_cache`
-// data layer — stacking the Data Cache + tag-busting on top of ISR was what
-// produced the cold-connection storms that timed out both the build (iad1 →
-// eu-west-1 cold setup × N isolated keys > 60s/page) and runtime (a deploy or
-// a `revalidateTag` forced a synchronous cold refetch of every isolated key).
-// CMS writes invalidate with `revalidatePath`, exactly like the product routes.
+// the shared pool, cached only by page-level ISR. Critically, the list /
+// index / metadata / more-stories paths NEVER select `body` — the heavy
+// article HTML lives in article_translation_bodies and is loaded only by the
+// detail page (getArticleBody). That keeps article_translations as light as
+// product_translations so static generation of all 7 locales stays cheap.
 
 export interface ArticleCategory {
   key: string;
@@ -79,16 +78,30 @@ export interface ArticleListItem {
   thumbnailUrl: string | null;
   // The locale that produced this row's translation. Equal to the requested
   // locale when its own translation exists, otherwise 'en' (the fallback).
-  // The list page links English-fallback cards to /en/ rather than creating
-  // phantom /pt/, /fr/, … detail URLs.
   translationLocale: string;
 }
 
-// Shared shaping for a list row from an article + its chosen translation.
-function toListItem(
-  a: typeof articles.$inferSelect,
-  t: typeof articleTranslations.$inferSelect,
-): ArticleListItem {
+// Light translation projection — the column set every list/route path selects.
+// It deliberately excludes `body` (which lives in article_translation_bodies).
+const listTransColumns = {
+  articleId: articleTranslations.articleId,
+  locale: articleTranslations.locale,
+  slug: articleTranslations.slug,
+  title: articleTranslations.title,
+  dek: articleTranslations.dek,
+  author: articleTranslations.author,
+} as const;
+
+type ListTrans = {
+  articleId: number;
+  locale: string;
+  slug: string;
+  title: string;
+  dek: string | null;
+  author: string | null;
+};
+
+function toListItem(a: typeof articles.$inferSelect, t: ListTrans): ArticleListItem {
   return {
     id: a.id,
     category: a.category,
@@ -108,7 +121,7 @@ function toListItem(
 // articles with neither are dropped.
 function resolveList(
   base: (typeof articles.$inferSelect)[],
-  allTrans: (typeof articleTranslations.$inferSelect)[],
+  allTrans: ListTrans[],
   locale: string,
 ): ArticleListItem[] {
   const transMap = new Map(allTrans.filter((t) => t.locale === locale).map((t) => [t.articleId, t]));
@@ -121,9 +134,7 @@ function resolveList(
 
 /**
  * Combined data for the public /[locale]/insight index: the article list AND
- * the category tabs. Two query waves on the shared pool (the products-list
- * recipe): first the two base tables in parallel, then their translations in
- * parallel. A DB failure throws; ISR keeps serving the last good render.
+ * the category tabs. Two query waves on the shared pool; never selects body.
  */
 export async function getInsightIndexData(
   locale: string,
@@ -144,11 +155,11 @@ export async function getInsightIndexData(
       .orderBy(articleCategories.displayOrder, articleCategories.id),
   ]);
 
-  // Wave 2 — translations for whatever the base rows produced, in parallel.
+  // Wave 2 — light translations + category names, in parallel.
   const [allTrans, catTrans] = await Promise.all([
     base.length
       ? db
-          .select()
+          .select(listTransColumns)
           .from(articleTranslations)
           .where(
             and(
@@ -156,7 +167,7 @@ export async function getInsightIndexData(
               inArray(articleTranslations.locale, localesWanted),
             ),
           )
-      : Promise.resolve([] as (typeof articleTranslations.$inferSelect)[]),
+      : Promise.resolve([] as ListTrans[]),
     cats.length
       ? db
           .select()
@@ -183,13 +194,17 @@ export async function getInsightIndexData(
 }
 
 /**
- * Article + translation lookup for `(locale, slug)`. Returns null when the
- * locale doesn't have its own translation with this slug.
+ * Article + LIGHT translation for `(locale, slug)` (no body — used by
+ * generateMetadata AND the detail page; the detail page loads body separately
+ * via getArticleBody). Returns null when the locale has no translation here.
  */
 export async function getArticleRouteData(locale: string, slug: string) {
   const db = getDb();
   const joined = await db
-    .select({ article: articles, trans: articleTranslations })
+    .select({
+      article: articles,
+      trans: { id: articleTranslations.id, ...listTransColumns },
+    })
     .from(articleTranslations)
     .innerJoin(articles, eq(articles.id, articleTranslations.articleId))
     .where(
@@ -203,7 +218,21 @@ export async function getArticleRouteData(locale: string, slug: string) {
   return joined[0] ?? null;
 }
 
-/** All `(locale, slug)` pairs for an article — used to build hreflang. */
+/**
+ * Heavy article HTML for one translation — ONLY the detail page calls this.
+ * Reads from article_translation_bodies (keyed by article_translations.id).
+ */
+export async function getArticleBody(articleTranslationId: number): Promise<string | null> {
+  const db = getDb();
+  const rows = await db
+    .select({ body: articleTranslationBodies.body })
+    .from(articleTranslationBodies)
+    .where(eq(articleTranslationBodies.articleTranslationId, articleTranslationId))
+    .limit(1);
+  return rows[0]?.body ?? null;
+}
+
+/** All `(locale, slug)` pairs for an article — used to build hreflang. Light. */
 export async function getArticleAllTranslations(articleId: number) {
   const db = getDb();
   return db
@@ -214,8 +243,8 @@ export async function getArticleAllTranslations(articleId: number) {
 
 /**
  * "More from Insight": the newest `limit` active articles excluding the one
- * being read. Over-fetches ×3 so the locale/EN fallback can drop rows without
- * leaving the list short, then slices to `limit`.
+ * being read. Light translations only (no body). Over-fetches ×3 so the
+ * locale/EN fallback can drop rows without leaving the list short.
  */
 export async function getMoreStories(
   locale: string,
@@ -232,7 +261,7 @@ export async function getMoreStories(
   if (base.length === 0) return [];
 
   const allTrans = await db
-    .select()
+    .select(listTransColumns)
     .from(articleTranslations)
     .where(
       and(

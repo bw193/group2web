@@ -110,6 +110,10 @@ export const articles = pgTable('articles', {
   updatedAt: timestamp('updated_at', { mode: 'string' }).notNull().defaultNow(),
 });
 
+// Light, product_translations-style routing/SEO table. The heavy article HTML
+// lives in article_translation_bodies (split out in 0006) so list / index /
+// metadata / more-stories paths never load body. `body` is kept here during the
+// transition (dual-written) and dropped in a later migration once deployed.
 export const articleTranslations = pgTable('article_translations', {
   id: serial('id').primaryKey(),
   articleId: integer('article_id').notNull().references(() => articles.id, { onDelete: 'cascade' }),
@@ -117,8 +121,17 @@ export const articleTranslations = pgTable('article_translations', {
   slug: text('slug').notNull(),
   title: text('title').notNull(),
   dek: text('dek'),
-  body: text('body'),
+  body: text('body'), // DEPRECATED: read from articleTranslationBodies; dropped in a later migration
   author: text('author'),
+});
+
+// Heavy article HTML, one row per translation. Only the /[locale]/insight/[slug]
+// detail page loads this. PK == article_translations.id (1:1, cascade-deleted).
+export const articleTranslationBodies = pgTable('article_translation_bodies', {
+  articleTranslationId: integer('article_translation_id')
+    .primaryKey()
+    .references(() => articleTranslations.id, { onDelete: 'cascade' }),
+  body: text('body'),
 });
 
 export const articleProducts = pgTable('article_products', {

@@ -12,6 +12,7 @@ import MoreStories from '@/components/public/insight/MoreStories';
 import { JsonLd } from '@/components/seo/JsonLd';
 import {
   getArticleRouteData,
+  getArticleBody,
   getArticleAllTranslations,
   getArticleProducts,
   getArticleCategories,
@@ -29,6 +30,7 @@ import {
   localeToOg,
   localizedPath,
   localizedUrl,
+  pageCopy,
 } from '@/lib/seo';
 import { getUploadUrl } from '@/lib/utils';
 
@@ -71,7 +73,10 @@ export async function generateMetadata({
     if (def) languages['x-default'] = localizedUrl(defaultLocale, `/insight/${def.slug}`);
 
     const title = `${row.trans.title} — ${SITE_NAME}`;
-    const description = row.trans.dek || articleExcerpt(row.trans.body);
+    // Metadata stays body-free — the body lives in article_translation_bodies
+    // and is loaded only by the page render below. Fall back to the localized
+    // journal description for the rare article with no dek.
+    const description = row.trans.dek || pageCopy(locale, 'insight').description;
     const canonical = localizedUrl(locale, `/insight/${slug}`);
     const ogImage = row.article.coverImageUrl
       ? getUploadUrl(row.article.coverImageUrl)
@@ -158,7 +163,11 @@ export default async function ArticlePage({
 
   const { article, trans: translation } = row;
 
-  const [relatedProducts, moreStories, categories] = await Promise.all([
+  // The detail page is the only path that loads the heavy body (from
+  // article_translation_bodies, keyed by the translation id). Fetched in
+  // parallel with the related products / more-stories / category waves.
+  const [body, relatedProducts, moreStories, categories] = await Promise.all([
+    getArticleBody(translation.id),
     getArticleProducts(article.id, locale),
     getMoreStories(locale, article.id, 3),
     getArticleCategories(locale),
@@ -176,7 +185,7 @@ export default async function ArticlePage({
     '@type': 'BlogPosting',
     '@id': `${articleUrl}#article`,
     headline: translation.title,
-    description: translation.dek || articleExcerpt(translation.body, 500),
+    description: translation.dek || articleExcerpt(body, 500),
     articleSection: categoryLabel,
     inLanguage: locale,
     datePublished: new Date(article.publishedAt).toISOString(),
@@ -289,7 +298,7 @@ export default async function ArticlePage({
         <div className="container-narrow pt-12 md:pt-16 pb-16 md:pb-20">
           <div
             className="article-prose"
-            dangerouslySetInnerHTML={{ __html: translation.body || '' }}
+            dangerouslySetInnerHTML={{ __html: body || '' }}
           />
         </div>
 

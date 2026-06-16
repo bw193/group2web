@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
 import { getDb, withDbRetryFast } from '@/lib/db';
-import { articles, articleTranslations, articleProducts } from '@/lib/db/schema';
+import { articles, articleTranslations, articleTranslationBodies, articleProducts } from '@/lib/db/schema';
 import { eq, and, ne } from 'drizzle-orm';
 import { getSession } from '@/lib/auth';
 import { slugify } from '@/lib/utils';
@@ -146,11 +146,27 @@ export async function PUT(
           and(eq(articleTranslations.articleId, articleId), eq(articleTranslations.locale, t.locale)),
         )
         .limit(1);
+      let transId: number;
       if (existingTrans) {
         await db.update(articleTranslations).set(values).where(eq(articleTranslations.id, existingTrans.id));
+        transId = existingTrans.id;
       } else {
-        await db.insert(articleTranslations).values({ articleId, locale: t.locale, ...values });
+        const [inserted] = await db
+          .insert(articleTranslations)
+          .values({ articleId, locale: t.locale, ...values })
+          .returning({ id: articleTranslations.id });
+        transId = inserted.id;
       }
+      // Dual-write the heavy body to article_translation_bodies (the read
+      // source after 0006); kept in sync with article_translations.body until a
+      // later migration drops it.
+      await db
+        .insert(articleTranslationBodies)
+        .values({ articleTranslationId: transId, body: t.body || null })
+        .onConflictDoUpdate({
+          target: articleTranslationBodies.articleTranslationId,
+          set: { body: t.body || null },
+        });
     }
   }
 

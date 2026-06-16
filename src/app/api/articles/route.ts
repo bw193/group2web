@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
 import { getDb, withDbRetryFast } from '@/lib/db';
-import { articles, articleTranslations, articleProducts } from '@/lib/db/schema';
+import { articles, articleTranslations, articleTranslationBodies, articleProducts } from '@/lib/db/schema';
 import { eq, and, desc, inArray } from 'drizzle-orm';
 import { getSession } from '@/lib/auth';
 import { slugify } from '@/lib/utils';
@@ -112,14 +112,24 @@ export async function POST(request: NextRequest) {
 
     for (const t of translations) {
       if (!t?.locale || !t?.title?.trim()) continue;
-      await db.insert(articleTranslations).values({
-        articleId: article.id,
-        locale: t.locale,
-        title: t.title.trim(),
-        slug: t.slug?.trim() || slugify(t.title),
-        dek: t.dek || null,
+      const [trans] = await db
+        .insert(articleTranslations)
+        .values({
+          articleId: article.id,
+          locale: t.locale,
+          title: t.title.trim(),
+          slug: t.slug?.trim() || slugify(t.title),
+          dek: t.dek || null,
+          body: t.body || null,
+          author: t.author || null,
+        })
+        .returning({ id: articleTranslations.id });
+      // Dual-write the heavy body to article_translation_bodies — the read
+      // source after 0006. article_translations.body above is kept in sync
+      // until a later migration drops it.
+      await db.insert(articleTranslationBodies).values({
+        articleTranslationId: trans.id,
         body: t.body || null,
-        author: t.author || null,
       });
     }
 
