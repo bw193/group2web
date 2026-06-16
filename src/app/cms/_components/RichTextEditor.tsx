@@ -1,9 +1,9 @@
 'use client';
 
-import { useEditor, EditorContent, type Editor } from '@tiptap/react';
+import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import Link from '@tiptap/extension-link';
 import Placeholder from '@tiptap/extension-placeholder';
+import { Table, TableRow, TableHeader, TableCell } from '@tiptap/extension-table';
 import {
   Bold,
   Italic,
@@ -18,9 +18,84 @@ import {
   Undo2,
   Redo2,
   RemoveFormatting,
+  Table as TableIcon,
+  Rows,
+  Columns,
+  Trash2,
 } from 'lucide-react';
+import { DOMParser as ProseMirrorDOMParser } from '@tiptap/pm/model';
 import { useEffect } from 'react';
 import { useT } from '../_lib/i18n';
+
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+// Tries to split a single line into cells using either tabs OR 2+ spaces.
+// Returns null when it doesn't look tabular (fewer than 2 cells).
+function splitLineToCells(line: string): string[] | null {
+  if (line.includes('\t')) {
+    const cells = line.split(/\t+/).map((c) => c.trim()).filter((c) => c.length > 0);
+    return cells.length >= 2 ? cells : null;
+  }
+  if (/ {2,}/.test(line)) {
+    const cells = line.split(/ {2,}/).map((c) => c.trim()).filter((c) => c.length > 0);
+    return cells.length >= 2 ? cells : null;
+  }
+  return null;
+}
+
+function renderTableHtml(rows: string[][]): string {
+  const [header, ...body] = rows;
+  const headHtml = `<tr>${header.map((c) => `<th>${escapeHtml(c)}</th>`).join('')}</tr>`;
+  const bodyHtml = body
+    .map((r) => `<tr>${r.map((c) => `<td>${escapeHtml(c)}</td>`).join('')}</tr>`)
+    .join('');
+  return `<table>${headHtml}${bodyHtml}</table>`;
+}
+
+// Walks the pasted text line by line and groups consecutive lines that share
+// the same delimiter-derived column count into table blocks (at least 2 cols
+// × 2 rows). Lines that don't fit a table block become regular paragraphs.
+// Returns combined HTML when at least one table block is found, else null.
+function htmlForPastedText(text: string): string | null {
+  const lines = text.replace(/\r\n?/g, '\n').split('\n');
+  const parts: string[] = [];
+  let cursor = 0;
+  let producedTable = false;
+  while (cursor < lines.length) {
+    const startLine = lines[cursor];
+    const startCells = startLine.trim() ? splitLineToCells(startLine) : null;
+    if (startCells && startCells.length >= 2) {
+      // Start a potential table block; keep extending while the next line has
+      // the same column count.
+      const rows: string[][] = [startCells];
+      let next = cursor + 1;
+      while (next < lines.length) {
+        const candidate = lines[next];
+        if (!candidate.trim()) break;
+        const cells = splitLineToCells(candidate);
+        if (!cells || cells.length !== startCells.length) break;
+        rows.push(cells);
+        next += 1;
+      }
+      if (rows.length >= 2) {
+        parts.push(renderTableHtml(rows));
+        producedTable = true;
+        cursor = next;
+        continue;
+      }
+    }
+    // Not a table row — emit as a paragraph (or skip blank lines).
+    if (startLine.trim()) parts.push(`<p>${escapeHtml(startLine.trim())}</p>`);
+    cursor += 1;
+  }
+  return producedTable ? parts.join('') : null;
+}
 
 interface Props {
   value: string;
@@ -43,16 +118,20 @@ export default function RichTextEditor({
     extensions: [
       StarterKit.configure({
         heading: { levels: [2, 3] },
-      }),
-      Link.configure({
-        openOnClick: false,
-        autolink: true,
-        HTMLAttributes: { rel: 'noopener noreferrer', target: '_blank' },
+        link: {
+          openOnClick: false,
+          autolink: true,
+          HTMLAttributes: { rel: 'noopener noreferrer', target: '_blank' },
+        },
       }),
       Placeholder.configure({
         placeholder: placeholder ?? '',
         emptyEditorClass: 'is-editor-empty',
       }),
+      Table.configure({ resizable: false }),
+      TableRow,
+      TableHeader,
+      TableCell,
     ],
     content: value || '',
     onUpdate: ({ editor }) => {
@@ -65,6 +144,23 @@ export default function RichTextEditor({
         class:
           'rt-content w-full focus:outline-none px-4 py-3 text-sm leading-relaxed',
         style: `min-height: ${minHeight}px`,
+      },
+      // Detect tabular blocks within pasted plain text and convert them to
+      // real <table> nodes. Lines that aren't tabular paste as paragraphs.
+      // Skipped when the clipboard already carries rich HTML with a <table>
+      // — TipTap parses that itself with the Table extensions registered.
+      handlePaste: (view, event) => {
+        const text = event.clipboardData?.getData('text/plain');
+        const html = event.clipboardData?.getData('text/html');
+        if (html && /<table[\s>]/i.test(html)) return false;
+        if (!text || !text.includes('\n')) return false;
+        const combinedHtml = htmlForPastedText(text);
+        if (!combinedHtml) return false;
+        const container = document.createElement('div');
+        container.innerHTML = combinedHtml;
+        const slice = ProseMirrorDOMParser.fromSchema(view.state.schema).parseSlice(container);
+        view.dispatch(view.state.tr.replaceSelection(slice));
+        return true;
       },
     },
   });
@@ -186,6 +282,39 @@ export default function RichTextEditor({
         <Divider />
 
         <ToolbarBtn
+          onClick={() =>
+            editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()
+          }
+          title={t('rt.insertTable')}
+        >
+          <TableIcon size={14} />
+        </ToolbarBtn>
+        {editor.isActive('table') && (
+          <>
+            <ToolbarBtn
+              onClick={() => editor.chain().focus().addRowAfter().run()}
+              title={t('rt.addRow')}
+            >
+              <Rows size={14} />
+            </ToolbarBtn>
+            <ToolbarBtn
+              onClick={() => editor.chain().focus().addColumnAfter().run()}
+              title={t('rt.addColumn')}
+            >
+              <Columns size={14} />
+            </ToolbarBtn>
+            <ToolbarBtn
+              onClick={() => editor.chain().focus().deleteTable().run()}
+              title={t('rt.deleteTable')}
+            >
+              <Trash2 size={14} />
+            </ToolbarBtn>
+          </>
+        )}
+
+        <Divider />
+
+        <ToolbarBtn
           onClick={() => editor.chain().focus().unsetAllMarks().clearNodes().run()}
           title={t('rt.clearFormat')}
         >
@@ -261,6 +390,28 @@ export default function RichTextEditor({
         }
         .rt-content s {
           text-decoration: line-through;
+        }
+        /* Tables — both editor and saved HTML use the same markup */
+        .rt-content table {
+          border-collapse: collapse;
+          width: 100%;
+          margin: 0.6em 0;
+          font-size: 0.92em;
+        }
+        .rt-content th,
+        .rt-content td {
+          border: 1px solid #d1d5db;
+          padding: 6px 10px;
+          vertical-align: top;
+          min-width: 1em;
+        }
+        .rt-content th {
+          background: #f3f4f6;
+          font-weight: 600;
+          text-align: left;
+        }
+        .rt-content .selectedCell {
+          background: #dbeafe;
         }
         /* Placeholder */
         .rt-content p.is-editor-empty:first-child::before {

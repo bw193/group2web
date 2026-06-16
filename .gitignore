@@ -42,3 +42,6 @@ next-env.d.ts
 
 # claude local settings (may contain tokens)
 .claude/settings.local.json
+
+# Claude Code worktrees (session-local)
+.claude/worktrees/

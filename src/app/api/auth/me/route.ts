@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
-import { getDb } from '@/lib/db';
+import { getDb, withDbRetryFast } from '@/lib/db';
 import { users } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 
@@ -11,7 +11,9 @@ export async function GET() {
   }
 
   const db = getDb();
-  const [user] = await db.select().from(users).where(eq(users.id, session.userId)).limit(1);
+  const [user] = await withDbRetryFast(() =>
+    db.select().from(users).where(eq(users.id, session.userId)).limit(1),
+  );
   if (!user) {
     return NextResponse.json({ error: 'User not found' }, { status: 404 });
   }

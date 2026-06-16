@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
-import { getDb } from '@/lib/db';
+import { getDb, withDbRetryFast } from '@/lib/db';
 import { faqs, faqTranslations } from '@/lib/db/schema';
 import { eq, and, inArray } from 'drizzle-orm';
 import { getSession } from '@/lib/auth';
 
 // Public-ish list endpoint.
-// - ?locale=xx          → returns only active faqs with that locale's translation (falls back to en)
-// - ?all=1              → returns every faq with every translation (CMS use)
+// - ?locale=xx          鈫?returns only active faqs with that locale's translation (falls back to en)
+// - ?all=1              鈫?returns every faq with every translation (CMS use)
 export async function GET(request: NextRequest) {
   const url = new URL(request.url);
   const locale = url.searchParams.get('locale') || 'en';
@@ -16,13 +16,12 @@ export async function GET(request: NextRequest) {
   const db = getDb();
 
   if (all) {
-    const rows = await db.select().from(faqs).orderBy(faqs.displayOrder);
+    const rows = await withDbRetryFast(() => db.select().from(faqs).orderBy(faqs.displayOrder));
     if (rows.length === 0) return NextResponse.json([]);
     const ids = rows.map((r) => r.id);
-    const trans = await db
-      .select()
-      .from(faqTranslations)
-      .where(inArray(faqTranslations.faqId, ids));
+    const trans = await withDbRetryFast(() =>
+      db.select().from(faqTranslations).where(inArray(faqTranslations.faqId, ids)),
+    );
     return NextResponse.json(
       rows.map((r) => ({
         ...r,
@@ -31,27 +30,29 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const active = await db
-    .select()
-    .from(faqs)
-    .where(eq(faqs.isActive, true))
-    .orderBy(faqs.displayOrder);
+  const active = await withDbRetryFast(() =>
+    db.select().from(faqs).where(eq(faqs.isActive, true)).orderBy(faqs.displayOrder),
+  );
 
   if (active.length === 0) return NextResponse.json([]);
   const ids = active.map((r) => r.id);
 
-  const primary = await db
-    .select()
-    .from(faqTranslations)
-    .where(and(inArray(faqTranslations.faqId, ids), eq(faqTranslations.locale, locale)));
+  const primary = await withDbRetryFast(() =>
+    db
+      .select()
+      .from(faqTranslations)
+      .where(and(inArray(faqTranslations.faqId, ids), eq(faqTranslations.locale, locale))),
+  );
 
   const fallback =
     locale === 'en'
       ? []
-      : await db
-          .select()
-          .from(faqTranslations)
-          .where(and(inArray(faqTranslations.faqId, ids), eq(faqTranslations.locale, 'en')));
+      : await withDbRetryFast(() =>
+          db
+            .select()
+            .from(faqTranslations)
+            .where(and(inArray(faqTranslations.faqId, ids), eq(faqTranslations.locale, 'en'))),
+        );
 
   const pMap = new Map(primary.map((t) => [t.faqId, t]));
   const fMap = new Map(fallback.map((t) => [t.faqId, t]));
@@ -101,7 +102,7 @@ export async function POST(request: NextRequest) {
     });
   }
 
-  // FAQs render on the home page (and feed FAQ JSON-LD) — refresh the site.
+  // FAQs render on the home page (and feed FAQ JSON-LD) 鈥?refresh the site.
   revalidatePath('/', 'layout');
 
   return NextResponse.json(row, { status: 201 });

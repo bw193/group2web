@@ -1,5 +1,6 @@
 {
   "nav": {
+    "insight": "Insight",
     "home": "Startseite",
     "products": "Produkte",
     "about": "Über Uns",
@@ -177,7 +178,22 @@
     "backToProducts": "Zurück zu Produkten",
     "loading": "Laden..."
   },
+  "insight": {
+    "kicker": "Das Chengtai-Journal",
+    "heroTitle": "Feldnotizen aus der Spiegelfabrik",
+    "latest": "Neueste Geschichte",
+    "all": "Alle Geschichten",
+    "count": "{count, plural, one {# Geschichte} other {# Geschichten}}",
+    "readTime": "{minutes} Min. Lesezeit",
+    "readStory": "Geschichte lesen",
+    "back": "Alle Geschichten",
+    "continueReading": "Weiterlesen",
+    "featuredProducts": "Produkte aus dieser Geschichte",
+    "viewAllProducts": "Alle Produkte ansehen",
+    "empty": "Neue Geschichten folgen in Kürze."
+  },
   "breadcrumb": {
+    "insight": "Insight",
     "home": "Startseite",
     "products": "Produkte",
     "about": "Über Uns",

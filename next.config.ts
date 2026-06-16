@@ -47,6 +47,18 @@ const nextConfig = {
       dynamic: 30,
       static: 180,
     },
+    // Build with full parallelism, like main. The earlier throttle (cpus: 2 +
+    // staticGenerationMaxConcurrency: 2) was a band-aid for the insight
+    // unstable_cache cold-connection storm: every isolated cache key opened its
+    // own cold Supavisor connection, and full parallelism multiplied that into
+    // a storm that blew the 60s/page budget — so the A/B at the time read
+    // "throttle on = green, off = fail". That cache layer is gone; insight now
+    // uses the shared postgres pool (max 3, kept warm) exactly like the product
+    // pages. The cap is no longer needed and actively hurt: throttled
+    // throughput let pooled connections idle past idle_timeout and re-cold-
+    // setup between small batches, timing out even /en. retryCount stays as a
+    // cushion for the occasional unlucky straggler.
+    staticGenerationRetryCount: 5,
   },
   async redirects() {
     return [

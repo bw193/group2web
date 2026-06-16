@@ -52,6 +52,7 @@ export default function Header() {
   const navLinks = [
     { href: `/${locale}`, label: t('home') },
     { href: `/${locale}/products`, label: t('products') },
+    { href: `/${locale}/insight`, label: t('insight') },
     { href: `/${locale}/about`, label: t('about') },
     { href: `/${locale}/contact`, label: t('contact') },
   ];
@@ -70,26 +71,34 @@ export default function Header() {
       }`}
     >
       <div className="container-wide">
-        <div className="flex items-center justify-between h-[72px] md:h-20">
+        {/* gap-x guarantees the three clusters can never touch even if a
+            locale's labels outgrow the viewport (they overflow instead). */}
+        <div className="flex items-center justify-between gap-x-5 h-[72px] md:h-20">
           {/* Logo */}
           <Link href={`/${locale}`} className="group flex items-baseline gap-3">
             <span className="font-display text-[22px] md:text-[26px] font-normal text-ink tracking-[0.01em] leading-none">
               Chengtai
             </span>
-            <span className="hidden md:inline-block text-[11px] font-body font-semibold text-ink-mid tracking-[0.16em] uppercase border-s border-warm-border ps-3">
+            {/* The sub-brand never sits beside the desktop nav: five localized
+                items + search/language/CTA already fill long-label locales
+                (FR/DE), so it shows only on the roomy mobile/tablet header. */}
+            <span className="hidden md:inline-block xl:hidden whitespace-nowrap text-[11px] font-body font-semibold text-ink-mid tracking-[0.16em] uppercase border-s border-warm-border ps-3">
               Mirror Co., Ltd
             </span>
           </Link>
 
           {/* Desktop Nav */}
-          <nav className="hidden lg:flex items-center gap-10">
+          {/* Desktop nav lives at xl+: five localized items (longest in German)
+              don't fit beside the search/language/CTA cluster at lg widths, so
+              1024–1279px uses the full-screen menu instead of a squeezed bar. */}
+          <nav className="hidden xl:flex items-center gap-7 2xl:gap-9">
             {navLinks.map((link) => {
               const active = isActive(link.href);
               return (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`nav-link text-[13px] font-body font-semibold tracking-[0.14em] uppercase transition-colors duration-300 ${
+                  className={`nav-link whitespace-nowrap text-[13px] font-body font-semibold tracking-[0.14em] uppercase transition-colors duration-300 ${
                     active ? 'text-ink is-active' : 'text-ink-mid hover:text-ink'
                   }`}
                 >
@@ -100,7 +109,7 @@ export default function Header() {
           </nav>
 
           {/* Right actions */}
-          <div className="hidden lg:flex items-center gap-6">
+          <div className="hidden xl:flex items-center gap-5 2xl:gap-6">
             <button
               type="button"
               onClick={() => setSearchOpen((v) => !v)}
@@ -114,7 +123,7 @@ export default function Header() {
             <span className="h-3 w-px bg-warm-border" aria-hidden />
             <Link
               href={`/${locale}/contact`}
-              className="btn-primary h-10 px-6 text-[12px]"
+              className="btn-primary h-10 px-5 2xl:px-6 text-[12px] whitespace-nowrap"
             >
               {t('inquiry')}
             </Link>
@@ -122,7 +131,7 @@ export default function Header() {
 
           {/* Mobile Toggle */}
           <button
-            className="lg:hidden p-2 text-ink"
+            className="xl:hidden p-2 text-ink"
             onClick={() => setMobileOpen(!mobileOpen)}
             aria-label="Toggle menu"
           >
@@ -132,7 +141,7 @@ export default function Header() {
 
         {/* Desktop search drawer */}
         <div
-          className={`hidden lg:block overflow-hidden transition-[max-height,opacity] duration-500 ease-out ${
+          className={`hidden xl:block overflow-hidden transition-[max-height,opacity] duration-500 ease-out ${
             searchOpen ? 'max-h-24 opacity-100' : 'max-h-0 opacity-0'
           }`}
         >
@@ -164,7 +173,7 @@ export default function Header() {
       {mounted &&
         createPortal(
           <div
-            className={`lg:hidden fixed inset-0 top-[72px] md:top-20 z-40 overflow-y-auto bg-cream transition-all duration-500 ease-out-expo ${
+            className={`xl:hidden fixed inset-0 top-[72px] md:top-20 z-40 overflow-y-auto bg-cream transition-all duration-500 ease-out-expo ${
               mobileOpen ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'
             }`}
           >

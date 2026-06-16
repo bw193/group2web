@@ -1,5 +1,6 @@
 {
   "nav": {
+    "insight": "Insight",
     "home": "Home",
     "products": "Prodotti",
     "about": "Chi Siamo",
@@ -177,7 +178,22 @@
     "backToProducts": "Torna ai Prodotti",
     "loading": "Caricamento..."
   },
+  "insight": {
+    "kicker": "Il giornale di Chengtai",
+    "heroTitle": "Appunti dal campo dalla fabbrica di specchi",
+    "latest": "Ultima storia",
+    "all": "Tutte le storie",
+    "count": "{count, plural, one {# storia} other {# storie}}",
+    "readTime": "{minutes} min di lettura",
+    "readStory": "Leggi la storia",
+    "back": "Tutte le storie",
+    "continueReading": "Continua a leggere",
+    "featuredProducts": "Prodotti di questa storia",
+    "viewAllProducts": "Vedi tutti i prodotti",
+    "empty": "Nuove storie in arrivo."
+  },
   "breadcrumb": {
+    "insight": "Insight",
     "home": "Home",
     "products": "Prodotti",
     "about": "Chi Siamo",

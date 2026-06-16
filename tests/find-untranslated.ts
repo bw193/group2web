@@ -29,7 +29,7 @@ async function main() {
   // Per-locale missing product ids.
   const missingByLocale: Record<string, number[]> = {};
   for (const loc of TARGET_LOCALES) {
-    const rows = await db.execute(sql`
+    const rows = (await db.execute(sql`
       SELECT p.id
       FROM products p
       WHERE p.is_active = true
@@ -38,8 +38,8 @@ async function main() {
           WHERE pt.product_id = p.id AND pt.locale = ${loc}
         )
       ORDER BY p.id
-    `);
-    missingByLocale[loc] = rows.map((r: { id: number }) => r.id);
+    `)) as unknown as { id: number }[];
+    missingByLocale[loc] = rows.map((r) => r.id);
   }
 
   // Union of missing product ids across all locales.

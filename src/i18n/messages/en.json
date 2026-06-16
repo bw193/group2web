@@ -1,5 +1,6 @@
 {
   "nav": {
+    "insight": "Insight",
     "home": "Home",
     "products": "Products",
     "about": "About Us",
@@ -177,7 +178,22 @@
     "backToProducts": "Back to Products",
     "loading": "Loading..."
   },
+  "insight": {
+    "kicker": "The Chengtai Journal",
+    "heroTitle": "Field notes from the mirror factory",
+    "latest": "Latest story",
+    "all": "All stories",
+    "count": "{count, plural, one {# story} other {# stories}}",
+    "readTime": "{minutes} min read",
+    "readStory": "Read the story",
+    "back": "All stories",
+    "continueReading": "Continue reading",
+    "featuredProducts": "Featured in this story",
+    "viewAllProducts": "View all products",
+    "empty": "New stories are on the way."
+  },
   "breadcrumb": {
+    "insight": "Insight",
     "home": "Home",
     "products": "Products",
     "about": "About",

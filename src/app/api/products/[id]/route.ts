@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
-import { getDb } from '@/lib/db';
+import { getDb, withDbRetryFast } from '@/lib/db';
 import { products, productTranslations, productSpecifications, productImages } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
 import { getSession } from '@/lib/auth';
@@ -15,16 +15,24 @@ export async function GET(
   const locale = new URL(request.url).searchParams.get('locale') || 'en';
 
   const db = getDb();
-  const [product] = await db.select().from(products).where(eq(products.id, productId)).limit(1);
+  const [product] = await withDbRetryFast(() =>
+    db.select().from(products).where(eq(products.id, productId)).limit(1),
+  );
   if (!product) {
     return NextResponse.json({ error: 'Product not found' }, { status: 404 });
   }
 
-  const [allTranslations, specs, images] = await Promise.all([
+  // Sequential on purpose: parallel reads force extra pool connections, whose
+  // fresh handshakes are what stall on the long-haul dev link.
+  const allTranslations = await withDbRetryFast(() =>
     db.select().from(productTranslations).where(eq(productTranslations.productId, productId)),
+  );
+  const specs = await withDbRetryFast(() =>
     db.select().from(productSpecifications).where(eq(productSpecifications.productId, productId)),
+  );
+  const images = await withDbRetryFast(() =>
     db.select().from(productImages).where(eq(productImages.productId, productId)).orderBy(productImages.displayOrder),
-  ]);
+  );
 
   return NextResponse.json({
     ...product,

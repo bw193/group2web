@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
-import { getDb } from '@/lib/db';
+import { getDb, withDbRetryFast } from '@/lib/db';
 import { products, productTranslations, productImages, productSpecifications } from '@/lib/db/schema';
 import { eq, and, desc, inArray, type SQL } from 'drizzle-orm';
 import { getSession } from '@/lib/auth';
@@ -27,11 +27,13 @@ export async function GET(request: NextRequest) {
     conditions.push(eq(products.isFeatured, true));
   }
 
-  const allProducts = await db
-    .select()
-    .from(products)
-    .where(and(...conditions))
-    .orderBy(desc(products.createdAt));
+  const allProducts = await withDbRetryFast(() =>
+    db
+      .select()
+      .from(products)
+      .where(and(...conditions))
+      .orderBy(desc(products.createdAt)),
+  );
 
   if (allProducts.length === 0) {
     return NextResponse.json([]);
@@ -39,20 +41,27 @@ export async function GET(request: NextRequest) {
 
   const productIds = allProducts.map((p) => p.id);
 
-  // Batch all translations + images in 3 queries total (instead of 2N)
-  const [trans, transEn, imgs] = await Promise.all([
+  // Batched and sequential (3 queries instead of 2N, one at a time): parallel
+  // reads force extra pool connections, whose fresh handshakes are what stall
+  // on the long-haul dev link.
+  const trans = await withDbRetryFast(() =>
     db
       .select()
       .from(productTranslations)
       .where(and(inArray(productTranslations.productId, productIds), eq(productTranslations.locale, locale))),
+  );
+  const transEn =
     locale !== 'en'
-      ? db
-          .select()
-          .from(productTranslations)
-          .where(and(inArray(productTranslations.productId, productIds), eq(productTranslations.locale, 'en')))
-      : Promise.resolve([]),
+      ? await withDbRetryFast(() =>
+          db
+            .select()
+            .from(productTranslations)
+            .where(and(inArray(productTranslations.productId, productIds), eq(productTranslations.locale, 'en'))),
+        )
+      : [];
+  const imgs = await withDbRetryFast(() =>
     db.select().from(productImages).where(inArray(productImages.productId, productIds)),
-  ]);
+  );
 
   const transMap = new Map(trans.map((t) => [t.productId, t]));
   const transEnMap = new Map(transEn.map((t) => [t.productId, t]));
