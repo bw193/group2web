@@ -1,0 +1,58 @@
+[
+  {
+    "productId": 121,
+    "name": "Unregelmäßiger LED-Ankleidespiegel",
+    "shortDescription": "Ganzkörper-LED-Spiegel in unregelmäßiger Ovalform mit sanfter Hintergrundbeleuchtung, der eine minimalistische, warme Wohnästhetik schafft.",
+    "fullDescription": "<p>Mit seiner eleganten organisch-ovalen Silhouette verbindet dieser hintergrundbeleuchtete LED-Ganzkörperspiegel minimalistische Ästhetik mit praktischer Funktionalität. Umgeben von weichem, diffusem Hintergrundlicht verströmt er einen warmen Umgebungsschein, der Eingangsbereich, Schlafzimmer oder Ankleidezimmer sofort aufwertet, harte Schatten vermeidet und die Details Ihres Outfits zur Geltung bringt. Der einzigartige unregelmäßig geschwungene Rahmen bricht mit klassischen rechteckigen Spiegeldesigns und bringt einen subtilen wabi-sabi Touch in Ihren Raum. Gefertigt aus hochauflösendem Silberspiegelglas liefert er ein originalgetreues, verzerrungsfreies Spiegelbild für die tägliche Outfitkontrolle, während die robuste Wandmontage wertvollen Bodenraum spart. Ob modernes minimalistisches Zuhause, gemütliche skandinavische Wohnung oder Ankleidebereich im sanften Luxus-Stil – dieser hintergrundbeleuchtete LED-Standspiegel ist sowohl praktischer Ankleide-Essential als auch beeindruckende Wandkunst, die das Ambiente Ihres Heims mühelos hebt.</p>",
+    "specs": [
+      { "key": "Größe", "value": "77x170cm; nach Maß gefertigt" },
+      { "key": "Verpackung", "value": "PE-Beutel + Schaumstoff + Karton" },
+      { "key": "Installation", "value": "Wandmontage" },
+      { "key": "Form", "value": "Unregelmäßig" },
+      { "key": "Dicke", "value": "4mm/5mm" },
+      { "key": "Material", "value": "Silber / Aluminium" }
+    ]
+  },
+  {
+    "productId": 125,
+    "name": "Beleuchteter Ganzkörperspiegel",
+    "shortDescription": "Mit eleganter länglich-organischer Silhouette und leuchtender Kantenbeleuchtung dient dieser wandmontierte LED-Ganzkörperspiegel zugleich als praktischer Ankleidespiegel und beeindruckende Wanddekoration.",
+    "fullDescription": "<p>Verleihen Sie Ihrem Wohnraum mit unserem länglich kieselförmigen, hintergrundbeleuchteten LED-Ganzkörperspiegel einen künstlerisch minimalistischen Charme. Seine schlanke organisch-unregelmäßige Silhouette bricht die Monotonie traditioneller eckiger und ovaler Spiegel, und der wandmontierte Ganzkörperspiegel ist von weichem, diffusem Hintergrundlicht umgeben, das einen warmen Umgebungsschein wirft und Eingangsbereich, Schlafzimmer, Lounge oder begehbaren Kleiderschrank sofort aufwertet. Aus hochauflösendem Silberspiegelglas gefertigt, bietet er ein originalgetreues, verzerrungsfreies Spiegelbild, das Ihnen mühelos die tägliche Outfitkontrolle erlaubt. Er ist gleichermaßen Ankleide-Essential und auffällige Wandkunst und passt perfekt zu wabi-sabi-, skandinavischem, industriellem und modernem minimalistischem Stil. Sein rahmenloses, stromlinienförmiges Design spart Bodenraum und wirkt zugleich wie eine dezente Wandleuchte, die eine ruhige, entspannte Atmosphäre schafft, Ihre leere Wand in einen stilvollen Blickfang verwandelt und die Wohnästhetik mit dezentem Luxus veredelt.</p>",
+    "specs": [
+      { "key": "Größe", "value": "77x170cm; nach Maß gefertigt" },
+      { "key": "Beleuchtung", "value": "LED-Streifen 2835" },
+      { "key": "Dicke", "value": "4/5mm" },
+      { "key": "Material", "value": "Silber / Aluminium" },
+      { "key": "Verpackung", "value": "PE-Beutel + Schaumstoff + Karton" },
+      { "key": "Installation", "value": "Wandmontage" }
+    ]
+  },
+  {
+    "productId": 126,
+    "name": "Beleuchteter LED-Ankleidespiegel",
+    "shortDescription": "Dieser elegante ovale LED-Ganzkörperspiegel mit Hintergrundbeleuchtung liefert ein verzerrungsfreies Spiegelbild und einen sanften Umgebungsschein, der Eingangsbereich und Schlafzimmer veredelt.",
+    "fullDescription": "<p>Veredeln Sie Ihren Wohnraum mit unserem eleganten ovalen LED-Ganzkörperspiegel mit Hintergrundbeleuchtung – eine nahtlose Verbindung aus praktischer Ankleidefunktionalität und minimalistischer Wohnästhetik. Gestaltet mit zeitloser rahmenloser ovaler Silhouette, ist dieser wandmontierte Ganzkörperspiegel von einem weichen Halo-Hintergrundlicht umgeben, das gleichmäßige, sanfte Umgebungsbeleuchtung wirft, harte Schatten effektiv ausgleicht und es Ihnen erlaubt, Outfits, Make-up und Accessoires in originalgetreuer Farbwiedergabe zu prüfen. Aus hochwertigem Silberspiegelglas gefertigt, liefert er ein kristallklares, originalgetreues und verzerrungsfreies Spiegelbild, das jedes Detail Ihres Looks präzise wiedergibt. Dank des empfindlichen Touch-Schalters können Sie das sanfte Randlicht mühelos ein- und ausschalten – ideal für Flure, Schlafzimmer, begehbare Kleiderschränke und Ankleidebereiche. Mehr als nur ein täglicher Pflege-Essential wirkt dieser klassische ovale LED-Spiegel als auffällige Wanddekoration und passt perfekt zu modernen, skandinavischen, industriellen und sanft-luxuriösen Einrichtungsstilen. Er belebt leere Wände mühelos, schafft eine warme, ruhige Atmosphäre und verleiht jedem Winkel Ihres Zuhauses einen raffinierten, eleganten Charme.</p>",
+    "specs": [
+      { "key": "Größe", "value": "50x150cm; 60x165cm; 65x170cm; nach Maß gefertigt" },
+      { "key": "Logo", "value": "Anpassung" },
+      { "key": "Beleuchtung", "value": "LED-Streifen 2835" },
+      { "key": "Material", "value": "Silber / Aluminium" },
+      { "key": "Installation", "value": "Wandmontage" },
+      { "key": "Verpackung", "value": "PE-Beutel + Schaumstoff + Karton" }
+    ]
+  },
+  {
+    "productId": 127,
+    "name": "Ankleidespiegel mit Aluminiumrahmen",
+    "shortDescription": "Unser wandmontierter LED-Ganzkörperspiegel besticht durch einen stilvollen schwarzen Rundrahmen und ein sanftes Hintergrundlicht und vereint alltägliche Ankleide-Praktikabilität mit zeitgemäßer Wohnkultur.",
+    "fullDescription": "<p>Werten Sie Ihr Zuhause mit unserem schwarz gerahmten rechteckigen LED-Ganzkörperspiegel mit abgerundeten Ecken auf – der perfekte Mix aus moderner Ästhetik und alltagstauglicher Funktionalität. Gestaltet mit weichen, abgerundeten Ecken und einem schmalen, mattschwarzen Metallrahmen vermeidet dieser wandmontierte Spiegel scharfe Kanten für eine sicherere Nutzung und bringt zugleich einen edlen zeitgemäßen Akzent in Ihren Raum. Umgeben von weichem, einstellbarem LED-Randlicht liefert er eine gleichmäßige, schattenfreie Ausleuchtung, mit der Sie Outfits, Make-up und Accessoires mit originalgetreuer Farbwiedergabe prüfen können – ob in schwach beleuchteten Fluren oder Schlafzimmern. Aus hochauflösendem Silberspiegelglas gefertigt, bietet er ein verzerrungsfreies Ganzkörper-Spiegelbild, das jedes Detail Ihres Looks präzise erfasst. Dank empfindlicher Touch-Steuerung wechseln Sie mühelos zwischen den Lichtmodi und passen die Helligkeit an Ihre Bedürfnisse an. Weit mehr als ein Ankleide-Essential, wirkt er als auffällige Wanddekoration, die zu modernen, sanft-luxuriösen, minimalistischen und skandinavischen Einrichtungsstilen passt. Installiert im Eingangsbereich, im begehbaren Kleiderschrank oder im Schlafzimmer verwandelt er leere Wände sofort in einen stilvollen Blickfang und schafft mühelos eine warme, raffinierte Atmosphäre.</p>",
+    "specs": [
+      { "key": "Größe", "value": "50x150cm; 60x165cm; 65x170cm; nach Maß gefertigt" },
+      { "key": "Installation", "value": "Wandmontage" },
+      { "key": "Beleuchtung", "value": "LED-Streifen 2835" },
+      { "key": "Material", "value": "Silber / Aluminium" },
+      { "key": "Dicke", "value": "4/5mm" },
+      { "key": "CRI", "value": "＞90" }
+    ]
+  }
+]

@@ -15,11 +15,12 @@ export async function PATCH(
   const id = Number(idParam);
   if (!id) return NextResponse.json({ error: 'Invalid id' }, { status: 400 });
 
-  const body = (await request.json()) as { displayOrder?: number; imageType?: string };
+  const body = (await request.json()) as { displayOrder?: number; imageType?: string; caption?: string | null };
 
   const update: Record<string, unknown> = {};
   if (typeof body.displayOrder === 'number') update.displayOrder = body.displayOrder;
   if (typeof body.imageType === 'string') update.imageType = body.imageType;
+  if (body.caption !== undefined) update.caption = body.caption?.toString().trim() || null;
 
   const db = getDb();
   await db.update(aboutGallery).set(update).where(eq(aboutGallery.id, id));

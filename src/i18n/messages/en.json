@@ -60,7 +60,33 @@
     "whyPoint1": "2-year warranty as standard — longer cover for long-term partners",
     "whyPoint2": "In-house R&D with 70+ patents, built to your specification",
     "whyPoint3": "Our own 50,000 m² factory — quality we control end to end",
-    "whyCta": "Why choose us"
+    "whyCta": "Why choose us",
+    "workflow": {
+      "eyebrow": "Our Process",
+      "heading": "Customization Workflow",
+      "body": "From the first conversation to finished production — a clear three-step path to your custom mirror program.",
+      "step1Title": "Consultation & Requirement Gathering",
+      "step1Desc": "Our professional sales team collaborate closely with you to fully understand your product requirements, specifications, and project objectives.",
+      "step2Title": "Sampling Development",
+      "step2Desc": "We create custom samples and prototypes based on your confirmed requirements for your review and approval.",
+      "step3Title": "Mass Production & Quality Assurance",
+      "step3Desc": "After sample approval, we proceed to full-scale mass production with strict quality control throughout every stage."
+    },
+    "exhibition": {
+
+      "eyebrow": "Worldwide Exhibitions",
+
+      "heading": "Meet Chengtai Mirror at Global Trade Shows",
+
+      "body": "We welcome global buyers, distributors, and project partners to visit our booth, explore our latest mirror designs, and discuss tailored solutions for upcoming projects.",
+
+      "defaultCaption": "International exhibition {n}",
+
+      "counterLabel": "Exhibitions worldwide",
+
+      "plateLabel": "International exhibition"
+
+    }
   },
   "products": {
     "title": "Our Products",

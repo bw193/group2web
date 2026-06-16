@@ -4,6 +4,7 @@ import { getDb, withDbRetryFast } from '@/lib/db';
 import { products, productTranslations, productSpecifications, productImages } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
 import { getSession } from '@/lib/auth';
+import { disambiguateProductSlug } from '@/lib/products';
 
 export async function GET(
   request: NextRequest,
@@ -67,67 +68,87 @@ export async function PUT(
     .from(productTranslations)
     .where(eq(productTranslations.productId, productId));
 
-  await db.update(products)
-    .set({
-      categoryId: body.categoryId ?? existing.categoryId,
-      modelNumber: body.modelNumber ?? existing.modelNumber,
-      isFeatured: body.isFeatured ?? existing.isFeatured,
-      isActive: body.isActive ?? existing.isActive,
-      tags: body.tags ? JSON.stringify(body.tags) : existing.tags,
-      updatedAt: new Date().toISOString(),
-    })
-    .where(eq(products.id, productId));
+  // Effective model number after the update; used by the disambiguator.
+  const effectiveModel = body.modelNumber ?? existing.modelNumber;
 
-  if (body.translations && Array.isArray(body.translations)) {
-    for (const t of body.translations) {
-      const [existingTrans] = await db.select().from(productTranslations)
-        .where(and(eq(productTranslations.productId, productId), eq(productTranslations.locale, t.locale)))
-        .limit(1);
+  let newTrans: { locale: string; slug: string }[] = [];
+  try {
+    newTrans = await db.transaction(async (tx) => {
+      await tx.update(products)
+        .set({
+          categoryId: body.categoryId ?? existing.categoryId,
+          modelNumber: body.modelNumber ?? existing.modelNumber,
+          isFeatured: body.isFeatured ?? existing.isFeatured,
+          isActive: body.isActive ?? existing.isActive,
+          tags: body.tags ? JSON.stringify(body.tags) : existing.tags,
+          updatedAt: new Date().toISOString(),
+        })
+        .where(eq(products.id, productId));
 
-      if (existingTrans) {
-        await db.update(productTranslations)
-          .set({ name: t.name, slug: t.slug, shortDescription: t.shortDescription, fullDescription: t.fullDescription })
-          .where(eq(productTranslations.id, existingTrans.id));
-      } else {
-        await db.insert(productTranslations).values({
-          productId, locale: t.locale, name: t.name, slug: t.slug,
-          shortDescription: t.shortDescription, fullDescription: t.fullDescription,
-        });
+      if (body.translations && Array.isArray(body.translations)) {
+        for (const t of body.translations) {
+          if (!t?.locale || !t?.slug) continue;
+          const finalSlug = await disambiguateProductSlug(tx, {
+            locale: t.locale,
+            slug: t.slug,
+            modelNumber: effectiveModel,
+            productId,
+            excludeProductId: productId,
+          });
+          const [existingTrans] = await tx.select().from(productTranslations)
+            .where(and(eq(productTranslations.productId, productId), eq(productTranslations.locale, t.locale)))
+            .limit(1);
+
+          if (existingTrans) {
+            await tx.update(productTranslations)
+              .set({ name: t.name, slug: finalSlug, shortDescription: t.shortDescription, fullDescription: t.fullDescription })
+              .where(eq(productTranslations.id, existingTrans.id));
+          } else {
+            await tx.insert(productTranslations).values({
+              productId, locale: t.locale, name: t.name, slug: finalSlug,
+              shortDescription: t.shortDescription, fullDescription: t.fullDescription,
+            });
+          }
+        }
       }
-    }
-  }
 
-  if (body.specifications && Array.isArray(body.specifications)) {
-    await db.delete(productSpecifications).where(eq(productSpecifications.productId, productId));
-    for (const spec of body.specifications) {
-      await db.insert(productSpecifications).values({
-        productId, locale: spec.locale || 'en', specKey: spec.key, specValue: spec.value,
-      });
-    }
-  }
+      if (body.specifications && Array.isArray(body.specifications)) {
+        await tx.delete(productSpecifications).where(eq(productSpecifications.productId, productId));
+        for (const spec of body.specifications) {
+          await tx.insert(productSpecifications).values({
+            productId, locale: spec.locale || 'en', specKey: spec.key, specValue: spec.value,
+          });
+        }
+      }
 
-  if (body.images && Array.isArray(body.images)) {
-    await db.delete(productImages).where(eq(productImages.productId, productId));
-    const hasPrimary = body.images.some((img: any) => img.isPrimary);
-    for (let i = 0; i < body.images.length; i++) {
-      const img = body.images[i];
-      if (!img?.imageUrl) continue;
-      await db.insert(productImages).values({
-        productId,
-        imageUrl: img.imageUrl,
-        isPrimary: img.isPrimary ?? (!hasPrimary && i === 0),
-        displayOrder: typeof img.displayOrder === 'number' ? img.displayOrder : i,
-      });
-    }
+      if (body.images && Array.isArray(body.images)) {
+        await tx.delete(productImages).where(eq(productImages.productId, productId));
+        const hasPrimary = body.images.some((img: any) => img.isPrimary);
+        for (let i = 0; i < body.images.length; i++) {
+          const img = body.images[i];
+          if (!img?.imageUrl) continue;
+          await tx.insert(productImages).values({
+            productId,
+            imageUrl: img.imageUrl,
+            isPrimary: img.isPrimary ?? (!hasPrimary && i === 0),
+            displayOrder: typeof img.displayOrder === 'number' ? img.displayOrder : i,
+          });
+        }
+      }
+
+      return await tx
+        .select({ locale: productTranslations.locale, slug: productTranslations.slug })
+        .from(productTranslations)
+        .where(eq(productTranslations.productId, productId));
+    });
+  } catch (error) {
+    console.error('Update product error:', error);
+    return NextResponse.json({ error: 'Failed to update product' }, { status: 500 });
   }
 
   // Bust ISR cache so CMS edits show up on the public site immediately.
   // Covers both old and new slugs (in case the slug changed) plus the listing
   // and home (featured grid) once per locale.
-  const newTrans = await db
-    .select({ locale: productTranslations.locale, slug: productTranslations.slug })
-    .from(productTranslations)
-    .where(eq(productTranslations.productId, productId));
   const seenLocales = new Set<string>();
   for (const t of [...prevTrans, ...newTrans]) {
     revalidatePath(`/${t.locale}/products/${t.slug}`);
@@ -138,7 +159,7 @@ export async function PUT(
     }
   }
 
-  return NextResponse.json({ message: 'Product updated' });
+  return NextResponse.json({ message: 'Product updated', translations: newTrans });
 }
 
 export async function DELETE(
