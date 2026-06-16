@@ -120,13 +120,11 @@ export async function POST(request: NextRequest) {
           title: t.title.trim(),
           slug: t.slug?.trim() || slugify(t.title),
           dek: t.dek || null,
-          body: t.body || null,
           author: t.author || null,
         })
         .returning({ id: articleTranslations.id });
-      // Dual-write the heavy body to article_translation_bodies — the read
-      // source after 0006. article_translations.body above is kept in sync
-      // until a later migration drops it.
+      // Body lives only in article_translation_bodies (legacy column dropped
+      // in 0007); article_translations stays light like product_translations.
       await db.insert(articleTranslationBodies).values({
         articleTranslationId: trans.id,
         body: t.body || null,

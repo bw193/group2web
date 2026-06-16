@@ -94,14 +94,13 @@ async function main() {
       }
 
       const [trans] = await sql`
-        INSERT INTO article_translations (article_id, locale, slug, title, dek, body, author)
-        VALUES (${articleId}, ${locale}, ${slug}, ${item.title.trim()}, ${item.dek ?? null}, ${item.body ?? null}, ${item.author ?? null})
+        INSERT INTO article_translations (article_id, locale, slug, title, dek, author)
+        VALUES (${articleId}, ${locale}, ${slug}, ${item.title.trim()}, ${item.dek ?? null}, ${item.author ?? null})
         ON CONFLICT (article_id, locale)
         DO UPDATE SET slug = EXCLUDED.slug, title = EXCLUDED.title, dek = EXCLUDED.dek,
-                      body = EXCLUDED.body, author = EXCLUDED.author
+                      author = EXCLUDED.author
         RETURNING id`;
-      // Dual-write the body to article_translation_bodies — the read source
-      // after 0006. Keep article_translations.body in sync until it is dropped.
+      // Body lives only in article_translation_bodies (legacy column dropped in 0007).
       await sql`
         INSERT INTO article_translation_bodies (article_translation_id, body)
         VALUES (${trans.id}, ${item.body ?? null})

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
 import { getDb, withDbRetryFast } from '@/lib/db';
 import { articles, articleTranslations, articleTranslationBodies, articleProducts } from '@/lib/db/schema';
-import { eq, and, ne } from 'drizzle-orm';
+import { eq, and, ne, inArray } from 'drizzle-orm';
 import { getSession } from '@/lib/auth';
 import { slugify } from '@/lib/utils';
 import { locales } from '@/i18n/config';
@@ -42,6 +42,22 @@ export async function GET(
   const translations = await withDbRetryFast(() =>
     db.select().from(articleTranslations).where(eq(articleTranslations.articleId, articleId)),
   );
+  // Body lives in article_translation_bodies now — fetch and attach it so the
+  // editor still receives each translation's body.
+  const bodies = translations.length
+    ? await withDbRetryFast(() =>
+        db
+          .select()
+          .from(articleTranslationBodies)
+          .where(
+            inArray(
+              articleTranslationBodies.articleTranslationId,
+              translations.map((t) => t.id),
+            ),
+          ),
+      )
+    : [];
+  const bodyById = new Map(bodies.map((b) => [b.articleTranslationId, b.body]));
   const links = await withDbRetryFast(() =>
     db
       .select()
@@ -52,7 +68,7 @@ export async function GET(
 
   return NextResponse.json({
     ...article,
-    translations,
+    translations: translations.map((t) => ({ ...t, body: bodyById.get(t.id) ?? null })),
     productIds: links.map((l) => l.productId),
   });
 }
@@ -136,7 +152,6 @@ export async function PUT(
         title: t.title.trim(),
         slug: t.slug?.trim() || slugify(t.title),
         dek: t.dek || null,
-        body: t.body || null,
         author: t.author || null,
       };
       const [existingTrans] = await db
@@ -157,9 +172,8 @@ export async function PUT(
           .returning({ id: articleTranslations.id });
         transId = inserted.id;
       }
-      // Dual-write the heavy body to article_translation_bodies (the read
-      // source after 0006); kept in sync with article_translations.body until a
-      // later migration drops it.
+      // Body lives only in article_translation_bodies (legacy column dropped in
+      // 0007); upsert it keyed by the translation id.
       await db
         .insert(articleTranslationBodies)
         .values({ articleTranslationId: transId, body: t.body || null })
