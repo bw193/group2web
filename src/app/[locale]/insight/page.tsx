@@ -21,15 +21,10 @@ import { getUploadUrl } from '@/lib/utils';
 
 export const revalidate = 600;
 
-// Insight pages are NOT prerendered at build. Rendering them during the build's
-// concurrent burst exhausts/poisons the small DB pool (every build that
-// prerendered insight failed — even a single locale — while main + 300 more
-// product pages builds fine; the queries themselves run in ~200ms). They render
-// on-demand at runtime from the dub1 region (next to the eu-west-1 DB, fast) and
-// cache for `revalidate`. SEO unchanged — crawlers get fully rendered HTML.
-export function generateStaticParams() {
-  return [];
-}
+// Prerendered at build like the product list page: no own generateStaticParams,
+// so it inherits all locales from the [locale] layout. The body-split made
+// insight reads as light as product reads, so building these no longer exhausts
+// the pool. (Testing whether the ec27c68 on-demand deferral is still needed.)
 
 export async function generateMetadata({
   params,
@@ -114,7 +109,9 @@ export default async function InsightPage({ params }: { params: Promise<{ locale
     blogPost: list.slice(0, 30).map((a) => ({
       '@type': 'BlogPosting',
       headline: a.title,
-      url: localizedUrl(locale, `/insight/${a.slug}`),
+      // Use the locale that actually owns this (slug) row — English-fallback
+      // cards point at /en/…, never a phantom /{locale}/… that only redirects.
+      url: localizedUrl(a.translationLocale, `/insight/${a.slug}`),
       datePublished: new Date(a.publishedAt).toISOString(),
       articleSection: catLabel(a.category),
       author: a.author
