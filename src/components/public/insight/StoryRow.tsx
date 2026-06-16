@@ -40,7 +40,7 @@ export default function StoryRow({
 
       {/* Title + dek */}
       <div className={article.imagePath ? 'md:col-span-7' : 'md:col-span-9'}>
-        <h2 className="font-display text-[26px] md:text-[31px] lg:text-[34px] font-normal leading-[1.12] tracking-[-0.015em] text-ink max-w-[26ch]">
+        <h2 className="font-display text-[26px] md:text-[31px] lg:text-[34px] font-normal leading-[1.12] tracking-[-0.015em] text-ink max-w-[38ch] text-balance">
           <span className="bg-left-bottom rtl:bg-right-bottom bg-gradient-to-r from-ink to-ink bg-[length:0%_1px] bg-no-repeat transition-[background-size] duration-500 group-hover:bg-[length:100%_1px]">
             {article.title}
           </span>
