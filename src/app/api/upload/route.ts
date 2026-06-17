@@ -29,10 +29,13 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
   }
 
+  // Hoisted so the catch block can include them in the structured log.
+  let file: File | null = null;
+  let folder = 'misc';
   try {
     const formData = await request.formData();
-    const file = formData.get('file') as File | null;
-    const folder = (formData.get('folder') as string) || 'misc';
+    file = formData.get('file') as File | null;
+    folder = (formData.get('folder') as string) || 'misc';
     const slug = (formData.get('slug') as string) || '';
 
     if (!file) {
@@ -94,7 +97,11 @@ export async function POST(request: NextRequest) {
     const fullUrl = await uploadFile(key, out, 'image/webp');
     return NextResponse.json({ url: key, fullUrl });
   } catch (error) {
-    console.error('Upload error:', error);
+    console.error('upload.failed', {
+      err: error instanceof Error ? { name: error.name, message: error.message } : String(error),
+      file: file ? { name: file.name, size: file.size, type: file.type } : null,
+      folder,
+    });
     return NextResponse.json({ error: 'Upload failed' }, { status: 500 });
   }
 }

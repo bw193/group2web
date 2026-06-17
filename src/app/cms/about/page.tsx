@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Save, Upload, Trash2, Image as ImageIcon, Building2, Award, Globe2, Plus, ExternalLink } from 'lucide-react';
 import { getUploadUrl } from '@/lib/utils';
+import { preprocessForUpload } from '@/lib/cms/preprocess-upload';
 import { useT } from '../_lib/i18n';
 
 interface GalleryItem {
@@ -77,12 +78,20 @@ export default function AboutManagementPage() {
   async function handleUpload(file: File, type: GalleryKind, nextOrder: number) {
     setUploadingType(type);
     try {
+      // Shrink the source in the browser so the POST body always sits under
+      // Vercel's edge body-size cap — server resizes to <=1600px anyway.
+      const prepared = await preprocessForUpload(file);
       const fd = new FormData();
-      fd.append('file', file);
+      fd.append('file', prepared);
       fd.append('folder', KIND_TO_FOLDER[type]);
-      const upRes = await fetch('/api/upload', { method: 'POST', body: fd });
-      if (!upRes.ok) {
-        alert(t('about.uploadFailed'));
+      const upRes = await fetch('/api/upload', { method: 'POST', body: fd }).catch(() => null);
+      if (!upRes?.ok) {
+        const reason = !upRes
+          ? 'network failure (request did not reach the server)'
+          : upRes.status === 413
+            ? 'image too large for the server'
+            : ((await upRes.json().catch(() => ({} as { error?: string }))).error ?? `HTTP ${upRes.status}`);
+        alert(`${t('about.uploadFailed')} — ${reason}`);
         return;
       }
       const { url } = await upRes.json();
