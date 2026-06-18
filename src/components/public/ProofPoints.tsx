@@ -19,9 +19,11 @@ export default async function ProofPoints({
   className = '',
   stagger = true,
   align = 'start',
+  noSnippet = false,
 }: {
   className?: string;
   stagger?: boolean;
+  noSnippet?: boolean;
   /** 'start' (default, used by PDPs): check + text on one line, left-aligned.
    *  'center' (homepage): check stacked above centered text, to sit under the
    *  centered stats band as one balanced, centered composition. */
@@ -32,7 +34,11 @@ export default async function ProofPoints({
   const centered = align === 'center';
 
   return (
-    <div className={className} {...(stagger ? { 'data-reveal-stagger': '' } : {})}>
+    <div
+      className={className}
+      {...(stagger ? { 'data-reveal-stagger': '' } : {})}
+      {...(noSnippet ? { 'data-nosnippet': '' } : {})}
+    >
       <div className="grid grid-cols-1 md:grid-cols-3 gap-x-10 gap-y-8">
         {points.map((p, i) => (
           <div

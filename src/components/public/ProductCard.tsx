@@ -13,6 +13,7 @@ interface ProductCardProps {
   imageUrl?: string | null;
   isFeatured?: boolean;
   index?: number;
+  noSnippet?: boolean;
   /**
    * When true, the short-description paragraph is hidden. Used on the
    * homepage featured grid so cards stay compact and bottom-aligned.
@@ -28,13 +29,14 @@ export default function ProductCard({
   imageUrl,
   isFeatured,
   index,
+  noSnippet = false,
   hideDescription = false,
 }: ProductCardProps) {
   const t = useTranslations('products');
   const locale = useLocale();
 
   return (
-    <article className="group flex flex-col h-full">
+    <article className="group flex flex-col h-full" {...(noSnippet ? { 'data-nosnippet': '' } : {})}>
       {/* Image */}
       <Link
         href={`/${locale}/products/${slug}`}

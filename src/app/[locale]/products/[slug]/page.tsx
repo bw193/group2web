@@ -406,7 +406,7 @@ export default async function ProductDetailPage({
                   {t('sendInquiry')}
                   <ArrowRight size={14} strokeWidth={1.75} className="ms-3 transition-transform duration-500 group-hover:translate-x-1 rtl:-scale-x-100" />
                 </Link>
-                <p className="mt-4 text-[13px] font-body text-ink-mid leading-[1.6]">
+                <p className="mt-4 text-[13px] font-body text-ink-mid leading-[1.6]" data-nosnippet="">
                   {t('inquiryPrompt')}
                 </p>
               </div>
@@ -416,7 +416,7 @@ export default async function ProductDetailPage({
           {/* Trust strip — the three manufacturer proof points, shared with the
               homepage factory section. Presentational only (no Product JSON-LD
               change), so repeating it across product pages stays SEO-neutral. */}
-          <ProofPoints className="mt-16 pt-12 md:mt-20 md:pt-14 border-t border-warm-border" />
+          <ProofPoints className="mt-16 pt-12 md:mt-20 md:pt-14 border-t border-warm-border" noSnippet />
 
           {/* Full Description — intentionally not gated behind data-reveal:
               this is primary indexable copy, so it stays always-visible. */}
@@ -447,7 +447,7 @@ export default async function ProductDetailPage({
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-14 md:gap-x-10 md:gap-y-16">
                 {related.map((p, i) => (
-                  <ProductCard key={p.id} index={i} {...p} />
+                  <ProductCard key={p.id} index={i} {...p} noSnippet />
                 ))}
               </div>
             </div>
