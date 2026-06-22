@@ -5,6 +5,7 @@ import { notFound, permanentRedirect } from 'next/navigation';
 import { getDb } from '@/lib/db';
 import { products, productTranslations, productSpecifications, productImages } from '@/lib/db/schema';
 import { eq, and, ne, inArray } from 'drizzle-orm';
+import { getBuildSnapshot, type BuildSnapshot } from '@/lib/build-cache';
 import { getUploadUrl } from '@/lib/utils';
 import { ArrowRight, ChevronRight } from 'lucide-react';
 import ProductCard from '@/components/public/ProductCard';
@@ -20,9 +21,41 @@ import {
   localizedUrl,
   productTitle,
 } from '@/lib/seo';
-import { locales, defaultLocale } from '@/i18n/config';
+import { locales, defaultLocale, localeHomePath } from '@/i18n/config';
 
 export const revalidate = 600;
+
+type ProductRow = BuildSnapshot['products'][number];
+type ProductTranslationRow = BuildSnapshot['productTranslations'][number];
+type ProductImageRow = BuildSnapshot['productImages'][number];
+
+// Snapshot-side helper: replicate the SQL "INNER JOIN ... WHERE slug AND
+// locale AND isActive" lookup against the in-memory indices.
+function snapJoinedByLocaleSlug(
+  snap: BuildSnapshot,
+  locale: string,
+  slug: string,
+): { product: ProductRow; trans: ProductTranslationRow } | null {
+  const trans = snap.indices.productTransByLocaleSlug.get(`${locale}|${slug}`);
+  if (!trans) return null;
+  const product = snap.indices.productById.get(trans.productId);
+  if (!product || !product.isActive) return null;
+  return { product, trans };
+}
+
+// Snapshot-side helper: "find this slug in ANY locale where the product is
+// active" — mirrors the per-locale-redirect fallback path on a slug miss.
+function snapJoinedBySlugAny(
+  snap: BuildSnapshot,
+  slug: string,
+): { product: ProductRow; trans: ProductTranslationRow } | null {
+  const candidates = snap.indices.productTransBySlug.get(slug) ?? [];
+  for (const trans of candidates) {
+    const product = snap.indices.productById.get(trans.productId);
+    if (product && product.isActive) return { product, trans };
+  }
+  return null;
+}
 
 export async function generateMetadata({
   params,
@@ -30,33 +63,17 @@ export async function generateMetadata({
   params: Promise<{ locale: string; slug: string }>;
 }): Promise<Metadata> {
   const { locale, slug } = await params;
+  const snap = await getBuildSnapshot();
 
-  try {
-    const db = getDb();
-    const joined = await db
-      .select({ product: products, trans: productTranslations })
-      .from(productTranslations)
-      .innerJoin(products, eq(products.id, productTranslations.productId))
-      .where(
-        and(
-          eq(productTranslations.slug, slug),
-          eq(productTranslations.locale, locale),
-          eq(products.isActive, true),
-        ),
-      )
-      .limit(1);
-
-    const row = joined[0];
-    if (!row) {
-      // Leave defaults; the page will render notFound() or redirect.
+  if (snap) {
+    // Snapshot path — no try/catch around it. A snapshot bug must surface as
+    // a build failure rather than be masked as a generic-title page.
+    const hit = snapJoinedByLocaleSlug(snap, locale, slug);
+    if (!hit) {
       return { title: productTitle('Product'), robots: { index: false, follow: true } };
     }
 
-    // Per-locale slugs for hreflang on this specific product.
-    const allTrans = await db
-      .select({ locale: productTranslations.locale, slug: productTranslations.slug })
-      .from(productTranslations)
-      .where(eq(productTranslations.productId, row.product.id));
+    const allTrans = snap.productTranslations.filter((t) => t.productId === hit.product.id);
 
     const languages: Record<string, string> = {};
     for (const t of allTrans) {
@@ -69,21 +86,14 @@ export async function generateMetadata({
       languages['x-default'] = localizedUrl(defaultLocale, `/products/${defaultRow.slug}`);
     }
 
-    const primaryImg = await db
-      .select({ imageUrl: productImages.imageUrl })
-      .from(productImages)
-      .where(eq(productImages.productId, row.product.id))
-      .orderBy(productImages.displayOrder)
-      .limit(1);
+    const imgs = snap.indices.productImagesByProduct.get(hit.product.id) ?? [];
+    // imgs is sorted by displayOrder — match the SQL ORDER BY + LIMIT 1.
+    const ogImage = imgs[0]?.imageUrl ? getUploadUrl(imgs[0].imageUrl) : SITE_OG_IMAGE;
 
-    const ogImage = primaryImg[0]?.imageUrl
-      ? getUploadUrl(primaryImg[0].imageUrl)
-      : SITE_OG_IMAGE;
-
-    const title = productTitle(row.trans.name);
-    const description = row.trans.shortDescription
-      ? row.trans.shortDescription.slice(0, 300)
-      : `${row.trans.name}${row.product.modelNumber ? ` (Model ${row.product.modelNumber})` : ''} — manufactured by Chengtai Mirror, Jiaxing, China. OEM/ODM available.`;
+    const title = productTitle(hit.trans.name);
+    const description = hit.trans.shortDescription
+      ? hit.trans.shortDescription.slice(0, 300)
+      : `${hit.trans.name}${hit.product.modelNumber ? ` (Model ${hit.product.modelNumber})` : ''} — manufactured by Chengtai Mirror, Jiaxing, China. OEM/ODM available.`;
 
     const canonical = localizedUrl(locale, `/products/${slug}`);
 
@@ -106,7 +116,7 @@ export async function generateMetadata({
         title,
         description,
         locale: localeToOg(locale),
-        images: [{ url: ogImage, width: 1200, height: 630, alt: row.trans.name }],
+        images: [{ url: ogImage, width: 1200, height: 630, alt: hit.trans.name }],
       },
       twitter: {
         card: 'summary_large_image',
@@ -115,34 +125,11 @@ export async function generateMetadata({
         images: [ogImage],
       },
     };
-  } catch {
-    return { title: productTitle('Product') };
   }
-}
 
-export async function generateStaticParams() {
-  try {
-    const db = getDb();
-    const rows = await db
-      .select({ locale: productTranslations.locale, slug: productTranslations.slug })
-      .from(productTranslations);
-    return rows.map((r) => ({ locale: r.locale, slug: r.slug }));
-  } catch {
-    return [];
-  }
-}
-
-export default async function ProductDetailPage({
-  params,
-}: {
-  params: Promise<{ locale: string; slug: string }>;
-}) {
-  const { locale, slug } = await params;
-  setRequestLocale(locale);
-  const t = await getTranslations('products');
-  const breadcrumbT = await getTranslations('breadcrumb');
+  // Runtime ISR path — no try/catch masking per [[no-fallback-masking]]; a real
+  // DB outage should propagate rather than ship pages with generic titles.
   const db = getDb();
-
   const joined = await db
     .select({ product: products, trans: productTranslations })
     .from(productTranslations)
@@ -156,68 +143,103 @@ export default async function ProductDetailPage({
     )
     .limit(1);
 
-  let product = joined[0]?.product;
-  let translation = joined[0]?.trans;
-
-  if (!product) {
-    // Slug not present in requested locale. Look for the product by slug
-    // in *any* locale, then redirect to its translation in the requested
-    // locale if one exists. This preserves URL ↔ language consistency
-    // (no English content under /fr/, etc.) and avoids duplicate content.
-    const any = await db
-      .select({ product: products, trans: productTranslations })
-      .from(productTranslations)
-      .innerJoin(products, eq(products.id, productTranslations.productId))
-      .where(and(eq(productTranslations.slug, slug), eq(products.isActive, true)))
-      .limit(1);
-    const target = any[0];
-    if (!target) notFound();
-
-    const localizedSlugRow = await db
-      .select({ slug: productTranslations.slug })
-      .from(productTranslations)
-      .where(
-        and(
-          eq(productTranslations.productId, target.product.id),
-          eq(productTranslations.locale, locale),
-        ),
-      )
-      .limit(1);
-
-    if (localizedSlugRow[0]?.slug && localizedSlugRow[0].slug !== slug) {
-      permanentRedirect(localizedPath(locale, `/products/${localizedSlugRow[0].slug}`));
-    }
-
-    // No translation for this locale — render whatever we have to avoid 404,
-    // but mark the page noindex via metadata fallback. (notFound is harsher.)
-    product = target.product;
-    translation = target.trans;
+  const row = joined[0];
+  if (!row) {
+    return { title: productTitle('Product'), robots: { index: false, follow: true } };
   }
-  if (!product || !translation) notFound();
 
-  const [specs, images, localeTrans] = await Promise.all([
-    db
-      .select()
-      .from(productSpecifications)
-      .where(and(eq(productSpecifications.productId, product.id), eq(productSpecifications.locale, locale))),
-    db
-      .select()
-      .from(productImages)
-      .where(eq(productImages.productId, product.id))
-      .orderBy(productImages.displayOrder),
-    translation.locale === locale
-      ? Promise.resolve(null)
-      : db
-          .select()
-          .from(productTranslations)
-          .where(and(eq(productTranslations.productId, product.id), eq(productTranslations.locale, locale)))
-          .limit(1)
-          .then((r) => r[0] ?? null),
-  ]);
+  const allTrans = await db
+    .select({ locale: productTranslations.locale, slug: productTranslations.slug })
+    .from(productTranslations)
+    .where(eq(productTranslations.productId, row.product.id));
 
-  if (localeTrans) translation = localeTrans;
-  const trans = translation;
+  const languages: Record<string, string> = {};
+  for (const t of allTrans) {
+    if ((locales as readonly string[]).includes(t.locale)) {
+      languages[t.locale] = localizedUrl(t.locale, `/products/${t.slug}`);
+    }
+  }
+  const defaultRow = allTrans.find((t) => t.locale === defaultLocale);
+  if (defaultRow) {
+    languages['x-default'] = localizedUrl(defaultLocale, `/products/${defaultRow.slug}`);
+  }
 
+  const primaryImg = await db
+    .select({ imageUrl: productImages.imageUrl })
+    .from(productImages)
+    .where(eq(productImages.productId, row.product.id))
+    .orderBy(productImages.displayOrder)
+    .limit(1);
+
+  const ogImage = primaryImg[0]?.imageUrl
+    ? getUploadUrl(primaryImg[0].imageUrl)
+    : SITE_OG_IMAGE;
+
+  const title = productTitle(row.trans.name);
+  const description = row.trans.shortDescription
+    ? row.trans.shortDescription.slice(0, 300)
+    : `${row.trans.name}${row.product.modelNumber ? ` (Model ${row.product.modelNumber})` : ''} — manufactured by Chengtai Mirror, Jiaxing, China. OEM/ODM available.`;
+
+  const canonical = localizedUrl(locale, `/products/${slug}`);
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical,
+      languages: Object.keys(languages).length ? languages : undefined,
+    },
+    openGraph: {
+      type: 'website',
+      url: canonical,
+      siteName: SITE_NAME,
+      title,
+      description,
+      locale: localeToOg(locale),
+      images: [{ url: ogImage, width: 1200, height: 630, alt: row.trans.name }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [ogImage],
+    },
+  };
+}
+
+export async function generateStaticParams() {
+  const snap = await getBuildSnapshot();
+  if (snap) {
+    // No try/catch — a missing snapshot here would silently ship a site
+    // with zero product pages (see [[no-fallback-masking]]).
+    return snap.productTranslations.map((r) => ({ locale: r.locale, slug: r.slug }));
+  }
+
+  const db = getDb();
+  const rows = await db
+    .select({ locale: productTranslations.locale, slug: productTranslations.slug })
+    .from(productTranslations);
+  return rows.map((r) => ({ locale: r.locale, slug: r.slug }));
+}
+
+export default async function ProductDetailPage({
+  params,
+}: {
+  params: Promise<{ locale: string; slug: string }>;
+}) {
+  const { locale, slug } = await params;
+  setRequestLocale(locale);
+  const t = await getTranslations('products');
+  const breadcrumbT = await getTranslations('breadcrumb');
+  const snap = await getBuildSnapshot();
+
+  // ---------------------------------------------------------------------
+  // Snapshot path — pure in-memory; mirrors every WHERE / ORDER BY below.
+  // ---------------------------------------------------------------------
+  let product: ProductRow | undefined;
+  let translation: ProductTranslationRow | undefined;
+  let specs: BuildSnapshot['productSpecifications'][number][] = [];
+  let images: ProductImageRow[] = [];
   let related: {
     id: number;
     name: string;
@@ -228,61 +250,222 @@ export default async function ProductDetailPage({
     isFeatured: boolean;
   }[] = [];
 
-  if (product.categoryId) {
-    const relatedProducts = await db
-      .select()
-      .from(products)
+  if (snap) {
+    const hit = snapJoinedByLocaleSlug(snap, locale, slug);
+    if (hit) {
+      product = hit.product;
+      translation = hit.trans;
+    } else {
+      // Slug not present in requested locale. Find it in ANY locale.
+      const any = snapJoinedBySlugAny(snap, slug);
+      if (!any) notFound();
+
+      const localizedSlugRow = snap.indices.productTransByProductLocale.get(
+        `${any.product.id}|${locale}`,
+      );
+      if (localizedSlugRow?.slug && localizedSlugRow.slug !== slug) {
+        permanentRedirect(localizedPath(locale, `/products/${localizedSlugRow.slug}`));
+      }
+
+      // No translation for this locale — render whatever we have to avoid 404,
+      // matching the legacy behavior; metadata fallback handles noindex.
+      product = any.product;
+      translation = any.trans;
+    }
+    if (!product || !translation) notFound();
+
+    specs = snap.indices.productSpecsByProductLocale.get(`${product.id}|${locale}`) ?? [];
+
+    // Match SQL ORDER BY productImages.displayOrder; the index pre-sorts.
+    images = snap.indices.productImagesByProduct.get(product.id) ?? [];
+
+    // If the joined row above was a fallback-locale (the slug existed under
+    // another locale and we did NOT permanentRedirect), the locale-specific
+    // translation may still exist with a DIFFERENT slug — promote it now to
+    // match the legacy Promise.all behavior.
+    if (translation.locale !== locale) {
+      const localeTrans = snap.indices.productTransByProductLocale.get(`${product.id}|${locale}`);
+      if (localeTrans) translation = localeTrans;
+    }
+
+    if (product.categoryId) {
+      // Mirror SQL: WHERE categoryId = ? AND id != ? AND isActive; LIMIT 3.
+      // The legacy code did NOT add an ORDER BY, so Postgres returned whatever
+      // order it pleased. Match that exactly: filter by category + id + active,
+      // take the first 3 in insertion (id) order — Postgres without ORDER BY
+      // is undefined, but products are inserted in id ASC and that's the
+      // stable order observed in prod HTML.
+      const relatedProducts = snap.products
+        .filter(
+          (p) => p.categoryId === product!.categoryId && p.id !== product!.id && p.isActive,
+        )
+        .slice(0, 3);
+
+      if (relatedProducts.length) {
+        related = relatedProducts.map((p) => {
+          const trans =
+            snap.indices.productTransByProductLocale.get(`${p.id}|${locale}`) ??
+            (locale !== 'en'
+              ? snap.indices.productTransByProductLocale.get(`${p.id}|en`)
+              : undefined);
+          const imgs = snap.indices.productImagesByProduct.get(p.id) ?? [];
+          let chosenImg: ProductImageRow | undefined = undefined;
+          for (const img of imgs) {
+            if (!chosenImg || (img.isPrimary && !chosenImg.isPrimary)) chosenImg = img;
+          }
+          return {
+            id: p.id,
+            name: trans?.name || 'Product',
+            slug: trans?.slug || `product-${p.id}`,
+            shortDescription: trans?.shortDescription,
+            modelNumber: p.modelNumber,
+            imageUrl: chosenImg?.imageUrl,
+            isFeatured: p.isFeatured,
+          };
+        });
+      }
+    }
+  } else {
+    // -------------------------------------------------------------------
+    // Runtime ISR / dev path — verbatim Drizzle queries from before.
+    // -------------------------------------------------------------------
+    const db = getDb();
+
+    const joined = await db
+      .select({ product: products, trans: productTranslations })
+      .from(productTranslations)
+      .innerJoin(products, eq(products.id, productTranslations.productId))
       .where(
         and(
-          eq(products.categoryId, product.categoryId),
-          ne(products.id, product.id),
+          eq(productTranslations.slug, slug),
+          eq(productTranslations.locale, locale),
           eq(products.isActive, true),
         ),
       )
-      .limit(3);
+      .limit(1);
 
-    const relatedIds = relatedProducts.map((p) => p.id);
+    product = joined[0]?.product;
+    translation = joined[0]?.trans;
 
-    if (relatedIds.length) {
-      const [relTrans, relTransEn, relImages] = await Promise.all([
-        db
-          .select()
-          .from(productTranslations)
-          .where(and(inArray(productTranslations.productId, relatedIds), eq(productTranslations.locale, locale))),
-        locale !== 'en'
-          ? db
-              .select()
-              .from(productTranslations)
-              .where(and(inArray(productTranslations.productId, relatedIds), eq(productTranslations.locale, 'en')))
-          : Promise.resolve([]),
-        db.select().from(productImages).where(inArray(productImages.productId, relatedIds)),
-      ]);
+    if (!product) {
+      // Slug not present in requested locale. Look for the product by slug
+      // in *any* locale, then redirect to its translation in the requested
+      // locale if one exists. This preserves URL ↔ language consistency
+      // (no English content under /fr/, etc.) and avoids duplicate content.
+      const any = await db
+        .select({ product: products, trans: productTranslations })
+        .from(productTranslations)
+        .innerJoin(products, eq(products.id, productTranslations.productId))
+        .where(and(eq(productTranslations.slug, slug), eq(products.isActive, true)))
+        .limit(1);
+      const target = any[0];
+      if (!target) notFound();
 
-      const relTransMap = new Map(relTrans.map((t) => [t.productId, t]));
-      const relTransEnMap = new Map(relTransEn.map((t) => [t.productId, t]));
-      const relImgMap = new Map<number, typeof relImages[number]>();
-      for (const img of relImages) {
-        const existing = relImgMap.get(img.productId);
-        if (!existing || (img.isPrimary && !existing.isPrimary)) {
-          relImgMap.set(img.productId, img);
-        }
+      const localizedSlugRow = await db
+        .select({ slug: productTranslations.slug })
+        .from(productTranslations)
+        .where(
+          and(
+            eq(productTranslations.productId, target.product.id),
+            eq(productTranslations.locale, locale),
+          ),
+        )
+        .limit(1);
+
+      if (localizedSlugRow[0]?.slug && localizedSlugRow[0].slug !== slug) {
+        permanentRedirect(localizedPath(locale, `/products/${localizedSlugRow[0].slug}`));
       }
 
-      related = relatedProducts.map((p) => {
-        const pTrans = relTransMap.get(p.id) || relTransEnMap.get(p.id);
-        const pImg = relImgMap.get(p.id);
-        return {
-          id: p.id,
-          name: pTrans?.name || 'Product',
-          slug: pTrans?.slug || `product-${p.id}`,
-          shortDescription: pTrans?.shortDescription,
-          modelNumber: p.modelNumber,
-          imageUrl: pImg?.imageUrl,
-          isFeatured: p.isFeatured,
-        };
-      });
+      // No translation for this locale — render whatever we have to avoid 404,
+      // but mark the page noindex via metadata fallback. (notFound is harsher.)
+      product = target.product;
+      translation = target.trans;
+    }
+    if (!product || !translation) notFound();
+
+    const [specsRow, imagesRow, localeTrans] = await Promise.all([
+      db
+        .select()
+        .from(productSpecifications)
+        .where(and(eq(productSpecifications.productId, product.id), eq(productSpecifications.locale, locale))),
+      db
+        .select()
+        .from(productImages)
+        .where(eq(productImages.productId, product.id))
+        .orderBy(productImages.displayOrder),
+      translation.locale === locale
+        ? Promise.resolve(null)
+        : db
+            .select()
+            .from(productTranslations)
+            .where(and(eq(productTranslations.productId, product.id), eq(productTranslations.locale, locale)))
+            .limit(1)
+            .then((r) => r[0] ?? null),
+    ]);
+
+    if (localeTrans) translation = localeTrans;
+    specs = specsRow;
+    images = imagesRow;
+
+    if (product.categoryId) {
+      const relatedProducts = await db
+        .select()
+        .from(products)
+        .where(
+          and(
+            eq(products.categoryId, product.categoryId),
+            ne(products.id, product.id),
+            eq(products.isActive, true),
+          ),
+        )
+        .limit(3);
+
+      const relatedIds = relatedProducts.map((p) => p.id);
+
+      if (relatedIds.length) {
+        const [relTrans, relTransEn, relImages] = await Promise.all([
+          db
+            .select()
+            .from(productTranslations)
+            .where(and(inArray(productTranslations.productId, relatedIds), eq(productTranslations.locale, locale))),
+          locale !== 'en'
+            ? db
+                .select()
+                .from(productTranslations)
+                .where(and(inArray(productTranslations.productId, relatedIds), eq(productTranslations.locale, 'en')))
+            : Promise.resolve([]),
+          db.select().from(productImages).where(inArray(productImages.productId, relatedIds)),
+        ]);
+
+        const relTransMap = new Map(relTrans.map((t) => [t.productId, t]));
+        const relTransEnMap = new Map(relTransEn.map((t) => [t.productId, t]));
+        const relImgMap = new Map<number, typeof relImages[number]>();
+        for (const img of relImages) {
+          const existing = relImgMap.get(img.productId);
+          if (!existing || (img.isPrimary && !existing.isPrimary)) {
+            relImgMap.set(img.productId, img);
+          }
+        }
+
+        related = relatedProducts.map((p) => {
+          const pTrans = relTransMap.get(p.id) || relTransEnMap.get(p.id);
+          const pImg = relImgMap.get(p.id);
+          return {
+            id: p.id,
+            name: pTrans?.name || 'Product',
+            slug: pTrans?.slug || `product-${p.id}`,
+            shortDescription: pTrans?.shortDescription,
+            modelNumber: p.modelNumber,
+            imageUrl: pImg?.imageUrl,
+            isFeatured: p.isFeatured,
+          };
+        });
+      }
     }
   }
+
+  // Above both paths converge: product, translation, specs, images, related.
+  const trans = translation;
 
   const imageUrls = images.length > 0
     ? images.map((img) => getUploadUrl(img.imageUrl))
@@ -326,7 +509,7 @@ export default async function ProductDetailPage({
         <div className="container-wide py-4">
           <ol className="flex items-center gap-2.5 text-[12px] font-body font-semibold tracking-[0.12em] uppercase">
             <li className="flex-shrink-0">
-              <Link href={`/${locale}`} className="text-ink-mid hover:text-ink transition-colors duration-300">
+              <Link href={localeHomePath(locale)} className="text-ink-mid hover:text-ink transition-colors duration-300">
                 {breadcrumbT('home')}
               </Link>
             </li>

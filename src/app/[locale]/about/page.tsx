@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { getDb } from '@/lib/db';
 import { aboutPage, aboutGallery } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
+import { getBuildSnapshot } from '@/lib/build-cache';
 import { JsonLd } from '@/components/seo/JsonLd';
 import {
   ADDRESS,
@@ -60,17 +61,30 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
   setRequestLocale(locale);
   const t = await getTranslations('about');
   const breadcrumbT = await getTranslations('breadcrumb');
-  const db = getDb();
+  const snap = await getBuildSnapshot();
 
-  let [about] = await db.select().from(aboutPage).where(eq(aboutPage.locale, locale)).limit(1);
-  if (!about && locale !== 'en') {
-    [about] = await db.select().from(aboutPage).where(eq(aboutPage.locale, 'en')).limit(1);
+  let about: typeof aboutPage.$inferSelect | undefined;
+  let factoryPhotos: (typeof aboutGallery.$inferSelect)[];
+  let certPhotos: (typeof aboutGallery.$inferSelect)[];
+
+  if (snap) {
+    about =
+      snap.indices.aboutByLocale.get(locale) ??
+      (locale !== 'en' ? snap.indices.aboutByLocale.get('en') : undefined);
+    // The indices are pre-sorted by displayOrder — matches SQL ORDER BY.
+    factoryPhotos = snap.indices.aboutGalleryByType.get('factory') ?? [];
+    certPhotos = snap.indices.aboutGalleryByType.get('certification') ?? [];
+  } else {
+    const db = getDb();
+    [about] = await db.select().from(aboutPage).where(eq(aboutPage.locale, locale)).limit(1);
+    if (!about && locale !== 'en') {
+      [about] = await db.select().from(aboutPage).where(eq(aboutPage.locale, 'en')).limit(1);
+    }
+    [factoryPhotos, certPhotos] = await Promise.all([
+      db.select().from(aboutGallery).where(eq(aboutGallery.imageType, 'factory')).orderBy(aboutGallery.displayOrder),
+      db.select().from(aboutGallery).where(eq(aboutGallery.imageType, 'certification')).orderBy(aboutGallery.displayOrder),
+    ]);
   }
-
-  const [factoryPhotos, certPhotos] = await Promise.all([
-    db.select().from(aboutGallery).where(eq(aboutGallery.imageType, 'factory')).orderBy(aboutGallery.displayOrder),
-    db.select().from(aboutGallery).where(eq(aboutGallery.imageType, 'certification')).orderBy(aboutGallery.displayOrder),
-  ]);
 
   const stats = [
     { value: about?.factorySize || '50,000', unit: 'sqm', label: t('facilitySize') },

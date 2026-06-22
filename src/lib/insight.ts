@@ -12,6 +12,7 @@ import {
   productImages,
 } from '@/lib/db/schema';
 import { and, desc, eq, inArray, ne } from 'drizzle-orm';
+import { getBuildSnapshot, type BuildSnapshot } from '@/lib/build-cache';
 
 // Insight reads mirror the product pages: direct, batched Drizzle queries on
 // the shared pool, cached only by page-level ISR. Critically, the list /
@@ -19,6 +20,14 @@ import { and, desc, eq, inArray, ne } from 'drizzle-orm';
 // article HTML lives in article_translation_bodies and is loaded only by the
 // detail page (getArticleBody). That keeps article_translations as light as
 // product_translations so static generation of all 7 locales stays cheap.
+//
+// Each public loader has two code paths:
+//   1. snapshot path (BUILD_CACHE=1 + phase-production-build): pure in-memory
+//      lookups against the build-time bulk snapshot — zero DB round-trips.
+//   2. Drizzle path: today's queries, untouched. Runtime ISR always lands
+//      here so `revalidate` cadence is preserved.
+// The two paths must produce byte-identical output; the SQL ORDER BY /
+// WHERE clauses are mirrored as JS sort/filter against the snapshot indices.
 
 export interface ArticleCategory {
   key: string;
@@ -30,6 +39,19 @@ export function categoryFallbackLabel(key: string): string {
   return key ? key.charAt(0).toUpperCase() + key.slice(1) : key;
 }
 
+function snapCategories(snap: BuildSnapshot, locale: string): ArticleCategory[] {
+  // Mirrors SQL: ORDER BY displayOrder, id; English fallback for name.
+  const cats = [...snap.articleCategories].sort(
+    (a, b) => a.displayOrder - b.displayOrder || a.id - b.id,
+  );
+  return cats.map((c) => {
+    const tr =
+      snap.indices.articleCategoryTransByCatLocale.get(`${c.id}|${locale}`) ??
+      snap.indices.articleCategoryTransByCatLocale.get(`${c.id}|en`);
+    return { key: c.key, name: tr?.name || categoryFallbackLabel(c.key) };
+  });
+}
+
 /**
  * CMS-managed categories for a locale, in editor order, with the usual English
  * fallback per name (then the title-cased key). Returns [] only for the
@@ -37,6 +59,9 @@ export function categoryFallbackLabel(key: string): string {
  * loudly instead of silently dropping the tabs.
  */
 export async function getArticleCategories(locale: string): Promise<ArticleCategory[]> {
+  const snap = await getBuildSnapshot();
+  if (snap) return snapCategories(snap, locale);
+
   const db = getDb();
   const cats = await db
     .select()
@@ -139,6 +164,22 @@ function resolveList(
 export async function getInsightIndexData(
   locale: string,
 ): Promise<{ list: ArticleListItem[]; categories: ArticleCategory[] }> {
+  const snap = await getBuildSnapshot();
+  if (snap) {
+    // Mirror SQL: WHERE isActive = true; ORDER BY publishedAt DESC, id DESC.
+    const base = snap.articles
+      .filter((a) => a.isActive)
+      .sort((a, b) =>
+        b.publishedAt.localeCompare(a.publishedAt) || b.id - a.id,
+      );
+    const wantedLocales = locale === 'en' ? ['en'] : [locale, 'en'];
+    const baseIds = new Set(base.map((a) => a.id));
+    const allTrans: ListTrans[] = snap.articleTranslations.filter(
+      (t) => baseIds.has(t.articleId) && wantedLocales.includes(t.locale),
+    );
+    return { list: resolveList(base, allTrans, locale), categories: snapCategories(snap, locale) };
+  }
+
   const db = getDb();
   const localesWanted = locale === 'en' ? ['en'] : [locale, 'en'];
 
@@ -196,6 +237,27 @@ export async function getInsightIndexData(
  * via getArticleBody). Returns null when the locale has no translation here.
  */
 export async function getArticleRouteData(locale: string, slug: string) {
+  const snap = await getBuildSnapshot();
+  if (snap) {
+    const trans = snap.indices.articleTransByLocaleSlug.get(`${locale}|${slug}`);
+    if (!trans) return null;
+    const article = snap.indices.articleById.get(trans.articleId);
+    // Mirror SQL: WHERE articles.isActive = true.
+    if (!article || !article.isActive) return null;
+    return {
+      article,
+      trans: {
+        id: trans.id,
+        articleId: trans.articleId,
+        locale: trans.locale,
+        slug: trans.slug,
+        title: trans.title,
+        dek: trans.dek,
+        author: trans.author,
+      },
+    };
+  }
+
   const db = getDb();
   const joined = await db
     .select({
@@ -218,6 +280,10 @@ export async function getArticleRouteData(locale: string, slug: string) {
 /**
  * Heavy article HTML for one translation — ONLY the detail page calls this.
  * Reads from article_translation_bodies (keyed by article_translations.id).
+ *
+ * Deliberately NOT included in the build snapshot: bodies are 5–20 KB each
+ * and scale linearly with content; one row table-scan per detail page is
+ * cheap on a per-worker pool that is already warm by then.
  */
 export async function getArticleBody(articleTranslationId: number): Promise<string | null> {
   const db = getDb();
@@ -231,6 +297,13 @@ export async function getArticleBody(articleTranslationId: number): Promise<stri
 
 /** All `(locale, slug)` pairs for an article — used to build hreflang. Light. */
 export async function getArticleAllTranslations(articleId: number) {
+  const snap = await getBuildSnapshot();
+  if (snap) {
+    return snap.articleTranslations
+      .filter((t) => t.articleId === articleId)
+      .map((t) => ({ locale: t.locale, slug: t.slug }));
+  }
+
   const db = getDb();
   return db
     .select({ locale: articleTranslations.locale, slug: articleTranslations.slug })
@@ -248,6 +321,25 @@ export async function getMoreStories(
   excludeArticleId: number,
   limit: number,
 ): Promise<ArticleListItem[]> {
+  const snap = await getBuildSnapshot();
+  if (snap) {
+    const wantedLocales = locale === 'en' ? ['en'] : [locale, 'en'];
+    // Mirror SQL: WHERE isActive = true AND id != excludeArticleId;
+    // ORDER BY publishedAt DESC, id DESC; LIMIT limit*3.
+    const base = snap.articles
+      .filter((a) => a.isActive && a.id !== excludeArticleId)
+      .sort((a, b) =>
+        b.publishedAt.localeCompare(a.publishedAt) || b.id - a.id,
+      )
+      .slice(0, limit * 3);
+    if (base.length === 0) return [];
+    const baseIds = new Set(base.map((a) => a.id));
+    const allTrans: ListTrans[] = snap.articleTranslations.filter(
+      (t) => baseIds.has(t.articleId) && wantedLocales.includes(t.locale),
+    );
+    return resolveList(base, allTrans, locale).slice(0, limit);
+  }
+
   const db = getDb();
   const base = await db
     .select()
@@ -289,6 +381,40 @@ export async function getArticleProducts(
   articleId: number,
   locale: string,
 ): Promise<ArticleRelatedProduct[]> {
+  const snap = await getBuildSnapshot();
+  if (snap) {
+    const links = snap.indices.articleProductsByArticle.get(articleId) ?? [];
+    // links is already sorted by displayOrder. Mirror SQL: INNER JOIN products
+    // ON products.isActive = true (drop links whose product is inactive or gone).
+    const rows = links.flatMap((link) => {
+      const product = snap.indices.productById.get(link.productId);
+      if (!product || !product.isActive) return [];
+      return [{ link, product }];
+    });
+    if (rows.length === 0) return [];
+
+    return rows.map(({ product: p }): ArticleRelatedProduct => {
+      const tr =
+        snap.indices.productTransByProductLocale.get(`${p.id}|${locale}`) ??
+        snap.indices.productTransByProductLocale.get(`${p.id}|en`);
+      const imgs = snap.indices.productImagesByProduct.get(p.id) ?? [];
+      // Match the existing "isPrimary wins, else first by displayOrder" rule.
+      let chosen: (typeof imgs)[number] | undefined = undefined;
+      for (const img of imgs) {
+        if (!chosen || (img.isPrimary && !chosen.isPrimary)) chosen = img;
+      }
+      return {
+        id: p.id,
+        name: tr?.name || 'Product',
+        slug: tr?.slug || `product-${p.id}`,
+        shortDescription: tr?.shortDescription ?? null,
+        modelNumber: p.modelNumber,
+        imageUrl: chosen?.imageUrl ?? null,
+        isFeatured: p.isFeatured,
+      };
+    });
+  }
+
   const db = getDb();
   const rows = await db
     .select({ link: articleProducts, product: products })

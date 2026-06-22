@@ -2,6 +2,7 @@ import type { MetadataRoute } from 'next';
 import { getDb } from '@/lib/db';
 import { productTranslations, products, articleTranslations, articles } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
+import { getBuildSnapshot } from '@/lib/build-cache';
 import { locales, defaultLocale } from '@/i18n/config';
 import {
   localizedUrl,
@@ -15,6 +16,14 @@ const STATIC_LAST_MODIFIED = new Date('2026-05-20T00:00:00Z');
 // Static routes shared across every locale, expressed as the path segment
 // AFTER the (optional) locale prefix. Use '' for the locale's homepage.
 const STATIC_ROUTES = ['', '/about', '/contact', '/products', '/insight'] as const;
+
+type SitemapRow = {
+  locale: string;
+  slug: string;
+  itemId: number;
+  updatedAt: string;
+  isActive: boolean;
+};
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const entries: MetadataRoute.Sitemap = [];
@@ -33,11 +42,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   }
 
+  const snap = await getBuildSnapshot();
+
   // Dynamic product detail pages. Slugs are stored per-locale in
-  // `product_translations`. If the DB isn't reachable at build time (the
-  // same scenario `generateStaticParams` guards against), fall back to
-  // the static entries only.
-  try {
+  // product_translations.
+  let productRows: SitemapRow[];
+  if (snap) {
+    productRows = snap.productTranslations.flatMap((t) => {
+      const p = snap.indices.productById.get(t.productId);
+      return p
+        ? [{ locale: t.locale, slug: t.slug, itemId: t.productId, updatedAt: p.updatedAt, isActive: p.isActive }]
+        : [];
+    });
+  } else {
+    // No try/catch — per [[no-fallback-masking]] a DB outage should crash
+    // the build, not silently emit a sitemap missing every product URL.
     const db = getDb();
     const rows = await db
       .select({
@@ -49,62 +68,29 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       })
       .from(productTranslations)
       .innerJoin(products, eq(products.id, productTranslations.productId));
-
-    // Group translations by productId so each product yields one sitemap entry
-    // (with hreflang alternates pointing at the per-locale slugs).
-    const byProduct = new Map<
-      number,
-      { updatedAt: string; isActive: boolean; slugs: Record<string, string> }
-    >();
-    for (const r of rows) {
-      const existing = byProduct.get(r.productId) ?? {
-        updatedAt: r.updatedAt,
-        isActive: r.isActive,
-        slugs: {} as Record<string, string>,
-      };
-      existing.slugs[r.locale] = r.slug;
-      byProduct.set(r.productId, existing);
-    }
-
-    for (const [, { updatedAt, isActive, slugs }] of byProduct) {
-      if (!isActive) continue;
-
-      // Build hreflang languages map from this product's per-locale slugs.
-      const languages: Record<string, string> = {};
-      for (const loc of locales) {
-        const slug = slugs[loc];
-        if (slug) {
-          languages[loc] = localizedUrl(loc, `/products/${slug}`);
-        }
-      }
-      const defaultSlug = slugs[defaultLocale];
-      if (defaultSlug) {
-        languages['x-default'] = localizedUrl(defaultLocale, `/products/${defaultSlug}`);
-      }
-
-      // Emit one sitemap entry per locale that actually has a translation.
-      for (const loc of locales) {
-        const slug = slugs[loc];
-        if (!slug) continue;
-        const lastModified = updatedAt ? new Date(updatedAt) : STATIC_LAST_MODIFIED;
-        entries.push({
-          url: localizedUrl(loc, `/products/${slug}`),
-          lastModified: Number.isNaN(lastModified.getTime()) ? STATIC_LAST_MODIFIED : lastModified,
-          changeFrequency: 'monthly',
-          priority: 0.8,
-          alternates: { languages },
-        });
-      }
-    }
-  } catch {
-    // DB unavailable — return what we have. The static routes are still useful.
+    productRows = rows.map((r) => ({
+      locale: r.locale,
+      slug: r.slug,
+      itemId: r.productId,
+      updatedAt: r.updatedAt,
+      isActive: r.isActive,
+    }));
   }
+  pushHreflangGroup(entries, productRows, 'products', 0.8);
 
   // Dynamic Insight article pages. Per-locale (locale, slug) live in
   // article_translations; the body lives in article_translation_bodies and is
   // never selected here (light, product-like). One entry per locale that has a
   // real translation, with hreflang alternates grouped by article.
-  try {
+  let articleRows: SitemapRow[];
+  if (snap) {
+    articleRows = snap.articleTranslations.flatMap((t) => {
+      const a = snap.indices.articleById.get(t.articleId);
+      return a
+        ? [{ locale: t.locale, slug: t.slug, itemId: t.articleId, updatedAt: a.updatedAt, isActive: a.isActive }]
+        : [];
+    });
+  } else {
     const db = getDb();
     const rows = await db
       .select({
@@ -116,50 +102,69 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       })
       .from(articleTranslations)
       .innerJoin(articles, eq(articles.id, articleTranslations.articleId));
-
-    const byArticle = new Map<
-      number,
-      { updatedAt: string; isActive: boolean; slugs: Record<string, string> }
-    >();
-    for (const r of rows) {
-      const existing = byArticle.get(r.articleId) ?? {
-        updatedAt: r.updatedAt,
-        isActive: r.isActive,
-        slugs: {} as Record<string, string>,
-      };
-      existing.slugs[r.locale] = r.slug;
-      byArticle.set(r.articleId, existing);
-    }
-
-    for (const [, { updatedAt, isActive, slugs }] of byArticle) {
-      if (!isActive) continue;
-
-      const languages: Record<string, string> = {};
-      for (const loc of locales) {
-        const slug = slugs[loc];
-        if (slug) languages[loc] = localizedUrl(loc, `/insight/${slug}`);
-      }
-      const defaultSlug = slugs[defaultLocale];
-      if (defaultSlug) {
-        languages['x-default'] = localizedUrl(defaultLocale, `/insight/${defaultSlug}`);
-      }
-
-      for (const loc of locales) {
-        const slug = slugs[loc];
-        if (!slug) continue;
-        const lastModified = updatedAt ? new Date(updatedAt) : STATIC_LAST_MODIFIED;
-        entries.push({
-          url: localizedUrl(loc, `/insight/${slug}`),
-          lastModified: Number.isNaN(lastModified.getTime()) ? STATIC_LAST_MODIFIED : lastModified,
-          changeFrequency: 'monthly',
-          priority: 0.7,
-          alternates: { languages },
-        });
-      }
-    }
-  } catch {
-    // DB unavailable — static + product entries already pushed.
+    articleRows = rows.map((r) => ({
+      locale: r.locale,
+      slug: r.slug,
+      itemId: r.articleId,
+      updatedAt: r.updatedAt,
+      isActive: r.isActive,
+    }));
   }
+  pushHreflangGroup(entries, articleRows, 'insight', 0.7);
 
   return entries;
+}
+
+/**
+ * Group per-locale rows by item, build the hreflang `languages` map from each
+ * item's per-locale slugs, and emit one sitemap entry per (item, locale).
+ * Inactive items are skipped — matches the legacy SQL-then-filter behavior.
+ */
+function pushHreflangGroup(
+  entries: MetadataRoute.Sitemap,
+  rows: SitemapRow[],
+  pathSegment: 'products' | 'insight',
+  priority: number,
+) {
+  const byItem = new Map<number, { updatedAt: string; isActive: boolean; slugs: Record<string, string> }>();
+  for (const r of rows) {
+    const existing = byItem.get(r.itemId) ?? {
+      updatedAt: r.updatedAt,
+      isActive: r.isActive,
+      slugs: {} as Record<string, string>,
+    };
+    existing.slugs[r.locale] = r.slug;
+    byItem.set(r.itemId, existing);
+  }
+
+  for (const [, { updatedAt, isActive, slugs }] of byItem) {
+    if (!isActive) continue;
+
+    // Build hreflang languages map from this item's per-locale slugs.
+    const languages: Record<string, string> = {};
+    for (const loc of locales) {
+      const slug = slugs[loc];
+      if (slug) {
+        languages[loc] = localizedUrl(loc, `/${pathSegment}/${slug}`);
+      }
+    }
+    const defaultSlug = slugs[defaultLocale];
+    if (defaultSlug) {
+      languages['x-default'] = localizedUrl(defaultLocale, `/${pathSegment}/${defaultSlug}`);
+    }
+
+    // Emit one sitemap entry per locale that actually has a translation.
+    for (const loc of locales) {
+      const slug = slugs[loc];
+      if (!slug) continue;
+      const lastModified = updatedAt ? new Date(updatedAt) : STATIC_LAST_MODIFIED;
+      entries.push({
+        url: localizedUrl(loc, `/${pathSegment}/${slug}`),
+        lastModified: Number.isNaN(lastModified.getTime()) ? STATIC_LAST_MODIFIED : lastModified,
+        changeFrequency: 'monthly',
+        priority,
+        alternates: { languages },
+      });
+    }
+  }
 }

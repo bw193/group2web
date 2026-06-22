@@ -5,6 +5,7 @@ import { notFound, permanentRedirect } from 'next/navigation';
 import { getDb } from '@/lib/db';
 import { articles, articleTranslations } from '@/lib/db/schema';
 import { and, eq } from 'drizzle-orm';
+import { getBuildSnapshot } from '@/lib/build-cache';
 import { ChevronRight } from 'lucide-react';
 import GalleryImage from '@/components/public/GalleryImage';
 import ProductCard from '@/components/public/ProductCard';
@@ -21,7 +22,7 @@ import {
   articleExcerpt,
   categoryFallbackLabel,
 } from '@/lib/insight';
-import { locales, defaultLocale } from '@/i18n/config';
+import { locales, defaultLocale, localeHomePath } from '@/i18n/config';
 import {
   SITE_NAME,
   SITE_OG_IMAGE,
@@ -40,16 +41,18 @@ export async function generateStaticParams() {
   // Product-alike: prerender every article translation at build, exactly like
   // the product detail page. The body-split made these reads as light as
   // product_translations, so the build's concurrent burst should no longer
-  // exhaust the pool. Falls back to on-demand only if the slug query fails.
-  try {
-    const db = getDb();
-    const rows = await db
-      .select({ locale: articleTranslations.locale, slug: articleTranslations.slug })
-      .from(articleTranslations);
-    return rows.map((r) => ({ locale: r.locale, slug: r.slug }));
-  } catch {
-    return [];
+  // exhaust the pool.
+  const snap = await getBuildSnapshot();
+  if (snap) {
+    // No try/catch: a missing snapshot here would silently ship a site
+    // with zero insight pages (see [[no-fallback-masking]]).
+    return snap.articleTranslations.map((r) => ({ locale: r.locale, slug: r.slug }));
   }
+  const db = getDb();
+  const rows = await db
+    .select({ locale: articleTranslations.locale, slug: articleTranslations.slug })
+    .from(articleTranslations);
+  return rows.map((r) => ({ locale: r.locale, slug: r.slug }));
 }
 
 export async function generateMetadata({
@@ -59,67 +62,65 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale, slug } = await params;
 
-  try {
-    const row = await getArticleRouteData(locale, slug);
-    if (!row) {
-      // No translation in this locale — the page itself redirects to the
-      // real translation locale (see ArticlePage below), so this branch is
-      // only hit when crawlers request the redirect target's metadata.
-      // Mark it non-indexable defensively.
-      return { title: `Insight — ${SITE_NAME}`, robots: { index: false, follow: true } };
+  // No try/catch masking: a DB / snapshot failure should propagate, not be
+  // silently swallowed into a generic-title page (see [[no-fallback-masking]]).
+  const row = await getArticleRouteData(locale, slug);
+  if (!row) {
+    // No translation in this locale — the page itself redirects to the
+    // real translation locale (see ArticlePage below), so this branch is
+    // only hit when crawlers request the redirect target's metadata.
+    // Mark it non-indexable defensively.
+    return { title: `Insight — ${SITE_NAME}`, robots: { index: false, follow: true } };
+  }
+
+  // hreflang built from the translations that actually exist.
+  const allTrans = await getArticleAllTranslations(row.article.id);
+
+  const languages: Record<string, string> = {};
+  for (const tr of allTrans) {
+    if ((locales as readonly string[]).includes(tr.locale)) {
+      languages[tr.locale] = localizedUrl(tr.locale, `/insight/${tr.slug}`);
     }
+  }
+  const def = allTrans.find((tr) => tr.locale === defaultLocale);
+  if (def) languages['x-default'] = localizedUrl(defaultLocale, `/insight/${def.slug}`);
 
-    // hreflang built from the translations that actually exist.
-    const allTrans = await getArticleAllTranslations(row.article.id);
+  const title = `${row.trans.title} — ${SITE_NAME}`;
+  // Metadata stays body-free — the body lives in article_translation_bodies
+  // and is loaded only by the page render below. Fall back to the localized
+  // journal description for the rare article with no dek.
+  const description = row.trans.dek || pageCopy(locale, 'insight').description;
+  const canonical = localizedUrl(locale, `/insight/${slug}`);
+  const ogImage = row.article.coverImageUrl
+    ? getUploadUrl(row.article.coverImageUrl)
+    : SITE_OG_IMAGE;
 
-    const languages: Record<string, string> = {};
-    for (const tr of allTrans) {
-      if ((locales as readonly string[]).includes(tr.locale)) {
-        languages[tr.locale] = localizedUrl(tr.locale, `/insight/${tr.slug}`);
-      }
-    }
-    const def = allTrans.find((tr) => tr.locale === defaultLocale);
-    if (def) languages['x-default'] = localizedUrl(defaultLocale, `/insight/${def.slug}`);
-
-    const title = `${row.trans.title} — ${SITE_NAME}`;
-    // Metadata stays body-free — the body lives in article_translation_bodies
-    // and is loaded only by the page render below. Fall back to the localized
-    // journal description for the rare article with no dek.
-    const description = row.trans.dek || pageCopy(locale, 'insight').description;
-    const canonical = localizedUrl(locale, `/insight/${slug}`);
-    const ogImage = row.article.coverImageUrl
-      ? getUploadUrl(row.article.coverImageUrl)
-      : SITE_OG_IMAGE;
-
-    return {
+  return {
+    title,
+    description,
+    alternates: {
+      canonical,
+      languages: Object.keys(languages).length ? languages : undefined,
+    },
+    openGraph: {
+      type: 'article',
+      url: canonical,
+      siteName: SITE_NAME,
       title,
       description,
-      alternates: {
-        canonical,
-        languages: Object.keys(languages).length ? languages : undefined,
-      },
-      openGraph: {
-        type: 'article',
-        url: canonical,
-        siteName: SITE_NAME,
-        title,
-        description,
-        locale: localeToOg(locale),
-        publishedTime: new Date(row.article.publishedAt).toISOString(),
-        modifiedTime: new Date(row.article.updatedAt).toISOString(),
-        authors: row.trans.author ? [row.trans.author] : undefined,
-        images: [{ url: ogImage, width: 1200, height: 630, alt: row.trans.title }],
-      },
-      twitter: {
-        card: 'summary_large_image',
-        title,
-        description,
-        images: [ogImage],
-      },
-    };
-  } catch {
-    return { title: `Insight — ${SITE_NAME}` };
-  }
+      locale: localeToOg(locale),
+      publishedTime: new Date(row.article.publishedAt).toISOString(),
+      modifiedTime: new Date(row.article.updatedAt).toISOString(),
+      authors: row.trans.author ? [row.trans.author] : undefined,
+      images: [{ url: ogImage, width: 1200, height: 630, alt: row.trans.title }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [ogImage],
+    },
+  };
 }
 
 export default async function ArticlePage({
@@ -142,6 +143,25 @@ export default async function ArticlePage({
     // translation actually exists. We never render English content under
     // /pt/, /fr/, etc.; that was the source of the phantom dynamic-render
     // routes behind the DbTimeoutErrors.
+    const snap = await getBuildSnapshot();
+    if (snap) {
+      const candidates = snap.indices.articleTransBySlug.get(slug) ?? [];
+      const target = candidates.flatMap((trans) => {
+        const article = snap.indices.articleById.get(trans.articleId);
+        return article && article.isActive ? [{ article, trans }] : [];
+      })[0];
+      if (!target) notFound();
+
+      const localizedSlugRow = snap.indices.articleTransByArticleLocale.get(
+        `${target.article.id}|${locale}`,
+      );
+      if (localizedSlugRow?.slug && localizedSlugRow.slug !== slug) {
+        permanentRedirect(localizedPath(locale, `/insight/${localizedSlugRow.slug}`));
+      }
+
+      permanentRedirect(localizedPath(target.trans.locale, `/insight/${target.trans.slug}`));
+    }
+
     const db = getDb();
     const any = await db
       .select({ article: articles, trans: articleTranslations })
@@ -233,7 +253,7 @@ export default async function ArticlePage({
         <div className="container-wide py-4">
           <ol className="flex items-center gap-2.5 text-[12px] font-body font-semibold tracking-[0.12em] uppercase">
             <li className="flex-shrink-0">
-              <Link href={`/${locale}`} className="text-ink-mid hover:text-ink transition-colors duration-300">
+              <Link href={localeHomePath(locale)} className="text-ink-mid hover:text-ink transition-colors duration-300">
                 {breadcrumbT('home')}
               </Link>
             </li>

@@ -9,6 +9,7 @@ import {
   categoryTranslations,
 } from '@/lib/db/schema';
 import { eq, and, desc, inArray } from 'drizzle-orm';
+import { getBuildSnapshot } from '@/lib/build-cache';
 import ProductsFilter from './ProductsFilter';
 import { JsonLd } from '@/components/seo/JsonLd';
 import {
@@ -58,87 +59,146 @@ export async function generateMetadata({
   };
 }
 
+type ProductCard = {
+  id: number;
+  name: string;
+  slug: string;
+  shortDescription: string | null;
+  modelNumber: string | null;
+  imageUrl: string | null;
+  isFeatured: boolean;
+  categoryId: number | null;
+};
+
 export default async function ProductsPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations('products');
   const breadcrumbT = await getTranslations('breadcrumb');
-  const db = getDb();
+  const snap = await getBuildSnapshot();
 
-  const [allProducts, allCats] = await Promise.all([
-    db.select().from(products).where(eq(products.isActive, true)).orderBy(desc(products.createdAt)),
-    db
-      .select()
-      .from(productCategories)
-      .where(eq(productCategories.isActive, true))
-      .orderBy(productCategories.displayOrder),
-  ]);
+  let productsData: ProductCard[];
+  let categoriesData: { id: number; name: string }[];
 
-  const productIds = allProducts.map((p) => p.id);
-  const catIds = allCats.map((c) => c.id);
+  if (snap) {
+    // products: WHERE isActive ORDER BY createdAt DESC.
+    const allProducts = snap.products
+      .filter((p) => p.isActive)
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+    // productCategories: WHERE isActive ORDER BY displayOrder.
+    const allCats = snap.productCategories
+      .filter((c) => c.isActive)
+      .sort((a, b) => a.displayOrder - b.displayOrder);
 
-  const [prodTrans, prodTransEn, prodImgs, catTrans, catTransEn] = await Promise.all([
-    productIds.length
-      ? db
-          .select()
-          .from(productTranslations)
-          .where(and(inArray(productTranslations.productId, productIds), eq(productTranslations.locale, locale)))
-      : Promise.resolve([]),
-    productIds.length && locale !== 'en'
-      ? db
-          .select()
-          .from(productTranslations)
-          .where(and(inArray(productTranslations.productId, productIds), eq(productTranslations.locale, 'en')))
-      : Promise.resolve([]),
-    productIds.length
-      ? db.select().from(productImages).where(inArray(productImages.productId, productIds))
-      : Promise.resolve([]),
-    catIds.length
-      ? db
-          .select()
-          .from(categoryTranslations)
-          .where(and(inArray(categoryTranslations.categoryId, catIds), eq(categoryTranslations.locale, locale)))
-      : Promise.resolve([]),
-    catIds.length && locale !== 'en'
-      ? db
-          .select()
-          .from(categoryTranslations)
-          .where(and(inArray(categoryTranslations.categoryId, catIds), eq(categoryTranslations.locale, 'en')))
-      : Promise.resolve([]),
-  ]);
+    productsData = allProducts.map((p) => {
+      const tr =
+        snap.indices.productTransByProductLocale.get(`${p.id}|${locale}`) ??
+        (locale !== 'en'
+          ? snap.indices.productTransByProductLocale.get(`${p.id}|en`)
+          : undefined);
+      const imgs = snap.indices.productImagesByProduct.get(p.id) ?? [];
+      let primaryImg: (typeof imgs)[number] | undefined = undefined;
+      for (const img of imgs) {
+        if (!primaryImg || (img.isPrimary && !primaryImg.isPrimary)) primaryImg = img;
+      }
+      return {
+        id: p.id,
+        name: tr?.name || 'Product',
+        slug: tr?.slug || `product-${p.id}`,
+        shortDescription: tr?.shortDescription ?? null,
+        modelNumber: p.modelNumber,
+        imageUrl: primaryImg?.imageUrl ?? null,
+        isFeatured: p.isFeatured,
+        categoryId: p.categoryId,
+      };
+    });
 
-  const prodTransMap = new Map(prodTrans.map((t) => [t.productId, t]));
-  const prodTransEnMap = new Map(prodTransEn.map((t) => [t.productId, t]));
-  const catTransMap = new Map(catTrans.map((t) => [t.categoryId, t]));
-  const catTransEnMap = new Map(catTransEn.map((t) => [t.categoryId, t]));
+    categoriesData = allCats.map((c) => {
+      const tr =
+        snap.indices.categoryTransByCategoryLocale.get(`${c.id}|${locale}`) ??
+        (locale !== 'en'
+          ? snap.indices.categoryTransByCategoryLocale.get(`${c.id}|en`)
+          : undefined);
+      return { id: c.id, name: tr?.name || `Category ${c.id}` };
+    });
+  } else {
+    const db = getDb();
 
-  const imgMap = new Map<number, typeof prodImgs[number]>();
-  for (const img of prodImgs) {
-    const existing = imgMap.get(img.productId);
-    if (!existing || (img.isPrimary && !existing.isPrimary)) {
-      imgMap.set(img.productId, img);
+    const [allProducts, allCats] = await Promise.all([
+      db.select().from(products).where(eq(products.isActive, true)).orderBy(desc(products.createdAt)),
+      db
+        .select()
+        .from(productCategories)
+        .where(eq(productCategories.isActive, true))
+        .orderBy(productCategories.displayOrder),
+    ]);
+
+    const productIds = allProducts.map((p) => p.id);
+    const catIds = allCats.map((c) => c.id);
+
+    const [prodTrans, prodTransEn, prodImgs, catTrans, catTransEn] = await Promise.all([
+      productIds.length
+        ? db
+            .select()
+            .from(productTranslations)
+            .where(and(inArray(productTranslations.productId, productIds), eq(productTranslations.locale, locale)))
+        : Promise.resolve([]),
+      productIds.length && locale !== 'en'
+        ? db
+            .select()
+            .from(productTranslations)
+            .where(and(inArray(productTranslations.productId, productIds), eq(productTranslations.locale, 'en')))
+        : Promise.resolve([]),
+      productIds.length
+        ? db.select().from(productImages).where(inArray(productImages.productId, productIds))
+        : Promise.resolve([]),
+      catIds.length
+        ? db
+            .select()
+            .from(categoryTranslations)
+            .where(and(inArray(categoryTranslations.categoryId, catIds), eq(categoryTranslations.locale, locale)))
+        : Promise.resolve([]),
+      catIds.length && locale !== 'en'
+        ? db
+            .select()
+            .from(categoryTranslations)
+            .where(and(inArray(categoryTranslations.categoryId, catIds), eq(categoryTranslations.locale, 'en')))
+        : Promise.resolve([]),
+    ]);
+
+    const prodTransMap = new Map(prodTrans.map((tr) => [tr.productId, tr]));
+    const prodTransEnMap = new Map(prodTransEn.map((tr) => [tr.productId, tr]));
+    const catTransMap = new Map(catTrans.map((tr) => [tr.categoryId, tr]));
+    const catTransEnMap = new Map(catTransEn.map((tr) => [tr.categoryId, tr]));
+
+    const imgMap = new Map<number, typeof prodImgs[number]>();
+    for (const img of prodImgs) {
+      const existing = imgMap.get(img.productId);
+      if (!existing || (img.isPrimary && !existing.isPrimary)) {
+        imgMap.set(img.productId, img);
+      }
     }
+
+    productsData = allProducts.map((p) => {
+      const tr = prodTransMap.get(p.id) || prodTransEnMap.get(p.id);
+      const img = imgMap.get(p.id);
+      return {
+        id: p.id,
+        name: tr?.name || 'Product',
+        slug: tr?.slug || `product-${p.id}`,
+        shortDescription: tr?.shortDescription || null,
+        modelNumber: p.modelNumber,
+        imageUrl: img?.imageUrl || null,
+        isFeatured: p.isFeatured,
+        categoryId: p.categoryId,
+      };
+    });
+
+    categoriesData = allCats.map((c) => ({
+      id: c.id,
+      name: catTransMap.get(c.id)?.name || catTransEnMap.get(c.id)?.name || `Category ${c.id}`,
+    }));
   }
-
-  const productsData = allProducts.map((p) => {
-    const tr = prodTransMap.get(p.id) || prodTransEnMap.get(p.id);
-    const img = imgMap.get(p.id);
-    return {
-      id: p.id,
-      name: tr?.name || 'Product',
-      slug: tr?.slug || `product-${p.id}`,
-      shortDescription: tr?.shortDescription || null,
-      modelNumber: p.modelNumber,
-      imageUrl: img?.imageUrl || null,
-      isFeatured: p.isFeatured,
-      categoryId: p.categoryId,
-    };
-  });
-
-  const categoriesData = allCats.map((c) => ({
-    id: c.id,
-    name: catTransMap.get(c.id)?.name || catTransEnMap.get(c.id)?.name || `Category ${c.id}`,
-  }));
 
   const itemList = {
     '@context': 'https://schema.org',

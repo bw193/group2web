@@ -3,6 +3,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { getDb } from '@/lib/db';
 import { productCategories, categoryTranslations } from '@/lib/db/schema';
 import { eq, and, inArray } from 'drizzle-orm';
+import { getBuildSnapshot } from '@/lib/build-cache';
 import InquiryForm from '@/components/public/InquiryForm';
 import { Mail, MessageCircle, MapPin } from 'lucide-react';
 import { JsonLd } from '@/components/seo/JsonLd';
@@ -57,37 +58,55 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
   setRequestLocale(locale);
   const t = await getTranslations('contact');
   const breadcrumbT = await getTranslations('breadcrumb');
-  const db = getDb();
+  const snap = await getBuildSnapshot();
 
-  const allCats = await db
-    .select()
-    .from(productCategories)
-    .where(eq(productCategories.isActive, true))
-    .orderBy(productCategories.displayOrder);
+  let categories: { id: number; name: string }[];
 
-  const catIds = allCats.map((c) => c.id);
-  const [catTrans, catTransEn] = catIds.length
-    ? await Promise.all([
-        db
-          .select()
-          .from(categoryTranslations)
-          .where(and(inArray(categoryTranslations.categoryId, catIds), eq(categoryTranslations.locale, locale))),
-        locale !== 'en'
-          ? db
-              .select()
-              .from(categoryTranslations)
-              .where(and(inArray(categoryTranslations.categoryId, catIds), eq(categoryTranslations.locale, 'en')))
-          : Promise.resolve([]),
-      ])
-    : [[], []];
+  if (snap) {
+    // productCategories: WHERE isActive ORDER BY displayOrder.
+    const allCats = snap.productCategories
+      .filter((c) => c.isActive)
+      .sort((a, b) => a.displayOrder - b.displayOrder);
+    categories = allCats.map((c) => {
+      const tr =
+        snap.indices.categoryTransByCategoryLocale.get(`${c.id}|${locale}`) ??
+        (locale !== 'en'
+          ? snap.indices.categoryTransByCategoryLocale.get(`${c.id}|en`)
+          : undefined);
+      return { id: c.id, name: tr?.name || `Category ${c.id}` };
+    });
+  } else {
+    const db = getDb();
+    const allCats = await db
+      .select()
+      .from(productCategories)
+      .where(eq(productCategories.isActive, true))
+      .orderBy(productCategories.displayOrder);
 
-  const transMap = new Map(catTrans.map((t) => [t.categoryId, t]));
-  const transEnMap = new Map(catTransEn.map((t) => [t.categoryId, t]));
+    const catIds = allCats.map((c) => c.id);
+    const [catTrans, catTransEn] = catIds.length
+      ? await Promise.all([
+          db
+            .select()
+            .from(categoryTranslations)
+            .where(and(inArray(categoryTranslations.categoryId, catIds), eq(categoryTranslations.locale, locale))),
+          locale !== 'en'
+            ? db
+                .select()
+                .from(categoryTranslations)
+                .where(and(inArray(categoryTranslations.categoryId, catIds), eq(categoryTranslations.locale, 'en')))
+            : Promise.resolve([]),
+        ])
+      : [[], []];
 
-  const categories = allCats.map((cat) => ({
-    id: cat.id,
-    name: transMap.get(cat.id)?.name || transEnMap.get(cat.id)?.name || `Category ${cat.id}`,
-  }));
+    const transMap = new Map(catTrans.map((tr) => [tr.categoryId, tr]));
+    const transEnMap = new Map(catTransEn.map((tr) => [tr.categoryId, tr]));
+
+    categories = allCats.map((cat) => ({
+      id: cat.id,
+      name: transMap.get(cat.id)?.name || transEnMap.get(cat.id)?.name || `Category ${cat.id}`,
+    }));
+  }
 
   const contactJsonLd = {
     '@context': 'https://schema.org',

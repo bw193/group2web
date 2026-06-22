@@ -47,16 +47,28 @@ const nextConfig = {
       dynamic: 30,
       static: 180,
     },
-    // Cap static-generation concurrency to fit the build DB pool (max 3). The
-    // insight loaders fetch sequentially — one connection per page, like the
-    // product pages — so N concurrent pages = N connections. maxConcurrency:1 is
-    // proven green on Vercel; :3 dropped idle connections on the long-haul link
-    // (CONNECTION_CLOSED). :2 is the middle ground — 2 of the 3 pool slots, less
-    // idle churn than 3, ~2x faster than 1. cpus:1 keeps a single shared pool;
-    // retryCount cushions the occasional cold-setup straggler.
-    cpus: 1,
-    staticGenerationMaxConcurrency: 2,
-    staticGenerationRetryCount: 5,
+    // Throttle gating:
+    //   BUILD_CACHE=1 → src/lib/build-cache.ts warms once per worker and every
+    //     page render answers from in-memory indices, so the DB pool is no
+    //     longer the bottleneck. cpus is CAPPED at 4 (not the OS default of
+    //     ~os.cpus().length): every worker re-warms the snapshot independently
+    //     (workers are forked processes, module state is per-worker), so N
+    //     workers = N simultaneous cold connection-setup bursts to Supavisor
+    //     at second 0. cpus:14 (this machine's OS count) hangs the build;
+    //     cpus:4 keeps the burst small enough for the long-haul pooler.
+    //   unset → fall back to the defensive throttle that fits the max-3 build
+    //     pool against the eu-west-1 Supavisor link. maxConcurrency:1 is
+    //     proven green on Vercel; :3 dropped idle connections on the long-haul
+    //     link (CONNECTION_CLOSED); :2 is the safe middle ground. cpus:1 keeps
+    //     one shared pool; retryCount cushions cold-setup stragglers.
+    // Unsetting BUILD_CACHE reverts the entire optimization with no code change.
+    ...(process.env.BUILD_CACHE === '1'
+      ? { cpus: 4 }
+      : {
+          cpus: 1,
+          staticGenerationMaxConcurrency: 2,
+          staticGenerationRetryCount: 5,
+        }),
   },
   async redirects() {
     return [
