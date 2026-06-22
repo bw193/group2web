@@ -7,6 +7,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useTranslations, useLocale } from 'next-intl';
 import { Menu, X, Search } from 'lucide-react';
 import LanguageSwitcher from './LanguageSwitcher';
+import { localeHomePath } from '@/i18n/config';
 
 export default function Header() {
   const t = useTranslations('nav');
@@ -20,6 +21,7 @@ export default function Header() {
   // Gate the portal until after mount so the server and the client's first
   // render agree (createPortal needs `document`, which is absent during SSR).
   const [mounted, setMounted] = useState(false);
+  const homeHref = localeHomePath(locale);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,7 +52,7 @@ export default function Header() {
   }, [mobileOpen]);
 
   const navLinks = [
-    { href: `/${locale}`, label: t('home') },
+    { href: homeHref, label: t('home') },
     { href: `/${locale}/products`, label: t('products') },
     { href: `/${locale}/insight`, label: t('insight') },
     { href: `/${locale}/about`, label: t('about') },
@@ -58,7 +60,11 @@ export default function Header() {
   ];
 
   const isActive = (href: string) => {
-    if (href === `/${locale}`) return pathname === href || pathname === `/${locale}/`;
+    if (href === homeHref) {
+      return homeHref === '/'
+        ? pathname === '/' || pathname === `/${locale}` || pathname === `/${locale}/`
+        : pathname === href || pathname === `${href}/`;
+    }
     return pathname === href || pathname?.startsWith(`${href}/`);
   };
 
@@ -75,7 +81,7 @@ export default function Header() {
             locale's labels outgrow the viewport (they overflow instead). */}
         <div className="flex items-center justify-between gap-x-5 h-[72px] md:h-20">
           {/* Logo */}
-          <Link href={`/${locale}`} className="group flex items-baseline gap-3">
+          <Link href={homeHref} className="group flex items-baseline gap-3">
             <span className="font-display text-[22px] md:text-[26px] font-normal text-ink tracking-[0.01em] leading-none">
               Chengtai
             </span>

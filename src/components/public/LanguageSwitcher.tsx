@@ -23,14 +23,51 @@ export default function LanguageSwitcher() {
     return () => document.removeEventListener('mousedown', handleClick);
   }, []);
 
-  function switchLocale(newLocale: Locale) {
+  function fallbackLocalePath(newLocale: Locale) {
     const segments = pathname.split('/');
     if (locales.includes(segments[1] as Locale)) {
       segments[1] = newLocale;
     } else {
       segments.splice(1, 0, newLocale);
     }
-    router.push(segments.join('/') || '/');
+    return segments.join('/') || '/';
+  }
+
+  function toInternalPath(href: string) {
+    try {
+      const url = new URL(href, window.location.origin);
+      return `${url.pathname}${url.search}${url.hash}`;
+    } catch {
+      return href;
+    }
+  }
+
+  function alternateLinkPath(newLocale: Locale) {
+    if (typeof document === 'undefined') return null;
+    const link = document.querySelector<HTMLLinkElement>(
+      `link[rel="alternate"][hreflang="${newLocale}"]`,
+    );
+    return link?.href ? toInternalPath(link.href) : null;
+  }
+
+  function safeFallbackPath(newLocale: Locale) {
+    const parts = pathname.split('/').filter(Boolean);
+    const hasLocale = locales.includes(parts[0] as Locale);
+    const routeParts = hasLocale ? parts.slice(1) : parts;
+
+    if (routeParts[0] === 'products' && routeParts.length === 2) {
+      return `/${newLocale}/products`;
+    }
+    if (routeParts[0] === 'insight' && routeParts.length === 2) {
+      return `/${newLocale}/insight`;
+    }
+
+    return fallbackLocalePath(newLocale);
+  }
+
+  function switchLocale(newLocale: Locale) {
+    const target = alternateLinkPath(newLocale) || safeFallbackPath(newLocale);
+    router.push(target);
     setOpen(false);
   }
 

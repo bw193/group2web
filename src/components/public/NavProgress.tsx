@@ -15,6 +15,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
+import { localeHomePath } from '@/i18n/config';
 
 type Phase = 'idle' | 'loading' | 'finishing';
 
@@ -84,7 +85,7 @@ export default function NavProgress() {
 
     const run = () => {
       for (const path of IDLE_PREFETCH) {
-        prefetchOnce(`/${locale}${path}`);
+        prefetchOnce(path === '' ? localeHomePath(locale) : `/${locale}${path}`);
       }
     };
 

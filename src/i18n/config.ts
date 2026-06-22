@@ -18,3 +18,7 @@ export const rtlLocales: readonly Locale[] = ['he'];
 export function isRtlLocale(locale: string): boolean {
   return (rtlLocales as readonly string[]).includes(locale);
 }
+
+export function localeHomePath(locale: string): string {
+  return locale === defaultLocale ? '/' : `/${locale}`;
+}

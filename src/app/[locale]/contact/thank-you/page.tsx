@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Check, ArrowRight } from 'lucide-react';
 import { SITE_NAME } from '@/lib/seo';
+import { localeHomePath } from '@/i18n/config';
 
 // Post-submission confirmation. Its whole job is to be a stable URL the user
 // reaches after the contact form succeeds — the Google Ads "Submit lead form"
@@ -30,6 +31,7 @@ export default async function ContactThankYouPage({
   setRequestLocale(locale);
   const t = await getTranslations('contact');
   const tNav = await getTranslations('nav');
+  const homeHref = localeHomePath(locale);
 
   return (
     <section className="bg-cream">
@@ -73,7 +75,7 @@ export default async function ContactThankYouPage({
                 className="ms-3 transition-transform duration-500 group-hover:translate-x-1 rtl:-scale-x-100"
               />
             </Link>
-            <Link href={`/${locale}`} className="btn-ghost">
+            <Link href={homeHref} className="btn-ghost">
               {tNav('home')}
             </Link>
           </div>

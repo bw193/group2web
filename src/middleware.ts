@@ -1,17 +1,13 @@
 import createMiddleware from 'next-intl/middleware';
 import { NextRequest, NextResponse } from 'next/server';
-import { locales, defaultLocale } from '@/i18n/config';
+import { locales, defaultLocale, type Locale } from '@/i18n/config';
 
 const intlMiddleware = createMiddleware({
   locales,
   defaultLocale,
   localePrefix: 'always',
-  // localeDetection stays ON, but it only ever applies to `/`: every other
-  // unprefixed path is 308'd to /en below before next-intl sees it. First
-  // visit to the bare domain routes by browser language, return visits by
-  // the NEXT_LOCALE cookie. Googlebot sends no cookie and crawls with
-  // en/no Accept-Language, so it consistently gets /en; metadata + sitemap
-  // declare /en as x-default, which contains the varying 307 on `/`.
+  // Root `/` is handled below so English/default requests can stay on the
+  // apex URL. next-intl still handles prefixed locale routes normally.
   localeDetection: true,
   // alternateLinks stays OFF: the auto Link header advertised an
   // unprefixed x-default plus same-slug alternates for every locale.
@@ -22,12 +18,71 @@ const intlMiddleware = createMiddleware({
   alternateLinks: false,
 });
 
-// Recognized search engine + social crawler UA strings. Hits cover Googlebot
-// (Search + Image + Smartphone), Bingbot, Baidu, Yandex, DuckDuckGo, Apple's
-// Spotlight/Siri bot, Yahoo's Slurp, plus the link-preview fetchers used by
-// Facebook, Twitter/X, and LinkedIn — anything that benefits from a clean
-// deterministic canonical instead of the language-detected 307.
-const CRAWLER_UA = /googlebot|bingbot|baiduspider|yandex|duckduckbot|applebot|slurp|facebookexternalhit|twitterbot|linkedinbot/i;
+// Root language auto-jump is preference-based only: NEXT_LOCALE wins, then
+// Accept-Language. English/no preference stays at `/`.
+function isSupportedLocale(value: string | undefined): value is Locale {
+  return !!value && (locales as readonly string[]).includes(value);
+}
+
+function isNonDefaultLocale(value: string | undefined): value is Locale {
+  return isSupportedLocale(value) && value !== defaultLocale;
+}
+
+function parseAcceptLanguage(header: string | null): Locale | null {
+  if (!header) return null;
+
+  const preferred = header
+    .split(',')
+    .map((part, index) => {
+      const [rawTag, ...params] = part.trim().split(';');
+      const qParam = params.find((param) => param.trim().startsWith('q='));
+      const q = qParam ? Number(qParam.trim().slice(2)) : 1;
+
+      return {
+        tag: rawTag.toLowerCase(),
+        q: Number.isFinite(q) ? q : 0,
+        index,
+      };
+    })
+    .filter((entry) => entry.tag && entry.tag !== '*' && entry.q > 0)
+    .sort((a, b) => b.q - a.q || a.index - b.index);
+
+  for (const entry of preferred) {
+    const base = entry.tag.split('-')[0];
+    const match = locales.find((loc) => loc === entry.tag || loc === base);
+    if (match) return match;
+  }
+
+  return null;
+}
+
+function preferredNonEnglishLocale(request: NextRequest): Locale | null {
+  const cookieLocale = request.cookies.get('NEXT_LOCALE')?.value;
+  if (isNonDefaultLocale(cookieLocale)) return cookieLocale;
+  if (cookieLocale === defaultLocale) return null;
+
+  const acceptedLocale = parseAcceptLanguage(request.headers.get('accept-language'));
+  return acceptedLocale && acceptedLocale !== defaultLocale ? acceptedLocale : null;
+}
+
+function appendVary(response: NextResponse, value: string): NextResponse {
+  const existing = response.headers.get('Vary');
+  if (!existing) {
+    response.headers.set('Vary', value);
+    return response;
+  }
+
+  const existingValues = existing.split(',').map((item) => item.trim().toLowerCase());
+  const nextValues = value
+    .split(',')
+    .map((item) => item.trim())
+    .filter((item) => item && !existingValues.includes(item.toLowerCase()));
+
+  if (nextValues.length) {
+    response.headers.set('Vary', `${existing}, ${nextValues.join(', ')}`);
+  }
+  return response;
+}
 
 export default function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -44,21 +99,15 @@ export default function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Apex `/`: humans keep next-intl's Accept-Language + NEXT_LOCALE cookie
-  // detection (it serves a 307 + Set-Cookie below) so a French visitor still
-  // lands on /fr, a returning German visitor on /de, etc. Crawlers don't send
-  // either — they were seeing the varying 307 as the canonical for the bare
-  // domain and surfacing it in GSC as "Page with redirect", which degraded
-  // the brand-name search ranking. Serve crawlers a deterministic 308 to /en
-  // so the property has a single clean canonical to consolidate signal under.
-  if (pathname === '/' && CRAWLER_UA.test(request.headers.get('user-agent') ?? '')) {
+  // Apex `/`: explicit non-English preference still gets a temporary jump to
+  // that locale. English, no preference, and crawler-like requests are served
+  // the English homepage at `/` by rewriting internally to the default locale.
+  if (pathname === '/') {
+    const preferredLocale = preferredNonEnglishLocale(request);
     const url = request.nextUrl.clone();
-    url.pathname = `/${defaultLocale}`;
-    const res = NextResponse.redirect(url, 308);
-    // If any downstream cache keeps this redirect, it must differentiate by UA
-    // so a human request never receives the crawler response.
-    res.headers.set('Vary', 'User-Agent');
-    return res;
+    url.pathname = preferredLocale ? `/${preferredLocale}` : `/${defaultLocale}`;
+    const response = preferredLocale ? NextResponse.redirect(url, 307) : NextResponse.rewrite(url);
+    return appendVary(response, 'Accept-Language, Cookie');
   }
 
   // Anything without a locale prefix (except `/`, handled above) is the

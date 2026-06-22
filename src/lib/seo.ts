@@ -1,4 +1,4 @@
-import { locales, defaultLocale, type Locale } from '@/i18n/config';
+import { locales, defaultLocale, localeHomePath, type Locale } from '@/i18n/config';
 
 export const SITE_URL = 'https://chengtaimirror.com';
 export const SITE_NAME = 'Chengtai Mirror';
@@ -36,8 +36,9 @@ export function localeToOg(locale: string): string {
   return LOCALE_TO_BCP47[locale as Locale] ?? 'en_US';
 }
 
-/** Path with locale prefix. Mirrors middleware `localePrefix: 'always'`. */
+/** Path with locale prefix, except the English homepage canonical lives at root. */
 export function localizedPath(locale: string, pathAfterLocale: string): string {
+  if (pathAfterLocale === '') return localeHomePath(locale);
   return `/${locale}${pathAfterLocale}`;
 }
 

@@ -1,0 +1,1520 @@
+{
+  "missingByLocale": {
+    "es": [
+      78,
+      79,
+      80,
+      81,
+      82,
+      83,
+      84,
+      85,
+      86,
+      87,
+      88,
+      89,
+      90,
+      91,
+      92,
+      93,
+      94,
+      95,
+      96,
+      97,
+      98,
+      99,
+      100,
+      101,
+      102,
+      103,
+      104,
+      105,
+      106,
+      107,
+      108,
+      111,
+      115,
+      116,
+      117,
+      118,
+      119,
+      120
+    ],
+    "pt": [
+      78,
+      79,
+      80,
+      81,
+      82,
+      83,
+      84,
+      85,
+      86,
+      87,
+      88,
+      89,
+      90,
+      91,
+      92,
+      93,
+      94,
+      95,
+      96,
+      97,
+      98,
+      99,
+      100,
+      101,
+      102,
+      103,
+      104,
+      105,
+      106,
+      107,
+      108,
+      111,
+      115,
+      116,
+      117,
+      118,
+      119,
+      120
+    ],
+    "fr": [
+      78,
+      79,
+      80,
+      81,
+      82,
+      83,
+      84,
+      85,
+      86,
+      87,
+      88,
+      89,
+      90,
+      91,
+      92,
+      93,
+      94,
+      95,
+      96,
+      97,
+      98,
+      99,
+      100,
+      101,
+      102,
+      103,
+      104,
+      105,
+      106,
+      107,
+      108,
+      111,
+      115,
+      116,
+      117,
+      118,
+      119,
+      120
+    ],
+    "it": [
+      78,
+      79,
+      80,
+      81,
+      82,
+      83,
+      84,
+      85,
+      86,
+      87,
+      88,
+      89,
+      90,
+      91,
+      92,
+      93,
+      94,
+      95,
+      96,
+      97,
+      98,
+      99,
+      100,
+      101,
+      102,
+      103,
+      104,
+      105,
+      106,
+      107,
+      108,
+      111,
+      115,
+      116,
+      117,
+      118,
+      119,
+      120
+    ],
+    "de": [
+      78,
+      79,
+      80,
+      81,
+      82,
+      83,
+      84,
+      85,
+      86,
+      87,
+      88,
+      89,
+      90,
+      91,
+      92,
+      93,
+      94,
+      95,
+      96,
+      97,
+      98,
+      99,
+      100,
+      101,
+      102,
+      103,
+      104,
+      105,
+      106,
+      107,
+      108,
+      111,
+      115,
+      116,
+      117,
+      118,
+      119,
+      120
+    ],
+    "he": [
+      78,
+      79,
+      80,
+      81,
+      82,
+      83,
+      84,
+      85,
+      86,
+      87,
+      88,
+      89,
+      90,
+      91,
+      92,
+      93,
+      94,
+      95,
+      96,
+      97,
+      98,
+      99,
+      100,
+      101,
+      102,
+      103,
+      104,
+      105,
+      106,
+      107,
+      108,
+      111,
+      115,
+      116,
+      117,
+      118,
+      119,
+      120
+    ]
+  },
+  "products": [
+    {
+      "productId": 78,
+      "modelNumber": "CTL1018",
+      "categoryId": 1,
+      "name": "Irregular Backlit LED Mirror",
+      "slug": "irregular-backlit-led-mirror",
+      "shortDescription": "Oval backlit smart bathroom mirror with touch control & digital display creates nice ambient lighting",
+      "fullDescription": "<p>This unique capsule-shaped backlit LED bathroom mirror blends minimalist aesthetics and practical smart functions.<br>1. <strong>Factory Customization Available</strong>: As direct manufacturer, we tailor the mirror’s outline, overall size, light color temperature (3000K~6500K), and optional features including touch control, time&amp;temperature digital display, anti-fog pad, Bluetooth speaker as your requests. <br>2. <strong>Premium HD Mirror Glass</strong>: Made of high-quality silver mirror float glass, the surface presents sharp, undistorted reflection, never blurs under humid bathroom environment. <br>3. <strong>Durable LED Backlight</strong>: Soft surrounding backlight delivers even non-glare illumination, ideal for makeup and daily grooming; LED strips have stable performance with low power consumption. <br>4. <strong>Thoughtful After-sales Policy</strong>: Complete after-sale system, all electronic components (driver, touch sensor, LED lights) are covered under <strong>2-year warranty</strong>. <br>5. <strong>Exclusive Bulk Order Support</strong>: For large-quantity cooperation, we provide complimentary professional shooting &amp; optimized promotional pictures to help your store marketing and product listing.<br></p><p></p>",
+      "specs": [
+        {
+          "key": "Size",
+          "value": "50x80cm, 60x80cm, 70x130cm, customization"
+        },
+        {
+          "key": "Thickness",
+          "value": "4mm/5mm"
+        },
+        {
+          "key": "Certificates",
+          "value": "CE, ROHS, IP44, UL, SAA, CB"
+        },
+        {
+          "key": "Packaging",
+          "value": "Both normal packaging and mailing packaging available"
+        },
+        {
+          "key": "Power Source",
+          "value": "Input:110-240V, 50/60HZ"
+        },
+        {
+          "key": "Installation",
+          "value": "Wall hanging"
+        }
+      ]
+    },
+    {
+      "productId": 79,
+      "modelNumber": "CTL1020",
+      "categoryId": 1,
+      "name": "Copper Free Silver Mirror",
+      "slug": "copper-free-silver-mirror",
+      "shortDescription": "This irregular oval backlit LED bathroom mirror with soft ambient lighting features HD clear mirror surface and customizable sizes & functions from our factory.",
+      "fullDescription": "<p>This organic oval backlit LED bathroom mirror boasts minimalist curved outline and soft surrounding LED glow to elevate bathroom decor. </p><p>1. <strong>Factory Custom Service</strong>: As direct manufacturer, we customize mirror shape, dimension, light CCT(3000K-6500K), optional functions including touch control, anti-fog, temperature &amp; time display, Bluetooth speaker as your demands. </p><p>2. <strong>High-definition Mirror Glass</strong>: Premium silver mirror material ensures distortion-free, crystal-clear reflection, resisting blurring in damp bathroom environment. </p><p>3. <strong>Premium LED Backlight</strong>: Even wrap-around back lighting offers shadow-free illumination ideal for daily makeup and grooming, energy-saving and long lifespan LED strips. </p><p>4. <strong>Reliable After-sales</strong>: All electrical fittings enjoy 2-year warranty with full after-sale support. </p><p>5. <strong>Bulk Order Perk</strong>: Free professional commercial promotional photos are supplied for large-quantity purchases to assist your sales listing.</p>",
+      "specs": [
+        {
+          "key": "Model No.",
+          "value": "CTL1020"
+        },
+        {
+          "key": "Size",
+          "value": "50x70cm, 60x80cm, 70x90cm, 75x100cm"
+        },
+        {
+          "key": "Installation",
+          "value": "Wall hanging"
+        },
+        {
+          "key": "Warranty",
+          "value": "2 years warranty for the electronic parts"
+        },
+        {
+          "key": "Packaging",
+          "value": "Both normal packaging and mailing packaging available"
+        },
+        {
+          "key": "Design",
+          "value": "Customized designs acceptable"
+        }
+      ]
+    },
+    {
+      "productId": 80,
+      "modelNumber": "CTL1024",
+      "categoryId": 1,
+      "name": "Modern Decorative LED Mirror",
+      "slug": "modern-decorative-led-mirror",
+      "shortDescription": "This irregular organic-shaped backlit LED bathroom mirror with touch buttons delivers soft ambient lighting, available for customized size and functions from our factory.",
+      "fullDescription": "<h2>Organic Irregular Backlit LED Bathroom Mirror</h2><ol><li><p><strong>Light Configuration</strong></p><p> Equipped with high CRI＞90 LED light strips, adjustable color temperature from 3000K(warm white) to 6500K(cool white), three-color dimmable optional; uniform backside surrounding lighting, low power consumption, long service life up to 50000 hours, no glare for facial makeup.</p></li><li><p><strong>Mirror Glass Parameter</strong></p><p> 5mm thick high-quality float silver mirror, copper-free environmental silver coating, moisture-proof &amp; anti-corrosion, clear undistorted reflection, effectively avoid blurring in humid bathroom.</p></li><li><p><strong>Intelligent Control &amp; Optional Functions</strong></p><p> Standard touch button control for light on/off; customizable extra functions: defogger pad, time &amp; temperature digital display, Bluetooth speaker, USB charging port as your need. Input voltage supports 110V/220V to fit different country standards.</p></li><li><p><strong>Customization Service(Factory Direct Supply)</strong></p><p> We are professional manufacturer, freely customize unique irregular outlines, arbitrary length &amp; width dimensions, frame options and function combination according to customer drawings or designs.</p></li><li><p><strong>After-sales &amp; Bulk Order Benefit</strong></p><p> All electronic accessories (LED driver, touch sensor, lamp strip) enjoy <strong>2-year global warranty</strong>. For bulk wholesale clients, we provide free professional shooting &amp; high-definition promotional pictures to support your online store sales.</p></li></ol><p></p>",
+      "specs": [
+        {
+          "key": "Model No",
+          "value": "CTL1024"
+        },
+        {
+          "key": "Size",
+          "value": "55.9x81.3cm, 66x96.5cm, 71.1x106.7cm"
+        },
+        {
+          "key": "Material",
+          "value": "Silver Mirror+LED Lighted Strip"
+        },
+        {
+          "key": "Thickness",
+          "value": "4mm/5mm"
+        },
+        {
+          "key": "Logo",
+          "value": "Customized Logo"
+        },
+        {
+          "key": "MOQ",
+          "value": "10pcs"
+        },
+        {
+          "key": "Packing",
+          "value": "PE Bag +foam+ Carton Box"
+        }
+      ]
+    },
+    {
+      "productId": 81,
+      "modelNumber": "CTL1027",
+      "categoryId": 1,
+      "name": "Irregular Smart Silver Mirror",
+      "slug": "irregular-smart-silver-mirror",
+      "shortDescription": "Irregular LED backlit silver bathroom mirror with touch control, dimmable light, and anti-fog function",
+      "fullDescription": "<p><strong>\"Ripple\" Series Irregular Backlit LED Bathroom Mirror - Product Introduction</strong></p><p>This frameless organic-shaped mirror, inspired by natural water ripples, breaks the rigid lines of traditional bathroom spaces. It blends the relaxed vibe of wabi-sabi aesthetics with modern practical technology, becoming a standout decorative piece for any wall.</p><p></p><p><strong>Design Aesthetics</strong></p><p>Irregular Organic Silhouette: Soft curves mimicking pebbles or water waves soften the harshness of bathroom interiors, fitting seamlessly into minimalist, wabi-sabi, and luxury styles. It functions both as a mirror and a wall art piece.</p><p>Seamless Frameless Craftsmanship: Finely polished edges paired with a warm LED light strip create a dreamy halo effect when lit. Even when off, its smooth, flowing silhouette elevates the room’s overall texture.</p><p></p><p><strong>Smart Lighting Experience</strong></p><p>High-Definition Backlight: Surrounding soft light eliminates facial shadows caused by harsh overhead lighting, restoring true skin tones—ideal for makeup application, shaving, and detailed grooming.</p><p>Touch Control Panel: Dual touch buttons allow easy power control and adjustment of color temperature (3000K-6500K dimmable, optional) or brightness, switching between natural daylight and warm yellow light for different scenarios.</p><p>Optional Anti-Fog Function: The built-in heating module quickly clears steam, keeping the mirror fog-free after showers without wiping.</p>",
+      "specs": [
+        {
+          "key": "Model No.",
+          "value": "CTL1027"
+        },
+        {
+          "key": "Material",
+          "value": "Silver Mirror+LED Lighted Strip"
+        },
+        {
+          "key": "Installation",
+          "value": "Wall Mounted"
+        },
+        {
+          "key": "Size",
+          "value": "81.3*106.7cm; 61*81.3cm"
+        },
+        {
+          "key": "Mirror Thickness",
+          "value": "4/5mm Silver/Aluminium Mirror"
+        },
+        {
+          "key": "Logo",
+          "value": "Customized Logo"
+        }
+      ]
+    },
+    {
+      "productId": 82,
+      "modelNumber": "CTL1031",
+      "categoryId": 1,
+      "name": "Backlit Smart Bathroom Mirror",
+      "slug": "backlit-smart-bathroom-mirror",
+      "shortDescription": "An irregular-shaped frameless LED mirror with soft backlighting, blending modern style and warm ambient light",
+      "fullDescription": "<h3>\"Pebble\" Series Organic Backlit LED Mirror - Product Introduction</h3><p>Inspired by naturally polished river stones, this asymmetrical LED mirror reimagines modern wall decor with soft, flowing lines that feel both timeless and utterly unique. Far from the rigidity of traditional square mirrors, its gentle, pebble-like silhouette brings a sense of organic calm to any space, from minimalist bathrooms to warm, earth-toned living rooms.</p><p>At its core, the mirror features a precision-engineered LED backlight system, casting a warm, diffused halo that wraps around its irregular edges. This ambient glow not only elevates the mirror into a statement wall art piece but also delivers functional, shadow-free illumination for grooming, makeup, or simply softening the mood of a room. The touch-sensitive control allows seamless adjustment of brightness (and optional color temperature), letting you tailor the light to match morning routines or evening relaxation.</p><p>Crafted with a premium 4mm copper-free silver mirror, it ensures crystal-clear, distortion-free reflections while resisting oxidation and moisture damage—perfect for humid bathroom environments. The added safety of an explosion-proof backing film and IP44-rated waterproof LED strip ensures long-lasting durability and peace of mind.</p><p>More than just a reflective surface, this mirror is a celebration of natural form and modern function. It turns everyday self-care rituals into moments of quiet luxury, while its sculptural shape adds an instant, sophisticated focal point to your walls.</p>",
+      "specs": [
+        {
+          "key": "Model No.",
+          "value": "CTL1031"
+        },
+        {
+          "key": "Size",
+          "value": "60X41.25CM; 70X48.1CM 80X55CM; 90X61.9CM; 68.75X100CM; 120X80CM"
+        },
+        {
+          "key": "Lighting source",
+          "value": "3000K-6000K Stepless Adjustment"
+        },
+        {
+          "key": "Packing",
+          "value": "PE Bag +foam+ Carton Box"
+        },
+        {
+          "key": "Material",
+          "value": "Glass Mirror"
+        },
+        {
+          "key": "Shape",
+          "value": "Irregular"
+        }
+      ]
+    },
+    {
+      "productId": 83,
+      "modelNumber": "CTL618B",
+      "categoryId": 1,
+      "name": "Aluminium Framed LED Mirror",
+      "slug": "aluminium-framed-led-mirror",
+      "shortDescription": "A sleek, teardrop-shaped smart bathroom mirror with ambient backlighting",
+      "fullDescription": "<p><strong>Teardrop-Shaped LED Bathroom Mirror with Backlit Glow</strong></p><p> Elevate your bathroom with this uniquely designed smart LED mirror, crafted in a fluid teardrop silhouette that blends soft curves with modern minimalist style. Framed in a sleek matte black finish, the mirror’s asymmetric form breaks away from standard circular or rectangular designs, infusing your space with an artistic, contemporary charm that complements both neutral-toned and statement interiors.</p><p>The mirror features a premium copper-free silver glass surface, delivering crisp, distortion-free reflections ideal for grooming, makeup application, and daily routines. A subtle yet powerful backlight runs along the entire perimeter, casting a soft, diffused glow that doubles as ambient lighting and functional task light, creating a warm, spa-like atmosphere in any bathroom.</p><p>Built for wet environments, this mirror is fully waterproof and anti-fog, ensuring clear visibility even in steamy conditions. The intuitive touch control on the mirror’s surface allows you to easily toggle the light on/off and adjust brightness (or color temperature, depending on configuration) for customizable illumination.</p><p>A statement piece that balances form and function, this teardrop LED mirror adds both visual interest and practical value to bathrooms, powder rooms, or vanity spaces.</p>",
+      "specs": [
+        {
+          "key": "Model No",
+          "value": "CTL618B"
+        },
+        {
+          "key": "Size",
+          "value": "60X80CM; 75X100CM; 90X120CM"
+        },
+        {
+          "key": "Logo",
+          "value": "Customized Logo Acceptable"
+        },
+        {
+          "key": "Frame Material",
+          "value": "Alunimum"
+        },
+        {
+          "key": "Lighting source",
+          "value": "LED Light Strip"
+        },
+        {
+          "key": "Mirror",
+          "value": "4mm/5mm Environmental Silver Mirror"
+        }
+      ]
+    },
+    {
+      "productId": 84,
+      "modelNumber": "CTL1019W",
+      "categoryId": 1,
+      "name": "Bear-shaped LED Mirror",
+      "slug": "bear-shaped-led-mirror",
+      "shortDescription": "This is an adorable bear-shaped LED backlit bathroom mirror, featuring soft, playful organic edges and a glowing perimeter that casts a warm, cozy light, adding a touch of whimsy to any space.",
+      "fullDescription": "<p><strong>Bear-Shaped LED Backlit Bathroom Mirror</strong></p><p> Infuse your space with whimsical charm and soft illumination with this adorable bear-shaped LED mirror, a perfect blend of playful design and modern functionality. Crafted with smooth, organic edges that trace the gentle silhouette of a bear’s head, this mirror breaks away from traditional geometric forms to bring warmth and personality to bathrooms, powder rooms, or cozy vanity nooks.</p><p>The mirror features a high-definition, distortion-free glass surface that delivers crisp reflections ideal for daily grooming, skincare routines, and makeup application. Running along the entire perimeter is a soft, diffused LED backlight, casting a warm, inviting glow that doubles as ambient lighting and functional task light—creating a cozy, spa-like atmosphere even in compact spaces.</p><p>Built for moisture-prone environments, this mirror is designed to be waterproof and fog-resistant, ensuring clear visibility even in steamy bathroom conditions. Its frameless, minimalist finish keeps the focus on the charming bear silhouette, while the easy-to-install wall-mounted design allows for seamless integration into any decor style, from soft Scandinavian to playful kid-friendly spaces.</p><p>A delightful statement piece that balances cute aesthetics with practical utility, this bear-shaped LED mirror turns a functional bathroom essential into a beloved focal point.</p>",
+      "specs": [
+        {
+          "key": "Model No",
+          "value": "CTL1019W"
+        },
+        {
+          "key": "Size",
+          "value": "70X85CM; 80X100CM; 90X110CM; 110X120CM"
+        },
+        {
+          "key": "Thickness",
+          "value": "4/5mm"
+        },
+        {
+          "key": "Design",
+          "value": "Customized Designs Acceptable"
+        },
+        {
+          "key": "Function",
+          "value": "Lighting+Defogging+Touch"
+        },
+        {
+          "key": "Warranty",
+          "value": "2 Years"
+        }
+      ]
+    },
+    {
+      "productId": 85,
+      "modelNumber": "CTL307",
+      "categoryId": 1,
+      "name": "LED Full Length Mirror",
+      "slug": "led-full-length-mirror",
+      "shortDescription": "This LED full-length mirror adds a sleek, on-trend touch to any modern space. A minimalist, fashion-forward mirror that elevates your room’s aesthetic instantly.",
+      "fullDescription": "<p><strong>Modern LED Full-Length Mirror – Style &amp; Function in One</strong></p><p> Elevate your space with this sleek, frameless full-length mirror, designed to bring contemporary style and practical lighting to any room. Its minimalist, rounded-edge silhouette delivers a clean, sophisticated look that complements modern, Scandinavian, and minimalist interiors alike.</p><p>The built-in dimmable LED light strip casts soft, even illumination around the mirror’s perimeter, creating a flattering, warm glow ideal for outfit checks, makeup application, or simply brightening up your space. Controlled by a convenient touch sensor, you can easily adjust the brightness to suit your mood or lighting needs. Crafted with high-quality glass, the mirror provides a crisp, distortion-free reflection, while its durable construction ensures long-lasting use. Whether mounted on the wall or standing in your bedroom, entryway, or dressing room, this LED mirror doubles as both a functional essential and a stylish statement piece, instantly adding a chic, modern touch to your home decor.</p>",
+      "specs": [
+        {
+          "key": "Size",
+          "value": "50X150CM; 60X165CM 65X170CM; CUSTOM MADE"
+        },
+        {
+          "key": "Warranty",
+          "value": "2 years warranty"
+        },
+        {
+          "key": "Package",
+          "value": "PE bag + all around Polyfoam + Earth carton + Carton box , 1 pcs/ctn"
+        },
+        {
+          "key": "IP rating",
+          "value": "IP44"
+        },
+        {
+          "key": "Mirror ",
+          "value": "4mm/5mm aluminium/silver mirror"
+        },
+        {
+          "key": "Lamp",
+          "value": "3000-6000K LED"
+        }
+      ]
+    },
+    {
+      "productId": 86,
+      "modelNumber": "CTL402",
+      "categoryId": 1,
+      "name": "Lighted Full Length Mirror",
+      "slug": "lighted-full-length-mirror",
+      "shortDescription": "This smart LED full-length mirror features integrated touch controls and a digital display, blending modern lighting with functional tech for a smarter dressing experience.",
+      "fullDescription": "<p><strong>Your New Go-To Smart Mirror: Light, Style, and Convenience</strong></p><p></p><p>Start every day right with our smart LED full-length mirror. The soft, adjustable LED lighting mimics natural light for flawless outfit checks and makeup application. The intuitive touch panel and digital display add practical perks like brightness control and time display, so you can prep quickly and easily. With its slim, modern design, it fits effortlessly into any room—turning your morning routine into a smoother, more stylish experience.</p><p></p><p><strong>Adjustable LED Lighting:</strong> Soft, even glow for perfect styling, anytime.</p><p><strong>Smart Touch Controls:</strong> Easily adjust brightness and access functions with a tap.</p><p><strong>Digital Display:</strong> Check the time at a glance while getting ready.</p><p><strong>Distortion-Free Reflection:</strong> Crystal-clear view for full-body outfit checks.</p><p><strong>Sleek Modern Design:</strong> Fits seamlessly into any contemporary home decor.</p>",
+      "specs": [
+        {
+          "key": "Size",
+          "value": "50X150CM; 60X165CM 65X170CM; CUSTOM MADE"
+        },
+        {
+          "key": "Shape",
+          "value": "Rectangle"
+        },
+        {
+          "key": "Material",
+          "value": "Silver Glass"
+        },
+        {
+          "key": "Keyword",
+          "value": "LED Dressing Mirror"
+        },
+        {
+          "key": "IP rating",
+          "value": "IP44"
+        },
+        {
+          "key": "Optional functions",
+          "value": "defogger(anti-fog), touch switch, time/temperature, Bluetooth (Music playing)"
+        }
+      ]
+    },
+    {
+      "productId": 87,
+      "modelNumber": "CTL409",
+      "categoryId": 1,
+      "name": "Illuminated Smart Dressing Mirror",
+      "slug": "illuminated-smart-dressing-mirror",
+      "shortDescription": "This minimalist smart LED full-length mirror features soft perimeter lighting and a built-in digital time display for a sleek, functional touch.",
+      "fullDescription": "<p><strong>Level up your daily routine </strong></p><p>Our Smart LED Full-Length Mirror isn’t just a mirror—it’s your new must-have. Bright, adjustable LED lighting mimics natural light for flawless outfit checks and makeup. With touch controls and a built-in digital display, you can adjust brightness, check the time, and stay on track with ease. Sleek, modern, and endlessly functional, it turns any bedroom or dressing room into a stylish, smart space. </p><p></p><p>Upgrade your routine with our smart LED full-length mirror. It delivers crisp, distortion-free reflections, surrounded by adjustable LED lighting to help you nail every outfit and makeup look. The built-in touch controls and digital display let you adjust brightness, check the time, and access smart features—all with a simple tap. Sleek, minimalist, and packed with tech, it turns your bedroom or dressing room into a modern, functional space.</p>",
+      "specs": [
+        {
+          "key": "Size",
+          "value": "50X150CM; 60X165CM 65X170CM; CUSTOM MADE"
+        },
+        {
+          "key": "Mirror Shape",
+          "value": "Rectangle"
+        },
+        {
+          "key": "Warranty",
+          "value": "2 Years"
+        },
+        {
+          "key": "Style",
+          "value": "Modern Stylish"
+        },
+        {
+          "key": "Design",
+          "value": "OEM Acceptable"
+        },
+        {
+          "key": "Packing",
+          "value": "PE bag + foam + carton, 1pcs/carton"
+        }
+      ]
+    },
+    {
+      "productId": 88,
+      "modelNumber": "CTL801",
+      "categoryId": 1,
+      "name": "Oval LED Dressing Mirror",
+      "slug": "oval-led-dressing-mirror",
+      "shortDescription": "A sleek, arched LED full-length mirror with soft perimeter lighting and a touch control interface.",
+      "fullDescription": "<p>This arched LED full-length mirror is where sculptural artistry meets everyday functionality, crafted to transform any space into a haven of modern elegance. Its gracefully curved silhouette breaks the mold of traditional mirrors, bringing soft, organic lines and a timeless aesthetic that complements minimalist, contemporary, and even bohemian interiors with effortless charm.</p><p></p><p>Framed by a warm, dimmable LED light strip, the mirror casts a flattering, ambient glow that mimics natural light—ideal for perfecting outfit choices, makeup looks, or simply brightening up dim corners of your home. The intuitive touch control lets you easily adjust brightness levels, so you can create the ideal atmosphere for any moment, whether it’s a quick morning check or a relaxed evening routine.</p><p></p><p>Made with premium, distortion-free glass, it delivers a crystal-clear reflection from head to toe, while its sleek, frameless design keeps the focus on the mirror’s elegant shape. Designed to be wall-mounted, it becomes both a practical full-length dressing mirror and a statement wall piece, adding depth, light, and refined style to bedrooms, entryways, dressing rooms, or living spaces. More than just a mirror, it’s a work of functional art that elevates your daily routine and your home decor all at once.</p>",
+      "specs": [
+        {
+          "key": "Size",
+          "value": "50X150CM; 60X165CM 65X170CM; CUSTOM MADE"
+        },
+        {
+          "key": "Packing",
+          "value": "PE Bag +foam+ Carton Box"
+        },
+        {
+          "key": "Material",
+          "value": "Silver Mirror+LED Lighted Strip"
+        },
+        {
+          "key": "Function",
+          "value": "Touchable Screen"
+        },
+        {
+          "key": "Thickness",
+          "value": "4mm/5mm"
+        },
+        {
+          "key": "Color Temperature",
+          "value": "3000K-4000K-6000K"
+        }
+      ]
+    },
+    {
+      "productId": 89,
+      "modelNumber": "CTL802",
+      "categoryId": 1,
+      "name": "Arch LED Dressing Mirror",
+      "slug": "arch-led-dressing-mirror",
+      "shortDescription": "An elegant arched LED full-length mirror with soft perimeter lighting, blending organic design with modern functionality.",
+      "fullDescription": "<p>This arched LED full-length mirror marries sculptural elegance with everyday functionality, bringing soft, organic lines and warm ambient light to your home. Its gracefully curved silhouette, framed by a glowing LED light strip, casts a flattering, adjustable glow that mimics natural light—perfect for outfit checks, makeup application, or elevating dim corners. The intuitive touch control lets you fine-tune brightness to suit your mood, while premium distortion-free glass delivers crisp, full-body reflections. More than just a mirror, it doubles as a striking wall decor piece, effortlessly complementing minimalist, bohemian, and contemporary interiors alike. Designed for wall mounting, it adds depth, warmth, and refined style to bedrooms, entryways, and dressing rooms, turning your daily routine into a moment of quiet luxury.</p><p></p><p><strong>Adjustable LED Lighting:</strong> Soft, even glow for perfect styling, anytime. </p><p><strong>Smart Touch Controls:</strong> Easily adjust brightness and access functions with a tap. </p><p><strong>Digital Display:</strong> Check the time at a glance while getting ready. </p><p><strong>Distortion-Free Reflection:</strong> Crystal-clear view for full-body outfit checks. </p><p><strong>Sleek Modern Design:</strong> Fits seamlessly into any contemporary home decor.</p>",
+      "specs": [
+        {
+          "key": "Size",
+          "value": "50X150CM; 60X165CM 65X170CM; CUSTOM MADE"
+        },
+        {
+          "key": "Logo",
+          "value": "Accept Customized Logo"
+        },
+        {
+          "key": "Voltage",
+          "value": "100-240V 50/60HZ"
+        },
+        {
+          "key": "Application",
+          "value": "Hotel Home Bathroom Decoration"
+        },
+        {
+          "key": "MOQ",
+          "value": "10pcs"
+        },
+        {
+          "key": "Packing",
+          "value": "PE Bag +foam+ Carton Box"
+        }
+      ]
+    },
+    {
+      "productId": 90,
+      "modelNumber": "CTL503",
+      "categoryId": 1,
+      "name": "Acrylic Famed LED Mirror",
+      "slug": "acrylic-famed-led-mirror",
+      "shortDescription": "The CTL503 is a modern, minimalist wall-mounted Round Smart LED Bathroom Mirror. Featuring a high-translucency frosted acrylic frame integrated with a concealed LED strip, it delivers a soft, elegant glow around the edges when turned on. With its seamless single-touch control and sleek profile, this mirror effortlessly enhances contemporary, Scandinavian, or luxury interior designs.",
+      "fullDescription": "<ul><li><p><strong>Premium Acrylic Glow Edge (Backlit &amp; Side-lit)</strong><br>The outer frame is crafted from high-grade polymeric light-guiding acrylic. The LED light is filtered through the frosted acrylic, transforming harsh direct light into a soft, uniform, and glare-free ambiance. This design completely hides the internal light dots and prevents light leakage.</p></li><li><p><strong>HD Copper-Free Mirror with Explosion-Proof Safety</strong><br>The mirror utilizes a 5mm high-definition, copper-free silver mirror that offers true-to-life reflection without distortion while ensuring superior anti-oxidation performance. The back is layered with an explosion-proof safety film, keeping shards held together tightly in case of accidental breakage to guarantee user safety.</p></li><li><p><strong>Intuitive Single Touch Control</strong><br>A sleek, capacitive smart touch button is seamlessly integrated on the lower front mirror surface. The subtle built-in indicator light ensures effortless blind-touch operation even in dark or dim environments.</p></li><li><p><strong>Moisture-Proof Structure for Wet Environments</strong><br>Engineered specifically for bathrooms, all core components—including the power driver, LED strip, and touch sensor—are fully enclosed and moisture-sealed. This prevents steam and water splash damage, ensuring a prolonged product lifespan.</p></li></ul><p></p>",
+      "specs": [
+        {
+          "key": "Shape",
+          "value": "Round"
+        },
+        {
+          "key": "Dimensions",
+          "value": "DIA 60 CM / DIA 70 CM / DIA 80 CM"
+        },
+        {
+          "key": "Mirror Material",
+          "value": "5mm HD Copper-Free Silver Mirror (with explosion-proof backing film)"
+        },
+        {
+          "key": "Frame Material",
+          "value": "High-translucency Frosted Acrylic (Non-yellowing)"
+        },
+        {
+          "key": "Light Source",
+          "value": "High-efficiency, low-power 2835 LED light strip"
+        },
+        {
+          "key": "Waterproof Rating",
+          "value": "IP44 rating or above for internal electrical components"
+        }
+      ]
+    },
+    {
+      "productId": 91,
+      "modelNumber": " CTL205",
+      "categoryId": 1,
+      "name": "Oval Smart LED Bathroom Mirror",
+      "slug": "oval-smart-led-bathroom-mirror",
+      "shortDescription": "The CTL205 is an elegant, wall-mounted Oval Smart LED Bathroom Mirror featuring a stylish frosted inner border design. Combining functional illumination with sleek aesthetics, it comes equipped with integrated touch controls and a digital time display, making it a perfect fit for upscale modern bathrooms, dressing areas, and hospitality projects.",
+      "fullDescription": "<ul><li><p><strong>Elegant Frosted Inner Border Design</strong><br>The mirror features a precision-etched, frosted sandblasted track inside the glass edge. The built-in high-density LED strips shine through this frosted layer, creating a bright, uniform, and shadow-free front lighting effect that is perfect for makeup application and daily grooming.</p></li><li><p><strong>Integrated Multi-Functional Smart Display</strong><br>Designed for premium user experience, the lower section of the mirror features a sleek capacitive touch sensor paired with a clear <strong>digital time display</strong>. This allows users to track the time while getting ready, preventing morning rush delays.</p></li><li><p><strong>Copper-Free Mirror with Built-in Safety Film</strong><br>Crafted from a 5mm high-definition, copper-free silver mirror, it delivers exceptional reflection clarity without color distortion. The rear is sealed with an explosion-proof safety backing film, ensuring that the glass fragments remain bound together safely in the rare event of impact.</p></li><li><p><strong>Flexible Sizing &amp; Reliable Build</strong><br>Available in multiple standard oval dimensions and fully open to <strong>custom-made</strong> sizing to fit bespoke vanity counters. All electrical compartments are fully sealed against humidity and splashing, guaranteeing safe operation in wet bathroom conditions.</p></li></ul><hr><p></p>",
+      "specs": [
+        {
+          "key": "Shape",
+          "value": "Oval"
+        },
+        {
+          "key": "Dimensions (W x H)",
+          "value": "60X80 CM / 70X90 CM / 75X100 CM / CUSTOM MADE"
+        },
+        {
+          "key": "Mirror Material",
+          "value": "5mm HD Copper-Free Silver Mirror (with explosion-proof backing film)"
+        },
+        {
+          "key": "Design Feature",
+          "value": "Frosted sandblasted inner border track (Front-lit diffusion)"
+        },
+        {
+          "key": "Light Source",
+          "value": "High-output, low-voltage 2835 LED light strip"
+        }
+      ]
+    },
+    {
+      "productId": 92,
+      "modelNumber": "CTL206",
+      "categoryId": 1,
+      "name": "Oval Backlit LED Bathroom Mirror",
+      "slug": "oval-backlit-led-bathroom-mirror",
+      "shortDescription": "The CTL206 is a premium, wall-mounted Oval Smart Backlit LED Bathroom Mirror featuring a sleek, frameless edge. By casting a seamless halo of light onto the wall, it creates a luxury floating optical effect. Equipped with integrated smart controls and a digital clock display, this model brings a sophisticated, ambient feel to modern bathrooms and high-end hospitality venues.",
+      "fullDescription": "<ul><li><p><strong>Atmospheric Backlit Glow (Floating Effect)</strong><br>Unlike front-lit mirrors, the <strong>CTL206</strong> conceals its high-density LED light strip directly behind the glass edge, facing inward toward the wall. This produces a soft, indirect backlight halo that highlights the wall's texture, reduces harsh glare, and makes the mirror appear as if it is elegantly floating.</p></li><li><p><strong>Sleek Multi-Function Smart Interface</strong><br>The lower middle surface of the mirror is equipped with a clean, high-sensitivity capacitive touch button and a crisp <strong>digital time display</strong>. This ensures users can stay on schedule during morning and evening grooming routines without needing an external clock.</p></li><li><p><strong>Copper-Free Silver Glass with Shatterproof Protection</strong><br>Crafted from premium 5mm high-definition, copper-free silver glass, the mirror delivers crystal-clear reflection with exceptional resistance to black-edge oxidation. A heavy-duty explosion-proof safety film is applied to the back to keep the glass securely bound in place if accidentally impacted.</p></li><li><p><strong>Flexible Sizing &amp; Comprehensive Moisture-Proofing</strong><br>Offered in multiple standard elongated oval sizes as well as full <strong>custom-made</strong> dimensions to seamlessly fit bespoke vanity designs. All internal electronic modules, wiring, and LED components are fully moisture-sealed to withstand daily bathroom steam and humidity.</p></li></ul><hr><p></p>",
+      "specs": [
+        {
+          "key": "Shape",
+          "value": "60X80 CM / 70X90 CM / 75X100 CM / CUSTOM MADE"
+        },
+        {
+          "key": "Mirror Material",
+          "value": "5mm HD Copper-Free Silver Mirror (with explosion-proof backing film)"
+        },
+        {
+          "key": "Design Feature",
+          "value": "Frameless backlit edge (Indirect halo diffusion / No front sandblasting)"
+        },
+        {
+          "key": "Light Source",
+          "value": "High-brightness, energy-saving 2835 LED light strip"
+        },
+        {
+          "key": "Installation Type",
+          "value": "Wall-mounted (Heavy-duty vertical mounting brackets included)"
+        }
+      ]
+    },
+    {
+      "productId": 93,
+      "modelNumber": "CTL0063B",
+      "categoryId": 1,
+      "name": "Oval Framed LED Bathroom Mirror",
+      "slug": "oval-framed-led-bathroom-mirror",
+      "shortDescription": "The CTL0063B is a luxury, wall-mounted Oval Smart Backlit LED Bathroom Mirror wrapped in a sleek, ultra-thin matte black metal frame. By casting a soft halo of light onto the wall while maintaining a bold, structured silhouette, this mirror provides the perfect balance of modern industrial aesthetics and functional ambient lighting for premium residential and hospitality spaces.",
+      "fullDescription": "<ul><li><p><strong>Sophisticated Matte Black Metal Frame</strong><br>The mirror is encased in a premium-grade, lightweight aluminum alloy frame with an anodized matte black finish. This narrow-edge frame protects the glass corners, resists moisture and rust, and adds a strong, contemporary architectural line to any vanity space.</p></li><li><p><strong>Atmospheric Backlit Glow (Floating Ambiance)</strong><br>Equipped with a hidden high-density LED strip, the <strong>CTL0063B-BLACK</strong> directs light backward against the wall. This produces an elegant, indirect halo effect that softly illuminates the washbasin area without causing direct glare to the eyes, making the mirror look beautifully detached from the wall.</p></li><li><p><strong>Copper-Free Silver Glass with Shatterproof Protection</strong><br>Featuring a 5mm high-definition, copper-free silver mirror, it delivers crystal-clear reflection without any color distortion or dark-edge oxidation. A heavy-duty explosion-proof backing film is integrated into the back, preventing the glass fragments from splashing if accidentally broken.</p></li><li><p><strong>Intelligent Touch Sensor &amp; Moisture-Proof Engineering</strong><br>A minimalist, high-sensitivity capacitive touch button is embedded directly onto the lower mirror surface for effortless, click-free power control. All internal electrical components and wiring are fully sealed and moisture-proofed to guarantee safe, long-lasting use in humid bathroom environments.</p></li></ul><hr><p></p>",
+      "specs": [
+        {
+          "key": "Shape",
+          "value": "Oval"
+        },
+        {
+          "key": "Dimensions",
+          "value": "60X80 CM / 70X90 CM / 75X100 CM / CUSTOM MADE"
+        },
+        {
+          "key": "Mirror Material",
+          "value": "5mm HD Copper-Free Silver Mirror (with explosion-proof backing film)"
+        },
+        {
+          "key": "Frame Material",
+          "value": "Anodized Aluminum Alloy Frame"
+        },
+        {
+          "key": "Design Feature",
+          "value": "Metal frame border with integrated backlit indirect halo diffusion"
+        },
+        {
+          "key": "Installation Type",
+          "value": "Wall-mounted (Heavy-duty vertical mounting brackets included)"
+        }
+      ]
+    },
+    {
+      "productId": 94,
+      "modelNumber": "CTL403 ",
+      "categoryId": 1,
+      "name": "Capsule-Shaped Smart Mirror",
+      "slug": "capsule-shaped-smart-mirror",
+      "shortDescription": "The CTL403 is a luxury, wall-mounted Capsule-Shaped Smart Backlit LED Bathroom Mirror (also known as stadium or racetrack shape). Featuring a sleek frameless edge that projects a soft, continuous halo of light onto the wall, this mirror blends a soft geometric silhouette with elegant ambient illumination, making it a perfect statement piece for double vanities, master bathrooms, and upscale hotel rooms.",
+      "fullDescription": "<ul><li><p><strong>Trendy Capsule Silhouette (Double-Vanity Ideal)</strong><br>Designed with a stylish, elongated capsule shape (straight sides with perfectly rounded semi-circular tops and bottoms). Its vertical proportions make it exceptionally suited for side-by-side dual installations over double-sink vanities, helping to visually elongate the bathroom ceiling height.</p></li><li><p><strong>Atmospheric Backlit Glow (Floating Effect)</strong><br>The high-density LED light strip is seamlessly concealed behind the rim, directing its illumination backward toward the wall surface. This indirect lighting delivers a uniform glare-free glow, creating a beautiful floating visual depth and accentuating background tiling or wall textures.</p></li><li><p><strong>HD Copper-Free Mirror with Explosion-Proof Safety</strong><br>The mirror is made from 5mm high-definition, copper-free silver glass that provides true-to-life reflections without color distortion. The glass is treated with a heavy-duty explosion-proof safety backing film, ensuring that fragments stay bound together safely in case of accidental impact.</p></li><li><p><strong>Intelligent Touch Control &amp; Moisture-Proof Build</strong><br>A subtle, highly responsive capacitive touch sensor switch is seamlessly embedded into the lower front surface for simple click-free control. All core electronic compartments, power supplies, and wiring are fully sealed and moisture-proofed to guarantee safe, long-lasting performance in humid bathroom environments.</p></li></ul><p></p>",
+      "specs": [
+        {
+          "key": "Shape",
+          "value": "Capsule / Stadium / Racetrack"
+        },
+        {
+          "key": "Dimensions",
+          "value": "50X80 CM / 50X100 CM / 60X100 CM / 60X120 CM / 70X130 CM / CUSTOM MADE"
+        },
+        {
+          "key": "Mirror Material",
+          "value": "5mm HD Copper-Free Silver Mirror (with explosion-proof backing film)"
+        },
+        {
+          "key": "Design Feature",
+          "value": "Frameless capsule edge with integrated backlit indirect halo diffusion"
+        },
+        {
+          "key": "Control Interface",
+          "value": "Smart capacitive single touch sensor switch"
+        }
+      ]
+    },
+    {
+      "productId": 95,
+      "modelNumber": "CTL407 ",
+      "categoryId": 1,
+      "name": "Capsule-Shaped Frosted LED Mirror",
+      "slug": "capsule-shaped-frosted-led-mirror",
+      "shortDescription": "The CTL407 is a sophisticated, wall-mounted Capsule-Shaped Smart Frosted LED Bathroom Mirror featuring an elegant sandblasted border. Combining structural geometry with integrated glowing front-lit illumination and smart touch controls, this mirror brings a bright, shadow-free clarity and contemporary architectural flair to modern bathrooms and premium dressing areas.",
+      "fullDescription": "<ul><li><p><strong>Sleek Capsule Silhouette with Frosted Border</strong><br>Designed in a trendy elongated capsule (racetrack) shape, this mirror features a precision-etched, frosted inner border tracking its unique outline. The high-density LED light shines directly through this frosted glass section, casting bright, face-level illumination that is ideal for daily grooming, makeup application, and shaving.</p></li><li><p><strong>True-to-Life Reflection &amp; Premium Glass</strong><br>Crafted from a 5mm high-definition, copper-free silver mirror, it provides exceptional reflection clarity without color distortion or dark-edge oxidation over time. The mirror back is reinforced with a heavy-duty explosion-proof safety film to keep the glass securely bound in place if accidentally impacted.</p></li><li><p><strong>Intuitive Smart Touch Controls</strong><br>A subtle, highly responsive capacitive touch sensor switch is seamlessly embedded into the lower front surface for seamless, click-free operation. The light indicator ensures the switch remains effortlessly visible even in dark or dim environments.</p></li><li><p><strong>Engineered for Wet Bathroom Environments</strong><br>Specially constructed for high-humidity areas, all internal electronic compartments, the power driver, and the LED modules are fully sealed and moisture-proofed. This prevents steam and water splash damage, ensuring reliable performance and a prolonged product lifespan.</p></li></ul><p></p>",
+      "specs": [
+        {
+          "key": "Shape",
+          "value": "Capsule / Stadium / Racetrack"
+        },
+        {
+          "key": "Dimensions",
+          "value": "50X80 CM / 50X100 CM / 60X100 CM / 60X120 CM / 70X130 CM / CUSTOM MADE"
+        },
+        {
+          "key": "Design Feature",
+          "value": "Frosted sandblasted inner border track (Front-lit diffusion / Anti-glare glow)"
+        },
+        {
+          "key": "Waterproof Rating",
+          "value": "IP44 rating or above for internal electrical components"
+        },
+        {
+          "key": "Installation Type",
+          "value": "Wall-mounted (Heavy-duty vertical mounting brackets included)"
+        }
+      ]
+    },
+    {
+      "productId": 96,
+      "modelNumber": "CTL1011",
+      "categoryId": 1,
+      "name": "Irregular Backlit Dressing Mirror",
+      "slug": "irregular-backlit-dressing-mirror",
+      "shortDescription": "This organic, pebble-shaped mirror glows with soft LED backlighting, adding an artistic touch to any space.",
+      "fullDescription": "<p><strong>Organic-Shaped LED Backlit Bathroom Mirror – Modern Ambient Lighting Mirror</strong></p><p>Elevate your space with this stunning, one-of-a-kind organic-shaped LED mirror, designed to bring both style and function to any room. Unlike traditional rectangular mirrors, its fluid, pebble-inspired silhouette breaks free from rigid lines, adding an artistic, free-spirited touch to bathrooms, bedrooms, entryways, or living areas.</p><p>Framed by a soft, diffused LED backlight, the mirror casts a gentle, warm glow that creates a cozy, spa-like atmosphere while eliminating harsh shadows—perfect for makeup application, grooming, or simply adding ambient light to dim spaces. The built-in touch control allows for easy on/off operation, and the energy-efficient LED lights offer long-lasting performance with adjustable brightness options (depending on configuration) to suit your mood or lighting needs.</p><p>Crafted with high-quality, distortion-free silver mirror glass, this piece delivers crisp, clear reflections, ensuring you see every detail with precision. The sleek, frameless design keeps the focus on its organic form and glowing edge, blending seamlessly with modern, minimalist, bohemian, or Scandinavian decor styles. Lightweight and easy to install, it’s more than just a mirror—it’s a statement piece that doubles as wall art, transforming any space with its soft illumination and unique silhouette.</p>",
+      "specs": [
+        {
+          "key": "Size",
+          "value": "60X120CM; 65X135CM;  75X155CM"
+        },
+        {
+          "key": "IP Rating",
+          "value": "IP44"
+        },
+        {
+          "key": "Installation Type",
+          "value": "Wall Mounted Illuminated Mirror"
+        },
+        {
+          "key": "Material",
+          "value": "5mm Environmental Silver Mirror"
+        },
+        {
+          "key": "Warranty",
+          "value": "2 Years"
+        },
+        {
+          "key": "Power Supply",
+          "value": "Plug Powered"
+        }
+      ]
+    },
+    {
+      "productId": 97,
+      "modelNumber": "CTL1013",
+      "categoryId": 1,
+      "name": "LED Back Lighted Mirror",
+      "slug": "led-back-lighted-mirror",
+      "shortDescription": "This fluid, asymmetrical LED mirror casts a warm, diffused glow, turning any wall into a serene, modern statement.",
+      "fullDescription": "<p><strong>Irregular Organic LED Backlit Mirror – A Sculptural Statement Piece for Modern Spaces</strong></p><p>Elevate your interior design with this uniquely shaped LED mirror, where art meets function in perfect harmony. Breaking free from conventional lines, its fluid, pebble-inspired silhouette creates a bold yet soft focal point that complements minimalist, contemporary, and organic decor styles alike. Framed by a gentle, diffused LED backlight, the mirror casts a warm, ambient glow that eliminates harsh shadows, ideal for makeup application, grooming, or setting a calm, spa-like mood in bathrooms, bedrooms, entryways, and living areas. The built-in touch control allows effortless on/off operation and brightness adjustment (where applicable), putting you in full control of your lighting. Crafted with premium, distortion-free mirror glass, it delivers crisp, true-to-life reflections, while the frameless design keeps the spotlight on its stunning, one-of-a-kind form. More than just a mirror, it’s a work of wall art that transforms any space with its soft illumination and sculptural beauty. Lightweight and easy to install, it’s the perfect upgrade to add warmth, style, and personality to your home.</p>",
+      "specs": [
+        {
+          "key": "Size",
+          "value": "50X130CM; 60X155CM; 70X180CM"
+        },
+        {
+          "key": "IP Rating",
+          "value": "IP44"
+        },
+        {
+          "key": "Warranty",
+          "value": "2 Years"
+        },
+        {
+          "key": "Logo",
+          "value": "Customized Logo Acceptable"
+        },
+        {
+          "key": "Function",
+          "value": "Lighting+Defogging+Touch"
+        },
+        {
+          "key": "Power Supply",
+          "value": "Plug Powered"
+        }
+      ]
+    },
+    {
+      "productId": 98,
+      "modelNumber": "CTL1017",
+      "categoryId": 1,
+      "name": "Irregular Full Length Mirror",
+      "slug": "irregular-full-length-mirror-ctl1017",
+      "shortDescription": "A sculptural, cloud-inspired full-length mirror framed by gentle LED glow, blending art and function.",
+      "fullDescription": "<h3>Organic LED Full-Length Mirror: Sculptural Light for Modern Living Spaces</h3><p></p><p>Transform your daily routine and elevate your home’s aesthetic with our Organic LED Full-Length Mirror, where fluid, sculptural design meets practical illumination. Breaking free from rigid geometric lines, its cloud-inspired, asymmetrical silhouette creates a bold yet soft focal point that complements minimalist, Japandi, and contemporary decor styles alike.</p><p></p><p>Framed by a gentle, diffused LED backlight, this full-length mirror casts a warm, ambient glow that eliminates harsh shadows—perfect for styling outfits, doing skincare, or simply adding a serene, spa-like atmosphere to your bedroom, entryway, or living room. The intuitive touch control lets you easily turn the light on/off or adjust brightness to suit your mood, while energy-efficient LEDs ensure long-lasting, low-maintenance performance.</p><p></p><p>Crafted with premium, distortion-free mirror glass, it delivers crisp, true-to-life reflections from head to toe, so you can see every detail with clarity. The frameless design keeps the spotlight on its stunning, one-of-a-kind form, while the soft glow adds depth and warmth to even the most neutral spaces. More than just a mirror, it’s a statement piece of wall art that doubles as functional lighting, turning any wall into a conversation starter. Lightweight and easy to install, it’s the ultimate upgrade for anyone looking to blend artistry, function, and modern comfort into their home.</p>",
+      "specs": [
+        {
+          "key": "Size",
+          "value": "60X165CM; 65X170CM;  80X180CM"
+        },
+        {
+          "key": "Installation",
+          "value": "Wall Hanging"
+        },
+        {
+          "key": "Lighting source",
+          "value": "Waterproof LED Strip 2835"
+        },
+        {
+          "key": "Material",
+          "value": "5mm Environmental Silver Mirror"
+        },
+        {
+          "key": "IP Rating",
+          "value": "IP44"
+        },
+        {
+          "key": "Package",
+          "value": "PE bag + all around Polyfoam + Earth carton + Carton box , 1 pcs/ctn"
+        }
+      ]
+    },
+    {
+      "productId": 99,
+      "modelNumber": "CTL1018",
+      "categoryId": 1,
+      "name": "Oval LED Floor Mirror",
+      "slug": "oval-led-floor-mirror",
+      "shortDescription": "A sculptural, egg-shaped full-length mirror framed by a gentle LED glow, blending minimalist design with ambient lighting.",
+      "fullDescription": "<h3>Organic LED Full-Length Mirror: Sculptural Light for Modern Living Spaces</h3><p>Transform your daily routine and elevate your home’s aesthetic with our Organic LED Full-Length Mirror, where fluid, sculptural design meets practical illumination. Breaking free from rigid geometric lines, its cloud-inspired, asymmetrical silhouette creates a bold yet soft focal point that complements minimalist, Japandi, and contemporary decor styles alike.</p><p>Framed by a gentle, diffused LED backlight, this full-length mirror casts a warm, ambient glow that eliminates harsh shadows—perfect for styling outfits, doing skincare, or simply adding a serene, spa-like atmosphere to your bedroom, entryway, or living room. The intuitive touch control lets you easily turn the light on/off or adjust brightness to suit your mood, while energy-efficient LEDs ensure long-lasting, low-maintenance performance.</p><p>Crafted with premium, distortion-free mirror glass, it delivers crisp, true-to-life reflections from head to toe, so you can see every detail with clarity. The frameless design keeps the spotlight on its stunning, one-of-a-kind form, while the soft glow adds depth and warmth to even the most neutral spaces. More than just a mirror, it’s a statement piece of wall art that doubles as functional lighting, turning any wall into a conversation starter. Lightweight and easy to install, it’s the ultimate upgrade for anyone looking to blend artistry, function, and modern comfort into their home.</p>",
+      "specs": [
+        {
+          "key": "Size",
+          "value": "60X165CM; 65X170CM;  80X180CM"
+        },
+        {
+          "key": "Installation",
+          "value": "Wall Hanging"
+        },
+        {
+          "key": "Material",
+          "value": "Silver Mirror+LED Lighted Strip"
+        },
+        {
+          "key": "Logo",
+          "value": "Customized Logo"
+        },
+        {
+          "key": "Waterproof Rating",
+          "value": " IP44"
+        },
+        {
+          "key": "Thickness",
+          "value": "4mm/5mm"
+        }
+      ]
+    },
+    {
+      "productId": 100,
+      "modelNumber": "CTL516P",
+      "categoryId": 1,
+      "name": "Oval LED Bathroom Mirror",
+      "slug": "oval-led-bathroom-mirror-ctl516p",
+      "shortDescription": "A sleek, oval-shaped LED smart bathroom mirror with touch controls, designed for modern bathrooms, available in two standard sizes.",
+      "fullDescription": "<p>The CTL516P is a contemporary smart bathroom mirror that blends minimalist aesthetics with practical lighting functionality. Its elegant, rounded oval silhouette softens bathroom interiors while adding a modern touch. The mirror features a built-in LED light ring around the perimeter, offering bright, even illumination that can be easily toggled via touch controls on the mirror surface. The \"light on\" mode provides warm, clear lighting ideal for grooming and makeup application, while the \"light off\" mode showcases the mirror’s clean, frameless appearance. Designed to pair perfectly with matching bathroom vanities, this mirror is available in two versatile sizes to suit different bathroom layouts and space requirements.</p>",
+      "specs": [
+        {
+          "key": "Model Number",
+          "value": "CTL516P"
+        },
+        {
+          "key": "Available Sizes",
+          "value": "50 × 80 cm; 60 × 90 cm"
+        },
+        {
+          "key": "Shape",
+          "value": "Oval / capsule-shaped"
+        },
+        {
+          "key": "Lighting",
+          "value": "Built-in perimeter LED light ring"
+        },
+        {
+          "key": "Control Type",
+          "value": "Touch-sensitive buttons"
+        }
+      ]
+    },
+    {
+      "productId": 101,
+      "modelNumber": "CTL0067BW",
+      "categoryId": 1,
+      "name": "Framed Backlit Oval LED Bathroom Mirror",
+      "slug": "framed-backlit-oval-led-bathroom-mirror",
+      "shortDescription": "Modern capsule-shaped bathroom mirror with a sleek black metal frame, soft backlighting, touch control, and multiple standard sizes plus custom options.",
+      "fullDescription": "<p>The CTL0067BW-BLACK mirror features a minimalist capsule (oval) design framed by a slim, matte black metal border, adding a bold, contemporary accent to any bathroom. The soft backlit LED glow illuminates the mirror from behind, creating an elegant halo effect while providing bright, shadow-free light ideal for grooming and makeup. The mirror includes a touch-sensitive power button for easy control of the light function, with clear visibility both in the “light off” (sleek black-framed mirror) and “light on” (soft halo glow) states. It is available in a wide range of standard sizes to fit different bathroom layouts, with custom sizing also offered for bespoke projects.</p>",
+      "specs": [
+        {
+          "key": "Frame Color",
+          "value": "Black; gold"
+        },
+        {
+          "key": "Shape",
+          "value": "Capsule / Oval"
+        },
+        {
+          "key": "Lighting",
+          "value": "Backlit LED halo"
+        },
+        {
+          "key": "Available Sizes",
+          "value": "50 × 80 cm; 50 × 100 cm; 60 × 100 cm; 60 × 120 cm; 70 × 130 cm"
+        },
+        {
+          "key": "Application",
+          "value": "Bathroom vanity, modern interior design"
+        }
+      ]
+    },
+    {
+      "productId": 102,
+      "modelNumber": "CTL1017Y ",
+      "categoryId": 1,
+      "name": "Irregular Cloud-Shaped LED Mirror",
+      "slug": "irregular-cloud-shaped-led-mirror",
+      "shortDescription": "A whimsical, organic-shaped LED mirror with a soft cloud silhouette, ambient backlighting, and three available sizes for modern decor.",
+      "fullDescription": "<p>The CTL1017Y mirror brings a playful yet sophisticated touch to contemporary interiors with its unique, freeform cloud design. Crafted with smooth, flowing edges, the mirror features a continuous LED light strip along its outer perimeter, casting a soft, diffused glow that doubles as both functional lighting and ambient decor. The irregular shape breaks from traditional mirror designs, making it a standout statement piece for bathrooms, bedrooms, or living spaces. Available in three versatile sizes, this mirror blends artistic style with practical illumination, ideal for adding warmth and personality to any modern aesthetic.</p>",
+      "specs": [
+        {
+          "key": "Model Number",
+          "value": "CTL1017Y"
+        },
+        {
+          "key": "Shape",
+          "value": "Irregular / Cloud / Organic silhouette"
+        },
+        {
+          "key": "Lighting",
+          "value": "Perimeter LED light strip (ambient glow)"
+        },
+        {
+          "key": "Available Sizes",
+          "value": "50 × 90 cm; 60 × 100 cm; 70 × 120 cm"
+        },
+        {
+          "key": "Style",
+          "value": "Modern, artistic, minimalist with a whimsical twist"
+        }
+      ]
+    },
+    {
+      "productId": 103,
+      "modelNumber": "CTL1017HG ",
+      "categoryId": 1,
+      "name": "Irregular Organic-Shaped LED Bathroom Mirror",
+      "slug": "irregular-organic-shaped-led-bathroom-mirror",
+      "shortDescription": "A statement-making, organic-shaped LED mirror with ambient perimeter lighting, designed for modern bathrooms, available in four wide-format sizes.",
+      "fullDescription": "<p>The CTL1017HG mirror features a striking, freeform silhouette inspired by natural, flowing shapes, bringing an artistic, contemporary focal point to any bathroom. Its smooth, undulating edges are framed by a continuous LED light strip that casts a soft, diffused halo glow, providing both functional task lighting and atmospheric accent illumination. The large, irregular shape makes it ideal for above double vanities or as a bold statement piece in modern interiors. Available in multiple wide-format sizes, it offers flexibility to suit different bathroom layouts and design preferences, blending sculptural style with practical lighting functionality.</p>",
+      "specs": [
+        {
+          "key": "Model Number",
+          "value": "CTL1017HG"
+        },
+        {
+          "key": "Shape",
+          "value": "Continuous perimeter LED light strip (ambient halo glow)"
+        },
+        {
+          "key": "Available Sizes",
+          "value": "60 × 100 cm; 60 × 120 cm; 60 × 165 cm; 65 × 170 cm"
+        },
+        {
+          "key": "Style",
+          "value": "Modern, artistic, statement design"
+        },
+        {
+          "key": "Application",
+          "value": "Bathroom vanity, statement wall mirror, contemporary interior decor"
+        }
+      ]
+    },
+    {
+      "productId": 104,
+      "modelNumber": "CTL1014 ",
+      "categoryId": 1,
+      "name": "Teardrop LED Bathroom Mirror",
+      "slug": "teardrop-led-bathroom-mirror",
+      "shortDescription": "A modern organic-shaped LED mirror with soft perimeter lighting and touch control, available in multiple sizes plus custom options.",
+      "fullDescription": "<p>The CTL1014 mirror features a unique teardrop-inspired organic silhouette, bringing an artistic, soft-edged aesthetic to contemporary bathrooms and interiors. Its smooth, flowing form is framed by a continuous LED light strip that casts a gentle halo glow, offering both functional illumination for grooming and ambient mood lighting. The mirror includes a touch-sensitive control button for easy light operation, with clean, glare-free reflective quality. Available in four standard sizes to suit different vanity layouts, this mirror also supports custom sizing, making it ideal for both residential and bespoke commercial projects.</p>",
+      "specs": [
+        {
+          "key": "Model Number",
+          "value": "CTL1014"
+        },
+        {
+          "key": "Shape",
+          "value": "Teardrop / Irregular organic silhouette"
+        },
+        {
+          "key": "Lighting",
+          "value": "Continuous perimeter LED light strip (halo glow)"
+        },
+        {
+          "key": "Available Sizes",
+          "value": "50 × 70 cm; 60 × 80 cm; 70 × 90 cm; 75 × 100 cm"
+        },
+        {
+          "key": "Application",
+          "value": "Bathroom vanity, modern interior accent mirror"
+        }
+      ]
+    },
+    {
+      "productId": 105,
+      "modelNumber": "CTL1011D",
+      "categoryId": 1,
+      "name": "Pebble-Shaped LED Bathroom Mirror",
+      "slug": "pebble-shaped-led-bathroom-mirror",
+      "shortDescription": "An organic pebble-shaped LED mirror with soft perimeter lighting, touch control, and multiple standard sizes plus custom options for modern bathrooms.",
+      "fullDescription": "<p>The CTL1011D mirror features a smooth, freeform pebble silhouette that brings a natural, minimalist aesthetic to contemporary bathrooms. Its flowing, asymmetrical design is framed by a continuous LED light strip that casts a gentle, even halo glow around the edges, providing both functional illumination for grooming and a warm ambient atmosphere. The mirror includes a touch-sensitive control button for easy light operation, with a clear, high-quality reflective surface. Available in three standard sizes to fit single or double vanities, this mirror also supports custom sizing, making it suitable for both residential and bespoke commercial projects.</p>",
+      "specs": [
+        {
+          "key": "Model Number",
+          "value": "CTL1011D"
+        },
+        {
+          "key": "Shape",
+          "value": "Irregular / Organic Pebble silhouette"
+        },
+        {
+          "key": "Lighting",
+          "value": "Continuous perimeter LED light strip (halo glow)"
+        },
+        {
+          "key": "Available Sizes",
+          "value": "50 × 80 cm; 60 × 100 cm; 70 × 130 cm"
+        },
+        {
+          "key": "Application",
+          "value": "Bathroom vanity, modern interior accent mirror"
+        }
+      ]
+    },
+    {
+      "productId": 106,
+      "modelNumber": "CTL805",
+      "categoryId": 1,
+      "name": "Dual-Circle LED Bathroom Mirror Set",
+      "slug": "dual-circle-led-bathroom-mirror-set",
+      "shortDescription": "A modern dual-circle LED mirror set with halo backlighting, combining a large main mirror and a smaller accent mirror for double vanities, available in three size combinations.",
+      "fullDescription": "<p>The CTL805 mirror set features a striking two-circle design, pairing a large primary mirror with a smaller companion mirror to create a contemporary layered look. Both mirrors are equipped with soft, continuous perimeter LED lighting that casts a warm halo glow, providing even, shadow-free illumination ideal for grooming. The large mirror includes a touch-sensitive control for easy light operation, making it practical for daily use. Designed for double vanities, this set adds visual interest to minimalist bathrooms while delivering functional lighting, with three proportional size combinations to suit different space dimensions.</p>",
+      "specs": [
+        {
+          "key": "Model Number",
+          "value": "CTL805"
+        },
+        {
+          "key": "Design",
+          "value": "Dual-circle mirror set (one large + one small mirror)"
+        },
+        {
+          "key": "Available Size Combinations",
+          "value": "DIA 80 cm + 40 cm; DIA 90 cm + 45 cm; DIA 100 cm + 50 cm"
+        },
+        {
+          "key": "Style",
+          "value": "Modern, minimalist, statement design"
+        },
+        {
+          "key": "Application",
+          "value": "Double bathroom vanity, contemporary interior accent wall"
+        }
+      ]
+    },
+    {
+      "productId": 107,
+      "modelNumber": "CTL804D",
+      "categoryId": 1,
+      "name": "D-Shaped LED Bathroom Mirror",
+      "slug": "d-shaped-led-bathroom-mirror",
+      "shortDescription": "Sleek D-shaped LED mirror with continuous perimeter lighting, available in multiple standard sizes plus custom options, ideal for modern commercial and residential bathroom projects.",
+      "fullDescription": "<p>The CTL804D features a contemporary D-shaped design, combining the softness of a round silhouette with a flat vertical edge for seamless corner installation. It is equipped with a continuous, high-brightness LED light strip around the mirror’s perimeter, delivering even, shadow-free illumination for grooming and makeup tasks. Built with durable, water-resistant materials and a touch control interface, this mirror is engineered for long-term use in both residential bathrooms and commercial hospitality projects. It offers a range of standard size options to suit different vanity layouts, with custom sizing available to meet bespoke project requirements.</p>",
+      "specs": [
+        {
+          "key": "Model Number",
+          "value": "CTL804D"
+        },
+        {
+          "key": "Shape",
+          "value": "D-shaped (flat edge for corner installation)"
+        },
+        {
+          "key": "Available Standard Sizes",
+          "value": "54 × 60 cm; 63 × 70 cm; 72 × 80 cm; 81 × 90 cm; 90 × 100 cm; 99 × 110 cm; 108 × 120 cm"
+        },
+        {
+          "key": "Customization",
+          "value": "Custom-made sizes available"
+        },
+        {
+          "key": "Application",
+          "value": "Residential bathrooms, hotel & hospitality projects, commercial washrooms"
+        }
+      ]
+    },
+    {
+      "productId": 108,
+      "modelNumber": "CTL1039",
+      "categoryId": 1,
+      "name": "LED Smart Bathroom Mirror",
+      "slug": "led-smart-bathroom-mirror",
+      "shortDescription": "This organic LED mirror brings warm ambient light and modern softness to the bathroom.",
+      "fullDescription": "<p>Transform your bathroom into a serene, contemporary sanctuary with our <strong>Organic-Form LED Backlit Bathroom Mirror</strong>. Crafted with a fluid, irregular silhouette, this frameless mirror breaks away from traditional straight lines, bringing an artistic, sculptural presence to your vanity space. The soft, diffused halo of LED lighting wraps gently around its edges, casting a warm, even glow that flatters your features while eliminating harsh shadows—perfect for makeup application, skincare routines, or simply unwinding after a long day.</p><p></p><p>Built for both style and practicality, the adjustable LED lighting allows you to switch between different color temperatures to suit your mood: choose bright daylight tones for crisp clarity during your morning routine, or softer warm hues for a calming, spa-like ambiance in the evening. The mirror’s high-quality glass ensures a distortion-free reflection, while its sleek, minimalist design complements any modern, minimalist, or organic-inspired bathroom decor. More than just a functional essential, this mirror doubles as a striking wall piece that elevates the entire room, blending artistry, light, and everyday use into one unforgettable statement.</p>",
+      "specs": [
+        {
+          "key": "Size",
+          "value": "48X103CM"
+        },
+        {
+          "key": "Installation",
+          "value": "wall mounted"
+        },
+        {
+          "key": "Package",
+          "value": "PE bag + foam + carton"
+        },
+        {
+          "key": "IP rating",
+          "value": "IP44"
+        },
+        {
+          "key": "LED light",
+          "value": "3000-6500K"
+        },
+        {
+          "key": "Functions",
+          "value": "light/defogger/time&temperature/bluetooth"
+        }
+      ]
+    },
+    {
+      "productId": 111,
+      "modelNumber": "CTL803DW",
+      "categoryId": 1,
+      "name": "Arched Bathroom LED Mirror",
+      "slug": "arched-bathroom-led-mirror",
+      "shortDescription": "Sleek arched LED bathroom mirror with full-edge lighting, touch controls, and customizable sizes, designed for modern hotels, apartments, and premium residential projects.",
+      "fullDescription": "<p>The CTL803DW Arched LED Mirror combines contemporary arched styling with full perimeter LED lighting, creating a soft, uniform glow that eliminates shadows and enhances grooming visibility. Built for commercial and high-end residential use, this mirror features touch-sensitive controls for easy light adjustment (brightness/temperature optional), copper-free mirror glass for long-lasting clarity and corrosion resistance, and a durable, moisture-resistant frame.</p><p></p><p>Its elegant arched top adds a sophisticated architectural touch to bathrooms, powder rooms, and vanity areas, while the energy-efficient LED system ensures low power consumption and extended lifespan. The mirror is wall-mounted for easy installation, available in standard sizes and custom dimensions to meet project requirements, and finished with a smooth, easy-to-clean surface ideal for high-traffic environments like hotels, spas, and multi-family housing.</p>",
+      "specs": [
+        {
+          "key": "Model",
+          "value": "CTL803DW"
+        },
+        {
+          "key": "Shape",
+          "value": "Arched Top"
+        },
+        {
+          "key": "Mirror Glass",
+          "value": "5mm Copper-free Silver Glass "
+        },
+        {
+          "key": "Standard Sizes",
+          "value": "50×80cm; 60×100cm; 70×130cm"
+        },
+        {
+          "key": "Customization",
+          "value": "Custom sizes available (OEM/ODM supported)"
+        }
+      ]
+    },
+    {
+      "productId": 115,
+      "modelNumber": "CTL803D",
+      "categoryId": 1,
+      "name": "Frosted Arched LED Bathroom Mirror",
+      "slug": "frosted-arched-led-bathroom-mirror",
+      "shortDescription": "Modern arched LED mirror with frosted light-diffusing edges, touch control, and customizable sizes, perfect for premium hotel and residential bathroom projects.",
+      "fullDescription": "<p>The CTL803D Frosted Edge Arched LED Mirror features a sleek, arched silhouette with full perimeter frosted LED lighting that creates a soft, even glow, eliminating harsh shadows and delivering optimal light for grooming and makeup. The frosted edge diffuses light to reduce glare, while the copper-free mirror glass ensures crystal-clear, distortion-free reflections and long-term resistance to moisture and corrosion.</p><p></p><p>Designed for commercial-grade durability, this mirror includes a touch-sensitive control (visible in the image) for easy on/off operation, with optional brightness and color temperature adjustments available. Its minimalist, contemporary design complements both modern and transitional bathroom styles, making it ideal for hotels, apartments, spas, and luxury residential projects. Wall-mounted for straightforward installation, it is offered in standard sizes and supports full customization to meet specific project requirements.</p>",
+      "specs": [
+        {
+          "key": "Model",
+          "value": "CTL803D"
+        },
+        {
+          "key": "Shape",
+          "value": "Arched Top"
+        },
+        {
+          "key": "Mirror Glass",
+          "value": "5mm Copper-free Float Glass"
+        },
+        {
+          "key": "LED Lighting",
+          "value": "Full perimeter edge-lit with frosted diffuser, soft glare-free glow"
+        },
+        {
+          "key": "Standard Sizes",
+          "value": "50×80cm; 60×100cm; 70×130cm"
+        },
+        {
+          "key": "Application",
+          "value": "Residential bathrooms, hotels, apartments, spas, commercial renovation projects"
+        }
+      ]
+    },
+    {
+      "productId": 116,
+      "modelNumber": "CTL804",
+      "categoryId": 1,
+      "name": "Moon LED Bathroom Mirror",
+      "slug": "moon-led-bathroom-mirror-ctl804",
+      "shortDescription": "Modern round LED mirror with soft halo backlighting, multi-size availability and custom options, ideal for hotel and residential bathroom projects.",
+      "fullDescription": "<p>The CTL804 is a commercial-grade round LED mirror designed for contemporary bathroom spaces. Featuring a full perimeter backlit LED strip, it delivers uniform, shadow-free illumination that enhances grooming visibility while creating a warm ambient glow. Built with durable, moisture-resistant components and an intuitive touch control interface, it meets the high durability and low-maintenance requirements of hospitality and multi-family projects. A wide range of standard sizes is available to suit various vanity configurations, with custom dimensions offered to support bespoke design requirements.</p>",
+      "specs": [
+        {
+          "key": "Model Number",
+          "value": "CTL804"
+        },
+        {
+          "key": "Lighting",
+          "value": "Full perimeter backlit LED strip"
+        },
+        {
+          "key": "Available Standard Sizes",
+          "value": "54 × 60 cm; 63 × 70 cm; 72 × 80 cm; 81 × 90 cm; 90 × 100 cm; 99 × 110 cm"
+        },
+        {
+          "key": "Customization",
+          "value": "Custom-made sizes available"
+        },
+        {
+          "key": "Application",
+          "value": "Hotel bathrooms, residential vanity, commercial washroom projects"
+        }
+      ]
+    },
+    {
+      "productId": 117,
+      "modelNumber": "CTL506",
+      "categoryId": 1,
+      "name": "Arched Acrylic Frame LED Bathroom Mirror",
+      "slug": "arched-acrylic-frame-led-bathroom-mirror",
+      "shortDescription": "Modern arched LED bathroom mirror with an acrylic frame, offering soft, glare-free lighting, customizable sizes, and durable construction, ideal for hotels, projects, and residential use.",
+      "fullDescription": "<p>Designed for both aesthetic appeal and functionality, the CTL500 Arched LED Mirror features a sleek acrylic frame that diffuses LED light to create a uniform, shadow-free glow. The arched top adds a contemporary touch to bathrooms, powder rooms, and vanity spaces, while the acrylic edge protects the LED strip and softens harsh light for makeup application and grooming.</p><p></p><p>Built with high-quality copper-free mirror glass, the mirror ensures clear, distortion-free reflections and long-term resistance to moisture and corrosion. The LED lighting system is energy-efficient, with low heat emission and a long lifespan, making it suitable for continuous use in commercial settings like hotels, apartments, and spas.</p><p></p><p>Available in standard sizes and customizable options, this mirror is wall-mounted for easy installation and offers a minimalist design that complements modern, Scandinavian, and industrial decor styles. The acrylic frame’s smooth finish is easy to clean and maintain, ensuring lasting performance in high-moisture environments.</p>",
+      "specs": [
+        {
+          "key": "Model",
+          "value": "CTL506"
+        },
+        {
+          "key": "Shape",
+          "value": "Arched Top"
+        },
+        {
+          "key": "Frame Material",
+          "value": "High-grade Acrylic"
+        },
+        {
+          "key": "Mirror Glass",
+          "value": "5mm Copper-free Float Glass"
+        },
+        {
+          "key": "Standard Sizes\t",
+          "value": "50×80cm; 60×100cm; 60×130cm"
+        },
+        {
+          "key": "Features",
+          "value": "Moisture-resistant, easy to clean, durable acrylic frame, energy-efficient LED"
+        }
+      ]
+    },
+    {
+      "productId": 118,
+      "modelNumber": "CTL505",
+      "categoryId": 1,
+      "name": "Oval Acrylic Frame LED Bathroom Mirror",
+      "slug": "oval-acrylic-frame-led-bathroom-mirror",
+      "shortDescription": "Modern oval LED bathroom mirror with a soft diffused acrylic frame, touch controls, and customizable sizes, designed for premium hotel and residential projects.",
+      "fullDescription": "<p>The CTL505 Oval Acrylic Frame LED Mirror combines sleek, rounded aesthetics with functional LED lighting, ideal for contemporary bathrooms, hotels, and vanity spaces. The high-grade acrylic frame diffuses the LED light evenly, eliminating harsh glare and creating a soft, shadow-free glow that enhances grooming and makeup visibility.</p><p></p><p>Built for commercial-grade durability, the mirror features copper-free glass for crystal-clear reflections and long-term resistance to moisture and corrosion. Integrated touch controls (visible on the mirror surface) allow easy operation of light functions, with optional brightness and color temperature adjustments available. The wall-mounted design ensures straightforward installation, while the acrylic frame’s smooth finish is easy to clean and maintain in high-moisture environments.</p><p></p><p>Available in standard sizes and fully customizable dimensions, this mirror supports OEM/ODM modifications to meet specific project requirements, making it a versatile choice for both residential and hospitality applications.</p>",
+      "specs": [
+        {
+          "key": "Model",
+          "value": "CTL505"
+        },
+        {
+          "key": "Shape",
+          "value": "Oval "
+        },
+        {
+          "key": "Frame Material\t",
+          "value": "High-grade Acrylic"
+        },
+        {
+          "key": "Standard Sizes",
+          "value": "50×100cm; 60×120cm"
+        },
+        {
+          "key": "Customization",
+          "value": "Custom sizes, functions, and voltages available (OEM/ODM supported)"
+        },
+        {
+          "key": "Mounting",
+          "value": "Wall-mounted (installation hardware included)"
+        }
+      ]
+    },
+    {
+      "productId": 119,
+      "modelNumber": "CTL508P",
+      "categoryId": 1,
+      "name": "White Oval LED Aluminum Frame Bathroom Mirror",
+      "slug": "white-oval-led-aluminum-frame-bathroom-mirror",
+      "shortDescription": "Modern oval LED bathroom mirror with a durable white aluminum frame, touch-controlled lighting, and sleek wall-mounted design. Ideal for hotels, apartments, and residential projects requiring elegant, functional vanity solutions.",
+      "fullDescription": "<p>The CTL508P White is a premium oval LED bathroom mirror crafted with a sturdy, corrosion-resistant white aluminum frame, combining durability with a minimalist aesthetic. Designed for commercial and residential bathrooms, it features a soft, diffused LED light ring that provides shadow-free illumination for grooming and makeup tasks, controlled by a convenient touch sensor.</p><p></p><p>Built to withstand humid environments, the mirror is engineered with a high-quality reflective surface and robust construction, ensuring long-lasting performance even in high-traffic spaces like hotels and multi-family housing. Its compact 50×90cm size makes it versatile for both small powder rooms and larger vanity setups, while the modern white frame complements a wide range of bathroom decor styles.</p><p></p><p>This mirror is a reliable choice for bulk orders, offering consistent quality, easy installation, and low maintenance requirements. Customization options (such as dimmable lights or anti-fog function) are available upon request to meet specific project needs.</p>",
+      "specs": [
+        {
+          "key": "Model No.",
+          "value": "CTL508P-WHITE"
+        },
+        {
+          "key": "Size",
+          "value": "50 × 90 cm"
+        },
+        {
+          "key": "Shape",
+          "value": "Oval / Capsule"
+        },
+        {
+          "key": "Frame Material\t",
+          "value": "Aluminum (White Finish)"
+        },
+        {
+          "key": "Application",
+          "value": "Bathroom, Vanity, Hotel, Apartment, Commercial Projects"
+        },
+        {
+          "key": "Certifications",
+          "value": "CE/ CB/ SAA/ IP54/ RoHS"
+        }
+      ]
+    },
+    {
+      "productId": 120,
+      "modelNumber": "CTL208P ",
+      "categoryId": 1,
+      "name": "Oval LED Aluminum Frame Bathroom Mirror",
+      "slug": "oval-led-aluminum-frame-bathroom-mirror",
+      "shortDescription": "Premium gold oval LED bathroom mirror with a sleek aluminum frame, touch-controlled lighting, and multi-size options. Perfect for hotels, luxury apartments, and commercial projects seeking modern, elegant vanity solutions.",
+      "fullDescription": "<p>The CTL208P is a sophisticated oval LED bathroom mirror, designed with a durable, corrosion-resistant gold aluminum frame that adds a touch of luxury to any bathroom. Featuring a soft, warm LED light ring, it delivers shadow-free illumination ideal for grooming and makeup tasks, with convenient touch control for easy operation.</p><p></p><p>Built to withstand humid environments, this mirror is constructed with a high-quality reflective surface and robust frame, ensuring long-lasting performance in high-traffic spaces like hotels, resorts, and multi-family housing. Available in multiple standard sizes (50×80cm, 50×100cm, 60×100cm, 60×120cm, 70×130cm) and fully customizable to meet specific project requirements, it offers unmatched versatility for any design layout.</p><p></p><p>This mirror is a reliable choice for bulk orders, combining elegant aesthetics with practical functionality. Additional customization options, such as dimmable lights, anti-fog function, or adjustable color temperature, are available upon request to align with your project’s unique specifications.</p>",
+      "specs": [
+        {
+          "key": "Model No.",
+          "value": "CTL208P"
+        },
+        {
+          "key": "Standard Sizes",
+          "value": "50×80cm, 50×100cm, 60×100cm, 60×120cm, 70×130cm"
+        },
+        {
+          "key": "Customization",
+          "value": "Custom-made sizes available upon request"
+        },
+        {
+          "key": "Shape",
+          "value": "Oval / Capsule"
+        },
+        {
+          "key": "Custom Options",
+          "value": "Dimmable light, anti-fog function, color temperature adjustment"
+        }
+      ]
+    }
+  ]
+}

@@ -2,11 +2,13 @@
 
 import Link from 'next/link';
 import { useTranslations, useLocale } from 'next-intl';
+import { localeHomePath } from '@/i18n/config';
 
 export default function Footer() {
   const t = useTranslations('footer');
   const nav = useTranslations('nav');
   const locale = useLocale();
+  const homeHref = localeHomePath(locale);
 
   const year = new Date().getFullYear();
 
@@ -51,7 +53,7 @@ export default function Footer() {
               {t('quickLinks')}
             </p>
             <nav className="flex flex-col gap-3 text-[15px] font-body font-normal md:items-center">
-              <Link href={`/${locale}`} className="text-cream hover:text-bronze-light transition-colors">
+              <Link href={homeHref} className="text-cream hover:text-bronze-light transition-colors">
                 {nav('home')}
               </Link>
               <Link href={`/${locale}/products`} className="text-cream hover:text-bronze-light transition-colors">
