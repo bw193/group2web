@@ -36,7 +36,8 @@ export default function ProductCard({
   const locale = useLocale();
 
   return (
-    <article className="group flex flex-col h-full" {...(noSnippet ? { 'data-nosnippet': '' } : {})}>
+    <article className="h-full">
+      <div className="group flex flex-col h-full" {...(noSnippet ? { 'data-nosnippet': '' } : {})}>
       {/* Image */}
       <Link
         href={`/${locale}/products/${slug}`}
@@ -114,6 +115,7 @@ export default function ProductCard({
             {t('sendInquiry')}
           </Link>
         </div>
+      </div>
       </div>
     </article>
   );

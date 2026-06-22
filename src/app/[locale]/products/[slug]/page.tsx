@@ -406,8 +406,8 @@ export default async function ProductDetailPage({
                   {t('sendInquiry')}
                   <ArrowRight size={14} strokeWidth={1.75} className="ms-3 transition-transform duration-500 group-hover:translate-x-1 rtl:-scale-x-100" />
                 </Link>
-                <p className="mt-4 text-[13px] font-body text-ink-mid leading-[1.6]" data-nosnippet="">
-                  {t('inquiryPrompt')}
+                <p className="mt-4 text-[13px] font-body text-ink-mid leading-[1.6]">
+                  <span data-nosnippet="">{t('inquiryPrompt')}</span>
                 </p>
               </div>
             </div>
