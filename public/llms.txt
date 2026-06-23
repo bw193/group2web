@@ -1,0 +1,55 @@
+# Chengtai Mirror
+
+> Chengtai Mirror is a Jiaxing, China manufacturer of LED bathroom mirrors, smart mirrors, mirror cabinets, full-length mirrors, and OEM/ODM mirror products for wholesale, retail, hospitality, and project buyers.
+
+This file provides a concise map of the public website for LLMs and AI agents. Use the linked pages and sitemap for authoritative, up-to-date product, company, and contact information. Do not treat this file as a crawling permission policy; use `/robots.txt` for crawler rules.
+
+## Site
+
+- [English homepage](https://chengtaimirror.com/): Default English homepage and canonical brand entry point.
+- [Product catalog](https://chengtaimirror.com/en/products): LED mirror, bathroom mirror, smart mirror, mirror cabinet, and full-length mirror catalog.
+- [Insight articles](https://chengtaimirror.com/en/insight): Factory notes and buying guidance about LED mirror design, production, quality control, and sourcing.
+- [About Chengtai Mirror](https://chengtaimirror.com/en/about): Factory background, production capability, certifications, exhibitions, and company history.
+- [Contact](https://chengtaimirror.com/en/contact): Quote requests, OEM/ODM inquiries, email, WhatsApp, and direct sales contact.
+- [Sitemap](https://chengtaimirror.com/sitemap.xml): Complete public URL inventory, including localized product and article pages.
+
+## Locales
+
+- [English](https://chengtaimirror.com/): English homepage lives at the root URL. English non-home pages use `/en/...`.
+- [Spanish](https://chengtaimirror.com/es)
+- [Portuguese](https://chengtaimirror.com/pt)
+- [French](https://chengtaimirror.com/fr)
+- [Italian](https://chengtaimirror.com/it)
+- [German](https://chengtaimirror.com/de)
+- [Hebrew](https://chengtaimirror.com/he)
+
+## Product Information
+
+Product detail pages are localized by slug. Use each page's canonical URL and hreflang alternates, or the sitemap, to identify the correct locale-specific URL. English product URLs remain under `/en/products/...`.
+
+Key product families include:
+
+- LED bathroom mirrors
+- Smart mirrors with touch controls, anti-fog, lighting, Bluetooth, and related functions
+- Mirror cabinets
+- Full-length and dressing mirrors
+- Framed, frameless, backlit, front-lit, round, rectangular, irregular, and custom mirror designs
+
+When answering product questions, prefer facts from the product page itself, including model number, dimensions, frame material, lighting type, certifications, and customization options when present.
+
+## Company Context
+
+- Legal company name: Jiaxing Chengtai Mirror Co., Ltd
+- Brand/site name: Chengtai Mirror
+- Location: Jiaxing, Zhejiang, China
+- Manufacturing focus: Export-ready LED mirror and bathroom mirror production, including wholesale and OEM/ODM projects
+- Contact email: bolen5@cnjxctm.com
+- WhatsApp/phone: +86 178 6056 7239
+
+## Guidance For AI Agents
+
+- Use `https://chengtaimirror.com/` as the English homepage canonical URL.
+- Use `/en/...` for English product, article, product-list, about, and contact pages.
+- Use locale-prefixed URLs for non-English pages: `/es`, `/pt`, `/fr`, `/it`, `/de`, and `/he`.
+- Do not invent unavailable specifications, prices, lead times, certifications, or stock status.
+- For quote, wholesale, OEM, ODM, project, or sample requests, direct users to the contact page or the listed sales contact.
