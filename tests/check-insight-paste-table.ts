@@ -4,7 +4,32 @@
 import { config as loadEnv } from 'dotenv';
 loadEnv({ path: '.env.local' });
 import { SignJWT } from 'jose';
-import puppeteer from 'puppeteer-core';
+
+type ConsoleMessage = {
+  text(): string;
+  type(): string;
+};
+
+type BrowserPage = {
+  evaluate<Result>(pageFunction: () => Result | Promise<Result>): Promise<Result>;
+  evaluate<Arg, Result>(pageFunction: (arg: Arg) => Result | Promise<Result>, arg: Arg): Promise<Result>;
+  goto(url: string, options: { timeout: number; waitUntil: 'domcontentloaded' }): Promise<unknown>;
+  on(event: 'console', handler: (message: ConsoleMessage) => void): void;
+  on(event: 'pageerror', handler: (error: unknown) => void): void;
+  setCookie(cookie: {
+    httpOnly: boolean;
+    name: string;
+    path: string;
+    url: string;
+    value: string;
+  }): Promise<void>;
+  waitForSelector(selector: string, options: { timeout: number }): Promise<unknown>;
+};
+
+type Browser = {
+  close(): Promise<void>;
+  newPage(): Promise<BrowserPage>;
+};
 
 const CHROME =
   process.env.CHROME || 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';
@@ -19,6 +44,24 @@ Ordinary Silver Mirror Glass    ≥95%    Medium    5–8 years    Medium    Sta
 5mm Copper-Free Silver Mirror Glass    Around 96%    High    Long-term use    Premium    High-end LED bathroom mirrors and export projects
 How B2B Buyers Should Choose the Right Mirror Glass
 For B2B buyers, the right mirror glass depends on product positioning, target market, project budget, and after-sales expectations.`;
+
+async function loadPuppeteer() {
+  try {
+    const moduleName = 'puppeteer-core';
+    const mod = (await import(moduleName)) as {
+      default: {
+        launch(options: {
+          args: string[];
+          executablePath: string;
+          headless: boolean;
+        }): Promise<Browser>;
+      };
+    };
+    return mod.default;
+  } catch {
+    throw new Error('Install puppeteer-core before running this manual browser check.');
+  }
+}
 
 async function main() {
   const secret = new TextEncoder().encode(
@@ -35,6 +78,7 @@ async function main() {
     .setIssuedAt()
     .sign(secret);
 
+  const puppeteer = await loadPuppeteer();
   const browser = await puppeteer.launch({
     executablePath: CHROME,
     headless: true,
@@ -49,8 +93,11 @@ async function main() {
     path: '/',
   });
 
-  page.on('pageerror', (err) => console.log('[pageerror]', err.message));
-  page.on('console', (msg) => {
+  page.on('pageerror', (err: unknown) => {
+    const message = err instanceof Error ? err.message : String(err);
+    console.log('[pageerror]', message);
+  });
+  page.on('console', (msg: ConsoleMessage) => {
     if (msg.type() === 'error' || msg.type() === 'warn') console.log(`[${msg.type()}] ${msg.text()}`);
   });
 

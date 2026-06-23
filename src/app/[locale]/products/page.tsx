@@ -1,16 +1,8 @@
-import type { Metadata } from 'next';
+﻿import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
-import { getDb } from '@/lib/db';
-import {
-  products,
-  productTranslations,
-  productImages,
-  productCategories,
-  categoryTranslations,
-} from '@/lib/db/schema';
-import { eq, and, desc, inArray } from 'drizzle-orm';
 import ProductsFilter from './ProductsFilter';
 import { JsonLd } from '@/components/seo/JsonLd';
+import { getProductsPagePublicData } from '@/lib/public-data';
 import {
   SITE_NAME,
   SITE_OG_IMAGE,
@@ -34,7 +26,7 @@ export async function generateMetadata({
 
   // NOTE: intentionally does not read `searchParams`. Doing so would opt this
   // route back into dynamic rendering. `?q=` search variants are de-duplicated
-  // by the canonical tag below (→ /products) and aren't crawlable links, so
+  // by the canonical tag below (鈫?/products) and aren't crawlable links, so
   // they don't need a separate noindex.
   return {
     title: copy.title,
@@ -63,82 +55,7 @@ export default async function ProductsPage({ params }: { params: Promise<{ local
   setRequestLocale(locale);
   const t = await getTranslations('products');
   const breadcrumbT = await getTranslations('breadcrumb');
-  const db = getDb();
-
-  const [allProducts, allCats] = await Promise.all([
-    db.select().from(products).where(eq(products.isActive, true)).orderBy(desc(products.createdAt)),
-    db
-      .select()
-      .from(productCategories)
-      .where(eq(productCategories.isActive, true))
-      .orderBy(productCategories.displayOrder),
-  ]);
-
-  const productIds = allProducts.map((p) => p.id);
-  const catIds = allCats.map((c) => c.id);
-
-  const [prodTrans, prodTransEn, prodImgs, catTrans, catTransEn] = await Promise.all([
-    productIds.length
-      ? db
-          .select()
-          .from(productTranslations)
-          .where(and(inArray(productTranslations.productId, productIds), eq(productTranslations.locale, locale)))
-      : Promise.resolve([]),
-    productIds.length && locale !== 'en'
-      ? db
-          .select()
-          .from(productTranslations)
-          .where(and(inArray(productTranslations.productId, productIds), eq(productTranslations.locale, 'en')))
-      : Promise.resolve([]),
-    productIds.length
-      ? db.select().from(productImages).where(inArray(productImages.productId, productIds))
-      : Promise.resolve([]),
-    catIds.length
-      ? db
-          .select()
-          .from(categoryTranslations)
-          .where(and(inArray(categoryTranslations.categoryId, catIds), eq(categoryTranslations.locale, locale)))
-      : Promise.resolve([]),
-    catIds.length && locale !== 'en'
-      ? db
-          .select()
-          .from(categoryTranslations)
-          .where(and(inArray(categoryTranslations.categoryId, catIds), eq(categoryTranslations.locale, 'en')))
-      : Promise.resolve([]),
-  ]);
-
-  const prodTransMap = new Map(prodTrans.map((t) => [t.productId, t]));
-  const prodTransEnMap = new Map(prodTransEn.map((t) => [t.productId, t]));
-  const catTransMap = new Map(catTrans.map((t) => [t.categoryId, t]));
-  const catTransEnMap = new Map(catTransEn.map((t) => [t.categoryId, t]));
-
-  const imgMap = new Map<number, typeof prodImgs[number]>();
-  for (const img of prodImgs) {
-    const existing = imgMap.get(img.productId);
-    if (!existing || (img.isPrimary && !existing.isPrimary)) {
-      imgMap.set(img.productId, img);
-    }
-  }
-
-  const productsData = allProducts.map((p) => {
-    const tr = prodTransMap.get(p.id) || prodTransEnMap.get(p.id);
-    const img = imgMap.get(p.id);
-    return {
-      id: p.id,
-      name: tr?.name || 'Product',
-      slug: tr?.slug || `product-${p.id}`,
-      shortDescription: tr?.shortDescription || null,
-      modelNumber: p.modelNumber,
-      imageUrl: img?.imageUrl || null,
-      isFeatured: p.isFeatured,
-      categoryId: p.categoryId,
-    };
-  });
-
-  const categoriesData = allCats.map((c) => ({
-    id: c.id,
-    name: catTransMap.get(c.id)?.name || catTransEnMap.get(c.id)?.name || `Category ${c.id}`,
-  }));
+  const { products: productsData, categories: categoriesData } = await getProductsPagePublicData(locale);
 
   const itemList = {
     '@context': 'https://schema.org',

@@ -2,9 +2,6 @@ import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
 import { notFound, permanentRedirect } from 'next/navigation';
-import { getDb } from '@/lib/db';
-import { articles, articleTranslations } from '@/lib/db/schema';
-import { and, eq } from 'drizzle-orm';
 import { ChevronRight } from 'lucide-react';
 import GalleryImage from '@/components/public/GalleryImage';
 import ProductCard from '@/components/public/ProductCard';
@@ -16,6 +13,8 @@ import {
   getArticleAllTranslations,
   getArticleProducts,
   getArticleCategories,
+  getArticleStaticParams,
+  getArticleMissingLocaleRedirect,
   getMoreStories,
   formatArticleDate,
   articleExcerpt,
@@ -28,7 +27,6 @@ import {
   SITE_URL,
   SITE_LOGO_URL,
   localeToOg,
-  localizedPath,
   localizedUrl,
   pageCopy,
 } from '@/lib/seo';
@@ -41,15 +39,7 @@ export async function generateStaticParams() {
   // the product detail page. The body-split made these reads as light as
   // product_translations, so the build's concurrent burst should no longer
   // exhaust the pool. Falls back to on-demand only if the slug query fails.
-  try {
-    const db = getDb();
-    const rows = await db
-      .select({ locale: articleTranslations.locale, slug: articleTranslations.slug })
-      .from(articleTranslations);
-    return rows.map((r) => ({ locale: r.locale, slug: r.slug }));
-  } catch {
-    return [];
-  }
+  return getArticleStaticParams();
 }
 
 export async function generateMetadata({
@@ -142,32 +132,9 @@ export default async function ArticlePage({
     // translation actually exists. We never render English content under
     // /pt/, /fr/, etc.; that was the source of the phantom dynamic-render
     // routes behind the DbTimeoutErrors.
-    const db = getDb();
-    const any = await db
-      .select({ article: articles, trans: articleTranslations })
-      .from(articleTranslations)
-      .innerJoin(articles, eq(articles.id, articleTranslations.articleId))
-      .where(and(eq(articleTranslations.slug, slug), eq(articles.isActive, true)))
-      .limit(1);
-    const target = any[0];
-    if (!target) notFound();
-
-    const localizedSlugRow = await db
-      .select({ slug: articleTranslations.slug })
-      .from(articleTranslations)
-      .where(
-        and(
-          eq(articleTranslations.articleId, target.article.id),
-          eq(articleTranslations.locale, locale),
-        ),
-      )
-      .limit(1);
-
-    if (localizedSlugRow[0]?.slug && localizedSlugRow[0].slug !== slug) {
-      permanentRedirect(localizedPath(locale, `/insight/${localizedSlugRow[0].slug}`));
-    }
-
-    permanentRedirect(localizedPath(target.trans.locale, `/insight/${target.trans.slug}`));
+    const destination = await getArticleMissingLocaleRedirect(locale, slug);
+    if (!destination) notFound();
+    permanentRedirect(destination);
   }
 
   const { article, trans: translation } = row;

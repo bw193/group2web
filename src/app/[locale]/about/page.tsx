@@ -1,11 +1,9 @@
-import type { Metadata } from 'next';
+﻿import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import GalleryImage from '@/components/public/GalleryImage';
 import Link from 'next/link';
-import { getDb } from '@/lib/db';
-import { aboutPage, aboutGallery } from '@/lib/db/schema';
-import { eq } from 'drizzle-orm';
 import { JsonLd } from '@/components/seo/JsonLd';
+import { getAboutPagePublicData } from '@/lib/public-data';
 import {
   ADDRESS,
   CONTACT_EMAIL,
@@ -60,17 +58,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
   setRequestLocale(locale);
   const t = await getTranslations('about');
   const breadcrumbT = await getTranslations('breadcrumb');
-  const db = getDb();
-
-  let [about] = await db.select().from(aboutPage).where(eq(aboutPage.locale, locale)).limit(1);
-  if (!about && locale !== 'en') {
-    [about] = await db.select().from(aboutPage).where(eq(aboutPage.locale, 'en')).limit(1);
-  }
-
-  const [factoryPhotos, certPhotos] = await Promise.all([
-    db.select().from(aboutGallery).where(eq(aboutGallery.imageType, 'factory')).orderBy(aboutGallery.displayOrder),
-    db.select().from(aboutGallery).where(eq(aboutGallery.imageType, 'certification')).orderBy(aboutGallery.displayOrder),
-  ]);
+  const { about, factoryPhotos, certificationPhotos: certPhotos } = await getAboutPagePublicData(locale);
 
   const stats = [
     { value: about?.factorySize || '50,000', unit: 'sqm', label: t('facilitySize') },
@@ -180,7 +168,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
         </div>
       </section>
 
-      {/* Factory Stats — editorial dark band */}
+      {/* Factory Stats 鈥?editorial dark band */}
       <section className="bg-ink text-cream">
         <div className="container-wide py-20 md:py-24">
           <p className="text-[13px] font-body font-semibold text-bronze-light uppercase tracking-[0.18em] mb-10" data-reveal>
@@ -231,7 +219,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
                 >
                   <GalleryImage
                     path={photo.imageUrl}
-                    alt={`Chengtai Mirror factory in Jiaxing — production view ${i + 1}`}
+                    alt={`Chengtai Mirror factory in Jiaxing 鈥?production view ${i + 1}`}
                     fill
                     sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                     className="object-cover transition-transform duration-[1.4s] ease-out group-hover:scale-[1.04]"

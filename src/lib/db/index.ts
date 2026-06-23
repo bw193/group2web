@@ -2,45 +2,74 @@ import postgres from 'postgres';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import * as schema from './schema';
 
-const connectionString = process.env.DATABASE_URL!;
-
-// A local Postgres (Docker/native) for offline dev doesn't speak SSL, whereas
-// Supabase's pooler requires it. Detect a localhost target and disable SSL so
-// the same code works against either without editing connection options.
-const isLocalDb = /@(?:localhost|127\.0\.0\.1|\[::1\])(?::\d+)?\//.test(connectionString);
+type PgClient = ReturnType<typeof postgres>;
+type DrizzleDb = ReturnType<typeof drizzle<typeof schema>>;
 
 // Cache the client across HMR reloads in development to avoid exhausting
 // pooler connections. In production each lambda gets its own instance.
 const globalForDb = globalThis as unknown as {
-  pgClient?: ReturnType<typeof postgres>;
-  drizzleDb?: ReturnType<typeof drizzle<typeof schema>>;
+  pgClient?: PgClient;
+  drizzleDb?: DrizzleDb;
 };
 
-const client =
-  globalForDb.pgClient ??
-  postgres(connectionString, {
-    ssl: isLocalDb ? false : { rejectUnauthorized: false },
-    prepare: false, // required for Supabase transaction pooler (port 6543)
-    // Serverless prod: keep small (pooler multiplexes across many lambdas).
-    // Dev: one Next process services every request — a CMS navigation fans
-    // out to 6+ parallel DB-touching fetches that need a roomier pool.
-    max: process.env.NODE_ENV === 'production' ? 3 : 10,
-    idle_timeout: 20,
-    connect_timeout: 10,
-  });
-
-export const db = globalForDb.drizzleDb ?? drizzle(client, { schema });
-
-if (process.env.NODE_ENV !== 'production') {
-  globalForDb.pgClient = client;
-  globalForDb.drizzleDb = db;
+function assertLiveDbAllowed() {
+  if (process.env.PUBLIC_DATA_NO_LIVE_DB === '1') {
+    throw new Error(
+      'Live database access is disabled during the public-data snapshot build. Use snapshot-backed public data helpers instead.',
+    );
+  }
 }
 
-export function getDb() {
+function createDb(): DrizzleDb {
+  assertLiveDbAllowed();
+
+  const connectionString = process.env.DATABASE_URL;
+  if (!connectionString) {
+    throw new Error('DATABASE_URL is required for live database access.');
+  }
+
+  // A local Postgres (Docker/native) for offline dev doesn't speak SSL, whereas
+  // Supabase's pooler requires it. Detect a localhost target and disable SSL so
+  // the same code works against either without editing connection options.
+  const isLocalDb = /@(?:localhost|127\.0\.0\.1|\[::1\])(?::\d+)?\//.test(connectionString);
+
+  const client =
+    globalForDb.pgClient ??
+    postgres(connectionString, {
+      ssl: isLocalDb ? false : { rejectUnauthorized: false },
+      prepare: false, // required for Supabase transaction pooler (port 6543)
+      // Serverless prod: keep small (pooler multiplexes across many lambdas).
+      // Dev: one Next process services every request; a CMS navigation fans
+      // out to 6+ parallel DB-touching fetches that need a roomier pool.
+      max: process.env.NODE_ENV === 'production' ? 3 : 10,
+      idle_timeout: 20,
+      connect_timeout: 10,
+    });
+
+  const db = globalForDb.drizzleDb ?? drizzle(client, { schema });
+
+  if (process.env.NODE_ENV !== 'production') {
+    globalForDb.pgClient = client;
+    globalForDb.drizzleDb = db;
+  }
+
   return db;
 }
 
-export type DB = typeof db;
+export function getDb() {
+  assertLiveDbAllowed();
+  return globalForDb.drizzleDb ?? createDb();
+}
+
+export const db = new Proxy({} as DrizzleDb, {
+  get(_target, prop) {
+    const database = getDb();
+    const value = Reflect.get(database as object, prop);
+    return typeof value === 'function' ? value.bind(database) : value;
+  },
+});
+
+export type DB = DrizzleDb;
 
 // ---------------------------------------------------------------------------
 // Transient-failure resilience

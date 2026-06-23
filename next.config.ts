@@ -1,4 +1,4 @@
-import createNextIntlPlugin from 'next-intl/plugin';
+﻿import createNextIntlPlugin from 'next-intl/plugin';
 
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
@@ -47,16 +47,6 @@ const nextConfig = {
       dynamic: 30,
       static: 180,
     },
-    // Cap static-generation concurrency to fit the build DB pool (max 3). The
-    // insight loaders fetch sequentially — one connection per page, like the
-    // product pages — so N concurrent pages = N connections. maxConcurrency:1 is
-    // proven green on Vercel; :3 dropped idle connections on the long-haul link
-    // (CONNECTION_CLOSED). :2 is the middle ground — 2 of the 3 pool slots, less
-    // idle churn than 3, ~2x faster than 1. cpus:1 keeps a single shared pool;
-    // retryCount cushions the occasional cold-setup straggler.
-    cpus: 1,
-    staticGenerationMaxConcurrency: 2,
-    staticGenerationRetryCount: 5,
   },
   async redirects() {
     return [

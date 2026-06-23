@@ -1,5 +1,6 @@
 import 'server-only';
 import { getDb } from '@/lib/db';
+import { defaultLocale } from '@/i18n/config';
 import {
   articles,
   articleTranslations,
@@ -12,6 +13,9 @@ import {
   productImages,
 } from '@/lib/db/schema';
 import { and, desc, eq, inArray, ne } from 'drizzle-orm';
+import { getPublicDataSnapshot } from '@/lib/public-data-snapshot';
+import type { PublicDataSnapshot } from '@/lib/public-data-snapshot';
+import { localizedPath } from '@/lib/seo';
 
 // Insight reads mirror the product pages: direct, batched Drizzle queries on
 // the shared pool, cached only by page-level ISR. Critically, the list /
@@ -30,6 +34,32 @@ export function categoryFallbackLabel(key: string): string {
   return key ? key.charAt(0).toUpperCase() + key.slice(1) : key;
 }
 
+function getSnapshot(): PublicDataSnapshot | null {
+  return getPublicDataSnapshot();
+}
+
+function byDisplayOrder<T extends { displayOrder: number; id?: number }>(a: T, b: T) {
+  return a.displayOrder - b.displayOrder || (a.id ?? 0) - (b.id ?? 0);
+}
+
+function getSnapshotCategories(snapshot: PublicDataSnapshot, locale: string): ArticleCategory[] {
+  const cats = snapshot.data.articleCategories.slice().sort(byDisplayOrder);
+  const byCat = new Map<number, Map<string, string>>();
+  for (const t of snapshot.data.articleCategoryTranslations) {
+    const m = byCat.get(t.categoryId) ?? new Map<string, string>();
+    m.set(t.locale, t.name);
+    byCat.set(t.categoryId, m);
+  }
+
+  return cats.map((c) => {
+    const names = byCat.get(c.id);
+    return {
+      key: c.key,
+      name: names?.get(locale) || names?.get(defaultLocale) || categoryFallbackLabel(c.key),
+    };
+  });
+}
+
 /**
  * CMS-managed categories for a locale, in editor order, with the usual English
  * fallback per name (then the title-cased key). Returns [] only for the
@@ -37,6 +67,11 @@ export function categoryFallbackLabel(key: string): string {
  * loudly instead of silently dropping the tabs.
  */
 export async function getArticleCategories(locale: string): Promise<ArticleCategory[]> {
+  const snapshot = getSnapshot();
+  if (snapshot) {
+    return getSnapshotCategories(snapshot, locale);
+  }
+
   const db = getDb();
   const cats = await db
     .select()
@@ -101,6 +136,30 @@ type ListTrans = {
   author: string | null;
 };
 
+function byArticleDateDesc(a: typeof articles.$inferSelect, b: typeof articles.$inferSelect) {
+  const dateDiff = new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime();
+  return dateDiff || b.id - a.id;
+}
+
+function snapshotListTranslations(
+  snapshot: PublicDataSnapshot,
+  articleIds: number[],
+  locale: string,
+): ListTrans[] {
+  const wanted = new Set(locale === defaultLocale ? [defaultLocale] : [locale, defaultLocale]);
+  const idSet = new Set(articleIds);
+  return snapshot.data.articleTranslations
+    .filter((t) => idSet.has(t.articleId) && wanted.has(t.locale))
+    .map((t) => ({
+      articleId: t.articleId,
+      locale: t.locale,
+      slug: t.slug,
+      title: t.title,
+      dek: t.dek,
+      author: t.author,
+    }));
+}
+
 function toListItem(a: typeof articles.$inferSelect, t: ListTrans): ArticleListItem {
   return {
     id: a.id,
@@ -139,6 +198,18 @@ function resolveList(
 export async function getInsightIndexData(
   locale: string,
 ): Promise<{ list: ArticleListItem[]; categories: ArticleCategory[] }> {
+  const snapshot = getSnapshot();
+  if (snapshot) {
+    const base = snapshot.data.articles
+      .filter((a) => a.isActive)
+      .sort(byArticleDateDesc);
+    const allTrans = snapshotListTranslations(snapshot, base.map((a) => a.id), locale);
+    return {
+      list: resolveList(base, allTrans, locale),
+      categories: getSnapshotCategories(snapshot, locale),
+    };
+  }
+
   const db = getDb();
   const localesWanted = locale === 'en' ? ['en'] : [locale, 'en'];
 
@@ -196,6 +267,28 @@ export async function getInsightIndexData(
  * via getArticleBody). Returns null when the locale has no translation here.
  */
 export async function getArticleRouteData(locale: string, slug: string) {
+  const snapshot = getSnapshot();
+  if (snapshot) {
+    const trans = snapshot.data.articleTranslations.find((t) => t.locale === locale && t.slug === slug);
+    const article = trans
+      ? snapshot.data.articles.find((a) => a.id === trans.articleId && a.isActive)
+      : undefined;
+    return article && trans
+      ? {
+          article,
+          trans: {
+            id: trans.id,
+            articleId: trans.articleId,
+            locale: trans.locale,
+            slug: trans.slug,
+            title: trans.title,
+            dek: trans.dek,
+            author: trans.author,
+          },
+        }
+      : null;
+  }
+
   const db = getDb();
   const joined = await db
     .select({
@@ -220,6 +313,11 @@ export async function getArticleRouteData(locale: string, slug: string) {
  * Reads from article_translation_bodies (keyed by article_translations.id).
  */
 export async function getArticleBody(articleTranslationId: number): Promise<string | null> {
+  const snapshot = getSnapshot();
+  if (snapshot) {
+    return snapshot.data.articleTranslationBodies.find((b) => b.articleTranslationId === articleTranslationId)?.body ?? null;
+  }
+
   const db = getDb();
   const rows = await db
     .select({ body: articleTranslationBodies.body })
@@ -231,11 +329,80 @@ export async function getArticleBody(articleTranslationId: number): Promise<stri
 
 /** All `(locale, slug)` pairs for an article — used to build hreflang. Light. */
 export async function getArticleAllTranslations(articleId: number) {
+  const snapshot = getSnapshot();
+  if (snapshot) {
+    return snapshot.data.articleTranslations
+      .filter((t) => t.articleId === articleId)
+      .map((t) => ({ locale: t.locale, slug: t.slug }));
+  }
+
   const db = getDb();
   return db
     .select({ locale: articleTranslations.locale, slug: articleTranslations.slug })
     .from(articleTranslations)
     .where(eq(articleTranslations.articleId, articleId));
+}
+
+export async function getArticleStaticParams(): Promise<Array<{ locale: string; slug: string }>> {
+  const snapshot = getSnapshot();
+  if (snapshot) {
+    const activeArticleIds = new Set(snapshot.data.articles.filter((a) => a.isActive).map((a) => a.id));
+    return snapshot.data.articleTranslations
+      .filter((r) => activeArticleIds.has(r.articleId))
+      .map((r) => ({ locale: r.locale, slug: r.slug }));
+  }
+
+  const db = getDb();
+  const rows = await db
+    .select({ locale: articleTranslations.locale, slug: articleTranslations.slug })
+    .from(articleTranslations)
+    .innerJoin(articles, eq(articles.id, articleTranslations.articleId))
+    .where(eq(articles.isActive, true));
+  return rows.map((r) => ({ locale: r.locale, slug: r.slug }));
+}
+
+export async function getArticleMissingLocaleRedirect(
+  locale: string,
+  slug: string,
+): Promise<string | null> {
+  const snapshot = getSnapshot();
+  if (snapshot) {
+    const anyTrans = snapshot.data.articleTranslations.find((t) => t.slug === slug);
+    const article = anyTrans
+      ? snapshot.data.articles.find((a) => a.id === anyTrans.articleId && a.isActive)
+      : undefined;
+    if (!article || !anyTrans) return null;
+
+    const localizedSlugRow = snapshot.data.articleTranslations.find(
+      (t) => t.articleId === article.id && t.locale === locale,
+    );
+    if (localizedSlugRow?.slug && localizedSlugRow.slug !== slug) {
+      return localizedPath(locale, `/insight/${localizedSlugRow.slug}`);
+    }
+    return localizedPath(anyTrans.locale, `/insight/${anyTrans.slug}`);
+  }
+
+  const db = getDb();
+  const any = await db
+    .select({ article: articles, trans: articleTranslations })
+    .from(articleTranslations)
+    .innerJoin(articles, eq(articles.id, articleTranslations.articleId))
+    .where(and(eq(articleTranslations.slug, slug), eq(articles.isActive, true)))
+    .limit(1);
+  const target = any[0];
+  if (!target) return null;
+
+  const localizedSlugRow = await db
+    .select({ slug: articleTranslations.slug })
+    .from(articleTranslations)
+    .where(and(eq(articleTranslations.articleId, target.article.id), eq(articleTranslations.locale, locale)))
+    .limit(1);
+
+  if (localizedSlugRow[0]?.slug && localizedSlugRow[0].slug !== slug) {
+    return localizedPath(locale, `/insight/${localizedSlugRow[0].slug}`);
+  }
+
+  return localizedPath(target.trans.locale, `/insight/${target.trans.slug}`);
 }
 
 /**
@@ -248,6 +415,17 @@ export async function getMoreStories(
   excludeArticleId: number,
   limit: number,
 ): Promise<ArticleListItem[]> {
+  const snapshot = getSnapshot();
+  if (snapshot) {
+    const base = snapshot.data.articles
+      .filter((a) => a.isActive && a.id !== excludeArticleId)
+      .sort(byArticleDateDesc)
+      .slice(0, limit * 3);
+    if (base.length === 0) return [];
+    const allTrans = snapshotListTranslations(snapshot, base.map((a) => a.id), locale);
+    return resolveList(base, allTrans, locale).slice(0, limit);
+  }
+
   const db = getDb();
   const base = await db
     .select()
@@ -289,6 +467,44 @@ export async function getArticleProducts(
   articleId: number,
   locale: string,
 ): Promise<ArticleRelatedProduct[]> {
+  const snapshot = getSnapshot();
+  if (snapshot) {
+    const rows = snapshot.data.articleProducts
+      .filter((link) => link.articleId === articleId)
+      .sort(byDisplayOrder)
+      .flatMap((link) => {
+        const product = snapshot.data.products.find((p) => p.id === link.productId && p.isActive);
+        return product ? [{ link, product }] : [];
+      });
+    const pids = rows.map((r) => r.product.id);
+    if (pids.length === 0) return [];
+
+    const wanted = new Set(locale === defaultLocale ? [defaultLocale] : [locale, defaultLocale]);
+    const allTrans = snapshot.data.productTranslations.filter((t) => pids.includes(t.productId) && wanted.has(t.locale));
+    const imgs = snapshot.data.productImages.filter((img) => pids.includes(img.productId));
+
+    const transMap = new Map(allTrans.filter((t) => t.locale === locale).map((t) => [t.productId, t]));
+    const transEnMap = new Map(allTrans.filter((t) => t.locale === defaultLocale).map((t) => [t.productId, t]));
+    const imgMap = new Map<number, (typeof imgs)[number]>();
+    for (const img of imgs) {
+      const existing = imgMap.get(img.productId);
+      if (!existing || (img.isPrimary && !existing.isPrimary)) imgMap.set(img.productId, img);
+    }
+
+    return rows.map(({ product: p }): ArticleRelatedProduct => {
+      const t = transMap.get(p.id) || transEnMap.get(p.id);
+      return {
+        id: p.id,
+        name: t?.name || 'Product',
+        slug: t?.slug || `product-${p.id}`,
+        shortDescription: t?.shortDescription ?? null,
+        modelNumber: p.modelNumber,
+        imageUrl: imgMap.get(p.id)?.imageUrl ?? null,
+        isFeatured: p.isFeatured,
+      };
+    });
+  }
+
   const db = getDb();
   const rows = await db
     .select({ link: articleProducts, product: products })

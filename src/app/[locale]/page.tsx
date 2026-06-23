@@ -1,19 +1,5 @@
-import type { Metadata } from 'next';
+﻿import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
-import { getDb } from '@/lib/db';
-import {
-  banners,
-  bannerTranslations,
-  products,
-  productTranslations,
-  productImages,
-  productCategories,
-  categoryTranslations,
-  aboutGallery,
-  faqs,
-  faqTranslations,
-} from '@/lib/db/schema';
-import { eq, and, desc, inArray } from 'drizzle-orm';
 import HeroBanner from '@/components/public/HeroBanner';
 import FeaturedProductsSection from '@/components/public/FeaturedProductsSection';
 import CustomizationWorkflowSection from '@/components/public/CustomizationWorkflowSection';
@@ -22,6 +8,7 @@ import CertificationsSection from '@/components/public/CertificationsSection';
 import WorldwideExhibitionSection from '@/components/public/WorldwideExhibitionSection';
 import FaqSection from '@/components/public/FaqSection';
 import { JsonLd } from '@/components/seo/JsonLd';
+import { getHomePagePublicData } from '@/lib/public-data';
 import {
   ADDRESS,
   CONTACT_EMAIL,
@@ -73,10 +60,10 @@ export async function generateMetadata({
 
 // FAQ fallback used both by the client UI and JSON-LD when DB is empty.
 const FALLBACK_FAQ_FOR_SEO: { q: string; a: string }[] = [
-  { q: 'Do you accept sample orders?', a: 'Yes — we support our customers in ordering samples to test quality and function before placing a full production order.' },
-  { q: 'What is your typical lead time?', a: 'Generally 10–15 days for standard orders. Larger volumes are scheduled with you in advance.' },
-  { q: 'Do you have an MOQ restriction?', a: 'Low MOQ — even a single piece is acceptable for sample checking.' },
-  { q: 'Do you operate your own factory?', a: 'Yes. Fifteen years specializing in mirror manufacturing — LED, bathroom, dressing, and full mirror cabinets, all in-house.' },
+  { q: 'Do you accept sample orders?', a: 'Yes 鈥?we support our customers in ordering samples to test quality and function before placing a full production order.' },
+  { q: 'What is your typical lead time?', a: 'Generally 10鈥?5 days for standard orders. Larger volumes are scheduled with you in advance.' },
+  { q: 'Do you have an MOQ restriction?', a: 'Low MOQ 鈥?even a single piece is acceptable for sample checking.' },
+  { q: 'Do you operate your own factory?', a: 'Yes. Fifteen years specializing in mirror manufacturing 鈥?LED, bathroom, dressing, and full mirror cabinets, all in-house.' },
   { q: 'Can we print our own logo on the products?', a: 'Yes. Confirm the design against our pre-production sample and let us know before production begins.' },
   { q: 'Do you offer a warranty on the products?', a: 'Every product ships with a two-year warranty.' },
 ];
@@ -85,178 +72,15 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations('home');
-  const db = getDb();
-
-  // Fetch banners, featured products, categories, factory photos, certs and
-  // exhibition photos in parallel. All 6 queries hit the same Supavisor pool —
-  // adding the 6th to this batch does NOT cost an extra round trip; it's one
-  // small scan on the same about_gallery rows already in cache.
-  const [bannerData, featuredProducts, allCats, facilityPhoto, certPhotos, exhibitionPhotos] = await Promise.all([
-    db
-      .select()
-      .from(banners)
-      .where(eq(banners.isActive, true))
-      .orderBy(banners.displayOrder),
-    // Fetch the full featured set. FeaturedProductsSection caps the visible
-    // grid at maxVisible=8 per tab, but it derives the category TABS from the
-    // categories present in this list — so a too-small limit silently drops
-    // categories whenever the newest items bunch into a few. (88 featured
-    // across 4 categories was collapsing to 2 under limit 60: LED + Full-Length
-    // alone fill the newest 74.) 200 sits above the whole catalog, so no
-    // category with a featured item is ever cut.
-    db
-      .select()
-      .from(products)
-      .where(and(eq(products.isFeatured, true), eq(products.isActive, true)))
-      .orderBy(desc(products.createdAt))
-      .limit(200),
-    db
-      .select()
-      .from(productCategories)
-      .where(eq(productCategories.isActive, true))
-      .orderBy(productCategories.displayOrder),
-    db
-      .select()
-      .from(aboutGallery)
-      .where(eq(aboutGallery.imageType, 'factory'))
-      .orderBy(aboutGallery.displayOrder)
-      .limit(8),
-    db
-      .select()
-      .from(aboutGallery)
-      .where(eq(aboutGallery.imageType, 'certification'))
-      .orderBy(aboutGallery.displayOrder),
-    db
-      .select({
-        imageUrl: aboutGallery.imageUrl,
-        caption: aboutGallery.caption,
-      })
-      .from(aboutGallery)
-      .where(eq(aboutGallery.imageType, 'exhibition'))
-      .orderBy(aboutGallery.displayOrder),
-  ]);
-
-  const bannerIds = bannerData.map((b) => b.id);
-  const productIds = featuredProducts.map((p) => p.id);
-  const catIds = allCats.map((c) => c.id);
-
-  // Batch all translation + image queries in parallel
-  const [bannerTrans, productTrans, productTransEn, productImgs, catTrans, catTransEn] =
-    await Promise.all([
-      bannerIds.length
-        ? db
-            .select()
-            .from(bannerTranslations)
-            .where(and(inArray(bannerTranslations.bannerId, bannerIds), eq(bannerTranslations.locale, locale)))
-        : Promise.resolve([]),
-      productIds.length
-        ? db
-            .select()
-            .from(productTranslations)
-            .where(and(inArray(productTranslations.productId, productIds), eq(productTranslations.locale, locale)))
-        : Promise.resolve([]),
-      productIds.length && locale !== 'en'
-        ? db
-            .select()
-            .from(productTranslations)
-            .where(and(inArray(productTranslations.productId, productIds), eq(productTranslations.locale, 'en')))
-        : Promise.resolve([]),
-      productIds.length
-        ? db.select().from(productImages).where(inArray(productImages.productId, productIds))
-        : Promise.resolve([]),
-      catIds.length
-        ? db
-            .select()
-            .from(categoryTranslations)
-            .where(and(inArray(categoryTranslations.categoryId, catIds), eq(categoryTranslations.locale, locale)))
-        : Promise.resolve([]),
-      catIds.length && locale !== 'en'
-        ? db
-            .select()
-            .from(categoryTranslations)
-            .where(and(inArray(categoryTranslations.categoryId, catIds), eq(categoryTranslations.locale, 'en')))
-        : Promise.resolve([]),
-    ]);
-
-  const bannerTransMap = new Map(bannerTrans.map((t) => [t.bannerId, t]));
-  const productTransMap = new Map(productTrans.map((t) => [t.productId, t]));
-  const productTransEnMap = new Map(productTransEn.map((t) => [t.productId, t]));
-
-  // Pick primary image (or first) per product
-  const primaryImgMap = new Map<number, typeof productImgs[number]>();
-  for (const img of productImgs) {
-    const existing = primaryImgMap.get(img.productId);
-    if (!existing || (img.isPrimary && !existing.isPrimary)) {
-      primaryImgMap.set(img.productId, img);
-    }
-  }
-
-  const bannerSlides = bannerData.map((b) => {
-    const trans = bannerTransMap.get(b.id);
-    return {
-      id: b.id,
-      imageUrl: b.imageUrl,
-      title: trans?.title,
-      subtitle: trans?.subtitle,
-      ctaText: trans?.ctaText,
-      ctaLink: b.ctaLink,
-    };
-  });
-
-  const featuredWithDetails = featuredProducts.map((p) => {
-    const trans = productTransMap.get(p.id) || productTransEnMap.get(p.id);
-    const primaryImg = primaryImgMap.get(p.id);
-    return {
-      id: p.id,
-      name: trans?.name || 'Product',
-      slug: trans?.slug || `product-${p.id}`,
-      shortDescription: trans?.shortDescription,
-      modelNumber: p.modelNumber,
-      imageUrl: primaryImg?.imageUrl,
-      isFeatured: true,
-      categoryId: p.categoryId,
-    };
-  });
-
-  const catTransMap = new Map(catTrans.map((t) => [t.categoryId, t]));
-  const catTransEnMap = new Map(catTransEn.map((t) => [t.categoryId, t]));
-  const categoryOptions = allCats.map((c) => ({
-    id: c.id,
-    name: catTransMap.get(c.id)?.name || catTransEnMap.get(c.id)?.name || `Category ${c.id}`,
-  }));
-
-  // Fetch FAQs securely on the server
-  const faqData = await db
-    .select()
-    .from(faqs)
-    .where(eq(faqs.isActive, true))
-    .orderBy(faqs.displayOrder);
-
-  const faqIds = faqData.map((f) => f.id);
-
-  const [faqTrans, faqTransEn] = await Promise.all([
-    faqIds.length
-      ? db
-          .select()
-          .from(faqTranslations)
-          .where(and(inArray(faqTranslations.faqId, faqIds), eq(faqTranslations.locale, locale)))
-      : Promise.resolve([]),
-    faqIds.length && locale !== 'en'
-      ? db
-          .select()
-          .from(faqTranslations)
-          .where(and(inArray(faqTranslations.faqId, faqIds), eq(faqTranslations.locale, 'en')))
-      : Promise.resolve([]),
-  ]);
-
-  const faqTransMap = new Map(faqTrans.map((t) => [t.faqId, t]));
-  const faqTransEnMap = new Map(faqTransEn.map((t) => [t.faqId, t]));
-
-  const finalFaqs = faqData.map((f) => {
-    const t = faqTransMap.get(f.id) || faqTransEnMap.get(f.id);
-    if (!t) return null;
-    return { q: t.question, a: t.answer };
-  }).filter((x): x is { q: string; a: string } => !!x);
+  const {
+    bannerSlides,
+    featuredProducts: featuredWithDetails,
+    categories: categoryOptions,
+    facilityPhotos: facilityPhoto,
+    certificationPhotos: certPhotos,
+    exhibitionPhotos,
+    faqs: finalFaqs,
+  } = await getHomePagePublicData(locale);
 
   const capabilities = [
     { title: t('service1Title'), desc: t('service1Desc'), Icon: Users },
@@ -340,7 +164,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         fallbackCta={t('heroCta')}
       />
 
-      {/* Capabilities — compact four-column plinth seamed into the hero */}
+      {/* Capabilities 鈥?compact four-column plinth seamed into the hero */}
       <section className="relative bg-cream border-b border-warm-border -mt-8 md:-mt-10 z-10 shadow-[0_-18px_48px_-40px_rgba(20,18,14,0.28)]">
         <div className="container-wide pt-6 pb-10 md:pt-8 md:pb-12">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4" data-reveal-stagger>
@@ -382,22 +206,22 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         maxVisible={8}
       />
 
-      {/* Customization Workflow — OEM/ODM process */}
+      {/* Customization Workflow 鈥?OEM/ODM process */}
       <CustomizationWorkflowSection locale={locale} />
 
-      {/* Factory & Numbers — editorial feature */}
+      {/* Factory & Numbers 鈥?editorial feature */}
       <FacilitySection
         locale={locale}
         images={facilityPhoto.map((p) => p.imageUrl)}
       />
 
-      {/* FAQ — Inquiries */}
+      {/* FAQ 鈥?Inquiries */}
       <FaqSection backendFaqs={finalFaqs} />
 
       {/* Certifications */}
       <CertificationsSection images={certPhotos.map((p) => p.imageUrl)} />
 
-      {/* Worldwide Exhibitions — hidden when no photos are uploaded */}
+      {/* Worldwide Exhibitions 鈥?hidden when no photos are uploaded */}
       <WorldwideExhibitionSection locale={locale} photos={exhibitionPhotos} />
     </>
   );
