@@ -1,6 +1,7 @@
 import 'server-only';
 
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import {
   aboutGallery,
   aboutPage,
@@ -70,9 +71,18 @@ export interface PublicDataSnapshot {
 }
 
 let snapshotCache: PublicDataSnapshot | null | undefined;
+const DEFAULT_RUNTIME_SNAPSHOT_PATH = join(process.cwd(), '.build-cache', 'public-data.json');
 
 export function getPublicDataSnapshotPath(): string | null {
-  return process.env.PUBLIC_DATA_SNAPSHOT_PATH || null;
+  if (process.env.PUBLIC_DATA_SNAPSHOT_PATH) {
+    return process.env.PUBLIC_DATA_SNAPSHOT_PATH;
+  }
+
+  if (process.env.NODE_ENV === 'production' && existsSync(DEFAULT_RUNTIME_SNAPSHOT_PATH)) {
+    return DEFAULT_RUNTIME_SNAPSHOT_PATH;
+  }
+
+  return null;
 }
 
 export function isPublicDataSnapshotEnabled(): boolean {
