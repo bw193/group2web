@@ -88,10 +88,10 @@ export default async function ProductsPage({ params }: { params: Promise<{ local
 
       {/* Page intro */}
       <section className="bg-cream border-b border-warm-border">
-        <div className="container-wide pt-16 pb-14 md:pt-20 md:pb-16">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-end">
+        <div className="container-wide pt-8 pb-10 md:pt-20 md:pb-16">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-10 items-end">
             <div className="lg:col-span-8">
-              <p className="text-[13px] font-body font-semibold text-bronze uppercase tracking-[0.18em] mb-5" data-reveal>
+              <p className="text-[13px] font-body font-semibold text-bronze uppercase tracking-[0.18em] mb-3 md:mb-5" data-reveal>
                 {t('allCategories')}
               </p>
               <h1
@@ -117,7 +117,7 @@ export default async function ProductsPage({ params }: { params: Promise<{ local
           <ProofPoints
             align="start"
             noSnippet
-            className="mt-11 pt-9 md:mt-12 md:pt-10 border-t border-warm-border"
+            className="mt-8 pt-7 md:mt-12 md:pt-10 border-t border-warm-border"
           />
         </div>
       </section>

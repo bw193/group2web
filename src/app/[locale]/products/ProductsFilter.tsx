@@ -73,7 +73,7 @@ export default function ProductsFilter({ products, categories }: ProductsFilterP
     <>
       {/* Filter bar */}
       <section className="bg-cream sticky top-[72px] md:top-20 z-30 border-b border-warm-border">
-        <div className="container-wide py-5 md:py-6">
+        <div className="container-wide py-4 md:py-6">
           <div className="flex flex-col md:flex-row md:items-center gap-5 md:gap-8">
             {/* Category tabs */}
             <div className="flex gap-6 md:gap-8 overflow-x-auto no-scrollbar -mx-1 px-1 flex-1">
@@ -129,8 +129,8 @@ export default function ProductsFilter({ products, categories }: ProductsFilterP
 
       {/* Grid */}
       <section className="bg-cream">
-        <div className="container-wide py-14 md:py-20">
-          <p className="text-[14px] font-body font-semibold text-ink tracking-[0.08em] uppercase mb-8 md:mb-12">
+        <div className="container-wide pt-8 pb-14 md:py-20">
+          <p className="text-[14px] font-body font-semibold text-ink tracking-[0.08em] uppercase mb-5 md:mb-12">
             {filtered.length === 0
               ? 'No results'
               : `Showing ${filtered.length} ${filtered.length === 1 ? 'item' : 'items'}`}
