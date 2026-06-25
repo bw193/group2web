@@ -4,7 +4,12 @@ import { getDb, withDbRetryFast } from '@/lib/db';
 import { products, productTranslations, productImages, productSpecifications } from '@/lib/db/schema';
 import { eq, and, desc, inArray, type SQL } from 'drizzle-orm';
 import { getSession } from '@/lib/auth';
-import { disambiguateProductSlug } from '@/lib/products';
+import {
+  PRODUCT_SLUG_SOURCE_LOCALE,
+  disambiguateSharedProductSlug,
+  productSlugFromInput,
+  resolveProductTranslationSlug,
+} from '@/lib/products';
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -117,6 +122,18 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json() as any;
     const { categoryId, modelNumber, isFeatured, isActive, tags, translations, specifications, images } = body;
+    const translationInputs = Array.isArray(translations)
+      ? translations.filter((t: any) => t?.locale && t?.name?.trim())
+      : [];
+    const englishInput = translationInputs.find((t: any) => t.locale === PRODUCT_SLUG_SOURCE_LOCALE);
+    const desiredEnglishSlug = productSlugFromInput(englishInput || {});
+
+    if (!englishInput || !desiredEnglishSlug) {
+      return NextResponse.json(
+        { error: 'English product translation with a valid slug or name is required' },
+        { status: 400 },
+      );
+    }
 
     const db = getDb();
 
@@ -133,26 +150,28 @@ export async function POST(request: NextRequest) {
         createdBy: session.userId,
       }).returning();
 
+      const finalEnglishSlug = await disambiguateSharedProductSlug(tx, {
+        locales: translationInputs.map((t: any) => t.locale),
+        slug: desiredEnglishSlug,
+        modelNumber: modelNumber || null,
+        productId: created.id,
+      });
+
       const finalT: { locale: string; slug: string }[] = [];
-      if (translations && Array.isArray(translations)) {
-        for (const t of translations) {
-          if (!t?.locale || !t?.slug) continue;
-          const finalSlug = await disambiguateProductSlug(tx, {
-            locale: t.locale,
-            slug: t.slug,
-            modelNumber: modelNumber || null,
-            productId: created.id,
-          });
-          await tx.insert(productTranslations).values({
-            productId: created.id,
-            locale: t.locale,
-            name: t.name,
-            slug: finalSlug,
-            shortDescription: t.shortDescription || null,
-            fullDescription: t.fullDescription || null,
-          });
-          finalT.push({ locale: t.locale, slug: finalSlug });
-        }
+      for (const t of translationInputs) {
+        const finalSlug = resolveProductTranslationSlug({
+          locale: t.locale,
+          englishSlug: finalEnglishSlug,
+        });
+        await tx.insert(productTranslations).values({
+          productId: created.id,
+          locale: t.locale,
+          name: t.name,
+          slug: finalSlug,
+          shortDescription: t.shortDescription || null,
+          fullDescription: t.fullDescription || null,
+        });
+        finalT.push({ locale: t.locale, slug: finalSlug });
       }
 
       if (specifications && Array.isArray(specifications)) {

@@ -18,8 +18,8 @@ loadEnv({ path: '.env' });
 import { readFileSync } from 'node:fs';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
-import { and, eq, ne } from 'drizzle-orm';
-import { products, productTranslations, productSpecifications } from '../src/lib/db/schema';
+import { and, eq, inArray, ne } from 'drizzle-orm';
+import { productTranslations, productSpecifications } from '../src/lib/db/schema';
 
 const ALL_LOCALES = ['es', 'pt', 'fr', 'it', 'de', 'he'] as const;
 
@@ -50,54 +50,54 @@ async function main() {
   const client = postgres(url, { max: 1, prepare: false });
   const db = drizzle(client);
 
-  // modelNumber per product, used for disambiguation suffixes
-  const productRows = await db.select({ id: products.id, modelNumber: products.modelNumber }).from(products);
-  const modelByProduct = new Map<number, string | null>(productRows.map((p) => [p.id, p.modelNumber]));
-
   for (const locale of locales) {
     const path = `tests/translations-${locale}-orphan-fix.json`;
     const entries = JSON.parse(readFileSync(path, 'utf8')) as Entry[];
 
     await db.transaction(async (tx) => {
-      for (const e of entries) {
-        const modelNumber = modelByProduct.get(e.productId) ?? null;
-        let desired = e.slug ? slugify(e.slug) : slugify(e.name);
-        if (!desired) desired = `product-${e.productId}`;
-
-        // Disambiguate (locale, slug) against any OTHER product's existing row.
-        const candidates = [desired];
-        const modelTok = modelNumber ? slugify(modelNumber) : '';
-        if (modelTok) candidates.push(`${desired}-${modelTok}`);
-        candidates.push(`${desired}-${e.productId}`);
-
-        let finalSlug = candidates[candidates.length - 1];
-        for (const c of candidates) {
-          const clash = await tx
-            .select({ id: productTranslations.id })
+      const ids = entries.map((e) => e.productId);
+      const existingRows = ids.length
+        ? await tx
+            .select({
+              id: productTranslations.id,
+              productId: productTranslations.productId,
+              slug: productTranslations.slug,
+            })
             .from(productTranslations)
-            .where(
-              and(
-                eq(productTranslations.locale, locale),
-                eq(productTranslations.slug, c),
-                ne(productTranslations.productId, e.productId),
-              ),
-            )
-            .limit(1);
-          if (clash.length === 0) {
-            finalSlug = c;
-            break;
-          }
+            .where(and(eq(productTranslations.locale, locale), inArray(productTranslations.productId, ids)))
+        : [];
+      const englishRows = ids.length
+        ? await tx
+            .select({ productId: productTranslations.productId, slug: productTranslations.slug })
+            .from(productTranslations)
+            .where(and(eq(productTranslations.locale, 'en'), inArray(productTranslations.productId, ids)))
+        : [];
+      const existingByProduct = new Map(existingRows.map((r) => [r.productId, r]));
+      const englishSlugByProduct = new Map(englishRows.map((r) => [r.productId, r.slug]));
+
+      for (const e of entries) {
+        const existing = existingByProduct.get(e.productId);
+        const finalSlug = existing?.slug ?? englishSlugByProduct.get(e.productId);
+        if (!finalSlug) {
+          throw new Error(`No English slug found for product ${e.productId}; cannot insert ${locale} translation`);
+        }
+
+        const clash = await tx
+          .select({ productId: productTranslations.productId })
+          .from(productTranslations)
+          .where(
+            and(
+              eq(productTranslations.locale, locale),
+              eq(productTranslations.slug, finalSlug),
+              ne(productTranslations.productId, e.productId),
+            ),
+          )
+          .limit(1);
+        if (clash.length > 0) {
+          throw new Error(`Slug "${finalSlug}" is already used by product ${clash[0].productId} in ${locale}`);
         }
 
         // Upsert: replace this product's existing (productId, locale) row.
-        const [existing] = await tx
-          .select({ id: productTranslations.id })
-          .from(productTranslations)
-          .where(
-            and(eq(productTranslations.productId, e.productId), eq(productTranslations.locale, locale)),
-          )
-          .limit(1);
-
         if (existing) {
           await tx
             .update(productTranslations)
@@ -136,7 +136,7 @@ async function main() {
           );
         }
 
-        console.log(`  ${locale}  pid=${e.productId}  slug=${finalSlug}${finalSlug !== desired ? `  (was: ${desired})` : ''}`);
+        console.log(`  ${locale}  pid=${e.productId}  slug=${finalSlug}${existing ? '  (preserved)' : '  (copied from en)'}`);
       }
     });
 

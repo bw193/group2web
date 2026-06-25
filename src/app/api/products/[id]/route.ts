@@ -4,7 +4,12 @@ import { getDb, withDbRetryFast } from '@/lib/db';
 import { products, productTranslations, productSpecifications, productImages } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
 import { getSession } from '@/lib/auth';
-import { disambiguateProductSlug } from '@/lib/products';
+import {
+  PRODUCT_SLUG_SOURCE_LOCALE,
+  disambiguateSharedProductSlug,
+  productSlugFromInput,
+  resolveProductTranslationSlug,
+} from '@/lib/products';
 
 export async function GET(
   request: NextRequest,
@@ -67,6 +72,12 @@ export async function PUT(
     .select({ locale: productTranslations.locale, slug: productTranslations.slug })
     .from(productTranslations)
     .where(eq(productTranslations.productId, productId));
+  const prevSlugByLocale = new Map(prevTrans.map((t) => [t.locale, t.slug]));
+  const currentEnglishSlug = prevSlugByLocale.get(PRODUCT_SLUG_SOURCE_LOCALE) ?? null;
+  const translationInputs = Array.isArray(body.translations)
+    ? body.translations.filter((t: any) => t?.locale && t?.name?.trim())
+    : [];
+  const englishInput = translationInputs.find((t: any) => t.locale === PRODUCT_SLUG_SOURCE_LOCALE);
 
   // Effective model number after the update; used by the disambiguator.
   const effectiveModel = body.modelNumber ?? existing.modelNumber;
@@ -86,18 +97,47 @@ export async function PUT(
         .where(eq(products.id, productId));
 
       if (body.translations && Array.isArray(body.translations)) {
-        for (const t of body.translations) {
-          if (!t?.locale || !t?.slug) continue;
-          const finalSlug = await disambiguateProductSlug(tx, {
-            locale: t.locale,
-            slug: t.slug,
-            modelNumber: effectiveModel,
-            productId,
-            excludeProductId: productId,
-          });
+        const localesNeedingEnglishSlug = new Set<string>([PRODUCT_SLUG_SOURCE_LOCALE]);
+        for (const t of translationInputs) {
+          if (t.locale !== PRODUCT_SLUG_SOURCE_LOCALE && !prevSlugByLocale.has(t.locale)) {
+            localesNeedingEnglishSlug.add(t.locale);
+          }
+        }
+
+        const desiredEnglishSlug = englishInput
+          ? productSlugFromInput(englishInput)
+          : currentEnglishSlug;
+        if (!desiredEnglishSlug) {
+          throw new Error('English product translation with a valid slug or name is required');
+        }
+        const sharedEnglishSlug = await disambiguateSharedProductSlug(tx, {
+          locales: Array.from(localesNeedingEnglishSlug),
+          slug: desiredEnglishSlug,
+          modelNumber: effectiveModel,
+          productId,
+          excludeProductId: productId,
+        });
+        if (!englishInput && sharedEnglishSlug !== desiredEnglishSlug) {
+          throw new Error('Current English product slug conflicts with a new localized URL');
+        }
+        const finalEnglishSlug = sharedEnglishSlug;
+
+        for (const t of translationInputs) {
           const [existingTrans] = await tx.select().from(productTranslations)
             .where(and(eq(productTranslations.productId, productId), eq(productTranslations.locale, t.locale)))
             .limit(1);
+          const finalSlug = resolveProductTranslationSlug({
+            locale: t.locale,
+            englishSlug: finalEnglishSlug,
+            existingSlug: existingTrans?.slug,
+          });
+
+          if (t.locale !== PRODUCT_SLUG_SOURCE_LOCALE && !existingTrans && finalSlug !== finalEnglishSlug) {
+            throw new Error(`New ${t.locale} product translation must use the English slug`);
+          }
+          if (t.locale !== PRODUCT_SLUG_SOURCE_LOCALE && existingTrans && finalSlug !== existingTrans.slug) {
+            throw new Error(`Existing ${t.locale} product slug cannot be changed by localized input`);
+          }
 
           if (existingTrans) {
             await tx.update(productTranslations)

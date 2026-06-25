@@ -12,9 +12,10 @@
 //   }
 //
 // The script:
-//   1. Slugifies the translated name (lowercase, hyphenated, deduplicated per locale).
-//   2. Deletes any existing rows for (locale, productId) in product_translations + product_specifications.
-//   3. Inserts fresh rows.
+//   1. Preserves existing localized product slugs, so old product URLs do not
+//      change when translations are refreshed.
+//   2. Uses the English product slug for any newly inserted locale row.
+//   3. Deletes/reinserts content rows for this locale + product ids.
 //
 // Safe to re-run; uses a transaction per locale.
 
@@ -24,15 +25,14 @@ loadEnv({ path: '.env' });
 import { readFileSync } from 'node:fs';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
-import { sql, inArray, and, eq } from 'drizzle-orm';
+import { inArray, and, eq, ne } from 'drizzle-orm';
 import { productTranslations, productSpecifications } from '../src/lib/db/schema';
 
 type Entry = {
   productId: number;
   name: string;
-  // Optional explicit slug. For locales whose script slugifies to empty
-  // (e.g. Hebrew), pass the English slug so URLs stay clean ASCII instead of
-  // falling back to `product-<id>`.
+  // Ignored for non-English imports. Existing localized slugs are preserved;
+  // newly inserted localized rows use the English product slug.
   slug?: string;
   shortDescription: string;
   fullDescription: string;
@@ -64,25 +64,6 @@ async function main() {
   const raw = readFileSync(jsonPath, 'utf8');
   const entries = JSON.parse(raw) as Entry[];
 
-  // Deduplicate slugs within this locale by appending the model number / product id when needed.
-  const usedSlugs = new Set<string>();
-  const finalSlugs = new Map<number, string>();
-  for (const e of entries) {
-    // Prefer an explicit English slug when provided (Hebrew/other non-Latin
-    // names slugify to stray Latin tokens like "led", so the name is unsafe);
-    // otherwise slugify the translated name. Fall back to the product id.
-    let base = e.slug ? slugify(e.slug) : slugify(e.name);
-    if (!base) base = `product-${e.productId}`;
-    let candidate = base;
-    let n = 2;
-    while (usedSlugs.has(candidate)) {
-      candidate = `${base}-${n}`;
-      n += 1;
-    }
-    usedSlugs.add(candidate);
-    finalSlugs.set(e.productId, candidate);
-  }
-
   const client = postgres(url, { max: 1 });
   const db = drizzle(client);
 
@@ -91,6 +72,40 @@ async function main() {
     if (ids.length === 0) {
       console.log('No entries to insert.');
       return;
+    }
+
+    const existingRows = await tx
+      .select({ productId: productTranslations.productId, slug: productTranslations.slug })
+      .from(productTranslations)
+      .where(and(eq(productTranslations.locale, locale), inArray(productTranslations.productId, ids)));
+    const englishRows = await tx
+      .select({ productId: productTranslations.productId, slug: productTranslations.slug })
+      .from(productTranslations)
+      .where(and(eq(productTranslations.locale, 'en'), inArray(productTranslations.productId, ids)));
+    const existingSlugByProduct = new Map(existingRows.map((r) => [r.productId, r.slug]));
+    const englishSlugByProduct = new Map(englishRows.map((r) => [r.productId, r.slug]));
+    const finalSlugs = new Map<number, string>();
+
+    for (const e of entries) {
+      const slug = existingSlugByProduct.get(e.productId) ?? englishSlugByProduct.get(e.productId);
+      if (!slug) {
+        throw new Error(`No English slug found for product ${e.productId}; cannot insert ${locale} translation`);
+      }
+      const clash = await tx
+        .select({ productId: productTranslations.productId })
+        .from(productTranslations)
+        .where(
+          and(
+            eq(productTranslations.locale, locale),
+            eq(productTranslations.slug, slug),
+            ne(productTranslations.productId, e.productId),
+          ),
+        )
+        .limit(1);
+      if (clash.length > 0) {
+        throw new Error(`Slug "${slug}" is already used by product ${clash[0].productId} in ${locale}`);
+      }
+      finalSlugs.set(e.productId, slug);
     }
 
     // Wipe existing rows for this locale + these product ids.
