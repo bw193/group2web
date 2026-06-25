@@ -1,6 +1,7 @@
 ﻿import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import ProductsFilter from './ProductsFilter';
+import ProofPoints from '@/components/public/ProofPoints';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { getProductsPagePublicData } from '@/lib/public-data';
 import {
@@ -87,10 +88,10 @@ export default async function ProductsPage({ params }: { params: Promise<{ local
 
       {/* Page intro */}
       <section className="bg-cream border-b border-warm-border">
-        <div className="container-wide pt-16 pb-14 md:pt-20 md:pb-16">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-end">
+        <div className="container-wide pt-8 pb-10 md:pt-20 md:pb-16">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-10 items-end">
             <div className="lg:col-span-8">
-              <p className="text-[13px] font-body font-semibold text-bronze uppercase tracking-[0.18em] mb-5" data-reveal>
+              <p className="text-[13px] font-body font-semibold text-bronze uppercase tracking-[0.18em] mb-3 md:mb-5" data-reveal>
                 {t('allCategories')}
               </p>
               <h1
@@ -106,6 +107,18 @@ export default async function ProductsPage({ params }: { params: Promise<{ local
               </p>
             </div>
           </div>
+
+          {/* Credentials row - the three manufacturer proof points close the
+              masthead. Left-aligned (not the homepage's centered variant) so
+              they echo the "Our Products" heading and read as part of the hero
+              rather than a floating band, divided from the heading by a hairline
+              rule. Shared, presentational-only ProofPoints (no headings, no
+              JSON-LD), so it stays SEO-neutral. */}
+          <ProofPoints
+            align="start"
+            noSnippet
+            className="mt-8 pt-7 md:mt-12 md:pt-10 border-t border-warm-border"
+          />
         </div>
       </section>
 
