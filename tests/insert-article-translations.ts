@@ -1,18 +1,18 @@
 // Inserts/updates Insight article translations for ONE locale from a JSON
-// file — the workflow for localizing articles after generating the text
+// file - the workflow for localizing articles after generating the text
 // (e.g. with a cheaper model). Idempotent per (article, locale): re-running
 // replaces that locale's row; other locales are never touched.
 //
 //   npx tsx tests/insert-article-translations.ts <locale> <path/to/file.json>
 //
-// JSON format — an array, one object per article, matched by its ENGLISH slug:
+// JSON format - an array, one object per article, matched by its ENGLISH slug:
 // [
 //   {
 //     "enSlug": "the-return-of-the-arched-mirror",   // required: which article
-//     "title": "Le retour du miroir arqué",          // required
-//     "slug": "le-retour-du-miroir-arque",           // optional: derived from title if omitted
-//     "dek": "…summary shown in the list…",          // optional
-//     "body": "<p>…</p><h3>…</h3>",                  // optional: same HTML tags as EN bodies
+//     "title": "Le retour du miroir arque",          // required
+//     "slug": "le-retour-du-miroir-arque",           // ignored: EN slug is reused
+//     "dek": "Summary shown in the list",            // optional
+//     "body": "<p>Body HTML</p><h3>Heading</h3>",    // optional: same HTML tags as EN bodies
 //     "author": "Studio Notes"                        // optional
 //   }
 // ]
@@ -27,13 +27,6 @@ import { readFileSync } from 'fs';
 import postgres from 'postgres';
 
 const SITE_LOCALES = ['en', 'es', 'pt', 'fr', 'it', 'de', 'he'];
-
-function slugify(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '');
-}
 
 interface Item {
   enSlug: string;
@@ -82,9 +75,9 @@ async function main() {
         continue;
       }
       const articleId = en.article_id;
-      const slug = item.slug?.trim() || slugify(item.title);
+      const slug = item.enSlug;
 
-      // (locale, slug) is the routing key — refuse a slug another article owns.
+      // (locale, slug) is the routing key - refuse a slug another article owns.
       const [clash] = await sql`
         SELECT article_id FROM article_translations
         WHERE locale = ${locale} AND slug = ${slug} AND article_id <> ${articleId} LIMIT 1`;
@@ -105,12 +98,12 @@ async function main() {
         INSERT INTO article_translation_bodies (article_translation_id, body)
         VALUES (${trans.id}, ${item.body ?? null})
         ON CONFLICT (article_translation_id) DO UPDATE SET body = EXCLUDED.body`;
-      console.log(`OK ${locale}/${slug}  (article ${articleId} ← ${item.enSlug})`);
+      console.log(`OK ${locale}/${slug}  (article ${articleId} from ${item.enSlug})`);
     }
 
     const [count] = await sql`
       SELECT count(*)::int AS n FROM article_translations WHERE locale = ${locale}`;
-    console.log(`Done — ${count.n} ${locale} translation(s) now in the database.`);
+    console.log(`Done - ${count.n} ${locale} translation(s) now in the database.`);
   } finally {
     await sql.end({ timeout: 5 });
   }
