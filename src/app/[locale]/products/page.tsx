@@ -1,6 +1,7 @@
 ﻿import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import ProductsFilter from './ProductsFilter';
+import ProofPoints from '@/components/public/ProofPoints';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { getProductsPagePublicData } from '@/lib/public-data';
 import {
@@ -106,6 +107,18 @@ export default async function ProductsPage({ params }: { params: Promise<{ local
               </p>
             </div>
           </div>
+
+          {/* Credentials row - the three manufacturer proof points close the
+              masthead. Left-aligned (not the homepage's centered variant) so
+              they echo the "Our Products" heading and read as part of the hero
+              rather than a floating band, divided from the heading by a hairline
+              rule. Shared, presentational-only ProofPoints (no headings, no
+              JSON-LD), so it stays SEO-neutral. */}
+          <ProofPoints
+            align="start"
+            noSnippet
+            className="mt-11 pt-9 md:mt-12 md:pt-10 border-t border-warm-border"
+          />
         </div>
       </section>
 
