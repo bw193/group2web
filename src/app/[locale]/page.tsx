@@ -60,10 +60,10 @@ export async function generateMetadata({
 
 // FAQ fallback used both by the client UI and JSON-LD when DB is empty.
 const FALLBACK_FAQ_FOR_SEO: { q: string; a: string }[] = [
-  { q: 'Do you accept sample orders?', a: 'Yes 鈥?we support our customers in ordering samples to test quality and function before placing a full production order.' },
-  { q: 'What is your typical lead time?', a: 'Generally 10鈥?5 days for standard orders. Larger volumes are scheduled with you in advance.' },
-  { q: 'Do you have an MOQ restriction?', a: 'Low MOQ 鈥?even a single piece is acceptable for sample checking.' },
-  { q: 'Do you operate your own factory?', a: 'Yes. Fifteen years specializing in mirror manufacturing 鈥?LED, bathroom, dressing, and full mirror cabinets, all in-house.' },
+  { q: 'Do you accept sample orders?', a: 'Yes - we support our customers in ordering samples to test quality and function before placing a full production order.' },
+  { q: 'What is your typical lead time?', a: 'Generally 10-15 days for standard orders. Larger volumes are scheduled with you in advance.' },
+  { q: 'Do you have an MOQ restriction?', a: 'Low MOQ - even a single piece is acceptable for sample checking.' },
+  { q: 'Do you operate your own factory?', a: 'Yes. Fifteen years specializing in mirror manufacturing - LED, bathroom, dressing, and full mirror cabinets, all in-house.' },
   { q: 'Can we print our own logo on the products?', a: 'Yes. Confirm the design against our pre-production sample and let us know before production begins.' },
   { q: 'Do you offer a warranty on the products?', a: 'Every product ships with a two-year warranty.' },
 ];
@@ -164,7 +164,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         fallbackCta={t('heroCta')}
       />
 
-      {/* Capabilities 鈥?compact four-column plinth seamed into the hero */}
+      {/* Capabilities - compact four-column plinth seamed into the hero */}
       <section className="relative bg-cream border-b border-warm-border -mt-8 md:-mt-10 z-10 shadow-[0_-18px_48px_-40px_rgba(20,18,14,0.28)]">
         <div className="container-wide pt-6 pb-10 md:pt-8 md:pb-12">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4" data-reveal-stagger>
@@ -206,22 +206,22 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         maxVisible={8}
       />
 
-      {/* Customization Workflow 鈥?OEM/ODM process */}
+      {/* Customization Workflow - OEM/ODM process */}
       <CustomizationWorkflowSection locale={locale} />
 
-      {/* Factory & Numbers 鈥?editorial feature */}
+      {/* Factory & Numbers - editorial feature */}
       <FacilitySection
         locale={locale}
         images={facilityPhoto.map((p) => p.imageUrl)}
       />
 
-      {/* FAQ 鈥?Inquiries */}
+      {/* FAQ - Inquiries */}
       <FaqSection backendFaqs={finalFaqs} />
 
       {/* Certifications */}
       <CertificationsSection images={certPhotos.map((p) => p.imageUrl)} />
 
-      {/* Worldwide Exhibitions 鈥?hidden when no photos are uploaded */}
+      {/* Worldwide Exhibitions - hidden when no photos are uploaded */}
       <WorldwideExhibitionSection locale={locale} photos={exhibitionPhotos} />
     </>
   );

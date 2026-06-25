@@ -6,8 +6,8 @@ import { eq, and, inArray } from 'drizzle-orm';
 import { getSession } from '@/lib/auth';
 
 // Public-ish list endpoint.
-// - ?locale=xx          鈫?returns only active faqs with that locale's translation (falls back to en)
-// - ?all=1              鈫?returns every faq with every translation (CMS use)
+// - ?locale=xx          -> returns only active faqs with that locale's translation (falls back to en)
+// - ?all=1              -> returns every faq with every translation (CMS use)
 export async function GET(request: NextRequest) {
   const url = new URL(request.url);
   const locale = url.searchParams.get('locale') || 'en';
@@ -102,7 +102,7 @@ export async function POST(request: NextRequest) {
     });
   }
 
-  // FAQs render on the home page (and feed FAQ JSON-LD) 鈥?refresh the site.
+  // FAQs render on the home page (and feed FAQ JSON-LD) - refresh the site.
   revalidatePath('/', 'layout');
 
   return NextResponse.json(row, { status: 201 });

@@ -54,7 +54,7 @@ export async function generateMetadata({
     const title = productTitle(row.translation.name);
     const description = row.translation.shortDescription
       ? row.translation.shortDescription.slice(0, 300)
-      : `${row.trans.name}${row.product.modelNumber ? ` (Model ${row.product.modelNumber})` : ''} 鈥?manufactured by Chengtai Mirror, Jiaxing, China. OEM/ODM available.`;
+      : `${row.trans.name}${row.product.modelNumber ? ` (Model ${row.product.modelNumber})` : ''} - manufactured by Chengtai Mirror, Jiaxing, China. OEM/ODM available.`;
 
     const canonical = localizedUrl(locale, `/products/${slug}`);
 
@@ -122,7 +122,7 @@ export default async function ProductDetailPage({
     image: imageUrls,
     description:
       trans.shortDescription ||
-      (trans.fullDescription ? trans.fullDescription.replace(/<[^>]+>/g, '').slice(0, 500) : `${trans.name} 鈥?manufactured by ${SITE_NAME}.`),
+      (trans.fullDescription ? trans.fullDescription.replace(/<[^>]+>/g, '').slice(0, 500) : `${trans.name} - manufactured by ${SITE_NAME}.`),
     brand: { '@type': 'Brand', name: SITE_NAME },
     manufacturer: { '@id': `${SITE_URL}/#organization` },
     url: productUrl,
@@ -187,7 +187,7 @@ export default async function ProductDetailPage({
             <div className="lg:col-span-5 lg:pt-4">
               {product.modelNumber && (
                 <p className="kicker-plain mb-4">
-                  {t('modelNumber')} 鈥?{product.modelNumber}
+                  {t('modelNumber')} - {product.modelNumber}
                 </p>
               )}
               <h1 className="font-display text-3xl md:text-4xl lg:text-5xl font-normal leading-[1.05] text-ink tracking-[-0.02em] mb-6">
@@ -239,12 +239,12 @@ export default async function ProductDetailPage({
             </div>
           </div>
 
-          {/* Trust strip 鈥?the three manufacturer proof points, shared with the
+          {/* Trust strip - the three manufacturer proof points, shared with the
               homepage factory section. Presentational only (no Product JSON-LD
               change), so repeating it across product pages stays SEO-neutral. */}
           <ProofPoints className="mt-16 pt-12 md:mt-20 md:pt-14 border-t border-warm-border" noSnippet />
 
-          {/* Full Description 鈥?intentionally not gated behind data-reveal:
+          {/* Full Description - intentionally not gated behind data-reveal:
               this is primary indexable copy, so it stays always-visible. */}
           {trans.fullDescription && (
             <div className="mt-20 pt-14 border-t border-warm-border">

@@ -26,7 +26,7 @@ export async function generateMetadata({
 
   // NOTE: intentionally does not read `searchParams`. Doing so would opt this
   // route back into dynamic rendering. `?q=` search variants are de-duplicated
-  // by the canonical tag below (鈫?/products) and aren't crawlable links, so
+  // by the canonical tag below (-> /products) and aren't crawlable links, so
   // they don't need a separate noindex.
   return {
     title: copy.title,

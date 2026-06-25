@@ -24,7 +24,7 @@ export async function GET() {
 
   const db = getDb();
   // Deliberately sequential: parallel queries force the pool to open extra
-  // connections, and on the long-haul dev link a fresh handshake can wedge 鈥?
+  // connections, and on the long-haul dev link a fresh handshake can wedge -
   // sequential reads ride the one warm connection. withDbRetryFast caps any
   // residual stall instead of letting the route hang.
   const cats = await withDbRetryFast(() =>

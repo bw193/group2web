@@ -168,7 +168,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
         </div>
       </section>
 
-      {/* Factory Stats 鈥?editorial dark band */}
+      {/* Factory Stats - editorial dark band */}
       <section className="bg-ink text-cream">
         <div className="container-wide py-20 md:py-24">
           <p className="text-[13px] font-body font-semibold text-bronze-light uppercase tracking-[0.18em] mb-10" data-reveal>
@@ -219,7 +219,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
                 >
                   <GalleryImage
                     path={photo.imageUrl}
-                    alt={`Chengtai Mirror factory in Jiaxing 鈥?production view ${i + 1}`}
+                    alt={`Chengtai Mirror factory in Jiaxing - production view ${i + 1}`}
                     fill
                     sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                     className="object-cover transition-transform duration-[1.4s] ease-out group-hover:scale-[1.04]"

@@ -17,7 +17,7 @@ function revalidateInsightIndexes() {
 }
 
 // CMS-only API: unlike products there is no public consumer, and the list
-// includes hidden drafts 鈥?so even GET requires a session.
+// includes hidden drafts - so even GET requires a session.
 export async function GET() {
   const session = await getSession();
   if (!session) {
@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
 
     const db = getDb();
 
-    // (locale, slug) is the routing key 鈥?reject duplicates up front so the
+    // (locale, slug) is the routing key - reject duplicates up front so the
     // editor gets a usable message instead of a raw unique-index failure.
     for (const t of translations) {
       const slug = t.slug?.trim() || slugify(t.title || '');

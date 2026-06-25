@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  // Banners drive the home hero 鈥?refresh the public site so it shows now.
+  // Banners drive the home hero - refresh the public site so it shows now.
   revalidatePath('/', 'layout');
 
   return NextResponse.json(banner, { status: 201 });

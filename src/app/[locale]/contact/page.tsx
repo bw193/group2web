@@ -96,7 +96,7 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
       <JsonLd id="ld-contact" data={contactJsonLd} />
       <JsonLd id="ld-contact-breadcrumb" data={breadcrumb} />
       <div className="container-narrow pt-16 pb-24 md:pt-20 md:pb-32">
-        {/* Header 鈥?one line, readable, no decorative chrome */}
+        {/* Header - one line, readable, no decorative chrome */}
         <header className="mb-14 md:mb-16">
           <p className="text-[13px] font-body font-medium text-bronze uppercase tracking-[0.18em] mb-5">
             {t('eyebrow')}
@@ -115,7 +115,7 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
             <InquiryForm categories={categories} />
           </div>
 
-          {/* Direct contact 鈥?simple, readable, no vertical rule or quote */}
+          {/* Direct contact - simple, readable, no vertical rule or quote */}
           <aside className="lg:col-span-4">
             <div className="bg-sand p-6 md:p-7">
               <h2 className="font-display text-[24px] font-normal text-ink mb-6">
