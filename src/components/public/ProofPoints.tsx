@@ -2,35 +2,38 @@ import { getTranslations } from 'next-intl/server';
 import { Check } from 'lucide-react';
 
 /**
- * The three manufacturer proof points (warranty · in-house R&D · own factory),
- * shared by the homepage factory section and every product detail page. Copy
- * lives in the `home.whyPoint{1,2,3}` i18n keys, so a single edit updates both
- * places. Deliberately plain, server-rendered text — no heading tags and no
- * structured data — so repeating it across ~378 product pages stays SEO-neutral
- * (it reads as template chrome, like a footer, and never touches the Product
- * JSON-LD). `className` controls the outer spacing/divider per placement.
+ * The three manufacturer proof points (warranty, in-house R&D, own factory),
+ * shared by the homepage factory section and product pages. Homepage copy
+ * lives in `home.whyPoint{1,2,3}`; product placements use the product-specific
+ * `products.proofPoint{1,2,3}` keys. Deliberately plain, server-rendered text:
+ * no heading tags and no structured data, so repeating it across product pages
+ * stays SEO-neutral and never touches the Product JSON-LD.
  *
- * `stagger` (default true) renders the `data-reveal-stagger` wrapper so the three
- * points cascade in on scroll. The homepage passes `stagger={false}` so an *outer*
- * stagger (the credentials ledger) can index these points as part of one continuous
- * reveal instead of restarting the sequence here.
+ * `stagger` (default true) renders the `data-reveal-stagger` wrapper so the
+ * three points cascade in on scroll. The homepage passes `stagger={false}` so an
+ * outer stagger can index these points as part of one continuous reveal.
  */
 export default async function ProofPoints({
   className = '',
   stagger = true,
   align = 'start',
   noSnippet = false,
+  copy = 'home',
 }: {
   className?: string;
   stagger?: boolean;
   noSnippet?: boolean;
+  copy?: 'home' | 'products';
   /** 'start' (default, used by PDPs): check + text on one line, left-aligned.
    *  'center' (homepage): check stacked above centered text, to sit under the
    *  centered stats band as one balanced, centered composition. */
   align?: 'start' | 'center';
 }) {
-  const t = await getTranslations('home');
-  const points = [t('whyPoint1'), t('whyPoint2'), t('whyPoint3')];
+  const t = await getTranslations(copy);
+  const points =
+    copy === 'products'
+      ? [t('proofPoint1'), t('proofPoint2'), t('proofPoint3')]
+      : [t('whyPoint1'), t('whyPoint2'), t('whyPoint3')];
   const centered = align === 'center';
 
   return (

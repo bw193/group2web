@@ -116,6 +116,7 @@ export default async function ProductsPage({ params }: { params: Promise<{ local
               JSON-LD), so it stays SEO-neutral. */}
           <ProofPoints
             align="start"
+            copy="products"
             noSnippet
             className="mt-8 pt-7 md:mt-12 md:pt-10 border-t border-warm-border"
           />

@@ -242,7 +242,11 @@ export default async function ProductDetailPage({
           {/* Trust strip - the three manufacturer proof points, shared with the
               homepage factory section. Presentational only (no Product JSON-LD
               change), so repeating it across product pages stays SEO-neutral. */}
-          <ProofPoints className="mt-16 pt-12 md:mt-20 md:pt-14 border-t border-warm-border" noSnippet />
+          <ProofPoints
+            copy="products"
+            className="mt-16 pt-12 md:mt-20 md:pt-14 border-t border-warm-border"
+            noSnippet
+          />
 
           {/* Full Description - intentionally not gated behind data-reveal:
               this is primary indexable copy, so it stays always-visible. */}
