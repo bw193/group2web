@@ -25,7 +25,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         url: localizedUrl(loc, pathAfterLocale),
         lastModified: STATIC_LAST_MODIFIED,
         changeFrequency: pathAfterLocale === '' ? 'weekly' : 'monthly',
-        priority: pathAfterLocale === '' ? 1.0 : 0.7,
+        priority: pathAfterLocale === '' ? (loc === defaultLocale ? 1.0 : 0.5) : 0.7,
         alternates: { languages },
       });
     }
