@@ -1,6 +1,7 @@
 ﻿import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import InquiryForm from '@/components/public/InquiryForm';
+import TrackedContactLink, { type DirectContactMethod } from '@/components/public/TrackedContactLink';
 import { Mail, MessageCircle, MapPin } from 'lucide-react';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { getContactCategories } from '@/lib/public-data';
@@ -128,12 +129,16 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
                   label={t('emailLabel')}
                   value="bolen5@cnjxctm.com"
                   href="mailto:bolen5@cnjxctm.com"
+                  trackingMethod="email"
+                  trackingLocation="contact_sidebar"
                 />
                 <ContactRow
                   icon={<MessageCircle size={18} strokeWidth={1.75} />}
                   label={t('whatsappLabel')}
                   value="+86 178 6056 7239"
                   href="https://wa.me/8617860567239"
+                  trackingMethod="whatsapp"
+                  trackingLocation="contact_sidebar"
                   external
                 />
                 <ContactRow
@@ -168,12 +173,16 @@ function ContactRow({
   value,
   href,
   external,
+  trackingMethod,
+  trackingLocation,
 }: {
   icon: React.ReactNode;
   label: string;
   value: React.ReactNode;
   href?: string;
   external?: boolean;
+  trackingMethod?: DirectContactMethod;
+  trackingLocation?: string;
 }) {
   const content = (
     <>
@@ -188,16 +197,31 @@ function ContactRow({
   );
 
   if (href) {
+    const linkClassName = 'flex items-start gap-3 hover:text-bronze transition-colors';
+
     return (
       <li>
-        <a
-          href={href}
-          target={external ? '_blank' : undefined}
-          rel={external ? 'noopener noreferrer' : undefined}
-          className="flex items-start gap-3 hover:text-bronze transition-colors"
-        >
-          {content}
-        </a>
+        {trackingMethod ? (
+          <TrackedContactLink
+            href={href}
+            method={trackingMethod}
+            location={trackingLocation || 'contact'}
+            target={external ? '_blank' : undefined}
+            rel={external ? 'noopener noreferrer' : undefined}
+            className={linkClassName}
+          >
+            {content}
+          </TrackedContactLink>
+        ) : (
+          <a
+            href={href}
+            target={external ? '_blank' : undefined}
+            rel={external ? 'noopener noreferrer' : undefined}
+            className={linkClassName}
+          >
+            {content}
+          </a>
+        )}
       </li>
     );
   }

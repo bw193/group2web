@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useTranslations, useLocale } from 'next-intl';
+import TrackedContactLink from '@/components/public/TrackedContactLink';
 
 export default function Footer() {
   const t = useTranslations('footer');
@@ -72,20 +73,24 @@ export default function Footer() {
               {t('contactUs')}
             </p>
             <div className="space-y-4 text-[15px] font-body font-normal leading-[1.55]">
-              <a
+              <TrackedContactLink
                 href="mailto:bolen5@cnjxctm.com"
+                method="email"
+                location="footer"
                 className="block text-cream hover:text-bronze-light transition-colors"
               >
                 bolen5@cnjxctm.com
-              </a>
-              <a
+              </TrackedContactLink>
+              <TrackedContactLink
                 href="https://wa.me/8617860567239"
+                method="whatsapp"
+                location="footer"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="block text-cream hover:text-bronze-light transition-colors"
               >
                 +86 178 6056 7239
-              </a>
+              </TrackedContactLink>
               <p className="text-cream/80 max-w-sm">
                 No. 768 Xinda Road, Xinfeng Town,<br />
                 Nanhu District, Jiaxing, Zhejiang, China

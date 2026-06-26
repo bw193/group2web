@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
-import { ArrowRight, AlertCircle, X } from 'lucide-react';
+import { ArrowRight, AlertCircle, ChevronDown, X } from 'lucide-react';
 import { useRouter, usePathname } from 'next/navigation';
 import { sendGAEvent } from '@next/third-parties/google';
 
@@ -110,6 +110,45 @@ export default function InquiryForm({ categories }: { categories: Category[] }) 
     }
   }
 
+  function renderOptionalFields() {
+    return (
+      <>
+        <Field
+          label={t('phone')}
+          optionalLabel={t('optional')}
+          type="tel"
+          value={formData.phone}
+          onChange={(v) => setFormData({ ...formData, phone: v })}
+        />
+        <Field
+          label={t('company')}
+          optionalLabel={t('optional')}
+          value={formData.company}
+          onChange={(v) => setFormData({ ...formData, company: v })}
+        />
+        <Field
+          label={t('country')}
+          optionalLabel={t('optional')}
+          value={formData.country}
+          onChange={(v) => setFormData({ ...formData, country: v })}
+        />
+        <SelectField
+          label={t('productInterest')}
+          optionalLabel={t('optional')}
+          placeholder={t('selectCategory')}
+          value={formData.productInterest}
+          onChange={(v) => setFormData({ ...formData, productInterest: v })}
+          options={categories.map((c) => ({ value: c.name, label: c.name }))}
+          extraOption={
+            selectedProductLabel && !categories.some((c) => c.name === selectedProductLabel)
+              ? { value: selectedProductLabel, label: selectedProductLabel }
+              : undefined
+          }
+        />
+      </>
+    );
+  }
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Selected product — simple solid card with model + name */}
@@ -153,6 +192,10 @@ export default function InquiryForm({ categories }: { categories: Category[] }) 
 
       {/* Two-column fields on desktop, single column on mobile.
           No inner hairlines — fields are self-contained filled inputs. */}
+      <p className="text-[13px] font-body text-ink-mid">
+        {t('requiredHint')}
+      </p>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <Field
           label={t('name')}
@@ -167,34 +210,10 @@ export default function InquiryForm({ categories }: { categories: Category[] }) 
           value={formData.email}
           onChange={(v) => setFormData({ ...formData, email: v })}
         />
-        <Field
-          label={`${t('phone')} (${t('optional')})`}
-          type="tel"
-          value={formData.phone}
-          onChange={(v) => setFormData({ ...formData, phone: v })}
-        />
-        <Field
-          label={t('company')}
-          value={formData.company}
-          onChange={(v) => setFormData({ ...formData, company: v })}
-        />
-        <Field
-          label={t('country')}
-          value={formData.country}
-          onChange={(v) => setFormData({ ...formData, country: v })}
-        />
-        <SelectField
-          label={t('productInterest')}
-          placeholder={t('selectCategory')}
-          value={formData.productInterest}
-          onChange={(v) => setFormData({ ...formData, productInterest: v })}
-          options={categories.map((c) => ({ value: c.name, label: c.name }))}
-          extraOption={
-            selectedProductLabel && !categories.some((c) => c.name === selectedProductLabel)
-              ? { value: selectedProductLabel, label: selectedProductLabel }
-              : undefined
-          }
-        />
+      </div>
+
+      <div className="hidden md:grid md:grid-cols-2 gap-5">
+        {renderOptionalFields()}
       </div>
 
       {/* Message */}
@@ -217,6 +236,20 @@ export default function InquiryForm({ categories }: { categories: Category[] }) 
           />
         </label>
       </div>
+
+      <details className="md:hidden group border-t border-warm-border pt-5">
+        <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-[13px] font-body font-semibold text-ink uppercase tracking-[0.12em] focus-visible:outline-none focus-visible:text-bronze">
+          <span>{t('optionalDetails')}</span>
+          <ChevronDown
+            size={16}
+            strokeWidth={1.75}
+            className="text-bronze transition-transform duration-300 group-open:rotate-180"
+          />
+        </summary>
+        <div className="mt-5 grid grid-cols-1 gap-5">
+          {renderOptionalFields()}
+        </div>
+      </details>
 
       {status === 'error' && (
         <div className="flex items-center gap-2 bg-red-50 border border-red-200 text-red-800 text-[14px] font-body px-4 py-3">
@@ -255,17 +288,22 @@ function Field({
   onChange,
   type = 'text',
   required,
+  optionalLabel,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
   type?: string;
   required?: boolean;
+  optionalLabel?: string;
 }) {
   return (
     <label className="block">
       <span className="block text-[13px] font-body font-medium text-ink mb-2">
         {label} {required && <span className="text-bronze">*</span>}
+        {!required && optionalLabel && (
+          <span className="font-normal text-ink-light"> ({optionalLabel})</span>
+        )}
       </span>
       <input
         type={type}
@@ -280,6 +318,7 @@ function Field({
 
 function SelectField({
   label,
+  optionalLabel,
   placeholder,
   value,
   onChange,
@@ -287,6 +326,7 @@ function SelectField({
   extraOption,
 }: {
   label: string;
+  optionalLabel?: string;
   placeholder: string;
   value: string;
   onChange: (v: string) => void;
@@ -297,6 +337,9 @@ function SelectField({
     <label className="block relative">
       <span className="block text-[13px] font-body font-medium text-ink mb-2">
         {label}
+        {optionalLabel && (
+          <span className="font-normal text-ink-light"> ({optionalLabel})</span>
+        )}
       </span>
       <select
         value={value}

@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Check, ArrowRight } from 'lucide-react';
+import TrackedContactLink from '@/components/public/TrackedContactLink';
 import { SITE_NAME } from '@/lib/seo';
 
 // Post-submission confirmation. Its whole job is to be a stable URL the user
@@ -80,21 +81,25 @@ export default async function ContactThankYouPage({
 
           <p className="mt-10 text-[14px] font-body text-ink-mid" data-reveal>
             {t('directLine')}:{' '}
-            <a
+            <TrackedContactLink
               href="mailto:bolen5@cnjxctm.com"
+              method="email"
+              location="thank_you"
               className="text-ink underline decoration-bronze/40 underline-offset-4 hover:text-bronze transition-colors"
             >
               bolen5@cnjxctm.com
-            </a>
+            </TrackedContactLink>
             <span className="mx-2 text-ink-light" aria-hidden>·</span>
-            <a
+            <TrackedContactLink
               href="https://wa.me/8617860567239"
+              method="whatsapp"
+              location="thank_you"
               target="_blank"
               rel="noopener noreferrer"
               className="text-ink underline decoration-bronze/40 underline-offset-4 hover:text-bronze transition-colors"
             >
               WhatsApp
-            </a>
+            </TrackedContactLink>
           </p>
         </div>
       </div>

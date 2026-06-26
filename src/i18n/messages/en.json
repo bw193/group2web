@@ -149,6 +149,8 @@
     "whatsappLabel": "WhatsApp",
     "addressLabel": "Address",
     "optional": "optional",
+    "requiredHint": "Only your name, email, and message are required.",
+    "optionalDetails": "Optional details",
     "eyebrow": "Contact",
     "pageIntro": "Share your project details and our export team will reply within one business day.",
     "directLine": "Prefer a direct line?",
