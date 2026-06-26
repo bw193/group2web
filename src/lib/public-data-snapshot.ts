@@ -21,6 +21,7 @@ import {
   products,
   productSpecifications,
   productTranslations,
+  videos,
 } from './db/schema';
 
 export type AboutGalleryRow = typeof aboutGallery.$inferSelect;
@@ -41,6 +42,7 @@ export type ProductImageRow = typeof productImages.$inferSelect;
 export type ProductRow = typeof products.$inferSelect;
 export type ProductSpecificationRow = typeof productSpecifications.$inferSelect;
 export type ProductTranslationRow = typeof productTranslations.$inferSelect;
+export type VideoRow = typeof videos.$inferSelect;
 
 export interface PublicDataSnapshotData {
   aboutGallery: AboutGalleryRow[];
@@ -61,6 +63,7 @@ export interface PublicDataSnapshotData {
   productSpecifications: ProductSpecificationRow[];
   productTranslations: ProductTranslationRow[];
   products: ProductRow[];
+  videos: VideoRow[];
 }
 
 export interface PublicDataSnapshot {

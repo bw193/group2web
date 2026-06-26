@@ -2,6 +2,7 @@ import 'server-only';
 import { createClient } from '@supabase/supabase-js';
 
 const BUCKET = 'assets';
+export const VIDEO_BUCKET = 'product-videos';
 
 let storageClient: ReturnType<typeof createClient> | null = null;
 
@@ -51,4 +52,34 @@ export async function deleteFile(key: string): Promise<void> {
   const supabase = getStorageClient();
   const { error } = await supabase.storage.from(BUCKET).remove([key]);
   if (error) throw error;
+}
+
+export async function createSignedStorageUpload(
+  bucket: string,
+  key: string,
+  options: { upsert?: boolean } = {},
+): Promise<{ token: string; signedUrl: string; publicUrl: string }> {
+  const supabase = getStorageClient();
+  const { data, error } = await supabase.storage
+    .from(bucket)
+    .createSignedUploadUrl(key, { upsert: options.upsert ?? false });
+
+  if (error) throw error;
+
+  const { data: publicData } = supabase.storage.from(bucket).getPublicUrl(key);
+  return {
+    token: data.token,
+    signedUrl: data.signedUrl,
+    publicUrl: publicData.publicUrl,
+  };
+}
+
+export function getSupabaseTusEndpoint(): string {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  if (!supabaseUrl) {
+    throw new Error('NEXT_PUBLIC_SUPABASE_URL is required for storage access.');
+  }
+  const { hostname } = new URL(supabaseUrl);
+  const projectRef = hostname.split('.')[0];
+  return `https://${projectRef}.storage.supabase.co/storage/v1/upload/resumable`;
 }

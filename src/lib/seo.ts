@@ -71,9 +71,9 @@ export function buildAlternates(locale: string, pathAfterLocale: string) {
  * SERP-targeted phrasing can be tuned independently of in-page UI copy.
  * Falls back to English if a locale entry is missing.
  */
-type PageKey = 'home' | 'products' | 'about' | 'contact' | 'insight';
+type PageKey = 'home' | 'products' | 'videos' | 'about' | 'contact' | 'insight';
 type PageEntry = { title: string; description: string; h1?: string };
-type RoutedCopy = Record<PageKey, PageEntry>;
+type RoutedCopy = Record<Exclude<PageKey, 'videos'>, PageEntry> & { videos?: PageEntry };
 
 const COPY: Record<Locale, RoutedCopy> = {
   en: {
@@ -87,6 +87,11 @@ const COPY: Record<Locale, RoutedCopy> = {
       title: 'LED, Smart & Bathroom Mirror Catalog | Chengtai Mirror',
       description:
         "Browse Chengtai Mirror's full collection of LED, smart, anti-fog, and bathroom mirrors. Wholesale, OEM/ODM, export-ready packaging. Request a quote.",
+    },
+    videos: {
+      title: 'LED Mirror Videos, Factory Tours & Installation Demos | Chengtai Mirror',
+      description:
+        'Watch Chengtai Mirror product demos, factory walkthroughs, installation clips, and quality-control videos for LED, smart, vanity, and bathroom mirrors.',
     },
     about: {
       title: 'About Chengtai Mirror — Jiaxing LED Mirror Factory',
@@ -276,7 +281,7 @@ const COPY: Record<Locale, RoutedCopy> = {
 
 export function pageCopy(locale: string, key: PageKey) {
   const safe = (locales as readonly string[]).includes(locale) ? (locale as Locale) : defaultLocale;
-  return COPY[safe][key];
+  return COPY[safe][key] ?? COPY.en[key] ?? COPY.en.home;
 }
 
 /** "Product Name — Chengtai Mirror" */

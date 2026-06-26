@@ -1,6 +1,7 @@
 {
   "nav": {
     "insight": "Insight",
+    "videos": "Videos",
     "home": "Home",
     "products": "Products",
     "about": "About Us",
@@ -192,8 +193,23 @@
     "viewAllProducts": "View all products",
     "empty": "New stories are on the way."
   },
+  "videos": {
+    "kicker": "Video Library",
+    "heroTitle": "Product videos from the mirror factory",
+    "allCategories": "All videos",
+    "search": "Search videos...",
+    "clearSearch": "Clear search",
+    "noResults": "No results",
+    "showing": "{count, plural, one {Showing # video} other {Showing # videos}}",
+    "empty": "New videos are on the way.",
+    "relatedProducts": "Related Products",
+    "relatedVideos": "Related Videos",
+    "viewAllProducts": "View all products",
+    "viewAllVideos": "View all videos"
+  },
   "breadcrumb": {
     "insight": "Insight",
+    "videos": "Videos",
     "home": "Home",
     "products": "Products",
     "about": "About",

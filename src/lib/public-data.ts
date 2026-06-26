@@ -18,6 +18,7 @@ import {
   products,
   productSpecifications,
   productTranslations,
+  videos,
 } from '@/lib/db/schema';
 import { localizedPath } from '@/lib/seo';
 import { getPublicDataSnapshot } from '@/lib/public-data-snapshot';
@@ -36,6 +37,13 @@ import type {
   ProductTranslationRow,
   PublicDataSnapshot,
 } from '@/lib/public-data-snapshot';
+import {
+  recommendVideosForProduct,
+  toVideoListItem,
+  videoRowToPost,
+  type ProductRecommendationInput,
+  type VideoListItem,
+} from '@/lib/video-utils';
 
 export interface ProductCardData {
   id: number;
@@ -97,6 +105,7 @@ export type ProductDetailData =
       specs: ProductSpecificationRow[];
       images: ProductImageRow[];
       related: ProductCardData[];
+      relatedVideos: VideoListItem[];
     }
   | { type: 'redirect'; destination: string }
   | { type: 'notFound' };
@@ -198,6 +207,33 @@ function productCardsFromRows(
       categoryId: p.categoryId,
     };
   });
+}
+
+function parseProductTags(tags: string | null): string[] {
+  if (!tags) return [];
+  try {
+    const parsed = JSON.parse(tags);
+    return Array.isArray(parsed) ? parsed.filter((tag): tag is string => typeof tag === 'string') : [];
+  } catch {
+    return tags.split(',').map((tag) => tag.trim()).filter(Boolean);
+  }
+}
+
+function productRecommendationInput(args: {
+  product: ProductRow;
+  translation: ProductTranslationRow;
+  primaryImage?: ProductImageRow | Pick<ProductImageRow, 'imageUrl'>;
+  categoryName?: string | null;
+}): ProductRecommendationInput {
+  return {
+    id: String(args.product.id),
+    title: args.translation.name,
+    description: [args.translation.shortDescription, args.translation.fullDescription].filter(Boolean).join(' '),
+    category: args.categoryName ?? null,
+    modelNumber: args.product.modelNumber,
+    tags: parseProductTags(args.product.tags),
+    imageUrl: args.primaryImage?.imageUrl ?? null,
+  };
 }
 
 function faqPairsFromRows(
@@ -517,6 +553,19 @@ export async function getProductDetailData(locale: string, slug: string): Promis
     const translation = localeTrans || row.translation;
     const specs = snapshot.data.productSpecifications.filter((s) => s.productId === row.product.id && s.locale === locale);
     const images = snapshot.data.productImages.filter((img) => img.productId === row.product.id).sort(byDisplayOrder);
+    const categoryName = row.product.categoryId
+      ? categoryOptionsFromRows(
+          snapshot.data.productCategories.filter((c) => c.isActive),
+          snapshot.data.categoryTranslations,
+          locale,
+        ).find((c) => c.id === row.product.categoryId)?.name
+      : null;
+    const videoItems = snapshot.data.videos
+      .map(videoRowToPost)
+      .filter((video) => video.status === 'published')
+      .sort((a, b) => new Date(b.publishedAt || b.createdAt || 0).getTime() - new Date(a.publishedAt || a.createdAt || 0).getTime())
+      .map((video) => toVideoListItem(video, locale))
+      .filter((video) => video.title);
     const relatedRows = row.product.categoryId
       ? snapshot.data.products
           .filter((p) => p.categoryId === row.product.categoryId && p.id !== row.product.id && p.isActive)
@@ -532,6 +581,16 @@ export async function getProductDetailData(locale: string, slug: string): Promis
       related: productCardsFromRows(relatedRows, snapshot.data.productTranslations, snapshot.data.productImages, locale).map((p) => ({
         ...p,
       })),
+      relatedVideos: recommendVideosForProduct(
+        productRecommendationInput({
+          product: row.product,
+          translation,
+          primaryImage: images.find((img) => img.isPrimary) || images[0],
+          categoryName,
+        }),
+        videoItems,
+        3,
+      ),
     };
   }
 
@@ -605,7 +664,36 @@ export async function getProductDetailData(locale: string, slug: string): Promis
     }
   }
 
-  return { type: 'ok', product, translation, specs, images, related };
+  const categoryName = product.categoryId
+    ? await db
+        .select()
+        .from(categoryTranslations)
+        .where(
+          and(
+            eq(categoryTranslations.categoryId, product.categoryId),
+            inArray(categoryTranslations.locale, locale === defaultLocale ? [defaultLocale] : [locale, defaultLocale]),
+          ),
+        )
+        .then((rows) => rows.find((row) => row.locale === locale)?.name || rows.find((row) => row.locale === defaultLocale)?.name || null)
+    : null;
+  const videoItems = (
+    await db.select().from(videos).where(eq(videos.status, 'published')).orderBy(desc(videos.publishedAt)).limit(200)
+  )
+    .map(videoRowToPost)
+    .map((video) => toVideoListItem(video, locale))
+    .filter((video) => video.title);
+  const relatedVideos = recommendVideosForProduct(
+    productRecommendationInput({
+      product,
+      translation,
+      primaryImage: images.find((img) => img.isPrimary) || images[0],
+      categoryName,
+    }),
+    videoItems,
+    3,
+  );
+
+  return { type: 'ok', product, translation, specs, images, related, relatedVideos };
 }
 
 export async function getProductSitemapRows(): Promise<ProductSitemapRow[]> {

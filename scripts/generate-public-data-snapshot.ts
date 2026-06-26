@@ -22,6 +22,7 @@ import {
   products,
   productSpecifications,
   productTranslations,
+  videos,
 } from '../src/lib/db/schema';
 import type { PublicDataSnapshot, PublicDataSnapshotData } from '../src/lib/public-data-snapshot';
 
@@ -60,6 +61,7 @@ export async function generatePublicDataSnapshot(
     productSpecifications: await db.select().from(productSpecifications),
     productTranslations: await db.select().from(productTranslations),
     products: await db.select().from(products),
+    videos: await db.select().from(videos),
   };
 
   const snapshot: PublicDataSnapshot = {

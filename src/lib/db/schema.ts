@@ -1,4 +1,4 @@
-import { pgTable, text, integer, serial, boolean, timestamp } from 'drizzle-orm/pg-core';
+import { index, jsonb, pgTable, text, integer, serial, boolean, timestamp, uuid } from 'drizzle-orm/pg-core';
 
 export const users = pgTable('users', {
   id: serial('id').primaryKey(),
@@ -157,6 +157,38 @@ export const articleCategoryTranslations = pgTable('article_category_translation
   locale: text('locale').notNull(),
   name: text('name').notNull(),
 });
+
+export type LocalizedJson = Record<string, string>;
+
+export const videos = pgTable(
+  'videos',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    slug: text('slug').notNull().unique(),
+    status: text('status').notNull().default('draft'),
+    sourceType: text('source_type').notNull().default('embed'),
+    videoUrl: text('video_url'),
+    embedUrl: text('embed_url'),
+    thumbnailUrl: text('thumbnail_url'),
+    category: text('category'),
+    tags: text('tags').array(),
+    durationSeconds: integer('duration_seconds'),
+    title: jsonb('title').$type<LocalizedJson>().notNull().default({}),
+    excerpt: jsonb('excerpt').$type<LocalizedJson>().default({}),
+    body: jsonb('body').$type<LocalizedJson>().default({}),
+    seoTitle: jsonb('seo_title').$type<LocalizedJson>().default({}),
+    seoDescription: jsonb('seo_description').$type<LocalizedJson>().default({}),
+    publishedAt: timestamp('published_at', { mode: 'string' }),
+    createdAt: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { mode: 'string' }).notNull().defaultNow(),
+  },
+  (table) => ({
+    statusIdx: index('videos_status_idx').on(table.status),
+    publishedAtIdx: index('videos_published_at_idx').on(table.publishedAt),
+    slugIdx: index('videos_slug_idx').on(table.slug),
+    categoryIdx: index('videos_category_idx').on(table.category),
+  }),
+);
 
 export const inquiries = pgTable('inquiries', {
   id: serial('id').primaryKey(),
