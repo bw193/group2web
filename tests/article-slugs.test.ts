@@ -19,12 +19,22 @@ test('articleSlugFromInput falls back to English title', () => {
   );
 });
 
-test('resolveArticleTranslationSlug copies English slug to every locale', () => {
+test('resolveArticleTranslationSlug copies English slug to non-Hebrew locales', () => {
   assert.equal(
     resolveArticleTranslationSlug({
       locale: 'de',
       englishSlug: 'how-to-choose-the-right-bathroom-mirror',
     }),
     'how-to-choose-the-right-bathroom-mirror',
+  );
+});
+
+test('resolveArticleTranslationSlug uses Israel-prefixed English slug for Hebrew', () => {
+  assert.equal(
+    resolveArticleTranslationSlug({
+      locale: 'he',
+      englishSlug: 'how-to-choose-the-right-bathroom-mirror',
+    }),
+    'israel-how-to-choose-the-right-bathroom-mirror',
   );
 });

@@ -13,8 +13,9 @@
 //
 // The script:
 //   1. Preserves existing localized product slugs, so old product URLs do not
-//      change when translations are refreshed.
-//   2. Uses the English product slug for any newly inserted locale row.
+//      change when translations are refreshed. Hebrew is regenerated as
+//      israel-<english-slug> so it stays distinct from every other locale.
+//   2. Uses the English product slug for any newly inserted non-Hebrew locale row.
 //   3. Deletes/reinserts content rows for this locale + product ids.
 //
 // Safe to re-run; uses a transaction per locale.
@@ -26,7 +27,8 @@ import { readFileSync } from 'node:fs';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import { inArray, and, eq, ne } from 'drizzle-orm';
-import { productTranslations, productSpecifications } from '../src/lib/db/schema';
+import { productSlugHistory, productTranslations, productSpecifications } from '../src/lib/db/schema';
+import { resolveProductTranslationSlug } from '../src/lib/products';
 
 type Entry = {
   productId: number;
@@ -87,10 +89,15 @@ async function main() {
     const finalSlugs = new Map<number, string>();
 
     for (const e of entries) {
-      const slug = existingSlugByProduct.get(e.productId) ?? englishSlugByProduct.get(e.productId);
-      if (!slug) {
+      const englishSlug = englishSlugByProduct.get(e.productId);
+      if (!englishSlug) {
         throw new Error(`No English slug found for product ${e.productId}; cannot insert ${locale} translation`);
       }
+      const slug = resolveProductTranslationSlug({
+        locale,
+        englishSlug,
+        existingSlug: existingSlugByProduct.get(e.productId),
+      });
       const clash = await tx
         .select({ productId: productTranslations.productId })
         .from(productTranslations)
@@ -105,7 +112,32 @@ async function main() {
       if (clash.length > 0) {
         throw new Error(`Slug "${slug}" is already used by product ${clash[0].productId} in ${locale}`);
       }
+      const historyClash = await tx
+        .select({ productId: productSlugHistory.productId })
+        .from(productSlugHistory)
+        .where(
+          and(
+            eq(productSlugHistory.locale, locale),
+            eq(productSlugHistory.oldSlug, slug),
+            ne(productSlugHistory.productId, e.productId),
+          ),
+        )
+        .limit(1);
+      if (historyClash.length > 0) {
+        throw new Error(`Slug "${slug}" is historical URL for product ${historyClash[0].productId} in ${locale}`);
+      }
       finalSlugs.set(e.productId, slug);
+    }
+
+    for (const e of entries) {
+      const existingSlug = existingSlugByProduct.get(e.productId);
+      const finalSlug = finalSlugs.get(e.productId);
+      if (existingSlug && finalSlug && existingSlug !== finalSlug) {
+        await tx
+          .insert(productSlugHistory)
+          .values({ productId: e.productId, locale, oldSlug: existingSlug })
+          .onConflictDoNothing();
+      }
     }
 
     // Wipe existing rows for this locale + these product ids.

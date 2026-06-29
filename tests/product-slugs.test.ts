@@ -45,6 +45,17 @@ test('resolveProductTranslationSlug uses English URLs for newly translated produ
   );
 });
 
+test('resolveProductTranslationSlug regenerates Hebrew as an Israel-prefixed English URL', () => {
+  assert.equal(
+    resolveProductTranslationSlug({
+      locale: 'he',
+      englishSlug: 'round-backlit-led-bathroom-mirror',
+      existingSlug: 'mrah-rhwts-led-lamqt',
+    }),
+    'israel-round-backlit-led-bathroom-mirror',
+  );
+});
+
 test('resolveProductTranslationSlug always uses the finalized English slug for English', () => {
   assert.equal(
     resolveProductTranslationSlug({

@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
 import { getDb, withDbRetryFast } from '@/lib/db';
-import { products, productTranslations, productSpecifications, productImages } from '@/lib/db/schema';
+import { products, productTranslations, productSpecifications, productImages, productSlugHistory } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
 import { getSession } from '@/lib/auth';
+import { HEBREW_SLUG_LOCALE } from '@/lib/localized-slugs';
 import {
   PRODUCT_SLUG_SOURCE_LOCALE,
   disambiguateSharedProductSlug,
@@ -99,9 +100,12 @@ export async function PUT(
       if (body.translations && Array.isArray(body.translations)) {
         const localesNeedingEnglishSlug = new Set<string>([PRODUCT_SLUG_SOURCE_LOCALE]);
         for (const t of translationInputs) {
-          if (t.locale !== PRODUCT_SLUG_SOURCE_LOCALE && !prevSlugByLocale.has(t.locale)) {
+          if (t.locale === HEBREW_SLUG_LOCALE || (t.locale !== PRODUCT_SLUG_SOURCE_LOCALE && !prevSlugByLocale.has(t.locale))) {
             localesNeedingEnglishSlug.add(t.locale);
           }
+        }
+        if (prevSlugByLocale.has(HEBREW_SLUG_LOCALE)) {
+          localesNeedingEnglishSlug.add(HEBREW_SLUG_LOCALE);
         }
 
         const desiredEnglishSlug = englishInput
@@ -131,12 +135,19 @@ export async function PUT(
             englishSlug: finalEnglishSlug,
             existingSlug: existingTrans?.slug,
           });
+          const isHebrew = t.locale === HEBREW_SLUG_LOCALE;
 
-          if (t.locale !== PRODUCT_SLUG_SOURCE_LOCALE && !existingTrans && finalSlug !== finalEnglishSlug) {
+          if (t.locale !== PRODUCT_SLUG_SOURCE_LOCALE && !isHebrew && !existingTrans && finalSlug !== finalEnglishSlug) {
             throw new Error(`New ${t.locale} product translation must use the English slug`);
           }
-          if (t.locale !== PRODUCT_SLUG_SOURCE_LOCALE && existingTrans && finalSlug !== existingTrans.slug) {
+          if (t.locale !== PRODUCT_SLUG_SOURCE_LOCALE && !isHebrew && existingTrans && finalSlug !== existingTrans.slug) {
             throw new Error(`Existing ${t.locale} product slug cannot be changed by localized input`);
+          }
+          if (existingTrans && existingTrans.slug !== finalSlug) {
+            await tx
+              .insert(productSlugHistory)
+              .values({ productId, locale: t.locale, oldSlug: existingTrans.slug })
+              .onConflictDoNothing();
           }
 
           if (existingTrans) {
@@ -148,6 +159,29 @@ export async function PUT(
               productId, locale: t.locale, name: t.name, slug: finalSlug,
               shortDescription: t.shortDescription, fullDescription: t.fullDescription,
             });
+          }
+        }
+
+        const [heTrans] = await tx
+          .select()
+          .from(productTranslations)
+          .where(and(eq(productTranslations.productId, productId), eq(productTranslations.locale, HEBREW_SLUG_LOCALE)))
+          .limit(1);
+        if (heTrans) {
+          const finalHebrewSlug = resolveProductTranslationSlug({
+            locale: HEBREW_SLUG_LOCALE,
+            englishSlug: finalEnglishSlug,
+            existingSlug: heTrans.slug,
+          });
+          if (heTrans.slug !== finalHebrewSlug) {
+            await tx
+              .insert(productSlugHistory)
+              .values({ productId, locale: HEBREW_SLUG_LOCALE, oldSlug: heTrans.slug })
+              .onConflictDoNothing();
+            await tx
+              .update(productTranslations)
+              .set({ slug: finalHebrewSlug })
+              .where(eq(productTranslations.id, heTrans.id));
           }
         }
       }

@@ -8,6 +8,7 @@ import {
   articleCategories,
   articleCategoryTranslations,
   articleProducts,
+  articleSlugHistory,
   articles,
   articleTranslationBodies,
   articleTranslations,
@@ -18,6 +19,7 @@ import {
   faqTranslations,
   productCategories,
   productImages,
+  productSlugHistory,
   products,
   productSpecifications,
   productTranslations,
@@ -29,6 +31,7 @@ export type ArticleCategoryRow = typeof articleCategories.$inferSelect;
 export type ArticleCategoryTranslationRow = typeof articleCategoryTranslations.$inferSelect;
 export type ArticleProductRow = typeof articleProducts.$inferSelect;
 export type ArticleRow = typeof articles.$inferSelect;
+export type ArticleSlugHistoryRow = typeof articleSlugHistory.$inferSelect;
 export type ArticleTranslationBodyRow = typeof articleTranslationBodies.$inferSelect;
 export type ArticleTranslationRow = typeof articleTranslations.$inferSelect;
 export type BannerRow = typeof banners.$inferSelect;
@@ -39,6 +42,7 @@ export type FaqTranslationRow = typeof faqTranslations.$inferSelect;
 export type ProductCategoryRow = typeof productCategories.$inferSelect;
 export type ProductImageRow = typeof productImages.$inferSelect;
 export type ProductRow = typeof products.$inferSelect;
+export type ProductSlugHistoryRow = typeof productSlugHistory.$inferSelect;
 export type ProductSpecificationRow = typeof productSpecifications.$inferSelect;
 export type ProductTranslationRow = typeof productTranslations.$inferSelect;
 
@@ -48,6 +52,7 @@ export interface PublicDataSnapshotData {
   articleCategories: ArticleCategoryRow[];
   articleCategoryTranslations: ArticleCategoryTranslationRow[];
   articleProducts: ArticleProductRow[];
+  articleSlugHistory: ArticleSlugHistoryRow[];
   articleTranslationBodies: ArticleTranslationBodyRow[];
   articleTranslations: ArticleTranslationRow[];
   articles: ArticleRow[];
@@ -58,6 +63,7 @@ export interface PublicDataSnapshotData {
   faqs: FaqRow[];
   productCategories: ProductCategoryRow[];
   productImages: ProductImageRow[];
+  productSlugHistory: ProductSlugHistoryRow[];
   productSpecifications: ProductSpecificationRow[];
   productTranslations: ProductTranslationRow[];
   products: ProductRow[];

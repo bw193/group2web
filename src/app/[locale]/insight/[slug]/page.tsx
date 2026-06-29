@@ -76,7 +76,7 @@ export async function generateMetadata({
     // and is loaded only by the page render below. Fall back to the localized
     // journal description for the rare article with no dek.
     const description = row.trans.dek || pageCopy(locale, 'insight').description;
-    const canonical = localizedUrl(locale, `/insight/${slug}`);
+    const canonical = localizedUrl(locale, `/insight/${row.trans.slug}`);
     const ogImage = row.article.coverImageUrl
       ? getUploadUrl(row.article.coverImageUrl)
       : SITE_OG_IMAGE;
@@ -155,7 +155,7 @@ export default async function ArticlePage({
   const dateLabel = formatArticleDate(article.publishedAt, locale);
   const readLabel = t('readTime', { minutes: article.readMinutes });
 
-  const articleUrl = localizedUrl(locale, `/insight/${slug}`);
+  const articleUrl = localizedUrl(locale, `/insight/${translation.slug}`);
   const blogPostingLd = {
     '@context': 'https://schema.org',
     '@type': 'BlogPosting',

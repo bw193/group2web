@@ -72,6 +72,14 @@ export const productTranslations = pgTable('product_translations', {
   fullDescription: text('full_description'),
 });
 
+export const productSlugHistory = pgTable('product_slug_history', {
+  id: serial('id').primaryKey(),
+  productId: integer('product_id').notNull().references(() => products.id, { onDelete: 'cascade' }),
+  locale: text('locale').notNull(),
+  oldSlug: text('old_slug').notNull(),
+  createdAt: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
+});
+
 export const productSpecifications = pgTable('product_specifications', {
   id: serial('id').primaryKey(),
   productId: integer('product_id').notNull().references(() => products.id, { onDelete: 'cascade' }),
@@ -122,6 +130,14 @@ export const articleTranslations = pgTable('article_translations', {
   title: text('title').notNull(),
   dek: text('dek'),
   author: text('author'),
+});
+
+export const articleSlugHistory = pgTable('article_slug_history', {
+  id: serial('id').primaryKey(),
+  articleId: integer('article_id').notNull().references(() => articles.id, { onDelete: 'cascade' }),
+  locale: text('locale').notNull(),
+  oldSlug: text('old_slug').notNull(),
+  createdAt: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
 });
 
 // Heavy article HTML, one row per translation. Only the /[locale]/insight/[slug]

@@ -15,6 +15,7 @@ import {
   faqTranslations,
   productCategories,
   productImages,
+  productSlugHistory,
   products,
   productSpecifications,
   productTranslations,
@@ -32,6 +33,7 @@ import type {
   ProductCategoryRow,
   ProductImageRow,
   ProductRow,
+  ProductSlugHistoryRow,
   ProductSpecificationRow,
   ProductTranslationRow,
   PublicDataSnapshot,
@@ -228,6 +230,18 @@ function findProductRouteInSnapshot(snapshot: PublicDataSnapshot, locale: string
   if (!translation) return null;
   const product = snapshot.data.products.find((p) => p.id === translation.productId && p.isActive);
   return product ? { product, translation } : null;
+}
+
+function findProductHistoryInSnapshot(snapshot: PublicDataSnapshot, locale: string, slug: string) {
+  const historyRows = snapshot.data.productSlugHistory ?? ([] as ProductSlugHistoryRow[]);
+  const history = historyRows.find((h) => h.locale === locale && h.oldSlug === slug);
+  if (!history) return null;
+  const product = snapshot.data.products.find((p) => p.id === history.productId && p.isActive);
+  if (!product) return null;
+  const translation = snapshot.data.productTranslations.find(
+    (t) => t.productId === product.id && t.locale === locale,
+  );
+  return translation ? { product, translation } : null;
 }
 
 function findProductAnySlugInSnapshot(snapshot: PublicDataSnapshot, slug: string) {
@@ -447,7 +461,19 @@ export async function getProductStaticParams(): Promise<Array<{ locale: string; 
 export async function getProductMetadataData(locale: string, slug: string): Promise<ProductMetadataData | null> {
   const snapshot = getSnapshot();
   if (snapshot) {
-    const row = findProductRouteInSnapshot(snapshot, locale, slug);
+    let row = findProductRouteInSnapshot(snapshot, locale, slug);
+    if (!row) {
+      row = findProductHistoryInSnapshot(snapshot, locale, slug);
+    }
+    if (!row) {
+      const target = findProductAnySlugInSnapshot(snapshot, slug);
+      if (target) {
+        const localized = snapshot.data.productTranslations.find(
+          (t) => t.productId === target.product.id && t.locale === locale,
+        );
+        row = localized ? { product: target.product, translation: localized } : target;
+      }
+    }
     if (!row) return null;
     return {
       product: row.product,
@@ -467,9 +493,39 @@ export async function getProductMetadataData(locale: string, slug: string): Prom
     .select({ product: products, trans: productTranslations })
     .from(productTranslations)
     .innerJoin(products, eq(products.id, productTranslations.productId))
-    .where(and(eq(productTranslations.slug, slug), eq(productTranslations.locale, locale), eq(products.isActive, true)))
-    .limit(1);
-  const row = joined[0];
+      .where(and(eq(productTranslations.slug, slug), eq(productTranslations.locale, locale), eq(products.isActive, true)))
+      .limit(1);
+  let row = joined[0];
+  if (!row) {
+    const historyJoined = await db
+      .select({ product: products, trans: productTranslations })
+      .from(productSlugHistory)
+      .innerJoin(products, eq(products.id, productSlugHistory.productId))
+      .innerJoin(
+        productTranslations,
+        and(eq(productTranslations.productId, products.id), eq(productTranslations.locale, locale)),
+      )
+      .where(and(eq(productSlugHistory.oldSlug, slug), eq(productSlugHistory.locale, locale), eq(products.isActive, true)))
+      .limit(1);
+    row = historyJoined[0];
+  }
+  if (!row) {
+    const any = await db
+      .select({ product: products, trans: productTranslations })
+      .from(productTranslations)
+      .innerJoin(products, eq(products.id, productTranslations.productId))
+      .where(and(eq(productTranslations.slug, slug), eq(products.isActive, true)))
+      .limit(1);
+    const target = any[0];
+    if (target) {
+      const localized = await db
+        .select()
+        .from(productTranslations)
+        .where(and(eq(productTranslations.productId, target.product.id), eq(productTranslations.locale, locale)))
+        .limit(1);
+      row = localized[0] ? { product: target.product, trans: localized[0] } : target;
+    }
+  }
   if (!row) return null;
 
   const [allTranslations, primaryImages] = await Promise.all([
@@ -499,6 +555,11 @@ export async function getProductDetailData(locale: string, slug: string): Promis
   if (snapshot) {
     let row = findProductRouteInSnapshot(snapshot, locale, slug);
     if (!row) {
+      const historyTarget = findProductHistoryInSnapshot(snapshot, locale, slug);
+      if (historyTarget?.translation.slug && historyTarget.translation.slug !== slug) {
+        return { type: 'redirect', destination: localizedPath(locale, `/products/${historyTarget.translation.slug}`) };
+      }
+
       const target = findProductAnySlugInSnapshot(snapshot, slug);
       if (!target) return { type: 'notFound' };
       const localized = snapshot.data.productTranslations.find(
@@ -547,6 +608,21 @@ export async function getProductDetailData(locale: string, slug: string): Promis
   let translation = joined[0]?.trans;
 
   if (!product) {
+    const historyTarget = await db
+      .select({ product: products, trans: productTranslations })
+      .from(productSlugHistory)
+      .innerJoin(products, eq(products.id, productSlugHistory.productId))
+      .innerJoin(
+        productTranslations,
+        and(eq(productTranslations.productId, products.id), eq(productTranslations.locale, locale)),
+      )
+      .where(and(eq(productSlugHistory.oldSlug, slug), eq(productSlugHistory.locale, locale), eq(products.isActive, true)))
+      .limit(1);
+
+    if (historyTarget[0]?.trans.slug && historyTarget[0].trans.slug !== slug) {
+      return { type: 'redirect', destination: localizedPath(locale, `/products/${historyTarget[0].trans.slug}`) };
+    }
+
     const any = await db
       .select({ product: products, trans: productTranslations })
       .from(productTranslations)

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
 import { getDb, withDbRetryFast } from '@/lib/db';
-import { articles, articleTranslations, articleTranslationBodies, articleProducts } from '@/lib/db/schema';
+import { articles, articleTranslations, articleTranslationBodies, articleProducts, articleSlugHistory } from '@/lib/db/schema';
 import { eq, and, inArray } from 'drizzle-orm';
 import { getSession } from '@/lib/auth';
 import { locales } from '@/i18n/config';
@@ -173,6 +173,12 @@ export async function PUT(
             .limit(1);
           let transId: number;
           if (existingTrans) {
+            if (existingTrans.slug !== finalSlug) {
+              await tx
+                .insert(articleSlugHistory)
+                .values({ articleId, locale: t.locale, oldSlug: existingTrans.slug })
+                .onConflictDoNothing();
+            }
             await tx.update(articleTranslations).set(values).where(eq(articleTranslations.id, existingTrans.id));
             transId = existingTrans.id;
           } else {
@@ -193,10 +199,25 @@ export async function PUT(
             });
         }
 
-        await tx
-          .update(articleTranslations)
-          .set({ slug: finalEnglishSlug! })
+        const currentRows = await tx
+          .select()
+          .from(articleTranslations)
           .where(eq(articleTranslations.articleId, articleId));
+        for (const row of currentRows) {
+          const finalSlug = resolveArticleTranslationSlug({
+            locale: row.locale,
+            englishSlug: finalEnglishSlug!,
+          });
+          if (row.slug === finalSlug) continue;
+          await tx
+            .insert(articleSlugHistory)
+            .values({ articleId, locale: row.locale, oldSlug: row.slug })
+            .onConflictDoNothing();
+          await tx
+            .update(articleTranslations)
+            .set({ slug: finalSlug })
+            .where(eq(articleTranslations.id, row.id));
+        }
       }
 
       if (Array.isArray(body.productIds)) {

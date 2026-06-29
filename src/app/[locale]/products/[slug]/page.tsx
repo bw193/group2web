@@ -56,7 +56,7 @@ export async function generateMetadata({
       ? row.translation.shortDescription.slice(0, 300)
       : `${row.trans.name}${row.product.modelNumber ? ` (Model ${row.product.modelNumber})` : ''} - manufactured by Chengtai Mirror, Jiaxing, China. OEM/ODM available.`;
 
-    const canonical = localizedUrl(locale, `/products/${slug}`);
+    const canonical = localizedUrl(locale, `/products/${row.translation.slug}`);
 
     return {
       title,

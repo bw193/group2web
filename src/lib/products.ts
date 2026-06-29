@@ -1,5 +1,6 @@
-import { and, eq, inArray, ne, type SQL } from 'drizzle-orm';
-import { productTranslations } from './db/schema';
+import { and, eq, ne, type SQL } from 'drizzle-orm';
+import { productSlugHistory, productTranslations } from './db/schema';
+import { slugForLocaleFromEnglish } from './localized-slugs';
 import { slugify } from './utils';
 
 export const PRODUCT_SLUG_SOURCE_LOCALE = 'en';
@@ -10,6 +11,8 @@ export function resolveProductTranslationSlug(args: {
   existingSlug?: string | null;
 }): string {
   if (args.locale === PRODUCT_SLUG_SOURCE_LOCALE) return args.englishSlug;
+  const generatedSlug = slugForLocaleFromEnglish(args.locale, args.englishSlug);
+  if (generatedSlug !== args.englishSlug) return generatedSlug;
   return args.existingSlug || args.englishSlug;
 }
 
@@ -57,7 +60,21 @@ export async function disambiguateProductSlug(
       .from(productTranslations)
       .where(and(...conditions))
       .limit(1);
-    if (clashes.length === 0) return candidate;
+    if (clashes.length > 0) continue;
+
+    const historyConditions: SQL[] = [
+      eq(productSlugHistory.locale, args.locale),
+      eq(productSlugHistory.oldSlug, candidate),
+    ];
+    if (args.excludeProductId != null) {
+      historyConditions.push(ne(productSlugHistory.productId, args.excludeProductId));
+    }
+    const historyClashes = await tx
+      .select({ id: productSlugHistory.id })
+      .from(productSlugHistory)
+      .where(and(...historyConditions))
+      .limit(1);
+    if (historyClashes.length === 0) return candidate;
   }
   throw new Error(`could not disambiguate slug "${args.slug}" for locale "${args.locale}"`);
 }
@@ -90,19 +107,44 @@ export async function disambiguateSharedProductSlug(
   candidates.push(`${args.slug}-${args.productId}`);
 
   for (const candidate of candidates) {
-    const conditions: SQL[] = [
-      inArray(productTranslations.locale, locales),
-      eq(productTranslations.slug, candidate),
-    ];
-    if (args.excludeProductId != null) {
-      conditions.push(ne(productTranslations.productId, args.excludeProductId));
+    let hasClash = false;
+    for (const locale of locales) {
+      const localeSlug = resolveProductTranslationSlug({ locale, englishSlug: candidate });
+      const conditions: SQL[] = [
+        eq(productTranslations.locale, locale),
+        eq(productTranslations.slug, localeSlug),
+      ];
+      if (args.excludeProductId != null) {
+        conditions.push(ne(productTranslations.productId, args.excludeProductId));
+      }
+      const clashes = await tx
+        .select({ id: productTranslations.id })
+        .from(productTranslations)
+        .where(and(...conditions))
+        .limit(1);
+      if (clashes.length > 0) {
+        hasClash = true;
+        break;
+      }
+
+      const historyConditions: SQL[] = [
+        eq(productSlugHistory.locale, locale),
+        eq(productSlugHistory.oldSlug, localeSlug),
+      ];
+      if (args.excludeProductId != null) {
+        historyConditions.push(ne(productSlugHistory.productId, args.excludeProductId));
+      }
+      const historyClashes = await tx
+        .select({ id: productSlugHistory.id })
+        .from(productSlugHistory)
+        .where(and(...historyConditions))
+        .limit(1);
+      if (historyClashes.length > 0) {
+        hasClash = true;
+        break;
+      }
     }
-    const clashes = await tx
-      .select({ id: productTranslations.id })
-      .from(productTranslations)
-      .where(and(...conditions))
-      .limit(1);
-    if (clashes.length === 0) return candidate;
+    if (!hasClash) return candidate;
   }
   throw new Error(`could not disambiguate shared product slug "${args.slug}"`);
 }

@@ -2,11 +2,9 @@
 // missing locales (es, pt, fr, it, de, he). Reads tests/translations-<loc>-orphan-fix.json
 // for each locale, and:
 //
-//   1. Slugifies the name (unless an explicit slug is provided — Hebrew uses
-//      the English ASCII slug to keep URLs readable).
-//   2. Pre-checks (locale, slug) against every other product's existing
-//      translation row in product_translations. On clash, falls back to
-//      `${slug}-${slugify(modelNumber)}`; on further clash, `${slug}-${productId}`.
+//   1. Ignores localized slug input. Hebrew uses israel-<english-slug>;
+//      other locales keep existing slugs or copy English when new.
+//   2. Pre-checks (locale, slug) against current and historical URLs.
 //   3. Inserts (or updates if a row already exists for this product+locale)
 //      under one db.transaction per locale, so a mid-loop failure rolls back.
 //
@@ -19,7 +17,8 @@ import { readFileSync } from 'node:fs';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import { and, eq, inArray, ne } from 'drizzle-orm';
-import { productTranslations, productSpecifications } from '../src/lib/db/schema';
+import { productSlugHistory, productTranslations, productSpecifications } from '../src/lib/db/schema';
+import { resolveProductTranslationSlug } from '../src/lib/products';
 
 const ALL_LOCALES = ['es', 'pt', 'fr', 'it', 'de', 'he'] as const;
 
@@ -77,10 +76,15 @@ async function main() {
 
       for (const e of entries) {
         const existing = existingByProduct.get(e.productId);
-        const finalSlug = existing?.slug ?? englishSlugByProduct.get(e.productId);
-        if (!finalSlug) {
+        const englishSlug = englishSlugByProduct.get(e.productId);
+        if (!englishSlug) {
           throw new Error(`No English slug found for product ${e.productId}; cannot insert ${locale} translation`);
         }
+        const finalSlug = resolveProductTranslationSlug({
+          locale,
+          englishSlug,
+          existingSlug: existing?.slug,
+        });
 
         const clash = await tx
           .select({ productId: productTranslations.productId })
@@ -96,9 +100,29 @@ async function main() {
         if (clash.length > 0) {
           throw new Error(`Slug "${finalSlug}" is already used by product ${clash[0].productId} in ${locale}`);
         }
+        const historyClash = await tx
+          .select({ productId: productSlugHistory.productId })
+          .from(productSlugHistory)
+          .where(
+            and(
+              eq(productSlugHistory.locale, locale),
+              eq(productSlugHistory.oldSlug, finalSlug),
+              ne(productSlugHistory.productId, e.productId),
+            ),
+          )
+          .limit(1);
+        if (historyClash.length > 0) {
+          throw new Error(`Slug "${finalSlug}" is historical URL for product ${historyClash[0].productId} in ${locale}`);
+        }
 
         // Upsert: replace this product's existing (productId, locale) row.
         if (existing) {
+          if (existing.slug !== finalSlug) {
+            await tx
+              .insert(productSlugHistory)
+              .values({ productId: e.productId, locale, oldSlug: existing.slug })
+              .onConflictDoNothing();
+          }
           await tx
             .update(productTranslations)
             .set({

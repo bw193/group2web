@@ -10,7 +10,7 @@
 //   {
 //     "enSlug": "the-return-of-the-arched-mirror",   // required: which article
 //     "title": "Le retour du miroir arque",          // required
-//     "slug": "le-retour-du-miroir-arque",           // ignored: EN slug is reused
+//     "slug": "le-retour-du-miroir-arque",           // ignored: URL comes from EN slug
 //     "dek": "Summary shown in the list",            // optional
 //     "body": "<p>Body HTML</p><h3>Heading</h3>",    // optional: same HTML tags as EN bodies
 //     "author": "Studio Notes"                        // optional
@@ -25,6 +25,7 @@ import { config as loadEnv } from 'dotenv';
 loadEnv({ path: '.env.local' });
 import { readFileSync } from 'fs';
 import postgres from 'postgres';
+import { resolveArticleTranslationSlug } from '../src/lib/articles';
 
 const SITE_LOCALES = ['en', 'es', 'pt', 'fr', 'it', 'de', 'he'];
 
@@ -75,7 +76,7 @@ async function main() {
         continue;
       }
       const articleId = en.article_id;
-      const slug = item.enSlug;
+      const slug = resolveArticleTranslationSlug({ locale, englishSlug: item.enSlug });
 
       // (locale, slug) is the routing key - refuse a slug another article owns.
       const [clash] = await sql`
@@ -84,6 +85,24 @@ async function main() {
       if (clash) {
         console.warn(`SKIP "${item.enSlug}": slug "${slug}" already used by article ${clash.article_id} in ${locale}`);
         continue;
+      }
+      const [historyClash] = await sql`
+        SELECT article_id FROM article_slug_history
+        WHERE locale = ${locale} AND old_slug = ${slug} AND article_id <> ${articleId} LIMIT 1`;
+      if (historyClash) {
+        console.warn(`SKIP "${item.enSlug}": slug "${slug}" is historical URL for article ${historyClash.article_id} in ${locale}`);
+        continue;
+      }
+
+      const [existing] = await sql`
+        SELECT id, slug FROM article_translations
+        WHERE article_id = ${articleId} AND locale = ${locale}
+        LIMIT 1`;
+      if (existing && existing.slug !== slug) {
+        await sql`
+          INSERT INTO article_slug_history (article_id, locale, old_slug)
+          VALUES (${articleId}, ${locale}, ${existing.slug})
+          ON CONFLICT (locale, old_slug) DO NOTHING`;
       }
 
       const [trans] = await sql`

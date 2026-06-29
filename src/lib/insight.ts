@@ -3,6 +3,7 @@ import { getDb } from '@/lib/db';
 import { defaultLocale } from '@/i18n/config';
 import {
   articles,
+  articleSlugHistory,
   articleTranslations,
   articleTranslationBodies,
   articleProducts,
@@ -14,7 +15,7 @@ import {
 } from '@/lib/db/schema';
 import { and, desc, eq, inArray, ne } from 'drizzle-orm';
 import { getPublicDataSnapshot } from '@/lib/public-data-snapshot';
-import type { PublicDataSnapshot } from '@/lib/public-data-snapshot';
+import type { ArticleSlugHistoryRow, PublicDataSnapshot } from '@/lib/public-data-snapshot';
 import { localizedPath } from '@/lib/seo';
 
 // Insight reads mirror the product pages: direct, batched Drizzle queries on
@@ -361,12 +362,34 @@ export async function getArticleStaticParams(): Promise<Array<{ locale: string; 
   return rows.map((r) => ({ locale: r.locale, slug: r.slug }));
 }
 
+function getArticleHistoryRedirectInSnapshot(
+  snapshot: PublicDataSnapshot,
+  locale: string,
+  slug: string,
+): string | null {
+  const historyRows = snapshot.data.articleSlugHistory ?? ([] as ArticleSlugHistoryRow[]);
+  const history = historyRows.find((h) => h.locale === locale && h.oldSlug === slug);
+  if (!history) return null;
+  const article = snapshot.data.articles.find((a) => a.id === history.articleId && a.isActive);
+  if (!article) return null;
+  const localizedSlugRow = snapshot.data.articleTranslations.find(
+    (t) => t.articleId === article.id && t.locale === locale,
+  );
+  if (localizedSlugRow?.slug && localizedSlugRow.slug !== slug) {
+    return localizedPath(locale, `/insight/${localizedSlugRow.slug}`);
+  }
+  return null;
+}
+
 export async function getArticleMissingLocaleRedirect(
   locale: string,
   slug: string,
 ): Promise<string | null> {
   const snapshot = getSnapshot();
   if (snapshot) {
+    const historyRedirect = getArticleHistoryRedirectInSnapshot(snapshot, locale, slug);
+    if (historyRedirect) return historyRedirect;
+
     const anyTrans = snapshot.data.articleTranslations.find((t) => t.slug === slug);
     const article = anyTrans
       ? snapshot.data.articles.find((a) => a.id === anyTrans.articleId && a.isActive)
@@ -383,6 +406,20 @@ export async function getArticleMissingLocaleRedirect(
   }
 
   const db = getDb();
+  const history = await db
+    .select({ article: articles, trans: articleTranslations })
+    .from(articleSlugHistory)
+    .innerJoin(articles, eq(articles.id, articleSlugHistory.articleId))
+    .innerJoin(
+      articleTranslations,
+      and(eq(articleTranslations.articleId, articles.id), eq(articleTranslations.locale, locale)),
+    )
+    .where(and(eq(articleSlugHistory.oldSlug, slug), eq(articleSlugHistory.locale, locale), eq(articles.isActive, true)))
+    .limit(1);
+  if (history[0]?.trans.slug && history[0].trans.slug !== slug) {
+    return localizedPath(locale, `/insight/${history[0].trans.slug}`);
+  }
+
   const any = await db
     .select({ article: articles, trans: articleTranslations })
     .from(articleTranslations)
