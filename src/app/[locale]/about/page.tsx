@@ -18,6 +18,7 @@ import {
   localizedUrl,
   pageCopy,
 } from '@/lib/seo';
+import { localizedPath } from '@/lib/public-paths';
 import { ArrowRight } from 'lucide-react';
 
 export const revalidate = 600;
@@ -296,7 +297,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
             </div>
             <div className="lg:col-span-4 lg:text-end">
               <Link
-                href={`/${locale}/contact`}
+                href={localizedPath(locale, '/contact')}
                 className="btn-primary group"
               >
                 {t('ctaButton')}

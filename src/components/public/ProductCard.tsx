@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useTranslations, useLocale } from 'next-intl';
 import GalleryImage from '@/components/public/GalleryImage';
+import { localizedPath } from '@/lib/public-paths';
 
 interface ProductCardProps {
   id: number;
@@ -34,13 +35,14 @@ export default function ProductCard({
 }: ProductCardProps) {
   const t = useTranslations('products');
   const locale = useLocale();
+  const productHref = localizedPath(locale, `/products/${slug}`);
 
   return (
     <article className="h-full">
       <div className="group flex flex-col h-full" {...(noSnippet ? { 'data-nosnippet': '' } : {})}>
       {/* Image */}
       <Link
-        href={`/${locale}/products/${slug}`}
+        href={productHref}
         aria-label={`${name} — view product details`}
         className="block relative aspect-[4/5] overflow-hidden bg-sand mb-6"
       >
@@ -88,7 +90,7 @@ export default function ProductCard({
             shrink the card and break alignment with multi-line siblings. */}
         <h3 className="font-display text-[22px] font-normal text-ink leading-[1.2] mb-3 tracking-[-0.005em] line-clamp-2 min-h-[calc(2*1.2em)]">
           <Link
-            href={`/${locale}/products/${slug}`}
+            href={productHref}
             className="bg-left-bottom rtl:bg-right-bottom bg-gradient-to-r from-ink to-ink bg-[length:0%_1px] bg-no-repeat transition-[background-size] duration-500 group-hover:bg-[length:100%_1px]"
           >
             {name}
@@ -101,15 +103,15 @@ export default function ProductCard({
         )}
         <div className="mt-auto flex items-center gap-6 pt-4 border-t border-warm-border">
           <Link
-            href={`/${locale}/products/${slug}`}
+            href={productHref}
             className="nav-link text-[13px] font-body font-semibold text-ink tracking-[0.12em] uppercase"
           >
             {t('viewDetails')}
           </Link>
           <Link
-            href={`/${locale}/contact?product=${encodeURIComponent(name)}${
+            href={localizedPath(locale, `/contact?product=${encodeURIComponent(name)}${
               modelNumber ? `&model=${encodeURIComponent(modelNumber)}` : ''
-            }`}
+            }`)}
             className="text-[13px] font-body font-semibold text-ink-mid tracking-[0.12em] uppercase hover:text-bronze transition-colors duration-300"
           >
             {t('sendInquiry')}

@@ -1,4 +1,5 @@
 import { locales, defaultLocale, type Locale } from '@/i18n/config';
+import { localizedPath as buildLocalizedPath } from '@/lib/public-paths';
 
 export const SITE_URL = 'https://chengtaimirror.com';
 export const SITE_NAME = 'Chengtai Mirror';
@@ -38,7 +39,7 @@ export function localeToOg(locale: string): string {
 
 /** Path with locale prefix. Mirrors middleware `localePrefix: 'always'`. */
 export function localizedPath(locale: string, pathAfterLocale: string): string {
-  return `/${locale}${pathAfterLocale}`;
+  return buildLocalizedPath(locale, pathAfterLocale);
 }
 
 /** Absolute URL for a localized path. */

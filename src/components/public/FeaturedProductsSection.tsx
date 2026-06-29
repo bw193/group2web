@@ -5,6 +5,7 @@ import { useState, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { ArrowRight } from 'lucide-react';
 import ProductCard from './ProductCard';
+import { localizedPath } from '@/lib/public-paths';
 
 interface FeaturedProduct {
   id: number;
@@ -106,7 +107,7 @@ export default function FeaturedProductsSection({
 
           <div className="mt-8" data-reveal>
             <Link
-              href={`/${locale}/products`}
+              href={localizedPath(locale, '/products')}
               className="btn-primary group"
             >
               {t('viewAll')}

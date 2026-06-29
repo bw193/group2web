@@ -20,9 +20,10 @@ interface HeroBannerProps {
   fallbackTitle?: string;
   fallbackSubtitle?: string;
   fallbackCta?: string;
+  fallbackHref?: string;
 }
 
-export default function HeroBanner({ slides, fallbackTitle, fallbackSubtitle, fallbackCta }: HeroBannerProps) {
+export default function HeroBanner({ slides, fallbackTitle, fallbackSubtitle, fallbackCta, fallbackHref = '/en/contact' }: HeroBannerProps) {
   const [current, setCurrent] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [ratios, setRatios] = useState<Record<number, number>>({});
@@ -74,7 +75,7 @@ export default function HeroBanner({ slides, fallbackTitle, fallbackSubtitle, fa
           </p>
           <div className="mt-14 animate-fade-up" style={{ animationDelay: '500ms' }}>
             <MagneticLink
-              href="/en/contact"
+              href={fallbackHref}
               className="group inline-flex items-center gap-4 px-10 py-5 bg-cream text-ink hover:bg-bronze-light rounded-full text-[12px] font-body font-medium tracking-[0.2em] uppercase transition-colors duration-700"
               strength={0.45}
             >

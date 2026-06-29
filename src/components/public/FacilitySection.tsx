@@ -4,6 +4,7 @@ import FacilityGallery from './FacilityGallery';
 import { ArrowRight } from 'lucide-react';
 import CountUp from './CountUp';
 import ProofPoints from './ProofPoints';
+import { localizedPath } from '@/lib/public-paths';
 
 interface Props {
   locale: string;
@@ -73,7 +74,7 @@ export default async function FacilitySection({ locale, images = [] }: Props) {
 
             <div className="mt-10" data-reveal>
               <Link
-                href={`/${locale}/about`}
+                href={localizedPath(locale, '/about')}
                 className="btn-primary group"
               >
                 {t('factoryButton')}

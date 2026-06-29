@@ -17,6 +17,7 @@ import {
   localizedUrl,
   pageCopy,
 } from '@/lib/seo';
+import { localizedPath } from '@/lib/public-paths';
 import { getUploadUrl } from '@/lib/utils';
 
 export const revalidate = 600;
@@ -85,7 +86,7 @@ export default async function InsightPage({ params }: { params: Promise<{ locale
     // current page locale. Prevents English-fallback cards on /pt/insight
     // from creating phantom /pt/insight/<en-slug> URLs that ISR would have
     // to render dynamically — the root cause of the DbTimeoutErrors.
-    href: `/${a.translationLocale}/insight/${a.slug}`,
+    href: localizedPath(a.translationLocale, `/insight/${a.slug}`),
     imagePath: a.thumbnailUrl || a.coverImageUrl,
     indexLabel: String(i + 1).padStart(2, '0'),
   }));

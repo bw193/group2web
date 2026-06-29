@@ -7,6 +7,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useTranslations, useLocale } from 'next-intl';
 import { Menu, X, Search } from 'lucide-react';
 import LanguageSwitcher from './LanguageSwitcher';
+import { localizedPath } from '@/lib/public-paths';
 
 export default function Header() {
   const t = useTranslations('nav');
@@ -24,7 +25,7 @@ export default function Header() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     const q = searchQuery.trim();
-    router.push(`/${locale}/products${q ? `?q=${encodeURIComponent(q)}` : ''}`);
+    router.push(localizedPath(locale, `/products${q ? `?q=${encodeURIComponent(q)}` : ''}`));
     // If already on /products, ProductsFilter won't remount — notify it so the
     // grid stays in sync with this search.
     window.dispatchEvent(new CustomEvent('products:search', { detail: q }));
@@ -50,15 +51,15 @@ export default function Header() {
   }, [mobileOpen]);
 
   const navLinks = [
-    { href: `/${locale}`, label: t('home') },
-    { href: `/${locale}/products`, label: t('products') },
-    { href: `/${locale}/insight`, label: t('insight') },
-    { href: `/${locale}/about`, label: t('about') },
-    { href: `/${locale}/contact`, label: t('contact') },
+    { href: localizedPath(locale, ''), label: t('home') },
+    { href: localizedPath(locale, '/products'), label: t('products') },
+    { href: localizedPath(locale, '/insight'), label: t('insight') },
+    { href: localizedPath(locale, '/about'), label: t('about') },
+    { href: localizedPath(locale, '/contact'), label: t('contact') },
   ];
 
   const isActive = (href: string) => {
-    if (href === `/${locale}`) return pathname === href || pathname === `/${locale}/`;
+    if (href === localizedPath(locale, '')) return pathname === href || pathname === `${href}/`;
     return pathname === href || pathname?.startsWith(`${href}/`);
   };
 
@@ -75,7 +76,7 @@ export default function Header() {
             locale's labels outgrow the viewport (they overflow instead). */}
         <div className="flex items-center justify-between gap-x-5 h-[72px] md:h-20">
           {/* Logo */}
-          <Link href={`/${locale}`} className="group flex items-baseline gap-3">
+          <Link href={localizedPath(locale, '')} className="group flex items-baseline gap-3">
             <span className="font-display text-[22px] md:text-[26px] font-normal text-ink tracking-[0.01em] leading-none">
               Chengtai
             </span>
@@ -122,7 +123,7 @@ export default function Header() {
             <LanguageSwitcher />
             <span className="h-3 w-px bg-warm-border" aria-hidden />
             <Link
-              href={`/${locale}/contact`}
+              href={localizedPath(locale, '/contact')}
               className="btn-primary h-10 px-5 2xl:px-6 text-[12px] whitespace-nowrap"
             >
               {t('inquiry')}
@@ -212,7 +213,7 @@ export default function Header() {
           <div className="mt-10 flex items-center justify-between">
             <LanguageSwitcher />
             <Link
-              href={`/${locale}/contact`}
+              href={localizedPath(locale, '/contact')}
               className="btn-primary"
               onClick={() => setMobileOpen(false)}
             >

@@ -5,6 +5,7 @@ import { useLocale } from 'next-intl';
 import { usePathname, useRouter } from 'next/navigation';
 import { ChevronDown } from 'lucide-react';
 import { locales, localeNames, type Locale } from '@/i18n/config';
+import { localizedPathFromPathname } from '@/lib/public-paths';
 
 export default function LanguageSwitcher() {
   const locale = useLocale();
@@ -24,13 +25,17 @@ export default function LanguageSwitcher() {
   }, []);
 
   function switchLocale(newLocale: Locale) {
-    const segments = pathname.split('/');
-    if (locales.includes(segments[1] as Locale)) {
-      segments[1] = newLocale;
-    } else {
-      segments.splice(1, 0, newLocale);
+    const alternate = document.querySelector<HTMLLinkElement>(
+      `link[rel="alternate"][hrefLang="${newLocale}"],link[rel="alternate"][hreflang="${newLocale}"]`,
+    );
+    if (alternate?.href) {
+      const url = new URL(alternate.href);
+      router.push(`${url.pathname}${url.search}${url.hash}`);
+      setOpen(false);
+      return;
     }
-    router.push(segments.join('/') || '/');
+
+    router.push(localizedPathFromPathname(pathname || '/', newLocale));
     setOpen(false);
   }
 

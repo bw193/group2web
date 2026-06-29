@@ -23,6 +23,7 @@ import {
   localizedUrl,
   pageCopy,
 } from '@/lib/seo';
+import { localizedPath } from '@/lib/public-paths';
 import { Users, Globe, FlaskConical, Factory } from 'lucide-react';
 
 export const revalidate = 300; // ISR: rebuild at most every 5 minutes
@@ -162,6 +163,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         fallbackTitle={t('heroTitle')}
         fallbackSubtitle={t('heroSubtitle')}
         fallbackCta={t('heroCta')}
+        fallbackHref={localizedPath(locale, '/contact')}
       />
 
       {/* Capabilities - compact four-column plinth seamed into the hero */}

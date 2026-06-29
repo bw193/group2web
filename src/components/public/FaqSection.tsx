@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useLocale } from 'next-intl';
 import { ArrowRight, Plus } from 'lucide-react';
+import { localizedPath } from '@/lib/public-paths';
 
 interface QA {
   q: string;
@@ -49,7 +50,7 @@ export default function FaqSection({ backendFaqs = [] }: Props) {
 
             <div className="mt-10" data-reveal>
               <Link
-                href={`/${locale}/contact`}
+                href={localizedPath(locale, '/contact')}
                 className="btn-primary group"
               >
                 Ask a question

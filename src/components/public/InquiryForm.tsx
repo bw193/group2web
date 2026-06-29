@@ -5,6 +5,7 @@ import { useTranslations, useLocale } from 'next-intl';
 import { ArrowRight, AlertCircle, ChevronDown, X } from 'lucide-react';
 import { useRouter, usePathname } from 'next/navigation';
 import { sendGAEvent } from '@next/third-parties/google';
+import { localizedPath } from '@/lib/public-paths';
 
 interface Category {
   id: number;
@@ -101,7 +102,7 @@ export default function InquiryForm({ categories }: { categories: Category[] }) 
         // the dedicated thank-you URL (the Ads "Submit lead form" destination and
         // a clean confirmation). Soft SPA nav — GA4 still tracks the pageview.
         sendGAEvent('event', 'generate_lead', { form: 'contact', value: 1 });
-        router.push(`/${locale}/contact/thank-you`);
+        router.push(localizedPath(locale, '/contact/thank-you'));
       } else {
         setStatus('error');
       }

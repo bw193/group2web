@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useTranslations, useLocale } from 'next-intl';
 import TrackedContactLink from '@/components/public/TrackedContactLink';
+import { localizedPath } from '@/lib/public-paths';
 
 export default function Footer() {
   const t = useTranslations('footer');
@@ -25,7 +26,7 @@ export default function Footer() {
             </h2>
           </div>
           <Link
-            href={`/${locale}/contact`}
+            href={localizedPath(locale, '/contact')}
             className="group inline-flex items-center gap-3 self-start md:self-end bg-cream text-ink px-8 h-12 text-[12px] font-body font-semibold tracking-[0.16em] uppercase hover:bg-bronze-light transition-colors"
           >
             {t('startInquiry')}
@@ -52,16 +53,16 @@ export default function Footer() {
               {t('quickLinks')}
             </p>
             <nav className="flex flex-col gap-3 text-[15px] font-body font-normal md:items-center">
-              <Link href={`/${locale}`} className="text-cream hover:text-bronze-light transition-colors">
+              <Link href={localizedPath(locale, '')} className="text-cream hover:text-bronze-light transition-colors">
                 {nav('home')}
               </Link>
-              <Link href={`/${locale}/products`} className="text-cream hover:text-bronze-light transition-colors">
+              <Link href={localizedPath(locale, '/products')} className="text-cream hover:text-bronze-light transition-colors">
                 {nav('products')}
               </Link>
-              <Link href={`/${locale}/about`} className="text-cream hover:text-bronze-light transition-colors">
+              <Link href={localizedPath(locale, '/about')} className="text-cream hover:text-bronze-light transition-colors">
                 {nav('about')}
               </Link>
-              <Link href={`/${locale}/contact`} className="text-cream hover:text-bronze-light transition-colors">
+              <Link href={localizedPath(locale, '/contact')} className="text-cream hover:text-bronze-light transition-colors">
                 {nav('contact')}
               </Link>
             </nav>

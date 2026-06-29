@@ -4,6 +4,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Check, ArrowRight } from 'lucide-react';
 import TrackedContactLink from '@/components/public/TrackedContactLink';
 import { SITE_NAME } from '@/lib/seo';
+import { localizedPath } from '@/lib/public-paths';
 
 // Post-submission confirmation. Its whole job is to be a stable URL the user
 // reaches after the contact form succeeds — the Google Ads "Submit lead form"
@@ -66,7 +67,7 @@ export default async function ContactThankYouPage({
             className="mt-10 pt-10 border-t border-warm-border flex flex-wrap items-center gap-x-8 gap-y-4"
             data-reveal
           >
-            <Link href={`/${locale}/products`} className="btn-primary group">
+            <Link href={localizedPath(locale, '/products')} className="btn-primary group">
               {tNav('products')}
               <ArrowRight
                 size={14}
@@ -74,7 +75,7 @@ export default async function ContactThankYouPage({
                 className="ms-3 transition-transform duration-500 group-hover:translate-x-1 rtl:-scale-x-100"
               />
             </Link>
-            <Link href={`/${locale}`} className="btn-ghost">
+            <Link href={localizedPath(locale, '')} className="btn-ghost">
               {tNav('home')}
             </Link>
           </div>

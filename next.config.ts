@@ -18,6 +18,15 @@ const TYPO_SLUG_REDIRECTS: { from: string; to: string }[] = [
 // can't pattern-match dynamic segments cleanly).
 const UNPREFIXED_STATIC_ROUTES = ['/products', '/about', '/contact'];
 
+const HEBREW_STATIC_ROUTE_REDIRECTS: { from: string; to: string }[] = [
+  { from: '/he', to: '/he/israel-home' },
+  { from: '/he/about', to: '/he/israel-about' },
+  { from: '/he/contact', to: '/he/israel-contact' },
+  { from: '/he/contact/thank-you', to: '/he/israel-contact/israel-thank-you' },
+  { from: '/he/products', to: '/he/israel-products' },
+  { from: '/he/insight', to: '/he/israel-insight' },
+];
+
 const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
@@ -70,6 +79,11 @@ const nextConfig = {
       ...UNPREFIXED_STATIC_ROUTES.map((path) => ({
         source: path,
         destination: `/en${path}`,
+        permanent: true,
+      })),
+      ...HEBREW_STATIC_ROUTE_REDIRECTS.map(({ from, to }) => ({
+        source: from,
+        destination: to,
         permanent: true,
       })),
     ];
