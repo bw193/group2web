@@ -51,8 +51,55 @@ export interface VideoSitemapRow {
   status: string;
 }
 
+const videoListColumns = {
+  id: videos.id,
+  slug: videos.slug,
+  status: videos.status,
+  sourceType: videos.sourceType,
+  videoUrl: videos.videoUrl,
+  embedUrl: videos.embedUrl,
+  thumbnailUrl: videos.thumbnailUrl,
+  category: videos.category,
+  tags: videos.tags,
+  durationSeconds: videos.durationSeconds,
+  title: videos.title,
+  excerpt: videos.excerpt,
+  publishedAt: videos.publishedAt,
+  createdAt: videos.createdAt,
+  updatedAt: videos.updatedAt,
+} as const;
+
+const videoDetailColumns = {
+  ...videoListColumns,
+  body: videos.body,
+  seoTitle: videos.seoTitle,
+  seoDescription: videos.seoDescription,
+} as const;
+
+type VideoListRow = {
+  id: string;
+  slug: string;
+  status: string;
+  sourceType: string;
+  videoUrl: string | null;
+  embedUrl: string | null;
+  thumbnailUrl: string | null;
+  category: string | null;
+  tags: string[] | null;
+  durationSeconds: number | null;
+  title: unknown;
+  excerpt: unknown;
+  publishedAt: string | null;
+  createdAt: string | null;
+  updatedAt: string | null;
+};
+
 function getSnapshot(): PublicDataSnapshot | null {
   return getPublicDataSnapshot();
+}
+
+function liveVideoDbAllowed(): boolean {
+  return process.env.PUBLIC_DATA_NO_LIVE_DB !== '1';
 }
 
 function byVideoDateDesc(a: VideoPost, b: VideoPost) {
@@ -134,15 +181,41 @@ function productCandidatesFromRows(
   });
 }
 
-function snapshotVideos(snapshot: PublicDataSnapshot): VideoPost[] {
-  return snapshot.data.videos.map(videoRowToPost);
+function videoListRowToPost(row: VideoListRow): VideoPost {
+  return videoRowToPost({
+    ...row,
+    body: {},
+    seoTitle: {},
+    seoDescription: {},
+  });
+}
+
+async function getPublishedVideoPosts(limit?: number): Promise<VideoPost[]> {
+  if (!liveVideoDbAllowed()) {
+    const snapshot = getSnapshot();
+    const posts = snapshot ? snapshot.data.videos.map(videoRowToPost) : [];
+    const sorted = posts.filter((video) => video.status === 'published').sort(byVideoDateDesc);
+    return typeof limit === 'number' ? sorted.slice(0, limit) : sorted;
+  }
+
+  const db = getDb();
+  const rows = limit
+    ? await db
+        .select(videoListColumns)
+        .from(videos)
+        .where(eq(videos.status, 'published'))
+        .orderBy(desc(videos.publishedAt), desc(videos.createdAt))
+        .limit(limit)
+    : await db
+        .select(videoListColumns)
+        .from(videos)
+        .where(eq(videos.status, 'published'))
+        .orderBy(desc(videos.publishedAt), desc(videos.createdAt));
+  return rows.map(videoListRowToPost);
 }
 
 export async function getVideosIndexData(locale: string): Promise<VideosIndexData> {
-  const snapshot = getSnapshot();
-  const posts = snapshot
-    ? snapshotVideos(snapshot)
-    : (await getDb().select().from(videos).where(eq(videos.status, 'published')).orderBy(desc(videos.publishedAt))).map(videoRowToPost);
+  const posts = await getPublishedVideoPosts(200);
 
   const list = posts
     .filter((video) => video.status === 'published')
@@ -158,24 +231,22 @@ export async function getVideosIndexData(locale: string): Promise<VideosIndexDat
 export async function getVideoDetailData(locale: string, slug: string): Promise<VideoDetailData | null> {
   const snapshot = getSnapshot();
   let post: VideoPost | null = null;
-  if (snapshot) {
-    post = snapshotVideos(snapshot).find((video) => video.slug === slug && video.status === 'published') ?? null;
-  } else {
+
+  if (liveVideoDbAllowed()) {
     const [row] = await getDb()
-      .select()
+      .select(videoDetailColumns)
       .from(videos)
       .where(and(eq(videos.slug, slug), eq(videos.status, 'published')))
       .limit(1);
     post = row ? videoRowToPost(row) : null;
+  } else {
+    post = snapshot?.data.videos.map(videoRowToPost).find((video) => video.slug === slug && video.status === 'published') ?? null;
   }
 
   if (!post) return null;
 
   const video = localizeVideo(post, locale);
-  const allVideos = snapshot
-    ? snapshotVideos(snapshot)
-    : (await getDb().select().from(videos).where(eq(videos.status, 'published')).orderBy(desc(videos.publishedAt))).map(videoRowToPost);
-  const relatedVideos = allVideos
+  const relatedVideos = (await getPublishedVideoPosts(50))
     .filter((item) => item.status === 'published' && item.id !== post.id)
     .sort(byVideoDateDesc)
     .map((item) => toVideoListItem(item, locale))
@@ -238,18 +309,36 @@ export async function getVideoDetailData(locale: string, slug: string): Promise<
 }
 
 export async function getVideoStaticParams(): Promise<Array<{ locale: string; slug: string }>> {
-  const snapshot = getSnapshot();
-  const rows = snapshot
-    ? snapshotVideos(snapshot).filter((video) => video.status === 'published')
-    : (await getDb().select().from(videos).where(eq(videos.status, 'published'))).map(videoRowToPost);
-  return rows.flatMap((video) => locales.map((locale) => ({ locale, slug: video.slug })));
+  // Keep video detail pages on-demand like a lightweight ISR surface. This
+  // avoids adding 7 prerendered pages per CMS video to the production build.
+  return [];
 }
 
 export async function getVideoSitemapRows(): Promise<VideoSitemapRow[]> {
-  const snapshot = getSnapshot();
-  const rows = snapshot
-    ? snapshotVideos(snapshot)
-    : (await getDb().select().from(videos)).map(videoRowToPost);
+  if (!liveVideoDbAllowed()) {
+    const snapshot = getSnapshot();
+    const rows = snapshot ? snapshot.data.videos.map(videoRowToPost) : [];
+    return rows.flatMap((video) =>
+      locales.map((locale) => ({
+        locale,
+        slug: video.slug,
+        videoId: video.id,
+        updatedAt: video.updatedAt || video.publishedAt || new Date().toISOString(),
+        status: video.status,
+      })),
+    );
+  }
+
+  const rows = await getDb()
+    .select({
+      id: videos.id,
+      slug: videos.slug,
+      status: videos.status,
+      publishedAt: videos.publishedAt,
+      updatedAt: videos.updatedAt,
+    })
+    .from(videos)
+    .where(eq(videos.status, 'published'));
   return rows.flatMap((video) =>
     locales.map((locale) => ({
       locale,

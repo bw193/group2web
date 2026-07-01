@@ -16,6 +16,7 @@ function revalidateVideoSurfaces(slugs: string[] = []) {
       if (slug) revalidatePath(`/${loc}/videos/${slug}`);
     }
   }
+  revalidatePath('/sitemap.xml');
 }
 
 export async function GET(
