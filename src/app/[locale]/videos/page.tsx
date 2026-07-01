@@ -14,7 +14,7 @@ import {
 } from '@/lib/seo';
 import { buildVideoObjectSchema } from '@/lib/video-schema';
 
-export const revalidate = 600;
+export const revalidate = 60;
 
 export async function generateMetadata({
   params,
