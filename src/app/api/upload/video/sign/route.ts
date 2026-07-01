@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
-import { createSignedStorageUpload, getSupabaseTusEndpoint, VIDEO_BUCKET } from '@/lib/storage';
+import { createSignedStorageUpload, VIDEO_BUCKET } from '@/lib/storage';
 import { slugify } from '@/lib/utils';
 
 const VIDEO_TYPES: Record<string, string> = {
@@ -74,8 +74,6 @@ export async function POST(request: NextRequest) {
       path: key,
       publicUrl: signed.publicUrl,
       signedUrl: signed.signedUrl,
-      token: signed.token,
-      endpoint: getSupabaseTusEndpoint(),
       cacheControl: '31536000',
     });
   } catch (error) {

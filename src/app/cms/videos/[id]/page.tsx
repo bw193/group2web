@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import * as tus from 'tus-js-client';
 import { ArrowLeft, ImagePlus, Loader2, Upload, Wand2, X } from 'lucide-react';
 import { buildEmbedUrl, getYouTubeThumbnail } from '@/lib/video-utils';
 import { getUploadUrl, slugify } from '@/lib/utils';
@@ -11,14 +10,11 @@ import { getUploadUrl, slugify } from '@/lib/utils';
 type SourceType = 'embed' | 'upload' | 'direct';
 type VideoStatus = 'draft' | 'published';
 
-const CHUNK_SIZE = 6 * 1024 * 1024;
-
 interface SignResponse {
   bucket: string;
   path: string;
   publicUrl: string;
-  token: string;
-  endpoint: string;
+  signedUrl: string;
   cacheControl: string;
 }
 
@@ -30,7 +26,7 @@ function en(value: any): string {
   return value?.en || '';
 }
 
-async function uploadWithTus(
+async function uploadToSignedUrl(
   file: File,
   kind: 'video' | 'thumbnail',
   slug: string,
@@ -54,24 +50,31 @@ async function uploadWithTus(
   const signed = (await signRes.json()) as SignResponse;
 
   await new Promise<void>((resolve, reject) => {
-    const upload = new tus.Upload(file, {
-      endpoint: signed.endpoint,
-      retryDelays: [0, 3000, 5000, 10000, 20000],
-      headers: { 'x-signature': signed.token },
-      uploadDataDuringCreation: true,
-      removeFingerprintOnSuccess: true,
-      metadata: {
-        bucketName: signed.bucket,
-        objectName: signed.path,
-        contentType: file.type,
-        cacheControl: signed.cacheControl || '31536000',
-      },
-      chunkSize: CHUNK_SIZE,
-      onError: reject,
-      onProgress: (bytesUploaded, bytesTotal) => onProgress(bytesTotal ? Math.round((bytesUploaded / bytesTotal) * 100) : 0),
-      onSuccess: () => resolve(),
-    });
-    upload.start();
+    const xhr = new XMLHttpRequest();
+    const formData = new FormData();
+    formData.append('cacheControl', signed.cacheControl || '31536000');
+    formData.append('', file, file.name);
+
+    xhr.upload.onprogress = (event) => {
+      if (event.lengthComputable) onProgress(Math.round((event.loaded / event.total) * 100));
+    };
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        onProgress(100);
+        resolve();
+        return;
+      }
+
+      let message = `Upload failed with status ${xhr.status}`;
+      try {
+        const data = JSON.parse(xhr.responseText);
+        message = data?.message || data?.error || message;
+      } catch {}
+      reject(new Error(message));
+    };
+    xhr.onerror = () => reject(new Error('Upload failed while sending the file to Supabase Storage'));
+    xhr.open('PUT', signed.signedUrl);
+    xhr.send(formData);
   });
 
   return signed.publicUrl;
@@ -171,7 +174,7 @@ export default function VideoEditPage() {
     try {
       const slug = form.slug || slugify(form.title) || 'video';
       const [publicUrl, meta] = await Promise.all([
-        uploadWithTus(file, 'video', slug, setUploadProgress),
+        uploadToSignedUrl(file, 'video', slug, setUploadProgress),
         readVideoMeta(file),
       ]);
       setForm((prev) => ({
@@ -181,7 +184,7 @@ export default function VideoEditPage() {
       }));
       if (meta.thumbnail && !form.thumbnailUrl) {
         setUploading('thumbnail');
-        const thumbUrl = await uploadWithTus(meta.thumbnail, 'thumbnail', slug, setUploadProgress);
+        const thumbUrl = await uploadToSignedUrl(meta.thumbnail, 'thumbnail', slug, setUploadProgress);
         setForm((prev) => ({ ...prev, thumbnailUrl: thumbUrl }));
       }
     } catch (err) {
@@ -200,7 +203,7 @@ export default function VideoEditPage() {
     setUploadProgress(0);
     setError('');
     try {
-      const publicUrl = await uploadWithTus(file, 'thumbnail', form.slug || slugify(form.title) || 'video', setUploadProgress);
+      const publicUrl = await uploadToSignedUrl(file, 'thumbnail', form.slug || slugify(form.title) || 'video', setUploadProgress);
       setForm((prev) => ({ ...prev, thumbnailUrl: publicUrl }));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Thumbnail upload failed');
