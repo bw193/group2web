@@ -18,6 +18,7 @@ export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const subBrand = locale === 'he' ? 'מראות בע״מ' : 'Mirror Co., Ltd';
   // Gate the portal until after mount so the server and the client's first
   // render agree (createPortal needs `document`, which is absent during SSR).
   const [mounted, setMounted] = useState(false);
@@ -84,7 +85,7 @@ export default function Header() {
                 items + search/language/CTA already fill long-label locales
                 (FR/DE), so it shows only on the roomy mobile/tablet header. */}
             <span className="hidden md:inline-block xl:hidden whitespace-nowrap text-[11px] font-body font-semibold text-ink-mid tracking-[0.16em] uppercase border-s border-warm-border ps-3">
-              Mirror Co., Ltd
+              {subBrand}
             </span>
           </Link>
 

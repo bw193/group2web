@@ -9,11 +9,11 @@ import InsightIndex from '@/components/public/insight/InsightIndex';
 import type { DisplayArticle } from '@/components/public/insight/types';
 import { JsonLd } from '@/components/seo/JsonLd';
 import {
-  SITE_NAME,
   SITE_OG_IMAGE,
   SITE_URL,
   buildAlternates,
   localeToOg,
+  localizedSiteName,
   localizedUrl,
   pageCopy,
 } from '@/lib/seo';
@@ -35,6 +35,7 @@ export async function generateMetadata({
   const { locale } = await params;
   const copy = pageCopy(locale, 'insight');
   const url = localizedUrl(locale, '/insight');
+  const siteName = localizedSiteName(locale);
 
   return {
     title: copy.title,
@@ -43,11 +44,11 @@ export async function generateMetadata({
     openGraph: {
       type: 'website',
       url,
-      siteName: SITE_NAME,
+      siteName,
       title: copy.title,
       description: copy.description,
       locale: localeToOg(locale),
-      images: [{ url: SITE_OG_IMAGE, width: 1200, height: 630, alt: SITE_NAME }],
+      images: [{ url: SITE_OG_IMAGE, width: 1200, height: 630, alt: siteName }],
     },
     twitter: {
       card: 'summary_large_image',

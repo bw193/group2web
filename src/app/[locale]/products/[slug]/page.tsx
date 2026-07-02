@@ -2,9 +2,9 @@ import type { Metadata } from 'next';
 import { getUploadUrl } from '@/lib/utils';
 import { getProductMetadataData, getProductStaticParams } from '@/lib/public-data';
 import {
-  SITE_NAME,
   SITE_OG_IMAGE,
   localeToOg,
+  localizedSiteName,
   localizedUrl,
   productTitle,
 } from '@/lib/seo';
@@ -19,11 +19,12 @@ export async function generateMetadata({
   params: Promise<{ locale: string; slug: string }>;
 }): Promise<Metadata> {
   const { locale, slug } = await params;
+  const siteName = localizedSiteName(locale);
 
   try {
     const row = await getProductMetadataData(locale, slug);
     if (!row) {
-      return { title: productTitle('Product'), robots: { index: false, follow: true } };
+      return { title: productTitle('Product', locale), robots: { index: false, follow: true } };
     }
 
     const languages: Record<string, string> = {};
@@ -41,10 +42,10 @@ export async function generateMetadata({
       ? getUploadUrl(row.primaryImage.imageUrl)
       : SITE_OG_IMAGE;
 
-    const title = productTitle(row.translation.name);
+    const title = productTitle(row.translation.name, locale);
     const description = row.translation.shortDescription
       ? row.translation.shortDescription.slice(0, 300)
-      : `${row.trans.name}${row.product.modelNumber ? ` (Model ${row.product.modelNumber})` : ''} - manufactured by Chengtai Mirror, Jiaxing, China. OEM/ODM available.`;
+      : `${row.trans.name}${row.product.modelNumber ? ` (Model ${row.product.modelNumber})` : ''} - manufactured by ${siteName}, Jiaxing, China. OEM/ODM available.`;
 
     const canonical = localizedUrl(locale, `/products/${row.translation.slug}`);
 
@@ -58,7 +59,7 @@ export async function generateMetadata({
       openGraph: {
         type: 'website',
         url: canonical,
-        siteName: SITE_NAME,
+        siteName,
         title,
         description,
         locale: localeToOg(locale),
@@ -72,7 +73,7 @@ export async function generateMetadata({
       },
     };
   } catch {
-    return { title: productTitle('Product') };
+    return { title: productTitle('Product', locale) };
   }
 }
 

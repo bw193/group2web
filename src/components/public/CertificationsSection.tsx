@@ -1,14 +1,21 @@
 import GalleryImage from './GalleryImage';
+import { localizedSiteName } from '@/lib/seo';
 
 interface Props {
+  locale: string;
   images?: (string | null)[];
 }
 
 const FALLBACK_LABELS = ['CE', 'CB', 'SAA', 'ETL', 'IP44', 'IP54', 'RoHS', 'ISO 9001'];
 
-export default async function CertificationsSection({ images = [] }: Props) {
+export default async function CertificationsSection({ locale, images = [] }: Props) {
   const photos = images.filter((v): v is string => !!v);
   const hasPhotos = photos.length > 0;
+  const siteName = localizedSiteName(locale);
+  const body =
+    locale === 'he'
+      ? 'כל מוצר יוצא עם התיעוד הנדרש למעבר בשווקים המחמירים ביותר - מחדרי רחצה באירופה ועד פרויקטי מלונאות וקמעונאות בצפון אמריקה.'
+      : 'Every mirror ships with the paperwork to clear the most demanding markets - from European bathrooms to North American hotel, retail projects.';
 
   // Each visual item is ~332px wide (220 + 2×56 margin). To guarantee the
   // marquee covers any realistic viewport AND loops seamlessly, we need at
@@ -35,7 +42,7 @@ export default async function CertificationsSection({ images = [] }: Props) {
           </div>
           <div className="lg:col-span-5 lg:text-end" data-reveal>
             <p className="text-[17px] font-body font-normal text-ink leading-[1.6] max-w-md lg:ms-auto">
-              Every mirror ships with the paperwork to clear the most demanding markets — from European bathrooms to North American hotel, retail projects.
+              {body}
             </p>
           </div>
         </div>
@@ -56,7 +63,7 @@ export default async function CertificationsSection({ images = [] }: Props) {
                     path={src}
                     alt={
                       i < photos.length
-                        ? `Chengtai Mirror product certification ${(i % photos.length) + 1} (CE / CB / SAA / ETL / RoHS / ISO 9001 family)`
+                        ? `${siteName} product certification ${(i % photos.length) + 1} (CE / CB / SAA / ETL / RoHS / ISO 9001 family)`
                         : ''
                     }
                     fill

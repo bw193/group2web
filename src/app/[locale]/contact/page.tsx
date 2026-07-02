@@ -9,11 +9,11 @@ import {
   ADDRESS,
   CONTACT_EMAIL,
   CONTACT_PHONE,
-  SITE_NAME,
   SITE_OG_IMAGE,
   SITE_URL,
   buildAlternates,
   localeToOg,
+  localizedSiteName,
   localizedUrl,
   pageCopy,
 } from '@/lib/seo';
@@ -28,6 +28,7 @@ export async function generateMetadata({
   const { locale } = await params;
   const copy = pageCopy(locale, 'contact');
   const url = localizedUrl(locale, '/contact');
+  const siteName = localizedSiteName(locale);
 
   return {
     title: copy.title,
@@ -36,11 +37,11 @@ export async function generateMetadata({
     openGraph: {
       type: 'website',
       url,
-      siteName: SITE_NAME,
+      siteName,
       title: copy.title,
       description: copy.description,
       locale: localeToOg(locale),
-      images: [{ url: SITE_OG_IMAGE, width: 1200, height: 630, alt: SITE_NAME }],
+      images: [{ url: SITE_OG_IMAGE, width: 1200, height: 630, alt: siteName }],
     },
     twitter: {
       card: 'summary_large_image',
@@ -56,6 +57,7 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
   setRequestLocale(locale);
   const t = await getTranslations('contact');
   const breadcrumbT = await getTranslations('breadcrumb');
+  const siteName = localizedSiteName(locale);
   const categories = await getContactCategories(locale);
 
   const contactJsonLd = {
@@ -66,7 +68,7 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
     about: { '@id': `${SITE_URL}/#organization` },
     mainEntity: {
       '@type': 'Organization',
-      name: SITE_NAME,
+      name: siteName,
       email: CONTACT_EMAIL,
       telephone: CONTACT_PHONE,
       address: { '@type': 'PostalAddress', ...ADDRESS },

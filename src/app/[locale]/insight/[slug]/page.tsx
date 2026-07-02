@@ -6,9 +6,9 @@ import {
 } from '@/lib/insight';
 import { locales, defaultLocale } from '@/i18n/config';
 import {
-  SITE_NAME,
   SITE_OG_IMAGE,
   localeToOg,
+  localizedSiteName,
   localizedUrl,
   pageCopy,
 } from '@/lib/seo';
@@ -27,11 +27,12 @@ export async function generateMetadata({
   params: Promise<{ locale: string; slug: string }>;
 }): Promise<Metadata> {
   const { locale, slug } = await params;
+  const siteName = localizedSiteName(locale);
 
   try {
     const row = await getArticleRouteData(locale, slug);
     if (!row) {
-      return { title: `Insight - ${SITE_NAME}`, robots: { index: false, follow: true } };
+      return { title: `Insight - ${siteName}`, robots: { index: false, follow: true } };
     }
 
     const allTrans = await getArticleAllTranslations(row.article.id);
@@ -45,7 +46,7 @@ export async function generateMetadata({
     const def = allTrans.find((tr) => tr.locale === defaultLocale);
     if (def) languages['x-default'] = localizedUrl(defaultLocale, `/insight/${def.slug}`);
 
-    const title = `${row.trans.title} - ${SITE_NAME}`;
+    const title = `${row.trans.title} - ${siteName}`;
     const description = row.trans.dek || pageCopy(locale, 'insight').description;
     const canonical = localizedUrl(locale, `/insight/${row.trans.slug}`);
     const ogImage = row.article.coverImageUrl
@@ -62,7 +63,7 @@ export async function generateMetadata({
       openGraph: {
         type: 'article',
         url: canonical,
-        siteName: SITE_NAME,
+        siteName,
         title,
         description,
         locale: localeToOg(locale),
@@ -79,7 +80,7 @@ export async function generateMetadata({
       },
     };
   } catch {
-    return { title: `Insight - ${SITE_NAME}` };
+    return { title: `Insight - ${siteName}` };
   }
 }
 

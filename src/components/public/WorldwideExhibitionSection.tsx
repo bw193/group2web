@@ -1,7 +1,7 @@
 import { getTranslations } from 'next-intl/server';
 import GalleryImage from './GalleryImage';
 import { JsonLd } from '@/components/seo/JsonLd';
-import { SITE_NAME, SITE_URL } from '@/lib/seo';
+import { SITE_URL, localizedSiteName } from '@/lib/seo';
 
 interface ExhibitionPhoto {
   imageUrl: string;
@@ -18,6 +18,11 @@ export default async function WorldwideExhibitionSection({ locale, photos }: Pro
 
   const t = await getTranslations({ locale, namespace: 'home.exhibition' });
   const total = photos.length;
+  const siteName = localizedSiteName(locale);
+  const fallbackAlt =
+    locale === 'he'
+      ? `${siteName} בתערוכה בינלאומית לתחום חדרי הרחצה`
+      : `${siteName} at an international mirror & bathroom exhibition`;
 
   // Real, admin-entered captions only — never a "International exhibition 1"
   // placeholder, which read as unfinished. Missing captions simply leave the
@@ -34,7 +39,7 @@ export default async function WorldwideExhibitionSection({ locale, photos }: Pro
       '@type': 'ImageObject',
       contentUrl: absoluteImageUrl(it.imageUrl),
       caption: it.caption,
-      name: `${it.caption} — ${SITE_NAME}`,
+      name: `${it.caption} — ${siteName}`,
     }));
 
   // Keep photos generously sized: never thinner than a 2-up; only step to 3-up
@@ -81,8 +86,8 @@ export default async function WorldwideExhibitionSection({ locale, photos }: Pro
                     path={it.imageUrl}
                     alt={
                       it.caption
-                        ? `${it.caption} — ${SITE_NAME} international exhibition`
-                        : `${SITE_NAME} at an international mirror & bathroom exhibition`
+                        ? `${it.caption} — ${siteName} international exhibition`
+                        : fallbackAlt
                     }
                     fill
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"

@@ -10,11 +10,11 @@ import {
   CONTACT_PHONE,
   SITE_LEGAL_NAME,
   SITE_LOGO_URL,
-  SITE_NAME,
   SITE_OG_IMAGE,
   SITE_URL,
   buildAlternates,
   localeToOg,
+  localizedSiteName,
   localizedUrl,
   pageCopy,
 } from '@/lib/seo';
@@ -31,6 +31,7 @@ export async function generateMetadata({
   const { locale } = await params;
   const copy = pageCopy(locale, 'about');
   const url = localizedUrl(locale, '/about');
+  const siteName = localizedSiteName(locale);
 
   return {
     title: copy.title,
@@ -39,11 +40,11 @@ export async function generateMetadata({
     openGraph: {
       type: 'website',
       url,
-      siteName: SITE_NAME,
+      siteName,
       title: copy.title,
       description: copy.description,
       locale: localeToOg(locale),
-      images: [{ url: SITE_OG_IMAGE, width: 1200, height: 630, alt: SITE_NAME }],
+      images: [{ url: SITE_OG_IMAGE, width: 1200, height: 630, alt: siteName }],
     },
     twitter: {
       card: 'summary_large_image',
@@ -59,6 +60,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
   setRequestLocale(locale);
   const t = await getTranslations('about');
   const breadcrumbT = await getTranslations('breadcrumb');
+  const siteName = localizedSiteName(locale);
   const { about, factoryPhotos, certificationPhotos: certPhotos } = await getAboutPagePublicData(locale);
 
   const stats = [
@@ -73,7 +75,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
     '@type': 'Organization',
     '@id': `${SITE_URL}/#organization`,
     name: SITE_LEGAL_NAME,
-    alternateName: SITE_NAME,
+    alternateName: siteName,
     url: SITE_URL,
     logo: SITE_LOGO_URL,
     image: SITE_OG_IMAGE,
@@ -220,7 +222,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
                 >
                   <GalleryImage
                     path={photo.imageUrl}
-                    alt={`Chengtai Mirror factory in Jiaxing - production view ${i + 1}`}
+                    alt={`${siteName} factory in Jiaxing - production view ${i + 1}`}
                     fill
                     sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                     className="object-cover transition-transform duration-[1.4s] ease-out group-hover:scale-[1.04]"
@@ -256,7 +258,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
                 >
                   <GalleryImage
                     path={cert.imageUrl}
-                    alt={`Chengtai Mirror product certification ${i + 1} (CE / CB / SAA / ETL / RoHS / ISO 9001 family)`}
+                    alt={`${siteName} product certification ${i + 1} (CE / CB / SAA / ETL / RoHS / ISO 9001 family)`}
                     width={420}
                     height={420}
                     sizes="(max-width: 768px) 45vw, 22vw"

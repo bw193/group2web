@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Check, ArrowRight } from 'lucide-react';
 import TrackedContactLink from '@/components/public/TrackedContactLink';
-import { SITE_NAME } from '@/lib/seo';
+import { localizedSiteName } from '@/lib/seo';
 import { localizedPath } from '@/lib/public-paths';
 
 // Post-submission confirmation. Its whole job is to be a stable URL the user
@@ -16,8 +16,9 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'contact' });
+  const siteName = localizedSiteName(locale);
   return {
-    title: `${t('successHeading')} | ${SITE_NAME}`,
+    title: `${t('successHeading')} | ${siteName}`,
     description: t('success'),
     robots: { index: false, follow: true },
   };

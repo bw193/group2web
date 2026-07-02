@@ -15,11 +15,11 @@ import {
   CONTACT_PHONE,
   SITE_LEGAL_NAME,
   SITE_LOGO_URL,
-  SITE_NAME,
   SITE_OG_IMAGE,
   SITE_URL,
   buildAlternates,
   localeToOg,
+  localizedSiteName,
   localizedUrl,
   pageCopy,
 } from '@/lib/seo';
@@ -36,6 +36,7 @@ export async function generateMetadata({
   const { locale } = await params;
   const copy = pageCopy(locale, 'home');
   const url = localizedUrl(locale, '');
+  const siteName = localizedSiteName(locale);
 
   return {
     title: copy.title,
@@ -44,11 +45,11 @@ export async function generateMetadata({
     openGraph: {
       type: 'website',
       url,
-      siteName: SITE_NAME,
+      siteName,
       title: copy.title,
       description: copy.description,
       locale: localeToOg(locale),
-      images: [{ url: SITE_OG_IMAGE, width: 1200, height: 630, alt: SITE_NAME }],
+      images: [{ url: SITE_OG_IMAGE, width: 1200, height: 630, alt: siteName }],
     },
     twitter: {
       card: 'summary_large_image',
@@ -69,10 +70,20 @@ const FALLBACK_FAQ_FOR_SEO: { q: string; a: string }[] = [
   { q: 'Do you offer a warranty on the products?', a: 'Every product ships with a two-year warranty.' },
 ];
 
+const FALLBACK_FAQ_FOR_SEO_HE: { q: string; a: string }[] = [
+  { q: 'האם אתם מקבלים הזמנות לדוגמה?', a: 'כן - אנו תומכים בהזמנת דוגמאות לבדיקת איכות ותפקוד לפני הזמנת ייצור מלאה.' },
+  { q: 'מהו זמן האספקה הטיפוסי שלכם?', a: 'בדרך כלל 10-15 ימים להזמנות סטנדרטיות. כמויות גדולות מתוזמנות איתכם מראש.' },
+  { q: 'האם יש מגבלת MOQ?', a: 'MOQ נמוך - גם יחידה אחת מתאימה לבדיקת דוגמה.' },
+  { q: 'האם אתם מפעילים מפעל משלכם?', a: 'כן. אנו מתמחים בייצור מראות LED, מוצרי אמבטיה, פריטי הלבשה וארונות מראה - הכול בתוך המפעל.' },
+  { q: 'האם אפשר להדפיס את הלוגו שלנו על המוצרים?', a: 'כן. אשרו את העיצוב מול דוגמת טרום הייצור ועדכנו אותנו לפני תחילת הייצור.' },
+  { q: 'האם אתם מציעים אחריות על המוצרים?', a: 'כל מוצר נשלח עם אחריות לשנתיים.' },
+];
+
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations('home');
+  const siteName = localizedSiteName(locale);
   const {
     bannerSlides,
     featuredProducts: featuredWithDetails,
@@ -92,13 +103,13 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
   // FAQs for JSON-LD: prefer DB content; fall back to the same list the
   // client component shows so structured data is always present.
-  const seoFaqs = finalFaqs.length > 0 ? finalFaqs : FALLBACK_FAQ_FOR_SEO;
+  const seoFaqs = finalFaqs.length > 0 ? finalFaqs : locale === 'he' ? FALLBACK_FAQ_FOR_SEO_HE : FALLBACK_FAQ_FOR_SEO;
 
   const organization = {
     '@type': 'Organization',
     '@id': `${SITE_URL}/#organization`,
     name: SITE_LEGAL_NAME,
-    alternateName: SITE_NAME,
+    alternateName: siteName,
     url: SITE_URL,
     logo: SITE_LOGO_URL,
     foundingDate: '2005',
@@ -119,7 +130,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     '@type': 'WebSite',
     '@id': `${SITE_URL}/#website`,
     url: SITE_URL,
-    name: SITE_NAME,
+    name: siteName,
     publisher: { '@id': `${SITE_URL}/#organization` },
     inLanguage: locale,
     potentialAction: {
@@ -221,7 +232,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       <FaqSection backendFaqs={finalFaqs} />
 
       {/* Certifications */}
-      <CertificationsSection images={certPhotos.map((p) => p.imageUrl)} />
+      <CertificationsSection locale={locale} images={certPhotos.map((p) => p.imageUrl)} />
 
       {/* Worldwide Exhibitions - hidden when no photos are uploaded */}
       <WorldwideExhibitionSection locale={locale} photos={exhibitionPhotos} />

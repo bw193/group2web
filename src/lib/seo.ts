@@ -4,6 +4,7 @@ import { localizedPath as buildLocalizedPath } from '@/lib/public-paths';
 export const SITE_URL = 'https://chengtaimirror.com';
 export const SITE_NAME = 'Chengtai Mirror';
 export const SITE_LEGAL_NAME = 'Jiaxing Chengtai Mirror Co., Ltd';
+export const HEBREW_SITE_NAME = 'מראות Chengtai';
 export const SITE_LOGO_URL =
   'https://yleuaykcrrrqdhzmrmoq.supabase.co/storage/v1/object/public/assets/Favicon.png';
 // Dedicated 1200x630 brand/product collage image used for og:image and
@@ -35,6 +36,10 @@ const LOCALE_TO_BCP47: Record<Locale, string> = {
 
 export function localeToOg(locale: string): string {
   return LOCALE_TO_BCP47[locale as Locale] ?? 'en_US';
+}
+
+export function localizedSiteName(locale: string): string {
+  return locale === 'he' ? HEBREW_SITE_NAME : SITE_NAME;
 }
 
 /** Path with locale prefix. Mirrors middleware `localePrefix: 'always'`. */
@@ -247,28 +252,28 @@ const COPY: Record<Locale, RoutedCopy> = {
   },
   he: {
     home: {
-      title: 'מפעל מראות LED ואמבטיה בתקן CE/UL | Chengtai Mirror',
+      title: 'מפעל מראות LED ואמבטיה בתקן CE/UL | מראות Chengtai',
       description:
-        'Chengtai Mirror — מפעל המתמחה במראות LED לאמבטיה, ארונות מראה ומראות גוף מלא. בעל תקני CE, ETL ו-RoHS לקמעונאות עולמית.',
+        'מראות Chengtai — מפעל המתמחה במראות LED לאמבטיה, ארונות מראה ומראות גוף מלא. בעל תקני CE, ETL ו-RoHS לקמעונאות עולמית.',
       h1: 'יצרנית מראות LED מובילה בעולם',
     },
     products: {
-      title: 'קטלוג מראות LED, חכמות ולאמבטיה | Chengtai Mirror',
+      title: 'קטלוג מראות LED, חכמות ולאמבטיה | מראות Chengtai',
       description:
-        'עיינו באוסף המלא של מראות LED, חכמות, נגד אדים ולאמבטיה של Chengtai Mirror. סיטונאות, OEM/ODM ואריזה מוכנה לייצוא. בקשו הצעת מחיר.',
+        'עיינו באוסף המלא של מראות LED, חכמות, נגד אדים ולאמבטיה של מראות Chengtai. סיטונאות, OEM/ODM ואריזה מוכנה לייצוא. בקשו הצעת מחיר.',
     },
     about: {
-      title: 'אודות Chengtai Mirror — מפעל מראות LED בג׳יאשינג',
+      title: 'אודות מראות Chengtai — מפעל מראות LED בג׳יאשינג',
       description:
         'נוסדה ב-2005 בג׳יאשינג, ז׳ג׳יאנג. מתקן בן 50,000 מ״ר, 200+ עובדים, 2,000,000 יחידות בשנה. תקני CE, CB, SAA, ETL, RoHS, ISO 9001 — משלוח ל-60+ מדינות.',
     },
     contact: {
-      title: 'צרו קשר עם Chengtai Mirror — בקשת הצעת מחיר',
+      title: 'צרו קשר עם מראות Chengtai — בקשת הצעת מחיר',
       description:
-        'שתפו את פרטי הפרויקט שלכם עם צוות הייצוא של Chengtai Mirror. אנו משיבים תוך יום עסקים אחד. אימייל, וואטסאפ וטלפון ישיר זמינים.',
+        'שתפו את פרטי הפרויקט שלכם עם צוות הייצוא של מראות Chengtai. אנו משיבים תוך יום עסקים אחד. אימייל, וואטסאפ וטלפון ישיר זמינים.',
     },
     insight: {
-      title: 'Insight — יומן עיצוב ורכש מראות LED | Chengtai Mirror',
+      title: 'Insight — יומן עיצוב ורכש מראות LED | מראות Chengtai',
       description:
         'סיפורים ממפעל מראות פעיל: מגמות עיצוב מראות LED, אומנות הייצור, מקרי בוחן של פרויקטים ומדריכי רכש OEM/ODM לקונים גלובליים.',
     },
@@ -280,7 +285,7 @@ export function pageCopy(locale: string, key: PageKey) {
   return COPY[safe][key];
 }
 
-/** "Product Name — Chengtai Mirror" */
-export function productTitle(name: string): string {
-  return `${name} — ${SITE_NAME}`;
+/** "Product Name — Chengtai Mirror", localized when the page locale needs it. */
+export function productTitle(name: string, locale: string = defaultLocale): string {
+  return `${name} — ${localizedSiteName(locale)}`;
 }

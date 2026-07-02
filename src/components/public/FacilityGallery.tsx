@@ -2,15 +2,18 @@
 
 import { useState } from 'react';
 import GalleryImage from './GalleryImage';
+import { localizedSiteName } from '@/lib/seo';
 
 interface Props {
   images: string[];
+  locale: string;
 }
 
-export default function FacilityGallery({ images }: Props) {
+export default function FacilityGallery({ images, locale }: Props) {
   const list = images.length > 0 ? images : ['/images/placeholder.svg'];
   const [activeIdx, setActiveIdx] = useState(0);
   const total = list.length;
+  const siteName = localizedSiteName(locale);
 
   return (
     <div className="relative">
@@ -33,7 +36,7 @@ export default function FacilityGallery({ images }: Props) {
             <GalleryImage
               key={`${src}-${i}`}
               path={src}
-              alt={`Chengtai Mirror manufacturing facility in Jiaxing — view ${i + 1}`}
+              alt={`${siteName} manufacturing facility in Jiaxing — view ${i + 1}`}
               fill
               sizes="(max-width: 1024px) 100vw, 58vw"
               quality={85}

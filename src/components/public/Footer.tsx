@@ -11,6 +11,8 @@ export default function Footer() {
   const locale = useLocale();
 
   const year = new Date().getFullYear();
+  const brandName = locale === 'he' ? 'מראות Chengtai' : 'Chengtai Mirror';
+  const companyDisplayName = locale === 'he' ? 'Jiaxing Chengtai מראות בע״מ' : 'Jiaxing Chengtai Mirror Co., Ltd';
 
   return (
     <footer className="bg-ink text-cream/85">
@@ -19,7 +21,7 @@ export default function Footer() {
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-10 pb-14 border-b border-cream/15">
           <div>
             <p className="font-body text-[13px] font-semibold tracking-[0.16em] uppercase text-bronze-light mb-4">
-              Jiaxing Chengtai Mirror Co., Ltd
+              {companyDisplayName}
             </p>
             <h2 className="font-display text-4xl md:text-5xl font-normal leading-[1.05] text-cream tracking-[-0.01em]">
               {t('tagline')}
@@ -103,7 +105,7 @@ export default function Footer() {
         {/* Bottom rule */}
         <div className="border-t border-cream/15 mt-16 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-[13px] font-body font-normal text-cream/70">
-            © {year} Chengtai Mirror — {t('copyright')}
+            © {year} {brandName} — {t('copyright')}
           </p>
           <Link
             href="/cms/login"

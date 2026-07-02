@@ -20,13 +20,22 @@ const FALLBACK_FAQ: QA[] = [
   { q: 'Do you offer a warranty on the products?', a: 'Every product ships with a two-year warranty.' },
 ];
 
+const FALLBACK_FAQ_HE: QA[] = [
+  { q: 'האם אתם מקבלים הזמנות לדוגמה?', a: 'כן - אנו תומכים בהזמנת דוגמאות לבדיקת איכות ותפקוד לפני הזמנת ייצור מלאה.' },
+  { q: 'מהו זמן האספקה הטיפוסי שלכם?', a: 'בדרך כלל 10-15 ימים להזמנות סטנדרטיות. כמויות גדולות מתוזמנות איתכם מראש.' },
+  { q: 'האם יש מגבלת MOQ?', a: 'MOQ נמוך - גם יחידה אחת מתאימה לבדיקת דוגמה.' },
+  { q: 'האם אתם מפעילים מפעל משלכם?', a: 'כן. אנו מתמחים בייצור מראות LED, מוצרי אמבטיה, פריטי הלבשה וארונות מראה - הכול בתוך המפעל.' },
+  { q: 'האם אפשר להדפיס את הלוגו שלנו על המוצרים?', a: 'כן. אשרו את העיצוב מול דוגמת טרום הייצור ועדכנו אותנו לפני תחילת הייצור.' },
+  { q: 'האם אתם מציעים אחריות על המוצרים?', a: 'כל מוצר נשלח עם אחריות לשנתיים.' },
+];
+
 interface Props {
   backendFaqs?: QA[];
 }
 
 export default function FaqSection({ backendFaqs = [] }: Props) {
   const locale = useLocale();
-  const FAQ: QA[] = backendFaqs.length > 0 ? backendFaqs : FALLBACK_FAQ;
+  const FAQ: QA[] = backendFaqs.length > 0 ? backendFaqs : locale === 'he' ? FALLBACK_FAQ_HE : FALLBACK_FAQ;
   const [openIdx, setOpenIdx] = useState<number | null>(0);
 
   const toggle = (i: number) => setOpenIdx((curr) => (curr === i ? null : i));

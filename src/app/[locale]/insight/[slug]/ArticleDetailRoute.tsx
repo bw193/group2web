@@ -18,10 +18,10 @@ import {
   categoryFallbackLabel,
 } from '@/lib/insight';
 import {
-  SITE_NAME,
   SITE_OG_IMAGE,
   SITE_URL,
   SITE_LOGO_URL,
+  localizedSiteName,
   localizedPath,
   localizedUrl,
 } from '@/lib/seo';
@@ -49,6 +49,7 @@ export async function renderArticlePage(
   }
 
   const { article, trans: translation } = row;
+  const siteName = localizedSiteName(locale);
   if (options.redirectHebrewSegment && locale === 'he') {
     permanentRedirect(localizedPath(locale, `/insight/${translation.slug}`));
   }
@@ -81,7 +82,7 @@ export async function renderArticlePage(
     publisher: {
       '@type': 'Organization',
       '@id': `${SITE_URL}/#organization`,
-      name: SITE_NAME,
+      name: siteName,
       logo: { '@type': 'ImageObject', url: SITE_LOGO_URL },
     },
     image: article.coverImageUrl ? [getUploadUrl(article.coverImageUrl)] : [SITE_OG_IMAGE],

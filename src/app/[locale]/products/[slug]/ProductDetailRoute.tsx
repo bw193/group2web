@@ -8,8 +8,8 @@ import { JsonLd } from '@/components/seo/JsonLd';
 import { getProductDetailData } from '@/lib/public-data';
 import { getUploadUrl } from '@/lib/utils';
 import {
-  SITE_NAME,
   SITE_URL,
+  localizedSiteName,
   localizedPath,
   localizedUrl,
 } from '@/lib/seo';
@@ -35,6 +35,7 @@ export async function renderProductDetailPage(
   }
 
   const { product, translation: trans, specs, images, related } = detail;
+  const siteName = localizedSiteName(locale);
 
   const imageUrls = images.length > 0
     ? images.map((img) => getUploadUrl(img.imageUrl))
@@ -48,8 +49,8 @@ export async function renderProductDetailPage(
     image: imageUrls,
     description:
       trans.shortDescription ||
-      (trans.fullDescription ? trans.fullDescription.replace(/<[^>]+>/g, '').slice(0, 500) : `${trans.name} - manufactured by ${SITE_NAME}.`),
-    brand: { '@type': 'Brand', name: SITE_NAME },
+      (trans.fullDescription ? trans.fullDescription.replace(/<[^>]+>/g, '').slice(0, 500) : `${trans.name} - manufactured by ${siteName}.`),
+    brand: { '@type': 'Brand', name: siteName },
     manufacturer: { '@id': `${SITE_URL}/#organization` },
     url: productUrl,
   };
