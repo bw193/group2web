@@ -7,6 +7,8 @@ import {
   localizedSiteName,
   localizedUrl,
   productTitle,
+  shouldIncludeSeoAlternate,
+  shouldIncludeXDefault,
 } from '@/lib/seo';
 import { locales, defaultLocale } from '@/i18n/config';
 import { renderProductDetailPage, type ProductDetailPageProps } from './ProductDetailRoute';
@@ -29,12 +31,12 @@ export async function generateMetadata({
 
     const languages: Record<string, string> = {};
     for (const t of row.allTranslations) {
-      if ((locales as readonly string[]).includes(t.locale)) {
+      if ((locales as readonly string[]).includes(t.locale) && shouldIncludeSeoAlternate(locale, t.locale)) {
         languages[t.locale] = localizedUrl(t.locale, `/products/${t.slug}`);
       }
     }
     const defaultRow = row.allTranslations.find((t) => t.locale === defaultLocale);
-    if (defaultRow) {
+    if (defaultRow && shouldIncludeXDefault(locale)) {
       languages['x-default'] = localizedUrl(defaultLocale, `/products/${defaultRow.slug}`);
     }
 

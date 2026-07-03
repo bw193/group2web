@@ -6,6 +6,10 @@ import { usePathname, useRouter } from 'next/navigation';
 import { ChevronDown } from 'lucide-react';
 import { locales, localeNames, type Locale } from '@/i18n/config';
 import { localizedPathFromPathname } from '@/lib/public-paths';
+import {
+  LOCALE_SWITCH_LINKS_SCRIPT_ID,
+  type LocaleSwitchLinksMap,
+} from '@/lib/locale-switch-links';
 
 export default function LanguageSwitcher() {
   const locale = useLocale();
@@ -25,6 +29,21 @@ export default function LanguageSwitcher() {
   }, []);
 
   function switchLocale(newLocale: Locale) {
+    const linksData = document.getElementById(LOCALE_SWITCH_LINKS_SCRIPT_ID)?.textContent;
+    if (linksData) {
+      try {
+        const links = JSON.parse(linksData) as LocaleSwitchLinksMap;
+        const href = links[newLocale];
+        if (href) {
+          router.push(href);
+          setOpen(false);
+          return;
+        }
+      } catch {
+        // Ignore malformed optional switch data and use metadata/fallback paths.
+      }
+    }
+
     const alternate = document.querySelector<HTMLLinkElement>(
       `link[rel="alternate"][hrefLang="${newLocale}"],link[rel="alternate"][hreflang="${newLocale}"]`,
     );

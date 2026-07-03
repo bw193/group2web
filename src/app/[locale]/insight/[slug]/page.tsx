@@ -11,6 +11,8 @@ import {
   localizedSiteName,
   localizedUrl,
   pageCopy,
+  shouldIncludeSeoAlternate,
+  shouldIncludeXDefault,
 } from '@/lib/seo';
 import { getUploadUrl } from '@/lib/utils';
 import { renderArticlePage, type ArticlePageProps } from './ArticleDetailRoute';
@@ -39,12 +41,12 @@ export async function generateMetadata({
 
     const languages: Record<string, string> = {};
     for (const tr of allTrans) {
-      if ((locales as readonly string[]).includes(tr.locale)) {
+      if ((locales as readonly string[]).includes(tr.locale) && shouldIncludeSeoAlternate(locale, tr.locale)) {
         languages[tr.locale] = localizedUrl(tr.locale, `/insight/${tr.slug}`);
       }
     }
     const def = allTrans.find((tr) => tr.locale === defaultLocale);
-    if (def) languages['x-default'] = localizedUrl(defaultLocale, `/insight/${def.slug}`);
+    if (def && shouldIncludeXDefault(locale)) languages['x-default'] = localizedUrl(defaultLocale, `/insight/${def.slug}`);
 
     const title = `${row.trans.title} - ${siteName}`;
     const description = row.trans.dek || pageCopy(locale, 'insight').description;
