@@ -342,7 +342,6 @@ export function recommendProductsForVideo<T extends ProductRecommendationInput>(
 ): T[] {
   return products
     .map((product, index) => ({ product, score: scoreProductForVideo(video, product), index }))
-    .filter((item) => item.score > 0)
     .sort((a, b) => b.score - a.score || a.index - b.index)
     .slice(0, limit)
     .map((item) => item.product);
@@ -355,7 +354,6 @@ export function recommendVideosForVideo<T extends VideoListItem>(
 ): T[] {
   return videoItems
     .map((candidate, index) => ({ candidate, score: scoreVideoForVideo(video, candidate), index }))
-    .filter((item) => item.score > 0)
     .sort((a, b) => b.score - a.score || a.index - b.index)
     .slice(0, limit)
     .map((item) => item.candidate);
@@ -368,7 +366,6 @@ export function recommendVideosForProduct<T extends VideoListItem>(
 ): T[] {
   return videoItems
     .map((video, index) => ({ video, score: scoreProductForVideo(video, product), index }))
-    .filter((item) => item.score > 0)
     .sort((a, b) => b.score - a.score || a.index - b.index)
     .slice(0, limit)
     .map((item) => item.video);

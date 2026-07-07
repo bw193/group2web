@@ -108,6 +108,11 @@ function byVideoDateDesc(a: VideoPost, b: VideoPost) {
   return bTime - aTime || a.slug.localeCompare(b.slug);
 }
 
+function byProductFallbackPriority(a: ProductRow, b: ProductRow) {
+  if (a.isFeatured !== b.isFeatured) return a.isFeatured ? -1 : 1;
+  return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
+}
+
 function categoryOptionsFromRows(
   cats: ProductCategoryRow[],
   translations: CategoryTranslationRow[],
@@ -254,7 +259,7 @@ export async function getVideoDetailData(locale: string, slug: string): Promise<
 
   let productCandidates: ProductRecommendationCandidate[] = [];
   if (snapshot) {
-    const activeProducts = snapshot.data.products.filter((p) => p.isActive);
+    const activeProducts = snapshot.data.products.filter((p) => p.isActive).sort(byProductFallbackPriority);
     const activeCats = snapshot.data.productCategories.filter((c) => c.isActive);
     const categoryMap = categoryOptionsFromRows(activeCats, snapshot.data.categoryTranslations, locale);
     productCandidates = productCandidatesFromRows(
@@ -270,7 +275,7 @@ export async function getVideoDetailData(locale: string, slug: string): Promise<
       .select()
       .from(products)
       .where(eq(products.isActive, true))
-      .orderBy(desc(products.createdAt))
+      .orderBy(desc(products.isFeatured), desc(products.createdAt))
       .limit(500);
     const productIds = activeProducts.map((p) => p.id);
     const categoryIds = activeProducts.map((p) => p.categoryId).filter((id): id is number => typeof id === 'number');
