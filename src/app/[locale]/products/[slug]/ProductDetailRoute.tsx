@@ -4,10 +4,8 @@ import { notFound, permanentRedirect } from 'next/navigation';
 import { ArrowRight, ChevronRight } from 'lucide-react';
 import ProductCard from '@/components/public/ProductCard';
 import ProofPoints from '@/components/public/ProofPoints';
-import { LocaleSwitchLinks } from '@/components/public/LocaleSwitchLinks';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { getProductDetailData } from '@/lib/public-data';
-import { buildProductLocaleSwitchLinks } from '@/lib/locale-switch-links';
 import { getUploadUrl } from '@/lib/utils';
 import {
   SITE_URL,
@@ -38,7 +36,6 @@ export async function renderProductDetailPage(
 
   const { product, translation: trans, specs, images, related } = detail;
   const siteName = localizedSiteName(locale);
-  const localeSwitchLinks = buildProductLocaleSwitchLinks(detail.allTranslations);
 
   const imageUrls = images.length > 0
     ? images.map((img) => getUploadUrl(img.imageUrl))
@@ -74,7 +71,6 @@ export async function renderProductDetailPage(
 
   return (
     <>
-      <LocaleSwitchLinks links={localeSwitchLinks} />
       <JsonLd id="ld-product" data={productJsonLd} />
       <JsonLd id="ld-product-breadcrumb" data={productBreadcrumb} />
 

@@ -3,8 +3,6 @@ import { locales, defaultLocale } from '@/i18n/config';
 import {
   localizedUrl,
   buildLanguageAlternates,
-  shouldIncludeSeoAlternate,
-  shouldIncludeXDefault,
 } from '@/lib/seo';
 import { getArticleSitemapRows, getProductSitemapRows } from '@/lib/public-data';
 
@@ -21,8 +19,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Static routes × every locale.
   for (const pathAfterLocale of STATIC_ROUTES) {
+    const languages = buildLanguageAlternates(pathAfterLocale);
     for (const loc of locales) {
-      const languages = buildLanguageAlternates(loc, pathAfterLocale);
       entries.push({
         url: localizedUrl(loc, pathAfterLocale),
         lastModified: STATIC_LAST_MODIFIED,
@@ -59,22 +57,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     for (const [, { updatedAt, isActive, slugs }] of byProduct) {
       if (!isActive) continue;
 
+      // Build hreflang languages map from this product's per-locale slugs.
+      const languages: Record<string, string> = {};
+      for (const loc of locales) {
+        const slug = slugs[loc];
+        if (slug) {
+          languages[loc] = localizedUrl(loc, `/products/${slug}`);
+        }
+      }
       const defaultSlug = slugs[defaultLocale];
+      if (defaultSlug) {
+        languages['x-default'] = localizedUrl(defaultLocale, `/products/${defaultSlug}`);
+      }
 
       // Emit one sitemap entry per locale that actually has a translation.
       for (const loc of locales) {
         const slug = slugs[loc];
         if (!slug) continue;
-        const languages: Record<string, string> = {};
-        for (const targetLoc of locales) {
-          const targetSlug = slugs[targetLoc];
-          if (targetSlug && shouldIncludeSeoAlternate(loc, targetLoc)) {
-            languages[targetLoc] = localizedUrl(targetLoc, `/products/${targetSlug}`);
-          }
-        }
-        if (defaultSlug && shouldIncludeXDefault(loc)) {
-          languages['x-default'] = localizedUrl(defaultLocale, `/products/${defaultSlug}`);
-        }
         const lastModified = updatedAt ? new Date(updatedAt) : STATIC_LAST_MODIFIED;
         entries.push({
           url: localizedUrl(loc, `/products/${slug}`),
@@ -113,21 +112,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     for (const [, { updatedAt, isActive, slugs }] of byArticle) {
       if (!isActive) continue;
 
+      const languages: Record<string, string> = {};
+      for (const loc of locales) {
+        const slug = slugs[loc];
+        if (slug) languages[loc] = localizedUrl(loc, `/insight/${slug}`);
+      }
       const defaultSlug = slugs[defaultLocale];
+      if (defaultSlug) {
+        languages['x-default'] = localizedUrl(defaultLocale, `/insight/${defaultSlug}`);
+      }
 
       for (const loc of locales) {
         const slug = slugs[loc];
         if (!slug) continue;
-        const languages: Record<string, string> = {};
-        for (const targetLoc of locales) {
-          const targetSlug = slugs[targetLoc];
-          if (targetSlug && shouldIncludeSeoAlternate(loc, targetLoc)) {
-            languages[targetLoc] = localizedUrl(targetLoc, `/insight/${targetSlug}`);
-          }
-        }
-        if (defaultSlug && shouldIncludeXDefault(loc)) {
-          languages['x-default'] = localizedUrl(defaultLocale, `/insight/${defaultSlug}`);
-        }
         const lastModified = updatedAt ? new Date(updatedAt) : STATIC_LAST_MODIFIED;
         entries.push({
           url: localizedUrl(loc, `/insight/${slug}`),

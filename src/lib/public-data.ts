@@ -99,7 +99,6 @@ export type ProductDetailData =
       specs: ProductSpecificationRow[];
       images: ProductImageRow[];
       related: ProductCardData[];
-      allTranslations: Array<Pick<ProductTranslationRow, 'locale' | 'slug'>>;
     }
   | { type: 'redirect'; destination: string }
   | { type: 'notFound' };
@@ -594,9 +593,6 @@ export async function getProductDetailData(locale: string, slug: string): Promis
       related: productCardsFromRows(relatedRows, snapshot.data.productTranslations, snapshot.data.productImages, locale).map((p) => ({
         ...p,
       })),
-      allTranslations: snapshot.data.productTranslations
-        .filter((t) => t.productId === row.product.id)
-        .map((t) => ({ locale: t.locale, slug: t.slug })),
     };
   }
 
@@ -651,7 +647,7 @@ export async function getProductDetailData(locale: string, slug: string): Promis
   }
   if (!product || !translation) return { type: 'notFound' };
 
-  const [specs, images, localeTrans, allTranslations] = await Promise.all([
+  const [specs, images, localeTrans] = await Promise.all([
     db.select().from(productSpecifications).where(and(eq(productSpecifications.productId, product.id), eq(productSpecifications.locale, locale))),
     db.select().from(productImages).where(eq(productImages.productId, product.id)).orderBy(productImages.displayOrder),
     translation.locale === locale
@@ -662,10 +658,6 @@ export async function getProductDetailData(locale: string, slug: string): Promis
           .where(and(eq(productTranslations.productId, product.id), eq(productTranslations.locale, locale)))
           .limit(1)
           .then((r) => r[0] ?? null),
-    db
-      .select({ locale: productTranslations.locale, slug: productTranslations.slug })
-      .from(productTranslations)
-      .where(eq(productTranslations.productId, product.id)),
   ]);
   if (localeTrans) translation = localeTrans;
 
@@ -689,7 +681,7 @@ export async function getProductDetailData(locale: string, slug: string): Promis
     }
   }
 
-  return { type: 'ok', product, translation, specs, images, related, allTranslations };
+  return { type: 'ok', product, translation, specs, images, related };
 }
 
 export async function getProductSitemapRows(): Promise<ProductSitemapRow[]> {

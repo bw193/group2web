@@ -42,20 +42,6 @@ export function localizedSiteName(locale: string): string {
   return locale === 'he' ? HEBREW_SITE_NAME : SITE_NAME;
 }
 
-export function seoAlternateLocales(locale: string): Locale[] {
-  return locale === 'he'
-    ? ['he']
-    : locales.filter((loc) => loc !== 'he');
-}
-
-export function shouldIncludeSeoAlternate(sourceLocale: string, targetLocale: string): boolean {
-  return sourceLocale === 'he' ? targetLocale === 'he' : targetLocale !== 'he';
-}
-
-export function shouldIncludeXDefault(locale: string): boolean {
-  return locale !== 'he';
-}
-
 /** Path with locale prefix. Mirrors middleware `localePrefix: 'always'`. */
 export function localizedPath(locale: string, pathAfterLocale: string): string {
   return buildLocalizedPath(locale, pathAfterLocale);
@@ -68,16 +54,13 @@ export function localizedUrl(locale: string, pathAfterLocale: string): string {
 
 /** Build the hreflang languages map (incl. x-default → default locale). */
 export function buildLanguageAlternates(
-  locale: string,
   pathAfterLocale: string,
 ): Record<string, string> {
   const languages: Record<string, string> = {};
-  for (const loc of seoAlternateLocales(locale)) {
+  for (const loc of locales) {
     languages[loc] = localizedUrl(loc, pathAfterLocale);
   }
-  if (shouldIncludeXDefault(locale)) {
-    languages['x-default'] = localizedUrl(defaultLocale, pathAfterLocale);
-  }
+  languages['x-default'] = localizedUrl(defaultLocale, pathAfterLocale);
   return languages;
 }
 
@@ -85,7 +68,7 @@ export function buildLanguageAlternates(
 export function buildAlternates(locale: string, pathAfterLocale: string) {
   return {
     canonical: localizedUrl(locale, pathAfterLocale),
-    languages: buildLanguageAlternates(locale, pathAfterLocale),
+    languages: buildLanguageAlternates(pathAfterLocale),
   };
 }
 

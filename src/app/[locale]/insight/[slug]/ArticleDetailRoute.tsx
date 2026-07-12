@@ -3,13 +3,11 @@ import Link from 'next/link';
 import { notFound, permanentRedirect } from 'next/navigation';
 import { ChevronRight } from 'lucide-react';
 import GalleryImage from '@/components/public/GalleryImage';
-import { LocaleSwitchLinks } from '@/components/public/LocaleSwitchLinks';
 import ProductCard from '@/components/public/ProductCard';
 import MoreStories from '@/components/public/insight/MoreStories';
 import { JsonLd } from '@/components/seo/JsonLd';
 import {
   getArticleRouteData,
-  getArticleAllTranslations,
   getArticleBody,
   getArticleProducts,
   getArticleCategories,
@@ -27,7 +25,6 @@ import {
   localizedPath,
   localizedUrl,
 } from '@/lib/seo';
-import { buildArticleLocaleSwitchLinks } from '@/lib/locale-switch-links';
 import { getUploadUrl } from '@/lib/utils';
 
 export type ArticlePageProps = {
@@ -61,8 +58,6 @@ export async function renderArticlePage(
   const relatedProducts = await getArticleProducts(article.id, locale);
   const moreStories = await getMoreStories(locale, article.id, 3);
   const categories = await getArticleCategories(locale);
-  const allTranslations = await getArticleAllTranslations(article.id);
-  const localeSwitchLinks = buildArticleLocaleSwitchLinks(allTranslations);
   const catMap = new Map(categories.map((c) => [c.key, c.name]));
   const catLabel = (key: string) => catMap.get(key) ?? categoryFallbackLabel(key);
 
@@ -107,7 +102,6 @@ export async function renderArticlePage(
 
   return (
     <>
-      <LocaleSwitchLinks links={localeSwitchLinks} />
       <JsonLd id="ld-article" data={blogPostingLd} />
       <JsonLd id="ld-article-breadcrumb" data={breadcrumbLd} />
 
