@@ -195,7 +195,8 @@
   },
   "videos": {
     "kicker": "Video Library",
-    "heroTitle": "Product videos from the mirror factory",
+    "heroTitle": "See the details before you specify",
+    "heroDescription": "Watch product demos, factory tours, and installation insights to evaluate quality, features, and fit — before you specify.",
     "allCategories": "All videos",
     "search": "Search videos...",
     "clearSearch": "Clear search",
@@ -205,7 +206,10 @@
     "relatedProducts": "Related Products",
     "relatedVideos": "Related Videos",
     "viewAllProducts": "View all products",
-    "viewAllVideos": "View all videos"
+    "viewAllVideos": "View all videos",
+    "videoFallback": "Video",
+    "watchVideo": "Watch video",
+    "backToVideos": "Back to videos"
   },
   "breadcrumb": {
     "insight": "Insight",

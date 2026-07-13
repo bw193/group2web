@@ -83,18 +83,20 @@ export default async function VideosPage({ params }: { params: Promise<{ locale:
       <JsonLd id="ld-videos-breadcrumb" data={breadcrumbLd} />
 
       <section className="bg-cream">
-        <div className="container-wide pt-14 md:pt-[88px] pb-12 md:pb-16">
-          <p className="kicker" data-reveal>{t('kicker')}</p>
-          <div className="mt-6 md:mt-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-end">
+        <div className="container-wide pb-7 pt-12 md:pb-4 md:pt-5">
+          <p className="kicker" data-reveal>
+            {t('kicker')}
+          </p>
+          <div className="mt-5 grid grid-cols-1 items-center gap-8 lg:grid-cols-12 lg:gap-10">
             <h1
-              className="lg:col-span-8 font-display font-light text-ink text-[clamp(2.9rem,6.6vw,5.4rem)] leading-[0.98] tracking-[-0.025em] max-w-[15ch]"
+              className="max-w-[16ch] font-display text-[clamp(2.85rem,3.4vw,3rem)] font-light leading-[0.98] tracking-[-0.025em] text-ink lg:col-span-8"
               data-reveal
             >
               {t('heroTitle')}
             </h1>
-            <div className="lg:col-span-4 lg:text-end" data-reveal>
-              <p className="font-body text-[16px] md:text-[17px] leading-[1.65] text-ink-mid max-w-[36ch] lg:ms-auto">
-                {copy.description}
+            <div className="lg:col-span-4" data-reveal>
+              <p className="max-w-[36ch] font-body text-[15px] font-normal leading-[1.6] text-ink-mid lg:ms-auto lg:text-start">
+                {t('heroDescription')}
               </p>
             </div>
           </div>

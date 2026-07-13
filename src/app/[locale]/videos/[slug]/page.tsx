@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowRight, ChevronRight } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ChevronRight } from 'lucide-react';
 import ProductCard from '@/components/public/ProductCard';
 import VideoCard from '@/components/public/videos/VideoCard';
 import VideoPlayer from '@/components/public/videos/VideoPlayer';
@@ -18,7 +18,7 @@ import {
 import { getUploadUrl } from '@/lib/utils';
 import { getVideoDetailData, getVideoStaticParams } from '@/lib/videos';
 import { buildVideoObjectSchema } from '@/lib/video-schema';
-import { videoExcerpt } from '@/lib/video-utils';
+import { formatVideoDuration, videoExcerpt } from '@/lib/video-utils';
 
 export const revalidate = 600;
 
@@ -85,6 +85,8 @@ export default async function VideoDetailPage({
   const { video, relatedProducts, relatedVideos } = detail;
   const videoUrl = localizedUrl(locale, `/videos/${video.slug}`);
   const description = video.excerpt || videoExcerpt(video.body, 500);
+  const categoryLabel = video.category || t('videoFallback');
+  const duration = formatVideoDuration(video.durationSeconds);
   const videoLd = buildVideoObjectSchema(
     { ...video, thumbnailUrl: video.thumbnailUrl ? getUploadUrl(video.thumbnailUrl) : video.thumbnailUrl },
     locale,
@@ -131,28 +133,47 @@ export default async function VideoDetailPage({
       </nav>
 
       <article className="bg-cream">
-        <header className="container-wide pt-12 md:pt-16">
-          <div className="max-w-[860px] mx-auto text-center">
-            <h1 className="font-display font-light text-ink text-[clamp(2.3rem,4.8vw,3.7rem)] leading-[1.06] tracking-[-0.02em]">
-              {video.title}
-            </h1>
-            {description && (
-              <p className="mt-6 mx-auto max-w-[58ch] font-body text-[18px] md:text-[19px] leading-[1.65] text-ink-mid">
-                {description}
-              </p>
-            )}
-          </div>
-        </header>
+        <div className="container-wide py-12 md:py-16 lg:py-20">
+          <div className="grid grid-cols-1 items-start gap-10 lg:grid-cols-12 lg:gap-14 xl:gap-20">
+            <div className="order-2 lg:order-1 lg:col-span-7">
+              <VideoPlayer video={video} className="mx-auto lg:mx-0" />
+            </div>
 
-        <div className="container-wide pt-12 md:pt-14">
-          <div className="max-w-[1080px] mx-auto">
-            <VideoPlayer video={video} />
+            <header className="order-1 lg:order-2 lg:sticky lg:top-28 lg:col-span-5">
+              <div className="flex items-center gap-3 font-body text-[11px] font-semibold uppercase tracking-[0.15em] text-bronze">
+                <span>{categoryLabel}</span>
+                {duration && (
+                  <>
+                    <span className="h-1 w-1 rounded-full bg-warm-border" aria-hidden />
+                    <span className="font-normal tracking-[0.08em] text-ink-mid">{duration}</span>
+                  </>
+                )}
+              </div>
+
+              <h1 className="mt-5 max-w-[14ch] font-display text-[clamp(2.7rem,4.25vw,4rem)] font-light leading-[0.98] tracking-[-0.025em] text-ink">
+                {video.title}
+              </h1>
+
+              {description && (
+                <p className="mt-7 max-w-[38ch] font-body text-[17px] font-normal leading-[1.7] text-ink-mid md:text-[18px]">
+                  {description}
+                </p>
+              )}
+
+              <Link
+                href={`/${locale}/videos`}
+                className="group mt-9 inline-flex items-center gap-3 border-t border-warm-border pt-5 font-body text-[11px] font-semibold uppercase tracking-[0.15em] text-ink transition-colors hover:text-bronze"
+              >
+                <ArrowLeft size={14} strokeWidth={1.6} className="transition-transform duration-300 group-hover:-translate-x-1 rtl:-scale-x-100 rtl:group-hover:translate-x-1" />
+                {t('backToVideos')}
+              </Link>
+            </header>
           </div>
         </div>
 
         {relatedProducts.length > 0 && (
-          <div className="container-wide pb-20 md:pb-24">
-            <div className="border-t border-warm-border pt-12 md:pt-14">
+          <div id="related-products" className="container-wide pb-20 md:pb-24">
+            <div className="border-t border-warm-border pt-12 md:pt-16">
               <div className="flex items-end justify-between mb-10">
                 <h2 className="font-display text-3xl md:text-4xl font-normal text-ink tracking-[-0.015em] leading-[1.1]">
                   {t('relatedProducts')}
@@ -192,7 +213,14 @@ export default async function VideoDetailPage({
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-14 md:gap-x-10">
               {relatedVideos.map((item, i) => (
-                <VideoCard key={item.id} video={item} locale={locale} index={i} />
+                <VideoCard
+                  key={item.id}
+                  video={item}
+                  locale={locale}
+                  index={i}
+                  categoryFallback={t('videoFallback')}
+                  watchLabel={t('watchVideo')}
+                />
               ))}
             </div>
           </div>

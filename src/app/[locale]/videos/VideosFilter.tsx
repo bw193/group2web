@@ -28,55 +28,55 @@ export default function VideosFilter({
   }, [videos, search]);
 
   return (
-    <>
-      <section className="bg-cream sticky top-[72px] md:top-20 z-30 border-b border-warm-border">
-        <div className="container-wide py-5 md:py-6">
-          <div className="flex justify-end">
-            <div className="relative w-full md:w-80 flex-shrink-0">
+    <section className="bg-cream pb-20 md:pb-28">
+      <div className="container-wide">
+        <div className="flex flex-col gap-5 border-t border-warm-border py-5 md:flex-row md:items-center md:justify-between md:py-3.5">
+          <p className="font-body text-[12px] font-semibold uppercase tracking-[0.14em] text-ink">
+            {filtered.length === 0 ? t('noResults') : t('showing', { count: filtered.length })}
+          </p>
+
+          <div className="relative w-full flex-shrink-0 md:w-[290px]">
               <Search size={15} strokeWidth={1.75} className="absolute start-0 top-1/2 -translate-y-1/2 text-ink-mid" />
               <input
                 type="text"
                 placeholder={t('search')}
+                aria-label={t('search')}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full ps-7 pe-8 py-2.5 text-[15px] font-body font-normal text-ink placeholder:text-ink-mid bg-transparent border-0 border-b border-warm-border focus:outline-none focus:border-ink transition-colors"
+                className="w-full border-0 border-b border-warm-border bg-transparent py-2.5 pe-8 ps-7 font-body text-[14px] font-normal text-ink outline-none transition-colors placeholder:text-ink-mid focus:border-ink"
               />
               {search && (
                 <button
                   type="button"
                   onClick={() => setSearch('')}
                   aria-label={t('clearSearch')}
-                  className="absolute end-0 top-1/2 -translate-y-1/2 text-ink-mid hover:text-ink transition-colors"
+                  className="absolute end-0 top-1/2 inline-flex h-9 w-9 -translate-y-1/2 items-center justify-center text-ink-mid transition-colors hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bronze"
                 >
                   <X size={15} strokeWidth={1.75} />
                 </button>
               )}
-            </div>
           </div>
         </div>
-      </section>
 
-      <section className="bg-cream">
-        <div className="container-wide py-14 md:py-20">
-          <p className="text-[14px] font-body font-semibold text-ink tracking-[0.08em] uppercase mb-8 md:mb-12">
-            {filtered.length === 0 ? t('noResults') : t('showing', { count: filtered.length })}
-          </p>
-
-          {filtered.length === 0 ? (
-            <div className="py-20 text-center border-t border-warm-border">
-              <p className="font-display text-2xl font-normal text-ink-mid">{t('empty')}</p>
-            </div>
-          ) : (
-            <div
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-14 md:gap-x-10 md:gap-y-16 animate-fade-up"
-            >
-              {filtered.map((video, i) => (
-                <VideoCard key={video.id} video={video} locale={locale} index={i} />
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
-    </>
+        {filtered.length === 0 ? (
+          <div className="border-t border-warm-border py-24 text-center">
+            <p className="font-display text-2xl font-normal text-ink-mid">{t('empty')}</p>
+          </div>
+        ) : (
+          <div className="animate-fade-up grid grid-cols-1 gap-x-7 gap-y-16 pt-5 sm:grid-cols-2 md:pt-0 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8">
+            {filtered.map((video, i) => (
+              <VideoCard
+                key={video.id}
+                video={video}
+                locale={locale}
+                index={i}
+                categoryFallback={t('videoFallback')}
+                watchLabel={t('watchVideo')}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    </section>
   );
 }
