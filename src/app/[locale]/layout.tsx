@@ -1,10 +1,12 @@
 import { NextIntlClientProvider } from 'next-intl';
+import type { Metadata } from 'next';
 import { getMessages, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { GoogleAnalytics } from '@next/third-parties/google';
 import { locales, isRtlLocale } from '@/i18n/config';
+import { robotsForPublicPage } from '@/lib/indexing';
 import Header from '@/components/public/Header';
 import Footer from '@/components/public/Footer';
 import AnimationProvider from '@/components/public/AnimationProvider';
@@ -14,6 +16,16 @@ import { fontDisplay, fontBody, fontDisplayHe, fontBodyHe } from '@/lib/fonts';
 // Run server rendering / ISR regeneration in Dublin (dub1) to colocate with
 // the Supabase database (eu-west-1) and avoid a transatlantic hop per query.
 export const preferredRegion = 'dub1';
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const robots = robotsForPublicPage(locale);
+  return robots ? { robots } : {};
+}
 
 export function generateStaticParams() {
   return locales.map((locale) => ({ locale }));

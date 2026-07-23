@@ -5,6 +5,7 @@ import { Check, ArrowRight } from 'lucide-react';
 import TrackedContactLink from '@/components/public/TrackedContactLink';
 import { localizedSiteName } from '@/lib/seo';
 import { localizedPath } from '@/lib/public-paths';
+import { robotsForPublicPage } from '@/lib/indexing';
 
 // Post-submission confirmation. Its whole job is to be a stable URL the user
 // reaches after the contact form succeeds — the Google Ads "Submit lead form"
@@ -17,10 +18,11 @@ export async function generateMetadata({
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'contact' });
   const siteName = localizedSiteName(locale);
+  const localeRobots = robotsForPublicPage(locale);
   return {
     title: `${t('successHeading')} | ${siteName}`,
     description: t('success'),
-    robots: { index: false, follow: true },
+    robots: localeRobots ?? { index: false, follow: true },
   };
 }
 
