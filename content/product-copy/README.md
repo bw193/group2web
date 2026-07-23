@@ -36,3 +36,13 @@ npx tsx scripts/apply-product-copy.ts \
 After a successful apply or rollback, run a fresh deployment. Public product
 pages use the build-time data snapshot, so ISR revalidation alone cannot expose
 the new database content.
+
+After deployment, verify every localized target page against the reviewed
+batch. The verifier checks HTTP status, new and previous copy, canonical and
+hreflang URLs, and Hebrew RTL metadata:
+
+```bash
+npx tsx scripts/verify-product-copy-production.ts \
+  --batch content/product-copy/2026-07-23-distinct-products.json \
+  --origin https://chengtaimirror.com
+```
