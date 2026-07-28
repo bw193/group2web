@@ -5,6 +5,7 @@ import {
   buildLanguageAlternates,
 } from '@/lib/seo';
 import { getArticleSitemapRows, getProductSitemapRows } from '@/lib/public-data';
+import { isIndexableLocalePath } from '@/lib/indexing';
 
 // Stable date for static routes so Google doesn't see every locale homepage
 // "changing" on each rebuild. Bump manually when nav/footer/structure shifts.
@@ -17,10 +18,13 @@ const STATIC_ROUTES = ['', '/about', '/contact', '/products', '/insight'] as con
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const entries: MetadataRoute.Sitemap = [];
 
-  // Static routes × every locale.
+  // Static routes × every locale. Locales that are noindex at a given path
+  // (Hebrew, everywhere but its homepage) are skipped: submitting a noindexed
+  // URL earns a "Submitted URL marked 'noindex'" error in Search Console.
   for (const pathAfterLocale of STATIC_ROUTES) {
     const languages = buildLanguageAlternates(pathAfterLocale);
     for (const loc of locales) {
+      if (!isIndexableLocalePath(loc, pathAfterLocale)) continue;
       entries.push({
         url: localizedUrl(loc, pathAfterLocale),
         lastModified: STATIC_LAST_MODIFIED,
@@ -57,23 +61,25 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     for (const [, { updatedAt, isActive, slugs }] of byProduct) {
       if (!isActive) continue;
 
-      // Build hreflang languages map from this product's per-locale slugs.
+      // Build hreflang languages map from this product's per-locale slugs,
+      // skipping locales that are noindex at this path (Hebrew).
       const languages: Record<string, string> = {};
       for (const loc of locales) {
         const slug = slugs[loc];
-        if (slug) {
-          languages[loc] = localizedUrl(loc, `/products/${slug}`);
-        }
+        if (!slug) continue;
+        if (!isIndexableLocalePath(loc, `/products/${slug}`)) continue;
+        languages[loc] = localizedUrl(loc, `/products/${slug}`);
       }
       const defaultSlug = slugs[defaultLocale];
       if (defaultSlug) {
         languages['x-default'] = localizedUrl(defaultLocale, `/products/${defaultSlug}`);
       }
 
-      // Emit one sitemap entry per locale that actually has a translation.
+      // Emit one sitemap entry per locale that has a translation and is indexable.
       for (const loc of locales) {
         const slug = slugs[loc];
         if (!slug) continue;
+        if (!isIndexableLocalePath(loc, `/products/${slug}`)) continue;
         const lastModified = updatedAt ? new Date(updatedAt) : STATIC_LAST_MODIFIED;
         entries.push({
           url: localizedUrl(loc, `/products/${slug}`),
@@ -115,7 +121,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       const languages: Record<string, string> = {};
       for (const loc of locales) {
         const slug = slugs[loc];
-        if (slug) languages[loc] = localizedUrl(loc, `/insight/${slug}`);
+        if (!slug) continue;
+        if (!isIndexableLocalePath(loc, `/insight/${slug}`)) continue;
+        languages[loc] = localizedUrl(loc, `/insight/${slug}`);
       }
       const defaultSlug = slugs[defaultLocale];
       if (defaultSlug) {
@@ -125,6 +133,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       for (const loc of locales) {
         const slug = slugs[loc];
         if (!slug) continue;
+        if (!isIndexableLocalePath(loc, `/insight/${slug}`)) continue;
         const lastModified = updatedAt ? new Date(updatedAt) : STATIC_LAST_MODIFIED;
         entries.push({
           url: localizedUrl(loc, `/insight/${slug}`),

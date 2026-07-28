@@ -9,6 +9,7 @@ import {
   productTitle,
 } from '@/lib/seo';
 import { locales, defaultLocale } from '@/i18n/config';
+import { isIndexableLocalePath } from '@/lib/indexing';
 import { renderProductDetailPage, type ProductDetailPageProps } from './ProductDetailRoute';
 
 export const revalidate = 600;
@@ -27,11 +28,13 @@ export async function generateMetadata({
       return { title: productTitle('Product', locale), robots: { index: false, follow: true } };
     }
 
+    // Skip locales whose page is noindex at this path (Hebrew detail pages) —
+    // hreflang must never point at a URL we've asked not to be indexed.
     const languages: Record<string, string> = {};
     for (const t of row.allTranslations) {
-      if ((locales as readonly string[]).includes(t.locale)) {
-        languages[t.locale] = localizedUrl(t.locale, `/products/${t.slug}`);
-      }
+      if (!(locales as readonly string[]).includes(t.locale)) continue;
+      if (!isIndexableLocalePath(t.locale, `/products/${t.slug}`)) continue;
+      languages[t.locale] = localizedUrl(t.locale, `/products/${t.slug}`);
     }
     const defaultRow = row.allTranslations.find((t) => t.locale === defaultLocale);
     if (defaultRow) {
