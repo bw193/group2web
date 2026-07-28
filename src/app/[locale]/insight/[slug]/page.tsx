@@ -5,6 +5,7 @@ import {
   getArticleStaticParams,
 } from '@/lib/insight';
 import { locales, defaultLocale } from '@/i18n/config';
+import { isIndexableLocalePath } from '@/lib/indexing';
 import {
   SITE_OG_IMAGE,
   localeToOg,
@@ -37,11 +38,13 @@ export async function generateMetadata({
 
     const allTrans = await getArticleAllTranslations(row.article.id);
 
+    // Skip locales whose page is noindex at this path (Hebrew detail pages) —
+    // hreflang must never point at a URL we've asked not to be indexed.
     const languages: Record<string, string> = {};
     for (const tr of allTrans) {
-      if ((locales as readonly string[]).includes(tr.locale)) {
-        languages[tr.locale] = localizedUrl(tr.locale, `/insight/${tr.slug}`);
-      }
+      if (!(locales as readonly string[]).includes(tr.locale)) continue;
+      if (!isIndexableLocalePath(tr.locale, `/insight/${tr.slug}`)) continue;
+      languages[tr.locale] = localizedUrl(tr.locale, `/insight/${tr.slug}`);
     }
     const def = allTrans.find((tr) => tr.locale === defaultLocale);
     if (def) languages['x-default'] = localizedUrl(defaultLocale, `/insight/${def.slug}`);

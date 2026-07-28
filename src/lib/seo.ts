@@ -1,5 +1,6 @@
 import { locales, defaultLocale, type Locale } from '@/i18n/config';
 import { localizedPath as buildLocalizedPath } from '@/lib/public-paths';
+import { isIndexableLocalePath } from '@/lib/indexing';
 
 export const SITE_URL = 'https://chengtaimirror.com';
 export const SITE_NAME = 'Chengtai Mirror';
@@ -52,12 +53,19 @@ export function localizedUrl(locale: string, pathAfterLocale: string): string {
   return `${SITE_URL}${localizedPath(locale, pathAfterLocale)}`;
 }
 
-/** Build the hreflang languages map (incl. x-default → default locale). */
+/**
+ * Build the hreflang languages map (incl. x-default → default locale).
+ *
+ * Locales whose page is noindex at this path are skipped — advertising a
+ * noindexed URL as an alternate is a contradictory signal that Google drops.
+ * In practice this removes `he` everywhere except the Hebrew homepage.
+ */
 export function buildLanguageAlternates(
   pathAfterLocale: string,
 ): Record<string, string> {
   const languages: Record<string, string> = {};
   for (const loc of locales) {
+    if (!isIndexableLocalePath(loc, pathAfterLocale)) continue;
     languages[loc] = localizedUrl(loc, pathAfterLocale);
   }
   languages['x-default'] = localizedUrl(defaultLocale, pathAfterLocale);
