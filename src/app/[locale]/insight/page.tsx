@@ -74,7 +74,7 @@ export default async function InsightPage({ params }: { params: Promise<{ locale
   const catMap = new Map(categories.map((c) => [c.key, c.name]));
   const catLabel = (key: string) => catMap.get(key) ?? categoryFallbackLabel(key);
 
-  const displayArticles: DisplayArticle[] = list.map((a, i) => ({
+  const displayArticles: DisplayArticle[] = list.map((a) => ({
     id: a.id,
     categoryKey: a.category,
     categoryLabel: catLabel(a.category),
@@ -89,7 +89,6 @@ export default async function InsightPage({ params }: { params: Promise<{ locale
     // to render dynamically — the root cause of the DbTimeoutErrors.
     href: localizedPath(a.translationLocale, `/insight/${a.slug}`),
     imagePath: a.thumbnailUrl || a.coverImageUrl,
-    indexLabel: String(i + 1).padStart(2, '0'),
   }));
 
   const tabs = [

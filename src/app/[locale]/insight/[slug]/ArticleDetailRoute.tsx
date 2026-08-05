@@ -1,10 +1,11 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
 import { notFound, permanentRedirect } from 'next/navigation';
-import { ChevronRight } from 'lucide-react';
+import { ArrowLeft, ChevronRight } from 'lucide-react';
 import GalleryImage from '@/components/public/GalleryImage';
 import ProductCard from '@/components/public/ProductCard';
 import MoreStories from '@/components/public/insight/MoreStories';
+import ReadingProgress from '@/components/public/insight/ReadingProgress';
 import { JsonLd } from '@/components/seo/JsonLd';
 import {
   getArticleRouteData,
@@ -104,6 +105,7 @@ export async function renderArticlePage(
     <>
       <JsonLd id="ld-article" data={blogPostingLd} />
       <JsonLd id="ld-article-breadcrumb" data={breadcrumbLd} />
+      <ReadingProgress targetId="article-body" />
 
       <nav aria-label="Breadcrumb" className="bg-cream border-b border-warm-border">
         <div className="container-wide py-4">
@@ -136,16 +138,16 @@ export async function renderArticlePage(
           <div className="max-w-[780px] mx-auto text-center">
             <div className="flex flex-wrap items-baseline justify-center gap-x-3.5 gap-y-1.5 text-[12px] font-body uppercase">
               <span className="font-semibold tracking-[0.16em] text-bronze">{categoryLabel}</span>
-              <span aria-hidden className="text-ink-light">-</span>
+              <span aria-hidden className="text-ink-light">—</span>
               <span className="tracking-[0.1em] text-ink-mid">{dateLabel}</span>
-              <span aria-hidden className="text-ink-light">-</span>
+              <span aria-hidden className="text-ink-light">—</span>
               <span className="tracking-[0.1em] text-ink-mid whitespace-nowrap">{readLabel}</span>
             </div>
-            <h1 className="mt-6 font-display font-light text-ink text-[clamp(2.3rem,4.8vw,3.7rem)] leading-[1.06] tracking-[-0.02em]">
+            <h1 className="mt-6 font-display font-light text-ink text-[clamp(2.4rem,5vw,4rem)] leading-[1.03] tracking-[-0.025em] text-balance">
               {translation.title}
             </h1>
             {translation.dek && (
-              <p className="mt-6 mx-auto max-w-[54ch] font-body text-[18px] md:text-[19px] leading-[1.65] text-ink-mid">
+              <p className="mt-7 mx-auto max-w-[52ch] font-body text-[18.5px] md:text-[20px] leading-[1.6] text-ink-mid">
                 {translation.dek}
               </p>
             )}
@@ -179,9 +181,32 @@ export async function renderArticlePage(
 
         <div className="container-narrow pt-12 md:pt-16 pb-16 md:pb-20">
           <div
+            id="article-body"
             className="article-prose"
             dangerouslySetInnerHTML={{ __html: body || '' }}
           />
+
+          {/* Closer — recaps the byline and hands the reader back to the index
+              instead of dropping straight into the product grid. */}
+          <div className="mx-auto max-w-[66ch] mt-14 md:mt-16 border-t border-warm-border pt-7 flex flex-wrap items-center justify-between gap-x-8 gap-y-4">
+            <div className="flex flex-wrap items-baseline gap-x-3.5 gap-y-1.5 text-[12px] font-body uppercase">
+              {translation.author && (
+                <>
+                  <span className="font-semibold tracking-[0.18em] text-ink">
+                    {translation.author}
+                  </span>
+                  <span aria-hidden className="text-ink-light">
+                    —
+                  </span>
+                </>
+              )}
+              <span className="tracking-[0.1em] text-ink-mid">{dateLabel}</span>
+            </div>
+            <Link href={localizedPath(locale, '/insight')} className="btn-ghost">
+              <ArrowLeft size={14} strokeWidth={1.75} className="rtl:-scale-x-100" />
+              {t('back')}
+            </Link>
+          </div>
         </div>
 
         {relatedProducts.length > 0 && (

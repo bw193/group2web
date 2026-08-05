@@ -15,8 +15,6 @@ export interface DisplayArticle {
   href: string;
   /** Row thumbnail key (thumbnail, falling back to cover); null → text-only row. */
   imagePath: string | null;
-  /** 1-based position in the full list, zero-padded ("01") — the index numeral. */
-  indexLabel: string;
 }
 
 export interface CategoryTab {
