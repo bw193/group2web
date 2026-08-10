@@ -59,6 +59,25 @@ export async function renderProductDetailPage(
     productJsonLd.mpn = product.modelNumber;
   }
 
+  // Mirror the visible spec table into structured data so answer engines read
+  // dimensions, IP ratings and certifications as facts instead of inferring
+  // them from prose. Two deliberate non-transformations: property names stay in
+  // the page's own locale (the CMS translates spec keys, and a localized name
+  // matches how buyers phrase the question), and repeated names are kept, since
+  // a product legitimately carries e.g. both a concrete size and "custom".
+  const modelNumber = product.modelNumber?.trim().toLowerCase();
+  const specProperties = specs
+    .map((s) => ({ name: s.specKey.trim(), value: s.specValue.trim() }))
+    .filter((p) => p.name && p.value && p.value.toLowerCase() !== modelNumber)
+    .slice(0, 20);
+  if (specProperties.length > 0) {
+    productJsonLd.additionalProperty = specProperties.map((p) => ({
+      '@type': 'PropertyValue',
+      name: p.name,
+      value: p.value,
+    }));
+  }
+
   const productBreadcrumb = {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',

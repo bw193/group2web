@@ -25,6 +25,59 @@ export const ADDRESS = {
   addressCountry: 'CN',
 };
 
+// Topical scope of the business, for the shared #organization node. Kept in
+// English across locales: these are domain terms used for entity resolution,
+// not display copy.
+//
+// Two halves on purpose. The first states the company's role in the supply
+// chain, which is how buyers search. Exact word-order permutations are left
+// out - "LED Mirror OEM" carries no meaning "OEM LED Mirror" doesn't already
+// carry, and permutation lists read as keyword stuffing. The second half
+// states subject matter, so a model learns what the company knows about
+// mirrors and not only what kind of vendor it is; every topic there is
+// attested by the product specification data.
+export const ORG_KNOWS_ABOUT = [
+  'LED Mirror Manufacturer',
+  'LED Mirror Supplier',
+  'LED Mirror Factory',
+  'Wholesale LED Mirror',
+  'OEM LED Mirror',
+  'Bathroom Mirror Manufacturer',
+  'Bathroom Mirror Supplier',
+  'Bathroom Mirror Factory',
+  'Wholesale Bathroom Mirror',
+  'OEM Bathroom Mirror',
+  'Vanity Mirror Manufacturer',
+  'Vanity Mirror Supplier',
+  'Wholesale Vanity Mirror',
+  'OEM Bathroom Vanity Mirror',
+  'Mirror OEM',
+  'Smart mirrors with touch and sensor controls',
+  'Anti-fog mirror technology',
+  'Backlit and front-lit mirror lighting',
+  'Copper-free silver mirror glass',
+  'Mirror cabinets',
+  'Full-length and dressing mirrors',
+];
+
+// Certification schemes claimed on the public site. CE/CB/RoHS/SAA/UKCA/UL/RCM
+// come from the product specification data; ETL and ISO 9001 come from the
+// certifications marquee. IP44/IP54 are deliberately absent - they are ingress
+// protection ratings on individual products, not company certifications, and
+// they already ship as product-level specs. Removing a claim here means
+// removing it from CertificationsSection too, or the two will disagree.
+export const ORG_CERTIFICATIONS = [
+  'CE',
+  'CB',
+  'RoHS',
+  'SAA',
+  'UKCA',
+  'UL',
+  'ETL',
+  'RCM',
+  'ISO 9001',
+].map((name) => ({ '@type': 'Certification', name }));
+
 const LOCALE_TO_BCP47: Record<Locale, string> = {
   en: 'en_US',
   es: 'es_ES',

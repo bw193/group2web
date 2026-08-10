@@ -12,6 +12,8 @@ import {
   SITE_LOGO_URL,
   SITE_OG_IMAGE,
   SITE_URL,
+  ORG_KNOWS_ABOUT,
+  ORG_CERTIFICATIONS,
   buildAlternates,
   localeToOg,
   localizedSiteName,
@@ -81,6 +83,8 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
     image: SITE_OG_IMAGE,
     foundingDate: '2005',
     numberOfEmployees: about?.employeeCount || '200+',
+    knowsAbout: ORG_KNOWS_ABOUT,
+    hasCertification: ORG_CERTIFICATIONS,
     address: { '@type': 'PostalAddress', ...ADDRESS },
     contactPoint: [
       {
