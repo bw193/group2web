@@ -92,7 +92,7 @@ export default function HeroBanner({ slides, fallbackTitle, fallbackSubtitle, fa
 
   return (
     <section
-      className="relative aspect-[var(--banner-ratio,64/25)] md:aspect-auto md:h-[88vh] md:min-h-[640px] md:max-h-[820px] overflow-hidden bg-ink"
+      className="relative aspect-[var(--banner-ratio,64/25)] transition-[aspect-ratio] duration-[1.2s] ease-out-expo overflow-hidden bg-ink"
       style={currentRatio ? ({ ['--banner-ratio' as never]: String(currentRatio) }) : undefined}
     >
       {/* Background Images — stacked cross-fade layers.
@@ -113,7 +113,7 @@ export default function HeroBanner({ slides, fallbackTitle, fallbackSubtitle, fa
             priority={i === 0}
             sizes="100vw"
             quality={85}
-            className="object-cover scale-[1.03]"
+            className="object-cover"
             onLoad={(e) => {
               const img = e.currentTarget;
               if (!img.naturalWidth || !img.naturalHeight) return;

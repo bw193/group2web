@@ -180,8 +180,10 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         fallbackHref={localizedPath(locale, '/contact')}
       />
 
-      {/* Capabilities - compact four-column plinth seamed into the hero */}
-      <section className="relative bg-cream border-b border-warm-border -mt-8 md:-mt-10 z-10 shadow-[0_-18px_48px_-40px_rgba(20,18,14,0.28)]">
+      {/* Capabilities - compact four-column plinth seamed into the hero.
+          No negative margin: the banner artwork carries its own captions right
+          up to the bottom edge, so any overlap eats image content. */}
+      <section className="relative bg-cream border-b border-warm-border z-10 shadow-[0_-18px_48px_-40px_rgba(20,18,14,0.28)]">
         <div className="container-wide pt-6 pb-10 md:pt-8 md:pb-12">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4" data-reveal-stagger>
             {capabilities.map((item, i) => {
