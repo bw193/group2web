@@ -19,6 +19,7 @@ import {
   SITE_URL,
   ORG_KNOWS_ABOUT,
   ORG_CERTIFICATIONS,
+  SOCIAL_SAME_AS,
   buildAlternates,
   localeToOg,
   localizedSiteName,
@@ -27,6 +28,7 @@ import {
 } from '@/lib/seo';
 import { localizedPath } from '@/lib/public-paths';
 import { robotsForPublicPage } from '@/lib/indexing';
+import { rotateDaily } from '@/lib/daily-rotation';
 import { Users, Globe, FlaskConical, Factory } from 'lucide-react';
 
 export const revalidate = 300; // ISR: rebuild at most every 5 minutes
@@ -99,6 +101,11 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     faqs: finalFaqs,
   } = await getHomePagePublicData(locale);
 
+  // Featured grid rotates daily: every featured product is a candidate, and
+  // the day's seed picks which eight lead. Deterministic per calendar day, so
+  // ISR regenerations and every locale agree on the same order.
+  const featuredForToday = rotateDaily(featuredWithDetails);
+
   const capabilities = [
     { title: t('service1Title'), desc: t('service1Desc'), Icon: Users },
     { title: t('service2Title'), desc: t('service2Desc'), Icon: Globe },
@@ -120,6 +127,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     foundingDate: '2005',
     knowsAbout: ORG_KNOWS_ABOUT,
     hasCertification: ORG_CERTIFICATIONS,
+    sameAs: SOCIAL_SAME_AS,
     address: { '@type': 'PostalAddress', ...ADDRESS },
     contactPoint: [
       {
@@ -222,7 +230,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
       {/* Featured Products */}
       <FeaturedProductsSection
-        products={featuredWithDetails}
+        products={featuredForToday}
         categories={categoryOptions}
         locale={locale}
         maxVisible={8}

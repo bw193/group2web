@@ -168,7 +168,7 @@ export default function ImageGallery({ images, productName }: { images: string[]
       {/* Main image — drag/swipe to browse, tap to zoom */}
       <div
         ref={viewportRef}
-        className="relative aspect-[4/5] bg-sand overflow-hidden cursor-zoom-in group touch-pan-y select-none"
+        className="relative aspect-square bg-sand overflow-hidden cursor-zoom-in group touch-pan-y select-none"
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}

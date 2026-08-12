@@ -59,6 +59,9 @@ export default async function CertificationsSection({ locale, images = [] }: Pro
                   className="relative flex items-center justify-center w-[260px] md:w-[320px] h-[130px] md:h-[160px] mx-8 md:mx-12 shrink-0"
                   aria-hidden={i >= photos.length}
                 >
+                  {/* Certificates show in their own colour, not desaturated
+                      until hover: the marquee never stops moving, so a
+                      hover-only reveal was effectively unreachable. */}
                   <GalleryImage
                     path={src}
                     alt={
@@ -69,7 +72,7 @@ export default async function CertificationsSection({ locale, images = [] }: Pro
                     fill
                     sizes="320px"
                     quality={80}
-                    className="object-contain grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all duration-500"
+                    className="object-contain"
                   />
                 </div>
               ))}

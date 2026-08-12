@@ -25,6 +25,21 @@ export const ADDRESS = {
   addressCountry: 'CN',
 };
 
+// Official brand profiles. Rendered in the footer and published as the
+// Organization's `sameAs`, which is how search engines tie the site and the
+// social accounts to one entity — so these must be the real, owned accounts,
+// never a lookalike page. A profile with an empty URL is simply not rendered.
+export const SOCIAL_PROFILES = [
+  { id: 'instagram', label: 'Instagram', url: 'https://www.instagram.com/chengtai_mirrors/' },
+  {
+    id: 'facebook',
+    label: 'Facebook',
+    url: 'https://www.facebook.com/p/Jiaxing-Chengtai-Mirror-Co-Ltd-100065128945653/',
+  },
+] as const;
+
+export const SOCIAL_SAME_AS = SOCIAL_PROFILES.filter((p) => p.url).map((p) => p.url);
+
 // Topical scope of the business, for the shared #organization node. Kept in
 // English across locales: these are domain terms used for entity resolution,
 // not display copy.

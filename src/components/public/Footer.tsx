@@ -2,8 +2,12 @@
 
 import Link from 'next/link';
 import { useTranslations, useLocale } from 'next-intl';
+import { Facebook, Instagram } from 'lucide-react';
 import TrackedContactLink from '@/components/public/TrackedContactLink';
 import { localizedPath } from '@/lib/public-paths';
+import { SOCIAL_PROFILES } from '@/lib/seo';
+
+const SOCIAL_ICONS = { instagram: Instagram, facebook: Facebook } as const;
 
 export default function Footer() {
   const t = useTranslations('footer');
@@ -13,6 +17,11 @@ export default function Footer() {
   const year = new Date().getFullYear();
   const brandName = locale === 'he' ? 'מראות Chengtai' : 'Chengtai Mirror';
   const companyDisplayName = locale === 'he' ? 'Jiaxing Chengtai מראות בע״מ' : 'Jiaxing Chengtai Mirror Co., Ltd';
+
+  const socials = SOCIAL_PROFILES.filter((p) => p.url).map((p) => ({
+    ...p,
+    Icon: SOCIAL_ICONS[p.id],
+  }));
 
   return (
     <footer className="bg-ink text-cream/85">
@@ -68,6 +77,30 @@ export default function Footer() {
                 {nav('contact')}
               </Link>
             </nav>
+
+            {/* Social profiles. Labelled for screen readers rather than by
+                visible text — the icons sit under the nav as a compact row. */}
+            {socials.length > 0 && (
+              <div className="mt-7">
+                <p className="sr-only">{t('followUs')}</p>
+                <ul className="flex items-center gap-4 md:justify-center">
+                  {socials.map(({ id, label, url, Icon }) => (
+                    <li key={id}>
+                      <a
+                        href={url}
+                        target="_blank"
+                        rel="noopener noreferrer me"
+                        aria-label={`${brandName} — ${label}`}
+                        title={label}
+                        className="flex h-10 w-10 items-center justify-center border border-cream/25 text-cream transition-colors duration-300 hover:border-bronze-light hover:text-bronze-light focus:outline-none focus-visible:ring-1 focus-visible:ring-bronze-light"
+                      >
+                        <Icon size={18} strokeWidth={1.5} aria-hidden />
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
 
           {/* Contact — third column */}

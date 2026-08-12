@@ -14,6 +14,7 @@ import {
   SITE_URL,
   ORG_KNOWS_ABOUT,
   ORG_CERTIFICATIONS,
+  SOCIAL_SAME_AS,
   buildAlternates,
   localeToOg,
   localizedSiteName,
@@ -85,6 +86,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
     numberOfEmployees: about?.employeeCount || '200+',
     knowsAbout: ORG_KNOWS_ABOUT,
     hasCertification: ORG_CERTIFICATIONS,
+    sameAs: SOCIAL_SAME_AS,
     address: { '@type': 'PostalAddress', ...ADDRESS },
     contactPoint: [
       {
@@ -266,7 +268,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
                     width={420}
                     height={420}
                     sizes="(max-width: 768px) 45vw, 22vw"
-                    className="max-h-full max-w-full w-auto h-auto object-contain grayscale hover:grayscale-0 transition-all duration-500"
+                    className="max-h-full max-w-full w-auto h-auto object-contain"
                   />
                 </div>
               ))}
