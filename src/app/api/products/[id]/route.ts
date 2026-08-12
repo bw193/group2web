@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { revalidatePath } from 'next/cache';
 import { getDb, withDbRetryFast } from '@/lib/db';
 import { products, productTranslations, productSpecifications, productImages, productSlugHistory } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
@@ -11,6 +10,11 @@ import {
   productSlugFromInput,
   resolveProductTranslationSlug,
 } from '@/lib/products';
+import {
+  revalidateLocalizedDetailPath,
+  revalidateLocalizedPublicPath,
+  revalidatePublicSitemap,
+} from '@/lib/public-revalidation';
 
 export async function GET(
   request: NextRequest,
@@ -225,13 +229,14 @@ export async function PUT(
   // and home (featured grid) once per locale.
   const seenLocales = new Set<string>();
   for (const t of [...prevTrans, ...newTrans]) {
-    revalidatePath(`/${t.locale}/products/${t.slug}`);
+    revalidateLocalizedDetailPath(t.locale, 'products', t.slug);
     if (!seenLocales.has(t.locale)) {
       seenLocales.add(t.locale);
-      revalidatePath(`/${t.locale}/products`);
-      revalidatePath(`/${t.locale}`);
+      revalidateLocalizedPublicPath(t.locale, '/products');
+      revalidateLocalizedPublicPath(t.locale, '');
     }
   }
+  revalidatePublicSitemap();
 
   return NextResponse.json({ message: 'Product updated', translations: newTrans });
 }
@@ -260,13 +265,14 @@ export async function DELETE(
 
   const seenLocales = new Set<string>();
   for (const t of delTrans) {
-    revalidatePath(`/${t.locale}/products/${t.slug}`);
+    revalidateLocalizedDetailPath(t.locale, 'products', t.slug);
     if (!seenLocales.has(t.locale)) {
       seenLocales.add(t.locale);
-      revalidatePath(`/${t.locale}/products`);
-      revalidatePath(`/${t.locale}`);
+      revalidateLocalizedPublicPath(t.locale, '/products');
+      revalidateLocalizedPublicPath(t.locale, '');
     }
   }
+  revalidatePublicSitemap();
 
   return NextResponse.json({ message: 'Product deleted' });
 }

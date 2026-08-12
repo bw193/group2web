@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { revalidatePath } from 'next/cache';
 import { getDb, withDbRetryFast } from '@/lib/db';
 import { products, productTranslations, productImages, productSpecifications } from '@/lib/db/schema';
 import { eq, and, desc, inArray, type SQL } from 'drizzle-orm';
@@ -10,6 +9,11 @@ import {
   productSlugFromInput,
   resolveProductTranslationSlug,
 } from '@/lib/products';
+import {
+  revalidateLocalizedDetailPath,
+  revalidateLocalizedPublicPath,
+  revalidatePublicSitemap,
+} from '@/lib/public-revalidation';
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -205,10 +209,11 @@ export async function POST(request: NextRequest) {
     // Bust ISR cache for the home page (featured grid), the products index,
     // and the new product's detail page in every locale with a translation.
     for (const t of finalTranslations) {
-      revalidatePath(`/${t.locale}`);
-      revalidatePath(`/${t.locale}/products`);
-      revalidatePath(`/${t.locale}/products/${t.slug}`);
+      revalidateLocalizedPublicPath(t.locale, '');
+      revalidateLocalizedPublicPath(t.locale, '/products');
+      revalidateLocalizedDetailPath(t.locale, 'products', t.slug);
     }
+    revalidatePublicSitemap();
 
     return NextResponse.json({ ...product, translations: finalTranslations }, { status: 201 });
   } catch (error) {

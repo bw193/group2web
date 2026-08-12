@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { revalidatePath } from 'next/cache';
 import { getDb } from '@/lib/db';
 import {
   articles,
@@ -9,14 +8,15 @@ import {
 } from '@/lib/db/schema';
 import { and, eq, sql } from 'drizzle-orm';
 import { getSession } from '@/lib/auth';
-import { locales } from '@/i18n/config';
+import {
+  revalidateAllLocalizedPublicPaths,
+  revalidateLocalizedDetailPath,
+} from '@/lib/public-revalidation';
 
 // Refresh the insight index in every locale; the detail pages render the
 // category label inline and are busted separately below. Page-path ISR only.
 function revalidateInsightIndexes() {
-  for (const loc of locales) {
-    revalidatePath(`/${loc}/insight`);
-  }
+  revalidateAllLocalizedPublicPaths('/insight');
 }
 
 /** Bust the detail pages of every article in this category (label appears there). */
@@ -28,7 +28,7 @@ async function revalidateCategoryArticles(key: string) {
     .innerJoin(articles, eq(articles.id, articleTranslations.articleId))
     .where(eq(articles.category, key));
   for (const r of rows) {
-    revalidatePath(`/${r.locale}/insight/${r.slug}`);
+    revalidateLocalizedDetailPath(r.locale, 'insight', r.slug);
   }
 }
 

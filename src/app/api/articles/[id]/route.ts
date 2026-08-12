@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { revalidatePath } from 'next/cache';
 import { getDb, withDbRetryFast } from '@/lib/db';
 import { articles, articleTranslations, articleTranslationBodies, articleProducts, articleSlugHistory } from '@/lib/db/schema';
 import { eq, and, inArray } from 'drizzle-orm';
@@ -11,12 +10,15 @@ import {
   disambiguateSharedArticleSlug,
   resolveArticleTranslationSlug,
 } from '@/lib/articles';
+import {
+  revalidateAllLocalizedPublicPaths,
+  revalidateLocalizedDetailPath,
+  revalidatePublicSitemap,
+} from '@/lib/public-revalidation';
 
 // See sibling route.ts: page-path ISR invalidation, exactly like products.
 function revalidateInsightIndexes() {
-  for (const loc of locales) {
-    revalidatePath(`/${loc}/insight`);
-  }
+  revalidateAllLocalizedPublicPaths('/insight');
 }
 
 export async function GET(
@@ -242,9 +244,10 @@ export async function PUT(
   // Bust ISR: old + new detail URLs (slug may have changed) and every
   // locale's journal index (EN fallback surfaces edits everywhere).
   for (const t of [...prevTrans, ...newTrans]) {
-    revalidatePath(`/${t.locale}/insight/${t.slug}`);
+    revalidateLocalizedDetailPath(t.locale, 'insight', t.slug);
   }
   revalidateInsightIndexes();
+  revalidatePublicSitemap();
 
   return NextResponse.json({ message: 'Article updated' });
 }
@@ -273,9 +276,10 @@ export async function DELETE(
   await db.delete(articles).where(eq(articles.id, articleId));
 
   for (const t of delTrans) {
-    revalidatePath(`/${t.locale}/insight/${t.slug}`);
+    revalidateLocalizedDetailPath(t.locale, 'insight', t.slug);
   }
   revalidateInsightIndexes();
+  revalidatePublicSitemap();
 
   return NextResponse.json({ message: 'Article deleted' });
 }

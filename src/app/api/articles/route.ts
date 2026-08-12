@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { revalidatePath } from 'next/cache';
 import { getDb, withDbRetryFast } from '@/lib/db';
 import { articles, articleTranslations, articleTranslationBodies, articleProducts } from '@/lib/db/schema';
 import { eq, desc, inArray } from 'drizzle-orm';
@@ -11,14 +10,17 @@ import {
   disambiguateSharedArticleSlug,
   resolveArticleTranslationSlug,
 } from '@/lib/articles';
+import {
+  revalidateAllLocalizedPublicPaths,
+  revalidateLocalizedDetailPath,
+  revalidatePublicSitemap,
+} from '@/lib/public-revalidation';
 
 // The journal list shows English-fallback rows in every locale, so any article
 // change must refresh the index in all locales, not just the ones that have a
 // translation. Page-path ISR invalidation, exactly like the product routes.
 function revalidateInsightIndexes() {
-  for (const loc of locales) {
-    revalidatePath(`/${loc}/insight`);
-  }
+  revalidateAllLocalizedPublicPaths('/insight');
 }
 
 // CMS-only API: unlike products there is no public consumer, and the list
@@ -154,8 +156,9 @@ export async function POST(request: NextRequest) {
 
     revalidateInsightIndexes();
     for (const t of finalTranslations) {
-      revalidatePath(`/${t.locale}/insight/${t.slug}`);
+      revalidateLocalizedDetailPath(t.locale, 'insight', t.slug);
     }
+    revalidatePublicSitemap();
 
     return NextResponse.json({ ...article, translations: finalTranslations }, { status: 201 });
   } catch (error) {

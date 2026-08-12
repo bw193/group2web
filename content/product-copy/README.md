@@ -33,13 +33,14 @@ npx tsx scripts/apply-product-copy.ts \
   --batch content/product-copy/<batch-id>.json --rollback
 ```
 
-After a successful apply or rollback, run a fresh deployment. Public product
-pages use the build-time data snapshot, so ISR revalidation alone cannot expose
-the new database content.
+Production builds use a point-in-time snapshot for static generation. Deployed
+runtime revalidation reads the live database, so the normal ISR window can
+expose an applied or rolled-back batch without waiting for another deployment.
 
-After deployment, verify every localized target page against the reviewed
-batch. The verifier checks HTTP status, new and previous copy, canonical and
-hreflang URLs, and Hebrew RTL metadata:
+After the affected pages revalidate (or after a deployment), verify every
+localized target page against the reviewed batch. The verifier checks HTTP
+status, new and previous copy, canonical and hreflang URLs, and Hebrew RTL
+metadata:
 
 ```bash
 npx tsx scripts/verify-product-copy-production.ts \

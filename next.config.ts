@@ -35,9 +35,6 @@ const nextConfig = {
   poweredByHeader: false,
   productionBrowserSourceMaps: false,
   reactStrictMode: true,
-  outputFileTracingIncludes: {
-    '/*': ['./.build-cache/public-data.json'],
-  },
   images: {
     remotePatterns: [
       {

@@ -7,6 +7,11 @@ import {
 import { getArticleSitemapRows, getProductSitemapRows } from '@/lib/public-data';
 import { isIndexableLocalePath } from '@/lib/indexing';
 
+// Keep the build snapshot for deterministic prerendering, then refresh from
+// live runtime data. CMS writes also invalidate /sitemap.xml immediately; this
+// interval covers database changes made by maintenance scripts.
+export const revalidate = 300;
+
 // Stable date for static routes so Google doesn't see every locale homepage
 // "changing" on each rebuild. Bump manually when nav/footer/structure shifts.
 const STATIC_LAST_MODIFIED = new Date('2026-05-20T00:00:00Z');

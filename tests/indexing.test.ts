@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { isIndexableLocalePath, robotsForPublicPage } from '../src/lib/indexing';
+import { buildLanguageAlternates } from '../src/lib/seo';
 
 test('Hebrew public pages are noindex and remain crawlable by default', () => {
   assert.deepEqual(robotsForPublicPage('he'), {
@@ -71,5 +72,17 @@ test('the two indexing helpers never disagree', () => {
       indexableByRobots,
       `disagreement for ${locale} ${path || '/'}`,
     );
+  }
+});
+
+test('Hebrew appears only in the canonical homepage hreflang cluster', () => {
+  const homepageLanguages = buildLanguageAlternates('');
+  assert.equal(homepageLanguages.he, 'https://chengtaimirror.com/he/israel-home');
+
+  for (const path of ['/about', '/products', '/products/some-mirror']) {
+    const languages = buildLanguageAlternates(path);
+    assert.equal(languages.he, undefined, `unexpected Hebrew hreflang for ${path || '/'}`);
+    assert.equal(languages.en, `https://chengtaimirror.com/en${path}`);
+    assert.equal(languages['x-default'], `https://chengtaimirror.com/en${path}`);
   }
 });
