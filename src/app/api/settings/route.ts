@@ -1,12 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDb, withDbRetryFast } from '@/lib/db';
 import { siteSettings } from '@/lib/db/schema';
-import { eq } from 'drizzle-orm';
+import { eq, ne } from 'drizzle-orm';
 import { getSession } from '@/lib/auth';
+import { INQUIRY_RECIPIENT_USER_IDS_KEY } from '@/lib/inquiry-routing';
 
 export async function GET() {
+  const session = await getSession();
+  if (!session || session.role !== 'admin') {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
+
   const db = getDb();
-  const allSettings = await withDbRetryFast(() => db.select().from(siteSettings));
+  const allSettings = await withDbRetryFast(() =>
+    db
+      .select()
+      .from(siteSettings)
+      .where(ne(siteSettings.key, INQUIRY_RECIPIENT_USER_IDS_KEY)),
+  );
   const result: Record<string, string> = {};
   for (const s of allSettings) {
     result[s.key] = s.value || '';
@@ -24,6 +35,8 @@ export async function PUT(request: NextRequest) {
   const db = getDb();
 
   for (const [key, value] of Object.entries(body)) {
+    if (key === INQUIRY_RECIPIENT_USER_IDS_KEY) continue;
+
     const [existing] = await db.select().from(siteSettings).where(eq(siteSettings.key, key)).limit(1);
     if (existing) {
       await db.update(siteSettings)

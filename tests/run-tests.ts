@@ -6,3 +6,4 @@ import './article-slugs.test';
 import './product-copy-batch.test';
 import './public-data-snapshot-config.test';
 import './public-revalidation.test';
+import './inquiry-email.test';

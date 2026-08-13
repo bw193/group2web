@@ -348,6 +348,16 @@ const en = {
   'set.field.whatsapp': 'WhatsApp Number',
   'set.field.address': 'Company Address',
   'set.field.copyright': 'Copyright Text',
+  'set.inquiryRouting.title': 'Inquiry Email Distribution',
+  'set.inquiryRouting.desc': 'Automatically send each new website inquiry to the employees you select.',
+  'set.inquiryRouting.ready': 'Email delivery is configured',
+  'set.inquiryRouting.notConfigured': 'Email delivery is not configured yet',
+  'set.inquiryRouting.notConfiguredHint': 'Add RESEND_API_KEY and INQUIRY_FROM_EMAIL to the deployment environment before enabling this workflow.',
+  'set.inquiryRouting.recipients': 'Recipient employees',
+  'set.inquiryRouting.approvedOnly': 'Only approved employee accounts can receive inquiries.',
+  'set.inquiryRouting.selected': '{n} selected',
+  'set.inquiryRouting.empty': 'No approved employees are available.',
+  'set.inquiryRouting.saveFailed': 'Unable to load or save the inquiry distribution settings. Please try again.',
 
   // ---------- About ----------
   'about.eyebrow': 'Company',
@@ -813,6 +823,16 @@ const zh: typeof en = {
   'set.field.whatsapp': 'WhatsApp 号码',
   'set.field.address': '公司地址',
   'set.field.copyright': '版权信息',
+  'set.inquiryRouting.title': '询盘邮件自动分发',
+  'set.inquiryRouting.desc': '将网站收到的每一条新询盘自动发送给你选定的员工。',
+  'set.inquiryRouting.ready': '邮件发送服务已配置',
+  'set.inquiryRouting.notConfigured': '邮件发送服务尚未配置',
+  'set.inquiryRouting.notConfiguredHint': '启用前，请在部署环境中添加 RESEND_API_KEY 和 INQUIRY_FROM_EMAIL。',
+  'set.inquiryRouting.recipients': '收件员工',
+  'set.inquiryRouting.approvedOnly': '只有状态为“已批准”的员工账号可以接收询盘。',
+  'set.inquiryRouting.selected': '已选择 {n} 人',
+  'set.inquiryRouting.empty': '目前没有可选择的已批准员工。',
+  'set.inquiryRouting.saveFailed': '无法加载或保存询盘分发设置，请重试。',
 
   // ---------- About ----------
   'about.eyebrow': '公司',
