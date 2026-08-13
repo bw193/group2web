@@ -135,6 +135,13 @@ export function formatVideoDuration(seconds: number | null | undefined): string 
   return `${mins}:${String(secs).padStart(2, '0')}`;
 }
 
+export function formatVideoDate(value: string | null | undefined, locale: string): string {
+  if (!value) return '';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '';
+  return new Intl.DateTimeFormat(locale, { month: 'short', day: 'numeric', year: 'numeric' }).format(date);
+}
+
 export function isDirectVideoUrl(url: string | null | undefined): boolean {
   return !!url && DIRECT_VIDEO_RE.test(url);
 }

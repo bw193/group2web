@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Search, X } from 'lucide-react';
+import FeaturedVideoCard from '@/components/public/videos/FeaturedVideoCard';
 import VideoCard from '@/components/public/videos/VideoCard';
 import type { VideoListItem } from '@/lib/video-utils';
 
@@ -15,27 +16,67 @@ export default function VideosFilter({
 }) {
   const t = useTranslations('videos');
   const [search, setSearch] = useState('');
+  const [activeCategory, setActiveCategory] = useState('all');
+
+  const categories = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const video of videos) {
+      const category = video.category?.trim();
+      if (category) counts.set(category, (counts.get(category) || 0) + 1);
+    }
+    return [...counts.entries()].sort((a, b) => b[1] - a[1]).map(([name]) => name);
+  }, [videos]);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     return videos.filter((video) => {
+      const matchCategory = activeCategory === 'all' || video.category === activeCategory;
       const matchSearch =
         !q ||
         video.title.toLowerCase().includes(q) ||
         video.excerpt.toLowerCase().includes(q);
-      return matchSearch;
+      return matchCategory && matchSearch;
     });
-  }, [videos, search]);
+  }, [videos, search, activeCategory]);
+
+  const isDefaultView = activeCategory === 'all' && !search.trim();
+  const featured = isDefaultView ? filtered[0] : undefined;
+  const rest = featured ? filtered.slice(1) : filtered;
 
   return (
     <section className="bg-cream pb-20 md:pb-28">
       <div className="container-wide">
-        <div className="flex flex-col gap-5 border-t border-warm-border py-5 md:flex-row md:items-center md:justify-between md:py-3.5">
-          <p className="font-body text-[12px] font-semibold uppercase tracking-[0.14em] text-ink">
-            {filtered.length === 0 ? t('noResults') : t('showing', { count: filtered.length })}
-          </p>
+        <div className="flex flex-wrap items-center justify-between gap-x-10 gap-y-4 border-y border-warm-border py-4">
+          <div className="flex flex-wrap items-baseline gap-x-7 gap-y-2">
+            {['all', ...categories].map((category) => {
+              const on = category === activeCategory;
+              return (
+                <button
+                  key={category}
+                  type="button"
+                  onClick={() => setActiveCategory(category)}
+                  aria-pressed={on}
+                  className={`inline-flex items-baseline gap-2 py-1 text-[12px] font-body font-semibold tracking-[0.16em] uppercase transition-colors duration-300 ${
+                    on ? 'text-ink' : 'text-ink-mid hover:text-ink'
+                  }`}
+                >
+                  <span
+                    aria-hidden
+                    className={`block h-px self-center bg-bronze transition-all duration-500 ease-out-expo ${
+                      on ? 'w-4' : 'w-0'
+                    }`}
+                  />
+                  {category === 'all' ? t('allCategories') : category}
+                </button>
+              );
+            })}
+          </div>
 
-          <div className="relative w-full flex-shrink-0 md:w-[290px]">
+          <div className="flex w-full items-center gap-7 sm:w-auto">
+            <span className="hidden whitespace-nowrap font-body text-[12px] uppercase tracking-[0.14em] text-ink-light md:block">
+              {filtered.length === 0 ? t('noResults') : t('showing', { count: filtered.length })}
+            </span>
+            <div className="relative w-full flex-shrink-0 sm:w-[250px]">
               <Search size={15} strokeWidth={1.75} className="absolute start-0 top-1/2 -translate-y-1/2 text-ink-mid" />
               <input
                 type="text"
@@ -55,26 +96,46 @@ export default function VideosFilter({
                   <X size={15} strokeWidth={1.75} />
                 </button>
               )}
+            </div>
           </div>
         </div>
 
         {filtered.length === 0 ? (
-          <div className="border-t border-warm-border py-24 text-center">
-            <p className="font-display text-2xl font-normal text-ink-mid">{t('empty')}</p>
+          <div className="py-24 text-center md:py-32">
+            <span className="mx-auto mb-7 block h-px w-8 bg-bronze" aria-hidden />
+            <p className="font-display text-2xl font-light text-ink-mid md:text-3xl">{t('empty')}</p>
           </div>
         ) : (
-          <div className="animate-fade-up grid grid-cols-1 gap-x-7 gap-y-16 pt-5 sm:grid-cols-2 md:pt-0 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8">
-            {filtered.map((video, i) => (
-              <VideoCard
-                key={video.id}
-                video={video}
-                locale={locale}
-                index={i}
-                categoryFallback={t('videoFallback')}
-                watchLabel={t('watchVideo')}
-              />
-            ))}
-          </div>
+          <>
+            {featured && (
+              <div className="border-b border-warm-border py-12 md:py-16">
+                <FeaturedVideoCard
+                  video={featured}
+                  locale={locale}
+                  featuredLabel={t('featured')}
+                  categoryFallback={t('videoFallback')}
+                  watchLabel={t('watchNow')}
+                />
+              </div>
+            )}
+            {rest.length > 0 && (
+              <div
+                key={`${activeCategory}-${search.trim()}`}
+                className="animate-fade-up grid grid-cols-1 gap-x-8 gap-y-14 pt-12 sm:grid-cols-2 md:pt-16 lg:grid-cols-3"
+              >
+                {rest.map((video, i) => (
+                  <VideoCard
+                    key={video.id}
+                    video={video}
+                    locale={locale}
+                    index={i}
+                    categoryFallback={t('videoFallback')}
+                    watchLabel={t('watchVideo')}
+                  />
+                ))}
+              </div>
+            )}
+          </>
         )}
       </div>
     </section>

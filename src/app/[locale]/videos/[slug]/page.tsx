@@ -18,7 +18,7 @@ import {
 import { getUploadUrl } from '@/lib/utils';
 import { getVideoDetailData, getVideoStaticParams } from '@/lib/videos';
 import { buildVideoObjectSchema } from '@/lib/video-schema';
-import { formatVideoDuration, videoExcerpt } from '@/lib/video-utils';
+import { formatVideoDate, formatVideoDuration, videoExcerpt } from '@/lib/video-utils';
 
 export const revalidate = 600;
 
@@ -87,6 +87,8 @@ export default async function VideoDetailPage({
   const description = video.excerpt || videoExcerpt(video.body, 500);
   const categoryLabel = video.category || t('videoFallback');
   const duration = formatVideoDuration(video.durationSeconds);
+  const dateLabel = formatVideoDate(video.publishedAt, locale);
+  const hasBody = videoExcerpt(video.body, 1).length > 0;
   const videoLd = buildVideoObjectSchema(
     { ...video, thumbnailUrl: video.thumbnailUrl ? getUploadUrl(video.thumbnailUrl) : video.thumbnailUrl },
     locale,
@@ -132,15 +134,19 @@ export default async function VideoDetailPage({
         </div>
       </nav>
 
-      <article className="bg-cream">
-        <div className="container-wide py-12 md:py-16 lg:py-20">
-          <div className="grid grid-cols-1 items-start gap-10 lg:grid-cols-12 lg:gap-14 xl:gap-20">
-            <div className="order-2 lg:order-1 lg:col-span-7">
-              <VideoPlayer video={video} className="mx-auto lg:mx-0" />
-            </div>
+      <section className="bg-espresso">
+        <div className="container-wide py-8 md:py-12">
+          <div className="mx-auto max-w-[1040px]" data-reveal>
+            <VideoPlayer video={video} />
+          </div>
+        </div>
+      </section>
 
-            <header className="order-1 lg:order-2 lg:sticky lg:top-28 lg:col-span-5">
-              <div className="flex items-center gap-3 font-body text-[11px] font-semibold uppercase tracking-[0.15em] text-bronze">
+      <article className="bg-cream">
+        <header className="container-wide py-12 md:py-16">
+          <div className="grid grid-cols-1 gap-10 lg:grid-cols-12 lg:gap-14">
+            <div className="lg:col-span-8">
+              <div className="flex flex-wrap items-center gap-x-3.5 gap-y-2 font-body text-[11px] font-semibold uppercase tracking-[0.15em] text-bronze">
                 <span>{categoryLabel}</span>
                 {duration && (
                   <>
@@ -148,28 +154,61 @@ export default async function VideoDetailPage({
                     <span className="font-normal tracking-[0.08em] text-ink-mid">{duration}</span>
                   </>
                 )}
+                {dateLabel && (
+                  <>
+                    <span className="h-1 w-1 rounded-full bg-warm-border" aria-hidden />
+                    <span className="font-normal tracking-[0.08em] text-ink-mid">{dateLabel}</span>
+                  </>
+                )}
               </div>
 
-              <h1 className="mt-5 max-w-[14ch] font-display text-[clamp(2.7rem,4.25vw,4rem)] font-light leading-[0.98] tracking-[-0.025em] text-ink">
+              <h1 className="mt-6 max-w-[22ch] font-display text-[clamp(2.4rem,4.5vw,3.9rem)] font-light leading-[1.02] tracking-[-0.025em] text-ink">
                 {video.title}
               </h1>
+            </div>
 
+            <div className="flex flex-col lg:col-span-4">
               {description && (
-                <p className="mt-7 max-w-[38ch] font-body text-[17px] font-normal leading-[1.7] text-ink-mid md:text-[18px]">
+                <p className="max-w-[44ch] font-body text-[16px] font-normal leading-[1.7] text-ink-mid">
                   {description}
                 </p>
               )}
 
+              {video.tags.length > 0 && (
+                <div className="mt-6 flex flex-wrap gap-2">
+                  {video.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="border border-warm-border px-2.5 py-1 font-body text-[10.5px] font-medium uppercase tracking-[0.1em] text-ink-mid"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              )}
+
               <Link
                 href={`/${locale}/videos`}
-                className="group mt-9 inline-flex items-center gap-3 border-t border-warm-border pt-5 font-body text-[11px] font-semibold uppercase tracking-[0.15em] text-ink transition-colors hover:text-bronze"
+                className="group mt-8 inline-flex w-fit items-center gap-3 border-t border-warm-border pt-5 font-body text-[11px] font-semibold uppercase tracking-[0.15em] text-ink transition-colors hover:text-bronze lg:mt-auto lg:pt-6"
               >
                 <ArrowLeft size={14} strokeWidth={1.6} className="transition-transform duration-300 group-hover:-translate-x-1 rtl:-scale-x-100 rtl:group-hover:translate-x-1" />
                 {t('backToVideos')}
               </Link>
-            </header>
+            </div>
           </div>
-        </div>
+        </header>
+
+        {hasBody && (
+          <div className="container-narrow pb-16 md:pb-20">
+            <div className="border-t border-warm-border pt-10 md:pt-12">
+              <p className="kicker-plain mx-auto mb-8 max-w-[66ch]">{t('aboutVideo')}</p>
+              <div
+                className="article-prose"
+                dangerouslySetInnerHTML={{ __html: video.body }}
+              />
+            </div>
+          </div>
+        )}
 
         {relatedProducts.length > 0 && (
           <div id="related-products" className="container-wide pb-20 md:pb-24">

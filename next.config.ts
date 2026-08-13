@@ -35,6 +35,11 @@ const nextConfig = {
         protocol: 'https' as const,
         hostname: 'yleuaykcrrrqdhzmrmoq.supabase.co',
       },
+      {
+        protocol: 'https' as const,
+        hostname: 'img.youtube.com',
+        pathname: '/vi/**',
+      },
     ],
     formats: ['image/avif', 'image/webp'] as ('image/avif' | 'image/webp')[],
     deviceSizes: [640, 750, 828, 1080, 1200, 1600, 1920],
