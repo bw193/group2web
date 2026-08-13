@@ -279,8 +279,43 @@ const COPY: Record<Locale, RoutedCopy> = {
   },
 };
 
+const VIDEO_COPY: Record<Locale, PageEntry> = {
+  en: COPY.en.videos!,
+  es: {
+    title: 'Vídeos de Espejos LED, Visitas a Fábrica y Demostraciones de Instalación | Chengtai Mirror',
+    description:
+      'Vea demostraciones de productos, recorridos por la fábrica, vídeos de instalación y controles de calidad de espejos LED, inteligentes, de tocador y de baño de Chengtai Mirror.',
+  },
+  pt: {
+    title: 'Vídeos de Espelhos LED, Visitas à Fábrica e Demonstrações de Instalação | Chengtai Mirror',
+    description:
+      'Assista a demonstrações de produtos, visitas à fábrica, vídeos de instalação e controle de qualidade de espelhos LED, inteligentes, de penteadeira e de banheiro da Chengtai Mirror.',
+  },
+  fr: {
+    title: 'Vidéos de Miroirs LED, Visites d’Usine et Démonstrations d’Installation | Chengtai Mirror',
+    description:
+      'Regardez les démonstrations de produits, visites d’usine, vidéos d’installation et contrôles qualité de Chengtai Mirror pour les miroirs LED, intelligents, de coiffeuse et de salle de bain.',
+  },
+  it: {
+    title: 'Video di Specchi LED, Tour della Fabbrica e Demo di Installazione | Chengtai Mirror',
+    description:
+      'Guarda le demo dei prodotti, i tour della fabbrica, i video di installazione e i controlli qualità di Chengtai Mirror per specchi LED, smart, da toeletta e da bagno.',
+  },
+  de: {
+    title: 'LED-Spiegel-Videos, Werksführungen & Installationsdemos | Chengtai Mirror',
+    description:
+      'Sehen Sie Produktdemos, Werksrundgänge, Installations- und Qualitätskontrollvideos von Chengtai Mirror für LED-, Smart-, Kosmetik- und Badspiegel.',
+  },
+  he: {
+    title: 'סרטוני מראות LED, סיורים במפעל והדגמות התקנה | Chengtai Mirror',
+    description:
+      'צפו בהדגמות מוצרים, סיורים במפעל, סרטוני התקנה ובקרת איכות של Chengtai Mirror למראות LED, מראות חכמות, מראות איפור ומראות אמבטיה.',
+  },
+};
+
 export function pageCopy(locale: string, key: PageKey) {
   const safe = (locales as readonly string[]).includes(locale) ? (locale as Locale) : defaultLocale;
+  if (key === 'videos') return VIDEO_COPY[safe];
   return COPY[safe][key] ?? COPY.en[key] ?? COPY.en.home;
 }
 
