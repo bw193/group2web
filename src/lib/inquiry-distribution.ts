@@ -1,12 +1,14 @@
 import 'server-only';
 
-import { and, eq, inArray } from 'drizzle-orm';
+import { asc, eq, inArray } from 'drizzle-orm';
 import { getDb } from '@/lib/db';
 import { siteSettings, users } from '@/lib/db/schema';
 import { buildInquiryEmail, type InquiryEmailDetails } from '@/lib/inquiry-email-content';
 import {
   INQUIRY_RECIPIENT_USER_IDS_KEY,
-  parseRecipientUserIds,
+  parseInquiryRoutingState,
+  selectNextRecipientId,
+  serializeInquiryRoutingState,
 } from '@/lib/inquiry-routing';
 
 interface InquiryRecipient {
@@ -18,21 +20,56 @@ export type InquiryDistributionResult =
   | { status: 'sent'; recipientCount: number }
   | { status: 'skipped'; reason: 'not_configured' | 'no_recipients' };
 
-async function getRecipients(): Promise<InquiryRecipient[]> {
+async function claimNextRecipient(): Promise<InquiryRecipient | null> {
   const db = getDb();
-  const [setting] = await db
-    .select({ value: siteSettings.value })
-    .from(siteSettings)
-    .where(eq(siteSettings.key, INQUIRY_RECIPIENT_USER_IDS_KEY))
-    .limit(1);
 
-  const recipientIds = parseRecipientUserIds(setting?.value);
-  if (recipientIds.length === 0) return [];
+  return db.transaction(async (tx) => {
+    // Lock the routing row so simultaneous inquiries cannot claim the same
+    // employee. Supabase's transaction pooler keeps this lock for the whole
+    // transaction, then releases it before the external Resend request.
+    const [setting] = await tx
+      .select({ value: siteSettings.value })
+      .from(siteSettings)
+      .where(eq(siteSettings.key, INQUIRY_RECIPIENT_USER_IDS_KEY))
+      .limit(1)
+      .for('update');
 
-  return db
-    .select({ id: users.id, email: users.email })
-    .from(users)
-    .where(and(inArray(users.id, recipientIds), eq(users.status, 'approved')));
+    const state = parseInquiryRoutingState(setting?.value);
+    if (state.recipientUserIds.length === 0) return null;
+
+    const recipients = await tx
+      .select({ id: users.id, email: users.email, status: users.status })
+      .from(users)
+      .where(inArray(users.id, state.recipientUserIds))
+      .orderBy(asc(users.createdAt), asc(users.id));
+
+    const recipientId = selectNextRecipientId(
+      recipients.map((recipient) => recipient.id),
+      state.lastRecipientUserId,
+      new Set(
+        recipients
+          .filter((recipient) => recipient.status === 'approved')
+          .map((recipient) => recipient.id),
+      ),
+    );
+    if (recipientId === null) return null;
+
+    const recipient = recipients.find((candidate) => candidate.id === recipientId);
+    if (!recipient) return null;
+
+    await tx
+      .update(siteSettings)
+      .set({
+        value: serializeInquiryRoutingState({
+          recipientUserIds: state.recipientUserIds,
+          lastRecipientUserId: recipient.id,
+        }),
+        updatedAt: new Date().toISOString(),
+      })
+      .where(eq(siteSettings.key, INQUIRY_RECIPIENT_USER_IDS_KEY));
+
+    return { id: recipient.id, email: recipient.email };
+  });
 }
 
 export async function distributeInquiry(
@@ -45,13 +82,13 @@ export async function distributeInquiry(
     return { status: 'skipped', reason: 'not_configured' };
   }
 
-  const recipients = await getRecipients();
-  if (recipients.length === 0) {
+  const recipient = await claimNextRecipient();
+  if (!recipient) {
     return { status: 'skipped', reason: 'no_recipients' };
   }
 
   const { subject, html, text } = buildInquiryEmail(inquiry);
-  const payload = recipients.map((recipient) => ({
+  const payload = {
     from,
     to: [recipient.email],
     reply_to: inquiry.email,
@@ -62,14 +99,14 @@ export async function distributeInquiry(
       { name: 'inquiry_id', value: String(inquiry.id) },
       { name: 'recipient_user_id', value: String(recipient.id) },
     ],
-  }));
+  };
 
-  const response = await fetch('https://api.resend.com/emails/batch', {
+  const response = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${apiKey}`,
       'Content-Type': 'application/json',
-      'Idempotency-Key': `website-inquiry/${inquiry.id}/distribution-v1`,
+      'Idempotency-Key': `website-inquiry/${inquiry.id}/recipient/${recipient.id}/v2`,
     },
     body: JSON.stringify(payload),
     signal: AbortSignal.timeout(10_000),
@@ -77,8 +114,8 @@ export async function distributeInquiry(
 
   if (!response.ok) {
     const responseBody = (await response.text()).slice(0, 500);
-    throw new Error(`Resend batch request failed (${response.status}): ${responseBody}`);
+    throw new Error(`Resend request failed (${response.status}): ${responseBody}`);
   }
 
-  return { status: 'sent', recipientCount: recipients.length };
+  return { status: 'sent', recipientCount: 1 };
 }

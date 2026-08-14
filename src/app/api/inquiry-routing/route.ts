@@ -7,7 +7,9 @@ import { siteSettings, users } from '@/lib/db/schema';
 import {
   INQUIRY_RECIPIENT_USER_IDS_KEY,
   normalizeRecipientUserIds,
+  parseInquiryRoutingState,
   parseRecipientUserIds,
+  serializeInquiryRoutingState,
 } from '@/lib/inquiry-routing';
 
 const routingSchema = z.object({
@@ -36,7 +38,7 @@ export async function GET() {
         })
         .from(users)
         .where(eq(users.status, 'approved'))
-        .orderBy(asc(users.fullName)),
+        .orderBy(asc(users.createdAt), asc(users.id)),
     ),
     withDbRetryFast(() =>
       db
@@ -88,14 +90,32 @@ export async function PUT(request: NextRequest) {
     }
   }
 
-  const value = JSON.stringify(recipientUserIds);
-  await db
-    .insert(siteSettings)
-    .values({ key: INQUIRY_RECIPIENT_USER_IDS_KEY, value })
-    .onConflictDoUpdate({
-      target: siteSettings.key,
-      set: { value, updatedAt: new Date().toISOString() },
+  await db.transaction(async (tx) => {
+    const [currentSetting] = await tx
+      .select({ value: siteSettings.value })
+      .from(siteSettings)
+      .where(eq(siteSettings.key, INQUIRY_RECIPIENT_USER_IDS_KEY))
+      .limit(1)
+      .for('update');
+
+    const currentState = parseInquiryRoutingState(currentSetting?.value);
+    const recipientsChanged =
+      currentState.recipientUserIds.length !== recipientUserIds.length ||
+      currentState.recipientUserIds.some((id, index) => id !== recipientUserIds[index]);
+    const value = serializeInquiryRoutingState({
+      recipientUserIds,
+      // A changed team starts a fresh rotation from the earliest registered account.
+      lastRecipientUserId: recipientsChanged ? null : currentState.lastRecipientUserId,
     });
+
+    await tx
+      .insert(siteSettings)
+      .values({ key: INQUIRY_RECIPIENT_USER_IDS_KEY, value })
+      .onConflictDoUpdate({
+        target: siteSettings.key,
+        set: { value, updatedAt: new Date().toISOString() },
+      });
+  });
 
   return NextResponse.json({ message: 'Inquiry routing updated', recipientUserIds });
 }

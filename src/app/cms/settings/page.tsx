@@ -112,6 +112,12 @@ export default function SettingsPage() {
     { key: 'copyright', labelKey: 'set.field.copyright' },
   ];
 
+  const rotationPositions = new Map(
+    employees
+      .filter((employee) => recipientUserIds.includes(employee.id))
+      .map((employee, index) => [employee.id, index + 1]),
+  );
+
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
@@ -215,6 +221,11 @@ export default function SettingsPage() {
                     <span className="mt-1 inline-block rounded bg-white/80 px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-gray-500">
                       {employee.role === 'admin' ? t('users.role.admin') : t('users.role.editor')}
                     </span>
+                    {checked && (
+                      <span className="ml-1 mt-1 inline-block rounded bg-blue-100 px-1.5 py-0.5 text-[10px] font-medium text-blue-700">
+                        {t('set.inquiryRouting.order', { n: rotationPositions.get(employee.id) ?? 0 })}
+                      </span>
+                    )}
                   </span>
                 </label>
               );
