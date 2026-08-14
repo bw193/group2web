@@ -42,12 +42,25 @@ export function revalidateLocalizedPublicPath(
 
 export function revalidateLocalizedDetailPath(
   locale: string,
-  section: 'products' | 'insight',
+  section: 'products' | 'insight' | 'videos',
   slug: string,
 ): void {
   revalidateLocalizedPublicPath(locale, `/${section}/${slug}`, {
     includeLegacyHebrewPath: true,
   });
+}
+
+/**
+ * Invalidate a whole dynamic detail route across locales, for content that is
+ * embedded in every page of that route rather than owned by one slug. Goes
+ * through `localizedPath` so the Hebrew mirror segment is covered too.
+ */
+export function revalidateLocalizedDetailRoute(
+  section: 'products' | 'insight' | 'videos',
+): void {
+  for (const locale of locales) {
+    revalidatePath(`${localizedPath(locale, `/${section}`)}/[slug]`, 'page');
+  }
 }
 
 export function revalidateAllLocalizedPublicPaths(pathAfterLocale: string): void {

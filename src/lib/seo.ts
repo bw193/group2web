@@ -153,9 +153,9 @@ export function buildAlternates(locale: string, pathAfterLocale: string) {
  * SERP-targeted phrasing can be tuned independently of in-page UI copy.
  * Falls back to English if a locale entry is missing.
  */
-type PageKey = 'home' | 'products' | 'about' | 'contact' | 'insight';
+type PageKey = 'home' | 'products' | 'videos' | 'about' | 'contact' | 'insight';
 type PageEntry = { title: string; description: string; h1?: string };
-type RoutedCopy = Record<PageKey, PageEntry>;
+type RoutedCopy = Record<Exclude<PageKey, 'videos'>, PageEntry> & { videos?: PageEntry };
 
 const COPY: Record<Locale, RoutedCopy> = {
   en: {
@@ -169,6 +169,11 @@ const COPY: Record<Locale, RoutedCopy> = {
       title: 'LED, Smart & Bathroom Mirror Catalog | Chengtai Mirror',
       description:
         "Browse Chengtai Mirror's full collection of LED, smart, anti-fog, and bathroom mirrors. Wholesale, OEM/ODM, export-ready packaging. Request a quote.",
+    },
+    videos: {
+      title: 'LED Mirror Videos, Factory Tours & Installation Demos | Chengtai Mirror',
+      description:
+        'Watch Chengtai Mirror product demos, factory walkthroughs, installation clips, and quality-control videos for LED, smart, vanity, and bathroom mirrors.',
     },
     about: {
       title: 'About Chengtai Mirror — Jiaxing LED Mirror Factory',
@@ -356,9 +361,44 @@ const COPY: Record<Locale, RoutedCopy> = {
   },
 };
 
+const VIDEO_COPY: Record<Locale, PageEntry> = {
+  en: COPY.en.videos!,
+  es: {
+    title: 'Vídeos de Espejos LED, Visitas a Fábrica y Demostraciones de Instalación | Chengtai Mirror',
+    description:
+      'Vea demostraciones de productos, recorridos por la fábrica, vídeos de instalación y controles de calidad de espejos LED, inteligentes, de tocador y de baño de Chengtai Mirror.',
+  },
+  pt: {
+    title: 'Vídeos de Espelhos LED, Visitas à Fábrica e Demonstrações de Instalação | Chengtai Mirror',
+    description:
+      'Assista a demonstrações de produtos, visitas à fábrica, vídeos de instalação e controle de qualidade de espelhos LED, inteligentes, de penteadeira e de banheiro da Chengtai Mirror.',
+  },
+  fr: {
+    title: 'Vidéos de Miroirs LED, Visites d’Usine et Démonstrations d’Installation | Chengtai Mirror',
+    description:
+      'Regardez les démonstrations de produits, visites d’usine, vidéos d’installation et contrôles qualité de Chengtai Mirror pour les miroirs LED, intelligents, de coiffeuse et de salle de bain.',
+  },
+  it: {
+    title: 'Video di Specchi LED, Tour della Fabbrica e Demo di Installazione | Chengtai Mirror',
+    description:
+      'Guarda le demo dei prodotti, i tour della fabbrica, i video di installazione e i controlli qualità di Chengtai Mirror per specchi LED, smart, da toeletta e da bagno.',
+  },
+  de: {
+    title: 'LED-Spiegel-Videos, Werksführungen & Installationsdemos | Chengtai Mirror',
+    description:
+      'Sehen Sie Produktdemos, Werksrundgänge, Installations- und Qualitätskontrollvideos von Chengtai Mirror für LED-, Smart-, Kosmetik- und Badspiegel.',
+  },
+  he: {
+    title: 'סרטוני מראות LED, סיורים במפעל והדגמות התקנה | מראות Chengtai',
+    description:
+      'צפו בהדגמות מוצרים, סיורים במפעל, סרטוני התקנה ובקרת איכות של מראות Chengtai למראות LED, מראות חכמות, מראות איפור ומראות אמבטיה.',
+  },
+};
+
 export function pageCopy(locale: string, key: PageKey) {
   const safe = (locales as readonly string[]).includes(locale) ? (locale as Locale) : defaultLocale;
-  return COPY[safe][key];
+  if (key === 'videos') return VIDEO_COPY[safe];
+  return COPY[safe][key] ?? COPY.en[key] ?? COPY.en.home;
 }
 
 /** "Product Name — Chengtai Mirror", localized when the page locale needs it. */
