@@ -16,7 +16,7 @@ const TYPO_SLUG_REDIRECTS: { from: string; to: string }[] = [
 // crawlers can transfer signal instead of finding 404s.
 // Dynamic /products/<slug> is handled in middleware.ts (Next.js redirects()
 // can't pattern-match dynamic segments cleanly).
-const UNPREFIXED_STATIC_ROUTES = ['/products', '/about', '/contact'];
+const UNPREFIXED_STATIC_ROUTES = ['/products', '/videos', '/about', '/contact'];
 
 const HEBREW_STATIC_ROUTE_REDIRECTS: { from: string; to: string }[] = [
   { from: '/he', to: '/he/israel-home' },
@@ -40,6 +40,11 @@ const nextConfig = {
       {
         protocol: 'https' as const,
         hostname: 'yleuaykcrrrqdhzmrmoq.supabase.co',
+      },
+      {
+        protocol: 'https' as const,
+        hostname: 'img.youtube.com',
+        pathname: '/vi/**',
       },
     ],
     formats: ['image/avif', 'image/webp'] as ('image/avif' | 'image/webp')[],

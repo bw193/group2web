@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { notFound, permanentRedirect } from 'next/navigation';
 import { ArrowRight, ChevronRight } from 'lucide-react';
 import ProductCard from '@/components/public/ProductCard';
+import VideoCard from '@/components/public/videos/VideoCard';
 import ProofPoints from '@/components/public/ProofPoints';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { getProductDetailData } from '@/lib/public-data';
@@ -26,6 +27,7 @@ export async function renderProductDetailPage(
   const { locale, slug } = await params;
   setRequestLocale(locale);
   const t = await getTranslations('products');
+  const videosT = await getTranslations('videos');
   const breadcrumbT = await getTranslations('breadcrumb');
   const detail = await getProductDetailData(locale, slug);
   if (detail.type === 'notFound') notFound();
@@ -34,7 +36,7 @@ export async function renderProductDetailPage(
     permanentRedirect(localizedPath(locale, `/products/${detail.translation.slug}`));
   }
 
-  const { product, translation: trans, specs, images, related } = detail;
+  const { product, translation: trans, specs, images, related, relatedVideos } = detail;
   const siteName = localizedSiteName(locale);
 
   const imageUrls = images.length > 0
@@ -212,6 +214,28 @@ export async function renderProductDetailPage(
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-14 md:gap-x-10 md:gap-y-16">
                 {related.map((p, i) => (
                   <ProductCard key={p.id} index={i} {...p} noSnippet />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {relatedVideos.length > 0 && (
+            <div className="mt-24 pt-14 border-t border-warm-border" data-reveal>
+              <div className="flex items-end justify-between mb-10">
+                <h2 className="font-display text-3xl md:text-4xl font-normal text-ink tracking-[-0.015em] leading-[1.1]">
+                  {videosT('relatedVideos')}
+                </h2>
+                <Link
+                  href={localizedPath(locale, '/videos')}
+                  className="hidden md:inline-flex items-center gap-2 text-[13px] font-body font-semibold tracking-[0.14em] uppercase text-ink hover:text-bronze transition-colors group"
+                >
+                  {videosT('viewAllVideos')}
+                  <ArrowRight size={14} strokeWidth={1.75} className="transition-transform duration-500 group-hover:translate-x-1 rtl:-scale-x-100" />
+                </Link>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-14 md:gap-x-10">
+                {relatedVideos.map((video, i) => (
+                  <VideoCard key={video.id} video={video} locale={locale} index={i} />
                 ))}
               </div>
             </div>

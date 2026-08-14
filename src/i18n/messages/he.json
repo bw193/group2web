@@ -1,6 +1,7 @@
 {
   "nav": {
     "insight": "Insight",
+    "videos": "סרטונים",
     "home": "בית",
     "products": "מוצרים",
     "about": "אודות",
@@ -198,8 +199,30 @@
     "viewAllProducts": "לכל המוצרים",
     "empty": "סיפורים חדשים בדרך."
   },
+  "videos": {
+    "kicker": "ספריית וידאו",
+    "heroTitle": "ראו את הפרטים לפני שתגדירו את המפרט",
+    "heroDescription": "צפו בהדגמות מוצרים, בסיורים במפעל ובמידע על התקנה כדי להעריך את האיכות, התכונות וההתאמה לפני שתגדירו את המפרט.",
+    "allCategories": "כל הסרטונים",
+    "featured": "מומלץ",
+    "watchNow": "צפה עכשיו",
+    "aboutVideo": "אודות הסרטון",
+    "search": "חיפוש סרטונים...",
+    "clearSearch": "ניקוי החיפוש",
+    "noResults": "אין תוצאות",
+    "showing": "{count, plural, one {מוצג סרטון אחד} two {מוצגים שני סרטונים} other {מוצגים # סרטונים}}",
+    "empty": "סרטונים חדשים יתווספו בקרוב.",
+    "relatedProducts": "מוצרים קשורים",
+    "relatedVideos": "סרטונים קשורים",
+    "viewAllProducts": "הצגת כל המוצרים",
+    "viewAllVideos": "הצגת כל הסרטונים",
+    "videoFallback": "סרטון",
+    "watchVideo": "צפייה בסרטון",
+    "backToVideos": "חזרה לסרטונים"
+  },
   "breadcrumb": {
     "insight": "Insight",
+    "videos": "סרטונים",
     "home": "בית",
     "products": "מוצרים",
     "about": "אודות",

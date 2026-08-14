@@ -1,6 +1,7 @@
 {
   "nav": {
     "insight": "Insight",
+    "videos": "Vidéos",
     "home": "Accueil",
     "products": "Produits",
     "about": "À Propos",
@@ -198,8 +199,30 @@
     "viewAllProducts": "Voir tous les produits",
     "empty": "De nouvelles histoires arrivent bientôt."
   },
+  "videos": {
+    "kicker": "Vidéothèque",
+    "heroTitle": "Découvrez les détails avant de définir votre cahier des charges",
+    "heroDescription": "Regardez des démonstrations de produits, des visites de l’usine et des conseils d’installation afin d’évaluer la qualité, les fonctionnalités et l’adéquation avant de définir votre cahier des charges.",
+    "allCategories": "Toutes les vidéos",
+    "featured": "À la une",
+    "watchNow": "Regarder",
+    "aboutVideo": "À propos de cette vidéo",
+    "search": "Rechercher des vidéos...",
+    "clearSearch": "Effacer la recherche",
+    "noResults": "Aucun résultat",
+    "showing": "{count, plural, one {# vidéo affichée} other {# vidéos affichées}}",
+    "empty": "De nouvelles vidéos arrivent bientôt.",
+    "relatedProducts": "Produits associés",
+    "relatedVideos": "Vidéos associées",
+    "viewAllProducts": "Voir tous les produits",
+    "viewAllVideos": "Voir toutes les vidéos",
+    "videoFallback": "Vidéo",
+    "watchVideo": "Regarder la vidéo",
+    "backToVideos": "Retour aux vidéos"
+  },
   "breadcrumb": {
     "insight": "Insight",
+    "videos": "Vidéos",
     "home": "Accueil",
     "products": "Produits",
     "about": "À Propos",

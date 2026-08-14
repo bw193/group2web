@@ -5,6 +5,7 @@ import {
   buildLanguageAlternates,
 } from '@/lib/seo';
 import { getArticleSitemapRows, getProductSitemapRows } from '@/lib/public-data';
+import { getVideoSitemapRows } from '@/lib/videos';
 import { isIndexableLocalePath } from '@/lib/indexing';
 
 // Keep the build snapshot for deterministic prerendering, then refresh from
@@ -18,7 +19,7 @@ const STATIC_LAST_MODIFIED = new Date('2026-05-20T00:00:00Z');
 
 // Static routes shared across every locale, expressed as the path segment
 // AFTER the (optional) locale prefix. Use '' for the locale's homepage.
-const STATIC_ROUTES = ['', '/about', '/contact', '/products', '/insight'] as const;
+const STATIC_ROUTES = ['', '/about', '/contact', '/products', '/videos', '/insight'] as const;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const entries: MetadataRoute.Sitemap = [];
@@ -151,6 +152,38 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   } catch {
     // DB unavailable — static + product entries already pushed.
+  }
+
+  try {
+    const rows = await getVideoSitemapRows();
+    const byVideo = new Map<string, { updatedAt: string; status: string; slug: string }>();
+    for (const row of rows) {
+      byVideo.set(row.videoId, { updatedAt: row.updatedAt, status: row.status, slug: row.slug });
+    }
+
+    for (const [, { updatedAt, status, slug }] of byVideo) {
+      if (status !== 'published') continue;
+      const languages: Record<string, string> = {};
+      for (const loc of locales) {
+        if (!isIndexableLocalePath(loc, `/videos/${slug}`)) continue;
+        languages[loc] = localizedUrl(loc, `/videos/${slug}`);
+      }
+      languages['x-default'] = localizedUrl(defaultLocale, `/videos/${slug}`);
+
+      for (const loc of locales) {
+        if (!isIndexableLocalePath(loc, `/videos/${slug}`)) continue;
+        const lastModified = updatedAt ? new Date(updatedAt) : STATIC_LAST_MODIFIED;
+        entries.push({
+          url: localizedUrl(loc, `/videos/${slug}`),
+          lastModified: Number.isNaN(lastModified.getTime()) ? STATIC_LAST_MODIFIED : lastModified,
+          changeFrequency: 'monthly',
+          priority: 0.7,
+          alternates: { languages },
+        });
+      }
+    }
+  } catch {
+    // DB unavailable; keep static/product/article entries.
   }
 
   return entries;
