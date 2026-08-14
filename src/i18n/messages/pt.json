@@ -1,6 +1,7 @@
 {
   "nav": {
     "insight": "Insight",
+    "videos": "Vídeos",
     "home": "Início",
     "products": "Produtos",
     "about": "Sobre Nós",
@@ -198,8 +199,30 @@
     "viewAllProducts": "Ver todos os produtos",
     "empty": "Novas histórias em breve."
   },
+  "videos": {
+    "kicker": "Biblioteca de vídeos",
+    "heroTitle": "Veja os detalhes antes de especificar",
+    "heroDescription": "Assista a demonstrações de produtos, visitas à fábrica e orientações de instalação para avaliar a qualidade, os recursos e a adequação antes de especificar.",
+    "allCategories": "Todos os vídeos",
+    "featured": "Em destaque",
+    "watchNow": "Assistir agora",
+    "aboutVideo": "Sobre este vídeo",
+    "search": "Buscar vídeos...",
+    "clearSearch": "Limpar busca",
+    "noResults": "Nenhum resultado",
+    "showing": "{count, plural, one {Exibindo # vídeo} other {Exibindo # vídeos}}",
+    "empty": "Novos vídeos em breve.",
+    "relatedProducts": "Produtos relacionados",
+    "relatedVideos": "Vídeos relacionados",
+    "viewAllProducts": "Ver todos os produtos",
+    "viewAllVideos": "Ver todos os vídeos",
+    "videoFallback": "Vídeo",
+    "watchVideo": "Assistir ao vídeo",
+    "backToVideos": "Voltar aos vídeos"
+  },
   "breadcrumb": {
     "insight": "Insight",
+    "videos": "Vídeos",
     "home": "Início",
     "products": "Produtos",
     "about": "Sobre Nós",

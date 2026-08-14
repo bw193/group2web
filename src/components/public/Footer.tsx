@@ -70,6 +70,9 @@ export default function Footer() {
               <Link href={localizedPath(locale, '/products')} className="text-cream hover:text-bronze-light transition-colors">
                 {nav('products')}
               </Link>
+              <Link href={localizedPath(locale, '/videos')} className="text-cream hover:text-bronze-light transition-colors">
+                {nav('videos')}
+              </Link>
               <Link href={localizedPath(locale, '/about')} className="text-cream hover:text-bronze-light transition-colors">
                 {nav('about')}
               </Link>

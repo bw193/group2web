@@ -1,6 +1,7 @@
 {
   "nav": {
     "insight": "Insight",
+    "videos": "Videos",
     "home": "Home",
     "products": "Products",
     "about": "About Us",
@@ -198,8 +199,30 @@
     "viewAllProducts": "View all products",
     "empty": "New stories are on the way."
   },
+  "videos": {
+    "kicker": "Video Library",
+    "heroTitle": "See the details before you specify",
+    "heroDescription": "Watch product demos, factory tours, and installation insights to evaluate quality, features, and fit — before you specify.",
+    "allCategories": "All videos",
+    "featured": "Featured",
+    "watchNow": "Watch now",
+    "aboutVideo": "About this video",
+    "search": "Search videos...",
+    "clearSearch": "Clear search",
+    "noResults": "No results",
+    "showing": "{count, plural, one {Showing # video} other {Showing # videos}}",
+    "empty": "New videos are on the way.",
+    "relatedProducts": "Related Products",
+    "relatedVideos": "Related Videos",
+    "viewAllProducts": "View all products",
+    "viewAllVideos": "View all videos",
+    "videoFallback": "Video",
+    "watchVideo": "Watch video",
+    "backToVideos": "Back to videos"
+  },
   "breadcrumb": {
     "insight": "Insight",
+    "videos": "Videos",
     "home": "Home",
     "products": "Products",
     "about": "About",

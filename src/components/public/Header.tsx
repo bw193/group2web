@@ -54,6 +54,7 @@ export default function Header() {
   const navLinks = [
     { href: localizedPath(locale, ''), label: t('home') },
     { href: localizedPath(locale, '/products'), label: t('products') },
+    { href: localizedPath(locale, '/videos'), label: t('videos') },
     { href: localizedPath(locale, '/insight'), label: t('insight') },
     { href: localizedPath(locale, '/about'), label: t('about') },
     { href: localizedPath(locale, '/contact'), label: t('contact') },

@@ -2,6 +2,7 @@ import 'server-only';
 import { createClient } from '@supabase/supabase-js';
 
 const BUCKET = 'assets';
+export const VIDEO_BUCKET = 'product-videos';
 
 let storageClient: ReturnType<typeof createClient> | null = null;
 
@@ -51,4 +52,23 @@ export async function deleteFile(key: string): Promise<void> {
   const supabase = getStorageClient();
   const { error } = await supabase.storage.from(BUCKET).remove([key]);
   if (error) throw error;
+}
+
+export async function createSignedStorageUpload(
+  bucket: string,
+  key: string,
+  options: { upsert?: boolean } = {},
+): Promise<{ signedUrl: string; publicUrl: string }> {
+  const supabase = getStorageClient();
+  const { data, error } = await supabase.storage
+    .from(bucket)
+    .createSignedUploadUrl(key, { upsert: options.upsert ?? false });
+
+  if (error) throw error;
+
+  const { data: publicData } = supabase.storage.from(bucket).getPublicUrl(key);
+  return {
+    signedUrl: data.signedUrl,
+    publicUrl: publicData.publicUrl,
+  };
 }
