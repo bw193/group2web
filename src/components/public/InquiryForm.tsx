@@ -95,6 +95,7 @@ export default function InquiryForm({ categories }: { categories: Category[] }) 
           country: formData.country,
           productInterest: formData.productInterest,
           message: messageWithReference,
+          website: formData.honeypot,
         }),
       });
       if (res.ok) {
