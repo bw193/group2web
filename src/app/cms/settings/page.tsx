@@ -34,6 +34,7 @@ export default function SettingsPage() {
   const [recipientUserIds, setRecipientUserIds] = useState<number[]>([]);
   const [emailConfigured, setEmailConfigured] = useState(false);
   const [routingLoading, setRoutingLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [saveError, setSaveError] = useState(false);
 
   useEffect(() => {
@@ -56,7 +57,7 @@ export default function SettingsPage() {
         setRecipientUserIds(routingData.recipientUserIds);
         setEmailConfigured(routingData.emailConfigured);
       } catch {
-        setSaveError(true);
+        setLoadError(true);
       } finally {
         setRoutingLoading(false);
       }
@@ -66,6 +67,11 @@ export default function SettingsPage() {
   }, []);
 
   async function handleSave() {
+    // A failed load leaves this form holding empty defaults rather than the
+    // stored values, so saving it would blank out the live site settings and
+    // the whole inquiry rotation.
+    if (loadError) return;
+
     setSaving(true);
     setSaved(false);
     setSaveError(false);
@@ -122,11 +128,21 @@ export default function SettingsPage() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-heading font-bold">{t('set.title')}</h1>
-        <button onClick={handleSave} disabled={saving || routingLoading} className="btn-primary text-sm disabled:opacity-50">
+        <button onClick={handleSave} disabled={saving || routingLoading || loadError} className="btn-primary text-sm disabled:opacity-50">
           <Save size={16} className="mr-1" />
           {saving ? t('common.saving') : saved ? t('common.saved') : t('common.saveChanges')}
         </button>
       </div>
+
+      {loadError && (
+        <div
+          role="alert"
+          className="mb-6 flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2.5 text-sm text-red-800"
+        >
+          <AlertCircle size={17} className="mt-0.5 shrink-0" />
+          <p>{t('set.loadFailed')}</p>
+        </div>
+      )}
 
       <div className="cms-card">
         <div className="space-y-4">

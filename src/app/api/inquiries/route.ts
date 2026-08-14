@@ -14,7 +14,9 @@ const inquirySchema = z.object({
   country: z.string().trim().max(100).optional(),
   productInterest: z.string().trim().max(200).optional(),
   message: z.string().trim().min(1).max(5000),
-  website: z.string().max(200).optional(),
+  // Honeypot. Trimmed so a browser autofilling whitespace into the hidden
+  // field cannot get a real customer's inquiry silently discarded.
+  website: z.string().trim().max(200).optional(),
 });
 
 export async function GET(request: NextRequest) {
