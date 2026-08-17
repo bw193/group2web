@@ -2,6 +2,7 @@ import './utils.test';
 import './public-paths.test';
 import './indexing.test';
 import './product-slugs.test';
+import './product-markup.test';
 import './article-slugs.test';
 import './product-copy-batch.test';
 import './public-data-snapshot-config.test';

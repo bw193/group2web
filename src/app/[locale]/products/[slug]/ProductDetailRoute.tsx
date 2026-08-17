@@ -7,6 +7,7 @@ import VideoCard from '@/components/public/videos/VideoCard';
 import ProofPoints from '@/components/public/ProofPoints';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { getProductDetailData } from '@/lib/public-data';
+import { usesItemPageMarkup } from '@/lib/product-markup';
 import { getUploadUrl } from '@/lib/utils';
 import {
   SITE_URL,
@@ -44,14 +45,20 @@ export async function renderProductDetailPage(
     : ['/images/placeholder.svg'];
 
   const productUrl = localizedUrl(locale, `/products/${trans.slug}`);
+  const breadcrumbId = `${productUrl}#breadcrumb`;
+  const description =
+    trans.shortDescription ||
+    (trans.fullDescription
+      ? trans.fullDescription.replace(/<[^>]+>/g, '').slice(0, 500)
+      : `${trans.name} - manufactured by ${siteName}.`);
+  const useItemPageMarkup = usesItemPageMarkup(product.id);
+
   const productJsonLd: Record<string, unknown> = {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: trans.name,
     image: imageUrls,
-    description:
-      trans.shortDescription ||
-      (trans.fullDescription ? trans.fullDescription.replace(/<[^>]+>/g, '').slice(0, 500) : `${trans.name} - manufactured by ${siteName}.`),
+    description,
     brand: { '@type': 'Brand', name: siteName },
     manufacturer: { '@id': `${SITE_URL}/#organization` },
     url: productUrl,
@@ -80,9 +87,27 @@ export async function renderProductDetailPage(
     }));
   }
 
+  // A quote-only page can't carry the price or ratings a Product snippet needs,
+  // so the products staged in ITEM_PAGE_MARKUP_PRODUCTS describe the page itself
+  // instead of claiming to be a purchasable product.
+  const itemPageJsonLd: Record<string, unknown> = {
+    '@context': 'https://schema.org',
+    '@type': 'ItemPage',
+    '@id': `${productUrl}#page`,
+    url: productUrl,
+    name: trans.name,
+    description,
+    inLanguage: locale,
+    isPartOf: { '@id': `${SITE_URL}/#website` },
+    publisher: { '@id': `${SITE_URL}/#organization` },
+    breadcrumb: { '@id': breadcrumbId },
+    primaryImageOfPage: { '@type': 'ImageObject', url: imageUrls[0] },
+  };
+
   const productBreadcrumb = {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
+    '@id': breadcrumbId,
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: breadcrumbT('home'), item: localizedUrl(locale, '') },
       { '@type': 'ListItem', position: 2, name: breadcrumbT('products'), item: localizedUrl(locale, '/products') },
@@ -92,7 +117,10 @@ export async function renderProductDetailPage(
 
   return (
     <>
-      <JsonLd id="ld-product" data={productJsonLd} />
+      <JsonLd
+        id={useItemPageMarkup ? 'ld-item-page' : 'ld-product'}
+        data={useItemPageMarkup ? itemPageJsonLd : productJsonLd}
+      />
       <JsonLd id="ld-product-breadcrumb" data={productBreadcrumb} />
 
       <nav aria-label="Breadcrumb" className="bg-cream border-b border-warm-border">
