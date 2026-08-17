@@ -61,7 +61,7 @@ export function buildInquiryEmail(inquiry: InquiryEmailDetails) {
           <table role="presentation" style="border-collapse:collapse;width:100%;">${detailRows}
           </table>
           <div style="margin-top:22px;padding:18px;background:#f9fafb;border-left:3px solid #b08a54;white-space:pre-wrap;font-size:15px;line-height:1.65;">${escapeHtml(inquiry.message)}</div>
-          <p style="margin:22px 0 0;color:#667085;font-size:13px;line-height:1.5;">Reply to this email to contact ${escapeHtml(inquiry.name)} directly.</p>
+          <p style="margin:22px 0 0;font-size:13px;line-height:1.5;"><a href="mailto:${escapeHtml(inquiry.email)}" style="color:#2563eb;text-decoration:underline;">click to 复制 客户邮箱</a></p>
         </div>
       </div>
     </div>
@@ -76,7 +76,7 @@ export function buildInquiryEmail(inquiry: InquiryEmailDetails) {
     'Message:',
     inquiry.message,
     '',
-    `Reply to this email to contact ${inquiry.name} directly.`,
+    `click to 复制 客户邮箱: ${inquiry.email}`,
   ].join('\n');
 
   return { subject, html, text };

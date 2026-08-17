@@ -74,5 +74,9 @@ test('inquiry email content escapes customer input and strips subject newlines',
   assert.match(email.html, /&lt;script&gt;alert\(&quot;x&quot;\)&lt;\/script&gt;/);
   assert.doesNotMatch(email.html, /<script>/);
   assert.match(email.html, /&lt;b&gt;Example &amp; Co&lt;\/b&gt;/);
+  assert.match(email.html, /click to 复制 客户邮箱/);
+  assert.match(email.html, /href="mailto:alice@example.com"/);
+  assert.doesNotMatch(email.html, /Reply to this email/);
   assert.match(email.text, /Please quote 100 units\./);
+  assert.match(email.text, /click to 复制 客户邮箱: alice@example.com/);
 });
