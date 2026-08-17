@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Mail, MailOpen, Trash2, Download, MessageCircle } from 'lucide-react';
+import { Check, Copy, Mail, MailOpen, Trash2, Download, MessageCircle } from 'lucide-react';
 import { useT } from '../_lib/i18n';
 
 interface Inquiry {
@@ -22,12 +22,58 @@ export default function InquiriesPage() {
   const { t, lang } = useT();
   const [inquiries, setInquiries] = useState<Inquiry[]>([]);
   const [selected, setSelected] = useState<Inquiry | null>(null);
+  const [requestedInquiryId, setRequestedInquiryId] = useState<number | null>(null);
+  const [copiedEmail, setCopiedEmail] = useState<string | null>(null);
 
-  useEffect(() => { fetchInquiries(); }, []);
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const inquiryId = Number(new URLSearchParams(window.location.search).get('inquiryId'));
+      if (Number.isInteger(inquiryId) && inquiryId > 0) {
+        setRequestedInquiryId(inquiryId);
+      }
+    }
+
+    fetchInquiries();
+  }, []);
+
+  useEffect(() => {
+    if (requestedInquiryId === null || inquiries.length === 0) return;
+
+    const inquiry = inquiries.find((item) => item.id === requestedInquiryId);
+    if (inquiry) setSelected(inquiry);
+  }, [requestedInquiryId, inquiries]);
 
   async function fetchInquiries() {
     const res = await fetch('/api/inquiries');
     if (res.ok) setInquiries(await res.json());
+  }
+
+  async function copyEmail(email: string) {
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(email);
+      } else {
+        const textarea = document.createElement('textarea');
+        textarea.value = email;
+        textarea.setAttribute('readonly', '');
+        textarea.style.position = 'fixed';
+        textarea.style.left = '-9999px';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+
+        const copied = document.execCommand('copy');
+        document.body.removeChild(textarea);
+        if (!copied) throw new Error('Copy command failed');
+      }
+
+      setCopiedEmail(email);
+      window.setTimeout(() => {
+        setCopiedEmail((current) => (current === email ? null : current));
+      }, 1600);
+    } catch {
+      window.prompt(t('inq.copyPrompt'), email);
+    }
   }
 
   async function markRead(id: number, isRead: boolean) {
@@ -113,7 +159,20 @@ export default function InquiriesPage() {
             <div>
               <h3 className="font-semibold mb-3">{selected.name}</h3>
               <div className="space-y-2 text-sm mb-4">
-                <p><span className="text-text-secondary">{t('inq.label.email')}</span> <a href={`mailto:${selected.email}`} className="text-accent-navy">{selected.email}</a></p>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-text-secondary">{t('inq.label.email')}</span>
+                  <a href={`mailto:${selected.email}`} className="text-accent-navy break-all">{selected.email}</a>
+                  <button
+                    type="button"
+                    onClick={() => copyEmail(selected.email)}
+                    className="inline-flex h-7 items-center gap-1 rounded border border-gray-200 px-2 text-xs text-text-secondary transition-colors hover:bg-gray-50 hover:text-text-primary"
+                    title={t('inq.copyEmail')}
+                    aria-label={t('inq.copyEmail')}
+                  >
+                    {copiedEmail === selected.email ? <Check size={13} /> : <Copy size={13} />}
+                    <span>{copiedEmail === selected.email ? t('inq.copiedEmail') : t('inq.copyEmail')}</span>
+                  </button>
+                </div>
                 {selected.phone && <p><span className="text-text-secondary">{t('inq.label.phone')}</span> {selected.phone}</p>}
                 {selected.company && <p><span className="text-text-secondary">{t('inq.label.company')}</span> {selected.company}</p>}
                 {selected.country && <p><span className="text-text-secondary">{t('inq.label.country')}</span> {selected.country}</p>}

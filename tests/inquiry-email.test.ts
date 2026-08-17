@@ -55,17 +55,20 @@ test('inquiry recipients rotate one at a time and wrap to the first account', ()
 });
 
 test('inquiry email content escapes customer input and strips subject newlines', () => {
-  const email = buildInquiryEmail({
-    id: 42,
-    name: 'Alice\r\nBcc: attacker@example.com',
-    email: 'alice@example.com',
-    phone: null,
-    company: '<b>Example & Co</b>',
-    country: 'Canada',
-    productInterest: 'Round Mirror\nUrgent',
-    message: '<script>alert("x")</script>\nPlease quote 100 units.',
-    createdAt: '2026-08-13T08:30:00.000Z',
-  });
+  const email = buildInquiryEmail(
+    {
+      id: 42,
+      name: 'Alice\r\nBcc: attacker@example.com',
+      email: 'alice@example.com',
+      phone: null,
+      company: '<b>Example & Co</b>',
+      country: 'Canada',
+      productInterest: 'Round Mirror\nUrgent',
+      message: '<script>alert("x")</script>\nPlease quote 100 units.',
+      createdAt: '2026-08-13T08:30:00.000Z',
+    },
+    { inquiryUrl: 'https://example.com/cms/inquiries?inquiryId=42' },
+  );
 
   assert.equal(
     email.subject,
@@ -74,9 +77,13 @@ test('inquiry email content escapes customer input and strips subject newlines',
   assert.match(email.html, /&lt;script&gt;alert\(&quot;x&quot;\)&lt;\/script&gt;/);
   assert.doesNotMatch(email.html, /<script>/);
   assert.match(email.html, /&lt;b&gt;Example &amp; Co&lt;\/b&gt;/);
-  assert.match(email.html, /click to 复制 客户邮箱/);
+  assert.match(email.html, /打开后台复制客户邮箱/);
+  assert.match(email.html, /href="https:\/\/example.com\/cms\/inquiries\?inquiryId=42"/);
+  assert.match(email.html, /客户邮箱:/);
   assert.match(email.html, /href="mailto:alice@example.com"/);
   assert.doesNotMatch(email.html, /Reply to this email/);
+  assert.doesNotMatch(email.html, /click to 复制 客户邮箱/);
   assert.match(email.text, /Please quote 100 units\./);
-  assert.match(email.text, /click to 复制 客户邮箱: alice@example.com/);
+  assert.match(email.text, /打开后台复制客户邮箱: https:\/\/example.com\/cms\/inquiries\?inquiryId=42/);
+  assert.match(email.text, /客户邮箱: alice@example.com/);
 });

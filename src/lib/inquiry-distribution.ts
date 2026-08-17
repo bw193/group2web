@@ -20,6 +20,18 @@ export type InquiryDistributionResult =
   | { status: 'sent'; recipientCount: number }
   | { status: 'skipped'; reason: 'not_configured' | 'no_recipients' };
 
+function buildInquiryUrl(origin: string | undefined, inquiryId: number): string | null {
+  if (!origin) return null;
+
+  try {
+    const url = new URL('/cms/inquiries', origin);
+    url.searchParams.set('inquiryId', String(inquiryId));
+    return url.toString();
+  } catch {
+    return null;
+  }
+}
+
 async function claimNextRecipient(): Promise<InquiryRecipient | null> {
   const db = getDb();
 
@@ -74,6 +86,7 @@ async function claimNextRecipient(): Promise<InquiryRecipient | null> {
 
 export async function distributeInquiry(
   inquiry: InquiryEmailDetails,
+  origin?: string,
 ): Promise<InquiryDistributionResult> {
   const apiKey = process.env.RESEND_API_KEY?.trim();
   const from = process.env.INQUIRY_FROM_EMAIL?.trim();
@@ -87,7 +100,9 @@ export async function distributeInquiry(
     return { status: 'skipped', reason: 'no_recipients' };
   }
 
-  const { subject, html, text } = buildInquiryEmail(inquiry);
+  const { subject, html, text } = buildInquiryEmail(inquiry, {
+    inquiryUrl: buildInquiryUrl(origin, inquiry.id),
+  });
   const payload = {
     from,
     to: [recipient.email],

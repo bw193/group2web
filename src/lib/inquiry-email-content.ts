@@ -10,6 +10,10 @@ export interface InquiryEmailDetails {
   createdAt: string;
 }
 
+export interface InquiryEmailOptions {
+  inquiryUrl?: string | null;
+}
+
 function escapeHtml(value: string): string {
   return value
     .replaceAll('&', '&amp;')
@@ -23,7 +27,7 @@ function cleanSubjectPart(value: string): string {
   return value.replace(/[\r\n]+/g, ' ').trim();
 }
 
-export function buildInquiryEmail(inquiry: InquiryEmailDetails) {
+export function buildInquiryEmail(inquiry: InquiryEmailDetails, options: InquiryEmailOptions = {}) {
   const subjectContext = cleanSubjectPart(inquiry.productInterest || 'General inquiry');
   const subjectName = cleanSubjectPart(inquiry.name);
   const subject = `[Website Inquiry #${inquiry.id}] ${subjectContext} — ${subjectName}`;
@@ -48,6 +52,11 @@ export function buildInquiryEmail(inquiry: InquiryEmailDetails) {
     )
     .join('');
 
+  const customerEmailHtml = options.inquiryUrl
+    ? `<p style="margin:22px 0 0;font-size:13px;line-height:1.5;"><a href="${escapeHtml(options.inquiryUrl)}" style="color:#2563eb;text-decoration:underline;">打开后台复制客户邮箱</a></p>
+          <p style="margin:8px 0 0;font-size:13px;line-height:1.5;color:#475467;">客户邮箱: <a href="mailto:${escapeHtml(inquiry.email)}" style="color:#2563eb;text-decoration:underline;">${escapeHtml(inquiry.email)}</a></p>`
+    : `<p style="margin:22px 0 0;font-size:13px;line-height:1.5;color:#475467;">客户邮箱: <a href="mailto:${escapeHtml(inquiry.email)}" style="color:#2563eb;text-decoration:underline;">${escapeHtml(inquiry.email)}</a></p>`;
+
   const html = `<!doctype html>
 <html>
   <body style="margin:0;padding:0;background:#f2f4f7;font-family:Arial,sans-serif;color:#101828;">
@@ -61,7 +70,7 @@ export function buildInquiryEmail(inquiry: InquiryEmailDetails) {
           <table role="presentation" style="border-collapse:collapse;width:100%;">${detailRows}
           </table>
           <div style="margin-top:22px;padding:18px;background:#f9fafb;border-left:3px solid #b08a54;white-space:pre-wrap;font-size:15px;line-height:1.65;">${escapeHtml(inquiry.message)}</div>
-          <p style="margin:22px 0 0;font-size:13px;line-height:1.5;"><a href="mailto:${escapeHtml(inquiry.email)}" style="color:#2563eb;text-decoration:underline;">click to 复制 客户邮箱</a></p>
+          ${customerEmailHtml}
         </div>
       </div>
     </div>
@@ -76,7 +85,8 @@ export function buildInquiryEmail(inquiry: InquiryEmailDetails) {
     'Message:',
     inquiry.message,
     '',
-    `click to 复制 客户邮箱: ${inquiry.email}`,
+    ...(options.inquiryUrl ? [`打开后台复制客户邮箱: ${options.inquiryUrl}`] : []),
+    `客户邮箱: ${inquiry.email}`,
   ].join('\n');
 
   return { subject, html, text };

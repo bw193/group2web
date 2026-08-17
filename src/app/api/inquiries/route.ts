@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
 
     after(async () => {
       try {
-        const distribution = await distributeInquiry(createdInquiry);
+        const distribution = await distributeInquiry(createdInquiry, request.nextUrl.origin);
         if (distribution.status === 'skipped') {
           console.warn(
             `[inquiry-distribution] Inquiry ${createdInquiry.id} skipped: ${distribution.reason}`,
