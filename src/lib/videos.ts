@@ -219,6 +219,12 @@ async function getPublishedVideoPosts(limit?: number): Promise<VideoPost[]> {
   return rows.map(videoListRowToPost);
 }
 
+export async function getPublishedVideoListItems(locale: string, limit?: number): Promise<VideoListItem[]> {
+  return (await getPublishedVideoPosts(limit))
+    .map((video) => toVideoListItem(video, locale))
+    .filter((video) => video.title);
+}
+
 export async function getVideosIndexData(locale: string): Promise<VideosIndexData> {
   const posts = await getPublishedVideoPosts(200);
 

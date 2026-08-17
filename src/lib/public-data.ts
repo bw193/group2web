@@ -19,9 +19,9 @@ import {
   products,
   productSpecifications,
   productTranslations,
-  videos,
 } from '@/lib/db/schema';
 import { localizedPath } from '@/lib/seo';
+import { getPublishedVideoListItems } from '@/lib/videos';
 import { getPublicDataSnapshot } from '@/lib/public-data-snapshot';
 import type {
   AboutGalleryRow,
@@ -41,8 +41,6 @@ import type {
 } from '@/lib/public-data-snapshot';
 import {
   recommendVideosForProduct,
-  toVideoListItem,
-  videoRowToPost,
   type ProductRecommendationInput,
   type VideoListItem,
 } from '@/lib/video-utils';
@@ -621,12 +619,7 @@ export async function getProductDetailData(locale: string, slug: string): Promis
           locale,
         ).find((c) => c.id === row.product.categoryId)?.name
       : null;
-    const videoItems = snapshot.data.videos
-      .map(videoRowToPost)
-      .filter((video) => video.status === 'published')
-      .sort((a, b) => new Date(b.publishedAt || b.createdAt || 0).getTime() - new Date(a.publishedAt || a.createdAt || 0).getTime())
-      .map((video) => toVideoListItem(video, locale))
-      .filter((video) => video.title);
+    const videoItems = await getPublishedVideoListItems(locale, 200);
     const relatedRows = row.product.categoryId
       ? snapshot.data.products
           .filter((p) => p.categoryId === row.product.categoryId && p.id !== row.product.id && p.isActive)
@@ -752,12 +745,7 @@ export async function getProductDetailData(locale: string, slug: string): Promis
         )
         .then((rows) => rows.find((row) => row.locale === locale)?.name || rows.find((row) => row.locale === defaultLocale)?.name || null)
     : null;
-  const videoItems = (
-    await db.select().from(videos).where(eq(videos.status, 'published')).orderBy(desc(videos.publishedAt)).limit(200)
-  )
-    .map(videoRowToPost)
-    .map((video) => toVideoListItem(video, locale))
-    .filter((video) => video.title);
+  const videoItems = await getPublishedVideoListItems(locale, 200);
   const relatedVideos = recommendVideosForProduct(
     productRecommendationInput({
       product,
