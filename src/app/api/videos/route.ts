@@ -7,7 +7,6 @@ import { locales } from '@/i18n/config';
 import {
   revalidateAllLocalizedPublicPaths,
   revalidateLocalizedDetailPath,
-  revalidateLocalizedDetailRoute,
   revalidatePublicSitemap,
 } from '@/lib/public-revalidation';
 import { slugify } from '@/lib/utils';
@@ -28,9 +27,10 @@ function revalidateVideoSurfaces(slugs: string[] = []) {
       if (slug) revalidateLocalizedDetailPath(loc, 'videos', slug);
     }
   }
-  // Product detail pages carry video recommendations, so the whole route is
-  // stale after any video change — not just the slugs touched here.
-  revalidateLocalizedDetailRoute('products');
+  // Do not revalidate `products/[slug]`. Related-video cards come from the
+  // bundled public-data snapshot, so product ISR cannot show a newly saved
+  // video until the next deploy. Revalidating every product page was an
+  // EMAXCONN storm when runtime snapshot serving was off.
   revalidatePublicSitemap();
 }
 

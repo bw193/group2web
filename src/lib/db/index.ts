@@ -5,8 +5,11 @@ import * as schema from './schema';
 type PgClient = ReturnType<typeof postgres>;
 type DrizzleDb = ReturnType<typeof drizzle<typeof schema>>;
 
-// Cache the client across HMR reloads in development to avoid exhausting
-// pooler connections. In production each lambda gets its own instance.
+// Cache the client on globalThis in every environment. getDb() is a factory,
+// not a module-level singleton: skipping the production write created a new
+// postgres.js pool (max: 3) on every call, which warm lambdas leaked until
+// idle_timeout. Dev still needs this for HMR. Do not "fix" connection pressure
+// by lowering max or raising timeouts — public ISR must read the snapshot.
 const globalForDb = globalThis as unknown as {
   pgClient?: PgClient;
   drizzleDb?: DrizzleDb;
@@ -48,10 +51,8 @@ function createDb(): DrizzleDb {
 
   const db = globalForDb.drizzleDb ?? drizzle(client, { schema });
 
-  if (process.env.NODE_ENV !== 'production') {
-    globalForDb.pgClient = client;
-    globalForDb.drizzleDb = db;
-  }
+  globalForDb.pgClient = client;
+  globalForDb.drizzleDb = db;
 
   return db;
 }

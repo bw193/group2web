@@ -94,12 +94,13 @@ type VideoListRow = {
   updatedAt: string | null;
 };
 
+// Snapshot-first, same contract as public-data.ts. Do not gate on
+// PUBLIC_DATA_NO_LIVE_DB: that flag is only set during `next build`. At
+// runtime it is unset, so the old liveVideoDbAllowed() was always true and
+// every product/video ISR opened Postgres even when the bundled snapshot
+// existed (EMAXCONN after a5778ee + the video merge).
 function getSnapshot(): PublicDataSnapshot | null {
   return getPublicDataSnapshot();
-}
-
-function liveVideoDbAllowed(): boolean {
-  return process.env.PUBLIC_DATA_NO_LIVE_DB !== '1';
 }
 
 function byVideoDateDesc(a: VideoPost, b: VideoPost) {
@@ -196,9 +197,9 @@ function videoListRowToPost(row: VideoListRow): VideoPost {
 }
 
 async function getPublishedVideoPosts(limit?: number): Promise<VideoPost[]> {
-  if (!liveVideoDbAllowed()) {
-    const snapshot = getSnapshot();
-    const posts = snapshot ? snapshot.data.videos.map(videoRowToPost) : [];
+  const snapshot = getSnapshot();
+  if (snapshot) {
+    const posts = snapshot.data.videos.map(videoRowToPost);
     const sorted = posts.filter((video) => video.status === 'published').sort(byVideoDateDesc);
     return typeof limit === 'number' ? sorted.slice(0, limit) : sorted;
   }
@@ -243,15 +244,18 @@ export async function getVideoDetailData(locale: string, slug: string): Promise<
   const snapshot = getSnapshot();
   let post: VideoPost | null = null;
 
-  if (liveVideoDbAllowed()) {
+  if (snapshot) {
+    post =
+      snapshot.data.videos
+        .map(videoRowToPost)
+        .find((video) => video.slug === slug && video.status === 'published') ?? null;
+  } else {
     const [row] = await getDb()
       .select(videoDetailColumns)
       .from(videos)
       .where(and(eq(videos.slug, slug), eq(videos.status, 'published')))
       .limit(1);
     post = row ? videoRowToPost(row) : null;
-  } else {
-    post = snapshot?.data.videos.map(videoRowToPost).find((video) => video.slug === slug && video.status === 'published') ?? null;
   }
 
   if (!post) return null;
@@ -326,9 +330,9 @@ export async function getVideoStaticParams(): Promise<Array<{ locale: string; sl
 }
 
 export async function getVideoSitemapRows(): Promise<VideoSitemapRow[]> {
-  if (!liveVideoDbAllowed()) {
-    const snapshot = getSnapshot();
-    const rows = snapshot ? snapshot.data.videos.map(videoRowToPost) : [];
+  const snapshot = getSnapshot();
+  if (snapshot) {
+    const rows = snapshot.data.videos.map(videoRowToPost);
     return rows.flatMap((video) =>
       locales.map((locale) => ({
         locale,

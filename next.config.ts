@@ -35,6 +35,18 @@ const nextConfig = {
   poweredByHeader: false,
   productionBrowserSourceMaps: false,
   reactStrictMode: true,
+  // Ship `.build-cache/public-data.json` with every serverless/ISR function.
+  // `scripts/build-with-public-data.ts` writes that file before `next build`.
+  // Jun 24 (`9a94146`) added this tracing so production ISR can read the
+  // snapshot without Postgres. Aug 12 (`a5778ee`) dropped it while making
+  // snapshot resolution opt-in-only, so Vercel functions no longer had the
+  // JSON and every public revalidation opened `getDb()` — EMAXCONN followed.
+  // Do not remove this include to make CMS edits appear without a redeploy;
+  // public catalog freshness is deploy-bound. Broad glob: all locale pages
+  // call `getPublicDataSnapshot()`, not only `/api`.
+  outputFileTracingIncludes: {
+    '/**': ['./.build-cache/public-data.json'],
+  },
   images: {
     remotePatterns: [
       {

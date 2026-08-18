@@ -33,14 +33,18 @@ npx tsx scripts/apply-product-copy.ts \
   --batch content/product-copy/<batch-id>.json --rollback
 ```
 
-Production builds use a point-in-time snapshot for static generation. Deployed
-runtime revalidation reads the live database, so the normal ISR window can
-expose an applied or rolled-back batch without waiting for another deployment.
+Production builds dump a point-in-time JSON snapshot (`.build-cache/public-data.json`)
+for static generation **and** deployed ISR. Public catalog pages read that
+bundled file, so an applied or rolled-back batch is not visible on the live
+site until the next production deploy. Do not switch public ISR back to live
+Postgres for CMS freshness: Aug 12 (`a5778ee`) did that by making snapshot
+resolution opt-in-only, Vercel never sets `PUBLIC_DATA_SNAPSHOT_PATH` at
+runtime, and product pages then exhausted Postgres (`EMAXCONN`, limit 200).
+CMS/API routes still use the live database.
 
-After the affected pages revalidate (or after a deployment), verify every
-localized target page against the reviewed batch. The verifier checks HTTP
-status, new and previous copy, canonical and hreflang URLs, and Hebrew RTL
-metadata:
+After a production deployment, verify every localized target page against the
+reviewed batch. The verifier checks HTTP status, new and previous copy,
+canonical and hreflang URLs, and Hebrew RTL metadata:
 
 ```bash
 npx tsx scripts/verify-product-copy-production.ts \
