@@ -5,6 +5,7 @@ import './product-slugs.test';
 import './product-markup.test';
 import './article-slugs.test';
 import './product-copy-batch.test';
+import './product-catalog-deploy.test';
 import './public-data-snapshot-config.test';
 import './public-revalidation.test';
 import './video-recommendations.test';

@@ -259,6 +259,11 @@ const en = {
   // ---------- Products list ----------
   'prod.title': 'Products',
   'prod.add': 'Add Product',
+  'prod.publish': 'Publish product updates',
+  'prod.publishing': 'Publishing...',
+  'prod.publishTriggered': 'Deployment triggered. Public products will update after the Vercel build completes.',
+  'prod.publishNotConfigured': 'Product deploy hook is not configured.',
+  'prod.publishFailed': 'Unable to trigger deployment. Please try again.',
   'prod.searchPlaceholder': 'Search products...',
   'prod.allCategories': 'All Categories',
   'prod.bulkDelete': 'Delete ({n})',
@@ -740,6 +745,11 @@ const zh: typeof en = {
   // ---------- Products list ----------
   'prod.title': '产品',
   'prod.add': '新增产品',
+  'prod.publish': '发布产品更新',
+  'prod.publishing': '发布中...',
+  'prod.publishTriggered': '部署已触发。公开站点产品将在 Vercel 构建完成后更新。',
+  'prod.publishNotConfigured': '产品发布 Hook 尚未配置。',
+  'prod.publishFailed': '无法触发部署，请重试。',
   'prod.searchPlaceholder': '搜索产品...',
   'prod.allCategories': '全部分类',
   'prod.bulkDelete': '删除 ({n})',

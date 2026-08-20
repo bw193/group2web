@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Plus, Edit2, Trash2, Star, Search } from 'lucide-react';
+import { Plus, Edit2, Trash2, Star, Search, Rocket } from 'lucide-react';
 import { getUploadUrl } from '@/lib/utils';
 import { useT } from '../_lib/i18n';
 
@@ -29,6 +29,8 @@ export default function ProductsListPage() {
   const [search, setSearch] = useState('');
   const [filterCategory, setFilterCategory] = useState('');
   const [selected, setSelected] = useState<Set<number>>(new Set());
+  const [publishing, setPublishing] = useState(false);
+  const [publishStatus, setPublishStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   useEffect(() => {
     fetchData();
@@ -56,6 +58,28 @@ export default function ProductsListPage() {
     fetchData();
   }
 
+  async function publishProductUpdates() {
+    setPublishing(true);
+    setPublishStatus(null);
+
+    try {
+      const res = await fetch('/api/products/publish', { method: 'POST' });
+      const body = await res.json().catch(() => null) as { status?: string } | null;
+
+      if (res.ok) {
+        setPublishStatus({ type: 'success', message: t('prod.publishTriggered') });
+      } else if (body?.status === 'not_configured') {
+        setPublishStatus({ type: 'error', message: t('prod.publishNotConfigured') });
+      } else {
+        setPublishStatus({ type: 'error', message: t('prod.publishFailed') });
+      }
+    } catch {
+      setPublishStatus({ type: 'error', message: t('prod.publishFailed') });
+    } finally {
+      setPublishing(false);
+    }
+  }
+
   const filtered = products.filter((p) => {
     const matchSearch = !search || p.name.toLowerCase().includes(search.toLowerCase()) || (p.modelNumber?.toLowerCase().includes(search.toLowerCase()));
     const matchCat = !filterCategory || String(p.categoryId) === filterCategory;
@@ -71,12 +95,35 @@ export default function ProductsListPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col gap-4 mb-6 md:flex-row md:items-center md:justify-between">
         <h1 className="text-2xl font-heading font-bold">{t('prod.title')}</h1>
-        <Link href="/cms/products/new" className="btn-primary text-sm">
-          <Plus size={16} className="mr-1" /> {t('prod.add')}
-        </Link>
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end">
+          <button
+            type="button"
+            onClick={publishProductUpdates}
+            disabled={publishing}
+            className="btn-outline h-10 px-4 text-xs tracking-normal normal-case disabled:opacity-50"
+          >
+            <Rocket size={16} className="mr-1" /> {publishing ? t('prod.publishing') : t('prod.publish')}
+          </button>
+          <Link href="/cms/products/new" className="btn-primary h-10 px-4 text-xs">
+            <Plus size={16} className="mr-1" /> {t('prod.add')}
+          </Link>
+        </div>
       </div>
+
+      {publishStatus && (
+        <div
+          role={publishStatus.type === 'success' ? 'status' : 'alert'}
+          className={`mb-6 rounded border px-4 py-3 text-sm ${
+            publishStatus.type === 'success'
+              ? 'border-green-200 bg-green-50 text-green-700'
+              : 'border-red-200 bg-red-50 text-red-700'
+          }`}
+        >
+          {publishStatus.message}
+        </div>
+      )}
 
       {/* Filters */}
       <div className="cms-card mb-6">
