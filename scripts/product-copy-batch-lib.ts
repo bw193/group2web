@@ -57,6 +57,9 @@ export type LiveTranslationRow = {
   name: string;
   shortDescription: string | null;
   fullDescription: string | null;
+  /** `product_slug_history.old_slug` for this row, so a batch recorded before a
+   *  slug migration still validates against the row it was created from. */
+  historicalSlugs?: string[];
 };
 
 export type ActiveCatalogRow = {
@@ -84,6 +87,16 @@ const LOCALE_INDEX = new Map(PRODUCT_COPY_LOCALES.map((locale, index) => [locale
 export function sha256(value: string | null): string {
   const input = value === null ? '\0NULL' : value;
   return createHash('sha256').update(input, 'utf8').digest('hex');
+}
+
+/**
+ * A batch identifies its rows by slug, but slugs move: `0009_english_product_slugs.sql`
+ * rewrote every localized product URL to the English one. Treat the row as the
+ * same row when the recorded slug is now one of its archived URLs, and keep
+ * rejecting a slug that belongs nowhere.
+ */
+function slugStillIdentifies(live: LiveTranslationRow, recordedSlug: string): boolean {
+  return live.slug === recordedSlug || (live.historicalSlugs ?? []).includes(recordedSlug);
 }
 
 export function targetKey(productId: number, locale: string): string {
@@ -357,7 +370,7 @@ export function validateLiveRows(
     if (!live.isActive) errors.push(`${key}: product is inactive`);
     if (live.translationId !== entry.expected.translationId) errors.push(`${key}: translation ID changed`);
     if (live.modelNumber !== entry.expected.modelNumber) errors.push(`${key}: model number changed`);
-    if (live.slug !== entry.expected.slug) errors.push(`${key}: slug changed`);
+    if (!slugStillIdentifies(live, entry.expected.slug)) errors.push(`${key}: slug changed`);
     if (sha256(live.name) !== entry.expected.nameSha256) errors.push(`${key}: name changed`);
     if (sha256(live.shortDescription) !== entry.expected.shortDescriptionSha256) {
       errors.push(`${key}: short description changed`);
@@ -384,7 +397,7 @@ export function validateReferenceRows(batch: ProductCopyBatch, liveRows: LiveTra
     }
     if (live.translationId !== reference.translationId) errors.push(`${key}: reference translation ID changed`);
     if (live.modelNumber !== reference.modelNumber) errors.push(`${key}: reference model changed`);
-    if (live.slug !== reference.slug) errors.push(`${key}: reference slug changed`);
+    if (!slugStillIdentifies(live, reference.slug)) errors.push(`${key}: reference slug changed`);
     if (sha256(live.fullDescription) !== reference.fullDescriptionSha256) {
       errors.push(`${key}: reference full description changed`);
     }

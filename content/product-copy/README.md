@@ -42,6 +42,15 @@ resolution opt-in-only, Vercel never sets `PUBLIC_DATA_SNAPSHOT_PATH` at
 runtime, and product pages then exhausted Postgres (`EMAXCONN`, limit 200).
 CMS/API routes still use the live database.
 
+A batch stores the slug each row had when it was created, and slugs move:
+`drizzle/0009_english_product_slugs.sql` rewrote every localized product URL to
+the English one. `apply-product-copy.ts` therefore accepts a recorded slug that
+now appears in `product_slug_history` for the same product and locale, so an
+older batch still validates and can still roll back. `verify-product-copy-production.ts`
+does not read the database, so for a batch created before a slug migration it
+requests the old URL, follows the 308, and reports the redirect as an unexpected
+final URL. Verify those targets against their current URLs instead.
+
 After a production deployment, verify every localized target page against the
 reviewed batch. The verifier checks HTTP status, new and previous copy,
 canonical and hreflang URLs, and Hebrew RTL metadata:

@@ -92,7 +92,15 @@ async function queryTargetRows(
       pt.slug,
       pt.name,
       pt.short_description as "shortDescription",
-      pt.full_description as "fullDescription"
+      pt.full_description as "fullDescription",
+      coalesce(
+        (
+          select array_agg(h.old_slug order by h.id)
+          from product_slug_history h
+          where h.product_id = pt.product_id and h.locale = pt.locale
+        ),
+        '{}'
+      ) as "historicalSlugs"
     from targets t
     join product_translations pt
       on pt.product_id = t.product_id and pt.locale = t.locale
@@ -116,7 +124,15 @@ async function queryReferenceRows(sql: QuerySql, lock = false): Promise<LiveTran
         pt.slug,
         pt.name,
         pt.short_description as "shortDescription",
-        pt.full_description as "fullDescription"
+        pt.full_description as "fullDescription",
+        coalesce(
+          (
+            select array_agg(h.old_slug order by h.id)
+            from product_slug_history h
+            where h.product_id = pt.product_id and h.locale = pt.locale
+          ),
+          '{}'
+        ) as "historicalSlugs"
       from product_translations pt
       join products p on p.id = pt.product_id
       where pt.product_id = 98 and pt.locale in (${placeholders})

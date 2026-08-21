@@ -159,3 +159,18 @@ test('rollback requires every row to still match the applied replacement', () =>
   rows[10] = { ...rows[10], slug: 'changed-slug' };
   assert.throws(() => validateLiveRows(batch, rows, 'rollback'), /slug changed/);
 });
+
+test('a slug the row has since migrated away from still identifies that row', () => {
+  const batch = makeBatch();
+  const rows = liveRowsFor(batch, true);
+  const recorded = rows[10].slug;
+  rows[10] = {
+    ...rows[10],
+    slug: 'english-slug-after-migration',
+    historicalSlugs: [recorded],
+  };
+  assert.doesNotThrow(() => validateLiveRows(batch, rows, 'rollback'));
+
+  rows[10] = { ...rows[10], historicalSlugs: ['some-other-product-old-slug'] };
+  assert.throws(() => validateLiveRows(batch, rows, 'rollback'), /slug changed/);
+});
