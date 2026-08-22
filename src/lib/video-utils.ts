@@ -186,6 +186,28 @@ export function getYouTubeThumbnail(url: string | null | undefined): string {
   }
 }
 
+/**
+ * Upgrade a stored YouTube thumbnail to the 1280x720 frame. `getYouTubeThumbnail`
+ * saves `hqdefault`, which is 480x360 and letterboxed — fine for cards, too soft
+ * for a full-width player poster. Returns '' when the URL is not an upgradable
+ * YouTube thumbnail. Callers must keep the original as an onError fallback:
+ * `maxresdefault` 404s for videos uploaded below 720p.
+ */
+export function youTubeMaxResThumbnail(url: string | null | undefined): string {
+  if (!url) return '';
+  try {
+    const parsed = new URL(url);
+    const host = parsed.hostname.replace(/^www\./, '');
+    if (host !== 'img.youtube.com' && host !== 'ytimg.com' && !host.endsWith('.ytimg.com')) return '';
+    const upgraded = parsed.pathname.replace(/\/(?:default|mqdefault|hqdefault|sddefault)\.jpg$/, '/maxresdefault.jpg');
+    if (upgraded === parsed.pathname) return '';
+    parsed.pathname = upgraded;
+    return parsed.toString();
+  } catch {
+    return '';
+  }
+}
+
 export function getVideoPlayback(video: {
   sourceType: VideoSourceType;
   videoUrl?: string | null;
@@ -364,6 +386,32 @@ export function recommendVideosForVideo<T extends VideoListItem>(
     .sort((a, b) => b.score - a.score || a.index - b.index)
     .slice(0, limit)
     .map((item) => item.candidate);
+}
+
+/**
+ * The video shown on the public About page. Priority: the CMS-selected slug,
+ * then the factory-tour upload by its stable slug, then a keyword pass so a
+ * re-slugged tour never blanks the section. Returns null when nothing matches
+ * (callers hide the section).
+ */
+export const DEFAULT_ABOUT_VIDEO_SLUG =
+  'professional-led-mirror-manufacturer-in-china-chengtai-mirror-factory-tour';
+export const ABOUT_VIDEO_KEYWORDS = /factory|tour|manufactur/i;
+
+export function pickAboutVideo<T extends Pick<VideoPost, 'slug' | 'category' | 'tags' | 'title'>>(
+  posts: T[],
+  selectedSlug: string | null | undefined,
+): T | null {
+  return (
+    (selectedSlug ? posts.find((post) => post.slug === selectedSlug) : undefined) ??
+    posts.find((post) => post.slug === DEFAULT_ABOUT_VIDEO_SLUG) ??
+    posts.find((post) =>
+      ABOUT_VIDEO_KEYWORDS.test(
+        [post.slug, post.category || '', ...(post.tags || []), ...Object.values(post.title)].join(' '),
+      ),
+    ) ??
+    null
+  );
 }
 
 export function recommendVideosForProduct<T extends VideoListItem>(

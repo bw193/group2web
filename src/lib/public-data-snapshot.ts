@@ -23,6 +23,7 @@ import {
   products,
   productSpecifications,
   productTranslations,
+  siteSettings,
   videos,
 } from './db/schema';
 
@@ -46,6 +47,7 @@ export type ProductRow = typeof products.$inferSelect;
 export type ProductSlugHistoryRow = typeof productSlugHistory.$inferSelect;
 export type ProductSpecificationRow = typeof productSpecifications.$inferSelect;
 export type ProductTranslationRow = typeof productTranslations.$inferSelect;
+export type SiteSettingRow = typeof siteSettings.$inferSelect;
 export type VideoRow = typeof videos.$inferSelect;
 
 export interface PublicDataSnapshotData {
@@ -69,6 +71,11 @@ export interface PublicDataSnapshotData {
   productSpecifications: ProductSpecificationRow[];
   productTranslations: ProductTranslationRow[];
   products: ProductRow[];
+  /**
+   * Public-safe settings only (see PUBLIC_SITE_SETTING_KEYS). Snapshots
+   * generated before this field existed lack it, so readers must `?? []`.
+   */
+  siteSettings: SiteSettingRow[];
   videos: VideoRow[];
 }
 

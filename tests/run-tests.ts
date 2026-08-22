@@ -9,4 +9,5 @@ import './product-catalog-deploy.test';
 import './public-data-snapshot-config.test';
 import './public-revalidation.test';
 import './video-recommendations.test';
+import './about-video.test';
 import './inquiry-email.test';

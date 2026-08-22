@@ -8,6 +8,14 @@ function toIsoDuration(seconds: number): string {
   return `PT${h ? `${h}H` : ''}${m ? `${m}M` : ''}${s || (!h && !m) ? `${s}S` : ''}`;
 }
 
+/**
+ * Stable node id for a video, so a page that only embeds it (e.g. About) can
+ * point its `video` property at the entity instead of describing it twice.
+ */
+export function videoNodeId(slug: string, locale: string): string {
+  return `${localizedUrl(locale, `/videos/${slug}`)}#video`;
+}
+
 export function buildVideoObjectSchema(video: LocalizedVideoPost | VideoListItem, locale: string): Record<string, unknown> {
   const url = localizedUrl(locale, `/videos/${video.slug}`);
   const schema: Record<string, unknown> = {

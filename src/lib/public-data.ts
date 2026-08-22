@@ -87,6 +87,7 @@ export interface AboutPagePublicData {
   about: AboutPageRow | undefined;
   factoryPhotos: AboutGalleryRow[];
   certificationPhotos: AboutGalleryRow[];
+  faqs: Array<{ q: string; a: string }>;
 }
 
 export interface ProductMetadataData {
@@ -455,10 +456,12 @@ export async function getAboutPagePublicData(locale: string): Promise<AboutPageP
     const about =
       snapshot.data.aboutPages.find((row) => row.locale === locale) ||
       (locale !== defaultLocale ? snapshot.data.aboutPages.find((row) => row.locale === defaultLocale) : undefined);
+    const activeFaqs = snapshot.data.faqs.filter((f) => f.isActive).sort(byDisplayOrder);
     return {
       about,
       factoryPhotos: snapshot.data.aboutGallery.filter((p) => p.imageType === 'factory').sort(byDisplayOrder),
       certificationPhotos: snapshot.data.aboutGallery.filter((p) => p.imageType === 'certification').sort(byDisplayOrder),
+      faqs: faqPairsFromRows(activeFaqs, snapshot.data.faqTranslations, locale),
     };
   }
 
@@ -467,11 +470,26 @@ export async function getAboutPagePublicData(locale: string): Promise<AboutPageP
   if (!about && locale !== defaultLocale) {
     [about] = await db.select().from(aboutPage).where(eq(aboutPage.locale, defaultLocale)).limit(1);
   }
-  const [factoryPhotos, certificationPhotos] = await Promise.all([
+  const [factoryPhotos, certificationPhotos, faqData] = await Promise.all([
     db.select().from(aboutGallery).where(eq(aboutGallery.imageType, 'factory')).orderBy(aboutGallery.displayOrder),
     db.select().from(aboutGallery).where(eq(aboutGallery.imageType, 'certification')).orderBy(aboutGallery.displayOrder),
+    db.select().from(faqs).where(eq(faqs.isActive, true)).orderBy(faqs.displayOrder),
   ]);
-  return { about, factoryPhotos, certificationPhotos };
+  const faqIds = faqData.map((f) => f.id);
+  const [faqTrans, faqTransEn] = await Promise.all([
+    faqIds.length
+      ? db.select().from(faqTranslations).where(and(inArray(faqTranslations.faqId, faqIds), eq(faqTranslations.locale, locale)))
+      : Promise.resolve([] as FaqTranslationRow[]),
+    faqIds.length && locale !== defaultLocale
+      ? db.select().from(faqTranslations).where(and(inArray(faqTranslations.faqId, faqIds), eq(faqTranslations.locale, defaultLocale)))
+      : Promise.resolve([] as FaqTranslationRow[]),
+  ]);
+  return {
+    about,
+    factoryPhotos,
+    certificationPhotos,
+    faqs: faqPairsFromRows(faqData, [...faqTrans, ...faqTransEn], locale),
+  };
 }
 
 export async function getProductStaticParams(): Promise<Array<{ locale: string; slug: string }>> {

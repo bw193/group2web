@@ -9,8 +9,10 @@ import {
   productImages,
   products,
   productTranslations,
+  siteSettings,
   videos,
 } from '@/lib/db/schema';
+import { ABOUT_VIDEO_SETTING_KEY } from '@/lib/site-settings-keys';
 import { getPublicDataSnapshot } from '@/lib/public-data-snapshot';
 import type {
   CategoryTranslationRow,
@@ -23,6 +25,7 @@ import type {
 import type { ProductCardData } from '@/lib/public-data';
 import {
   localizeVideo,
+  pickAboutVideo,
   recommendProductsForVideo,
   recommendVideosForVideo,
   toVideoListItem,
@@ -224,6 +227,32 @@ export async function getPublishedVideoListItems(locale: string, limit?: number)
   return (await getPublishedVideoPosts(limit))
     .map((video) => toVideoListItem(video, locale))
     .filter((video) => video.title);
+}
+
+// The factory walkthrough embedded on the About page. The CMS picks a slug
+// (site setting `about_video_slug`); pickAboutVideo falls back to the factory
+// tour when the setting is empty or stale. No published match hides the section.
+async function getSelectedAboutVideoSlug(): Promise<string | null> {
+  const snapshot = getSnapshot();
+  if (snapshot) {
+    const row = (snapshot.data.siteSettings ?? []).find((s) => s.key === ABOUT_VIDEO_SETTING_KEY);
+    return row?.value?.trim() || null;
+  }
+  const [row] = await getDb()
+    .select({ value: siteSettings.value })
+    .from(siteSettings)
+    .where(eq(siteSettings.key, ABOUT_VIDEO_SETTING_KEY))
+    .limit(1);
+  return row?.value?.trim() || null;
+}
+
+export async function getAboutVideo(locale: string): Promise<VideoListItem | null> {
+  const [selectedSlug, posts] = await Promise.all([getSelectedAboutVideoSlug(), getPublishedVideoPosts(200)]);
+  const match = pickAboutVideo(posts, selectedSlug);
+  if (!match) return null;
+
+  const item = toVideoListItem(match, locale);
+  return item.title ? item : null;
 }
 
 export async function getVideosIndexData(locale: string): Promise<VideosIndexData> {

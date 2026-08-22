@@ -2,7 +2,9 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadEnvConfig } from '@next/env';
+import { inArray } from 'drizzle-orm';
 import { getDb } from '../src/lib/db';
+import { PUBLIC_SITE_SETTING_KEYS } from '../src/lib/site-settings-keys';
 import {
   aboutGallery,
   aboutPage,
@@ -24,6 +26,7 @@ import {
   products,
   productSpecifications,
   productTranslations,
+  siteSettings,
   videos,
 } from '../src/lib/db/schema';
 import type { PublicDataSnapshot, PublicDataSnapshotData } from '../src/lib/public-data-snapshot';
@@ -65,6 +68,12 @@ export async function generatePublicDataSnapshot(
     productSpecifications: await db.select().from(productSpecifications),
     productTranslations: await db.select().from(productTranslations),
     products: await db.select().from(products),
+    // Whitelisted keys only — the snapshot ships in the deploy bundle, so
+    // private settings (inquiry routing etc.) must never be copied into it.
+    siteSettings: await db
+      .select()
+      .from(siteSettings)
+      .where(inArray(siteSettings.key, [...PUBLIC_SITE_SETTING_KEYS])),
     videos: await db.select().from(videos),
   };
 

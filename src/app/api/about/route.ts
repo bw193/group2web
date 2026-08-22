@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
 import { getDb, withDbRetryFast } from '@/lib/db';
-import { aboutPage } from '@/lib/db/schema';
+import { aboutPage, siteSettings } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { getSession } from '@/lib/auth';
+import { ABOUT_VIDEO_SETTING_KEY } from '@/lib/site-settings-keys';
 
 export async function GET(request: NextRequest) {
   const locale = new URL(request.url).searchParams.get('locale') || 'en';
@@ -19,7 +20,14 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  return NextResponse.json(about || { content: '', factorySize: '', employeeCount: '', annualCapacity: '' });
+  const [videoSetting] = await withDbRetryFast(() =>
+    db.select().from(siteSettings).where(eq(siteSettings.key, ABOUT_VIDEO_SETTING_KEY)).limit(1),
+  );
+
+  return NextResponse.json({
+    ...(about || { content: '', factorySize: '', employeeCount: '', annualCapacity: '' }),
+    videoSlug: videoSetting?.value || '',
+  });
 }
 
 export async function PUT(request: NextRequest) {
@@ -52,6 +60,24 @@ export async function PUT(request: NextRequest) {
       employeeCount: body.employeeCount,
       annualCapacity: body.annualCapacity,
     });
+  }
+
+  // Which published video plays on the About page. Empty string = automatic
+  // factory-tour default. Global (not per-locale), so it lives in siteSettings.
+  if (typeof body.videoSlug === 'string') {
+    const videoSlug = body.videoSlug.trim();
+    const [existingSetting] = await db
+      .select()
+      .from(siteSettings)
+      .where(eq(siteSettings.key, ABOUT_VIDEO_SETTING_KEY))
+      .limit(1);
+    if (existingSetting) {
+      await db.update(siteSettings)
+        .set({ value: videoSlug, updatedAt: new Date().toISOString() })
+        .where(eq(siteSettings.key, ABOUT_VIDEO_SETTING_KEY));
+    } else {
+      await db.insert(siteSettings).values({ key: ABOUT_VIDEO_SETTING_KEY, value: videoSlug });
+    }
   }
 
   // About content shows on /about and the home facility/stats section.

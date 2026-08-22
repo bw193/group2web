@@ -1,8 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Save, Upload, Trash2, Image as ImageIcon, Building2, Award, Globe2, Plus, ExternalLink } from 'lucide-react';
+import { Save, Upload, Trash2, Image as ImageIcon, Building2, Award, Globe2, Plus, ExternalLink, Film } from 'lucide-react';
 import { getUploadUrl } from '@/lib/utils';
+import { pickAboutVideo } from '@/lib/video-utils';
 import { preprocessForUpload } from '@/lib/cms/preprocess-upload';
 import { useT } from '../_lib/i18n';
 
@@ -12,6 +13,21 @@ interface GalleryItem {
   imageType: string;
   displayOrder: number;
   caption?: string | null;
+}
+
+interface VideoOption {
+  slug: string;
+  titleText: string;
+  thumbnailUrl: string | null;
+}
+
+// Same picker the public page uses (getAboutVideo), so the "default" preview
+// shows exactly what visitors get when no explicit selection is saved.
+function defaultAboutVideo(options: VideoOption[]): VideoOption | null {
+  return pickAboutVideo(
+    options.map((v) => ({ slug: v.slug, category: null, tags: [], title: { en: v.titleText }, option: v })),
+    null,
+  )?.option ?? null;
 }
 
 type GalleryKind = 'factory' | 'certification' | 'exhibition';
@@ -31,6 +47,10 @@ export default function AboutManagementPage() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
+  // Factory video shown on the public About page ('' = automatic default)
+  const [videoSlug, setVideoSlug] = useState('');
+  const [videoOptions, setVideoOptions] = useState<VideoOption[]>([]);
+
   // Galleries
   const [facility, setFacility] = useState<GalleryItem[]>([]);
   const [certs, setCerts] = useState<GalleryItem[]>([]);
@@ -46,7 +66,18 @@ export default function AboutManagementPage() {
           setFactorySize(data.factorySize || '');
           setEmployeeCount(data.employeeCount || '');
           setAnnualCapacity(data.annualCapacity || '');
+          setVideoSlug(data.videoSlug || '');
         }
+      })
+      .catch(() => {});
+    fetch('/api/videos')
+      .then((r) => (r.ok ? r.json() : []))
+      .then((rows: Array<{ slug: string; status: string; titleText: string; thumbnailUrl: string | null }>) => {
+        setVideoOptions(
+          (Array.isArray(rows) ? rows : [])
+            .filter((v) => v.status === 'published')
+            .map((v) => ({ slug: v.slug, titleText: v.titleText || v.slug, thumbnailUrl: v.thumbnailUrl })),
+        );
       })
       .catch(() => {});
     void loadGalleries();
@@ -68,7 +99,7 @@ export default function AboutManagementPage() {
     await fetch('/api/about', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ content, factorySize, employeeCount, annualCapacity, locale: 'en' }),
+      body: JSON.stringify({ content, factorySize, employeeCount, annualCapacity, videoSlug, locale: 'en' }),
     });
     setSaving(false);
     setSaved(true);
@@ -318,6 +349,78 @@ export default function AboutManagementPage() {
           <StatField label={t('about.stats.employees')} value={employeeCount} onChange={setEmployeeCount} placeholder="200+" />
           <StatField label={t('about.stats.capacity')} value={annualCapacity} onChange={setAnnualCapacity} placeholder="2,000,000 units" />
         </div>
+      </Section>
+
+      {/* === About page factory video ============================================ */}
+      <Section
+        eyebrow="06"
+        title={t('about.video.title')}
+        emphasis={t('about.video.emphasis')}
+        description={t('about.video.desc')}
+        icon={Film}
+        meta={t('about.video.meta')}
+      >
+        {videoOptions.length === 0 ? (
+          <div className="flex flex-wrap items-center justify-between gap-3 text-[11px] text-gray-500 bg-gray-50 border border-gray-200 px-3 py-2">
+            <span>{t('about.video.empty')}</span>
+            <a href="/cms/videos" className="inline-flex items-center gap-1.5 text-[#9A8266] hover:underline shrink-0">
+              {t('about.video.manage')}
+              <ExternalLink size={11} />
+            </a>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+            <div>
+              <label className="block text-[10px] tracking-[0.25em] uppercase text-gray-500 mb-2 font-medium">
+                {t('about.video.label')}
+              </label>
+              <select
+                value={videoSlug}
+                onChange={(e) => setVideoSlug(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-200 focus:border-[#9A8266] focus:outline-none transition-colors text-sm bg-white"
+              >
+                <option value="">{t('about.video.defaultOption')}</option>
+                {videoOptions.map((v) => (
+                  <option key={v.slug} value={v.slug}>
+                    {v.titleText}
+                  </option>
+                ))}
+              </select>
+              <p className="text-[11px] text-gray-500 mt-2 leading-relaxed">{t('about.video.hint')}</p>
+              <a
+                href="/cms/videos"
+                className="inline-flex items-center gap-1.5 mt-3 text-[11px] text-[#9A8266] hover:underline"
+              >
+                {t('about.video.manage')}
+                <ExternalLink size={11} />
+              </a>
+            </div>
+            {(() => {
+              const selected = videoSlug ? videoOptions.find((v) => v.slug === videoSlug) : null;
+              const preview = selected ?? defaultAboutVideo(videoOptions);
+              if (!preview) return null;
+              return (
+                <div className="border border-gray-200 bg-gray-50 p-3 flex items-center gap-4">
+                  <div className="relative w-32 aspect-video bg-gray-200 shrink-0 overflow-hidden">
+                    {preview.thumbnailUrl && (
+                      <img
+                        src={getUploadUrl(preview.thumbnailUrl)}
+                        alt=""
+                        className="absolute inset-0 w-full h-full object-cover"
+                      />
+                    )}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[9px] tracking-[0.25em] uppercase text-gray-400 mb-1">
+                      {selected ? t('about.video.previewSelected') : t('about.video.previewDefault')}
+                    </p>
+                    <p className="text-sm text-gray-800 leading-snug line-clamp-2">{preview.titleText}</p>
+                  </div>
+                </div>
+              );
+            })()}
+          </div>
+        )}
       </Section>
     </div>
   );
