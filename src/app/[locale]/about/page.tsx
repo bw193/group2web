@@ -95,6 +95,21 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
     getAboutVideo(locale),
   ]);
 
+  // The lead photo anchors the masthead; the gallery shows the rest so no
+  // image appears twice on the page.
+  const mastheadPhoto = factoryPhotos[0];
+  const galleryPhotos = factoryPhotos.length > 1 ? factoryPhotos.slice(1) : [];
+
+  const tickerItems = [
+    t('factFoundedValue'),
+    t('factLogisticsValue'),
+    t('factServicesValue'),
+    t('factCatalogValue'),
+    t('factMarketsValue'),
+    t('factRdValue'),
+    t('factWarrantyValue'),
+  ];
+
   const stats = [
     { raw: about?.factorySize || '50,000', unit: t('unitSqm'), label: t('facilitySize') },
     { raw: about?.employeeCount || '200+', unit: '', label: t('employees') },
@@ -211,18 +226,18 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
       <JsonLd id="ld-about-breadcrumb" data={breadcrumb} />
       {filmLd && <JsonLd id="ld-about-video" data={filmLd} />}
 
-      {/* Masthead — claim first, then the numbers that carry it. Text-led so the
-          largest paint is a heading, not a third-party asset. */}
+      {/* Masthead — the claim beside a first look at the building itself.
+          Text still paints first; the photo clips in a beat later. */}
       <section className="relative overflow-hidden bg-cream border-b border-warm-border">
         <span
           aria-hidden
-          className="pointer-events-none select-none absolute -bottom-10 end-0 font-display text-[30vw] leading-none tracking-[-0.02em] text-ink/[0.04] lg:text-[19vw]"
+          className="pointer-events-none select-none absolute -bottom-10 start-0 font-display text-[30vw] leading-none tracking-[-0.02em] text-ink/[0.04] lg:text-[17vw]"
         >
           2005
         </span>
         <div className="container-wide relative pt-16 pb-14 md:pt-20 md:pb-16">
-          <div className="grid grid-cols-1 items-end gap-10 lg:grid-cols-12 lg:gap-16">
-            <div className="lg:col-span-7">
+          <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-16">
+            <div className={`flex flex-col justify-center ${mastheadPhoto ? 'lg:col-span-7' : 'lg:col-span-8'}`}>
               <p className="mb-5 font-body text-[13px] font-semibold uppercase tracking-[0.18em] text-bronze" data-reveal>
                 {t('eyebrowSince')}
               </p>
@@ -230,14 +245,12 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
                 as="h1"
                 text={t('title')}
                 italicAt={[t('title').split(/\s+/).length - 1]}
-                className="font-display text-4xl font-normal leading-[1.05] tracking-[-0.02em] text-ink md:text-5xl lg:text-[62px]"
+                className="font-display text-4xl font-normal leading-[1.04] tracking-[-0.02em] text-ink md:text-5xl lg:text-[58px] xl:text-[66px]"
               />
-            </div>
-            <div className="lg:col-span-5" data-reveal>
-              <p className="max-w-md font-body text-[17px] font-normal leading-[1.6] text-ink">
+              <p className="mt-8 max-w-xl font-body text-[17px] font-normal leading-[1.65] text-ink md:text-[18px]" data-reveal>
                 {t('introSubtitle')}
               </p>
-              <div className="mt-7 flex flex-wrap items-center gap-x-8 gap-y-4">
+              <div className="mt-8 flex flex-wrap items-center gap-x-8 gap-y-4" data-reveal>
                 {film && (
                   <a
                     href="#factory-film"
@@ -265,11 +278,32 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
                 </Link>
               </div>
             </div>
+
+            {mastheadPhoto && (
+              <div className="lg:col-span-5" data-reveal="clip">
+                <div className="group relative aspect-[4/5] overflow-hidden bg-warm-gray sm:aspect-[16/10] lg:aspect-[4/5]">
+                  <GalleryImage
+                    path={mastheadPhoto.imageUrl}
+                    alt={mastheadPhoto.caption || `${siteName} headquarters and factory in Jiaxing`}
+                    fill
+                    priority
+                    sizes="(max-width: 1024px) 100vw, 40vw"
+                    className="object-cover transition-transform duration-[2s] ease-out group-hover:scale-[1.04]"
+                  />
+                  <span
+                    aria-hidden
+                    className="absolute bottom-4 start-4 bg-ink/55 px-2.5 py-1.5 font-body text-[11px] font-semibold uppercase tracking-[0.18em] text-cream backdrop-blur-[2px]"
+                  >
+                    {t('eyebrowSince')}
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Scale — counts up on scroll; CMS values keep their own units. */}
           <div
-            className="mt-14 grid grid-cols-2 gap-x-8 gap-y-10 border-t border-warm-border pt-10 md:mt-20 md:grid-cols-4 md:pt-12"
+            className="mt-14 grid grid-cols-2 gap-x-8 gap-y-10 border-t border-warm-border pt-10 md:mt-16 md:grid-cols-4 md:pt-12"
             data-reveal-stagger
           >
             {stats.map((stat) => {
@@ -291,6 +325,28 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
           </div>
         </div>
       </section>
+
+      {/* Rolling fact ticker — a quiet band of motion between the masthead and
+          the film. Purely decorative; every fact also appears in the fact file. */}
+      <div className="overflow-hidden border-b border-warm-border bg-cream" aria-hidden>
+        <div className="marquee-viewport py-4 md:py-[18px]">
+          <div className="marquee-track">
+            {[0, 1].map((half) => (
+              <div key={half} className="flex shrink-0 items-center">
+                {[...tickerItems, ...tickerItems].map((item, i) => (
+                  <span
+                    key={`${half}-${i}`}
+                    className="flex items-center font-body text-[12px] font-semibold uppercase tracking-[0.22em] text-ink-mid"
+                  >
+                    <span className="whitespace-nowrap px-8 md:px-10">{item}</span>
+                    <span className="h-1 w-1 rounded-full bg-bronze/70" />
+                  </span>
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
 
       {/* Factory film — the page's single dark band, so the selected video
           reads as the centrepiece. Nothing loads from the video host until the
@@ -322,16 +378,22 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
             </div>
 
             <div data-reveal="clip">
-              <AboutVideoFacade
-                kind={film.kind}
-                src={film.src}
-                title={film.video.title}
-                poster={filmPoster}
-                posterFallback={filmPosterBase !== filmPoster ? filmPosterBase : undefined}
-                playLabel={t('watchFilm')}
-                duration={filmDuration || undefined}
-                className="shadow-[0_32px_80px_rgba(0,0,0,0.35)]"
-              />
+              <div className="relative">
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute -top-3 -start-3 hidden h-full w-full border border-bronze/30 md:-top-4 md:-start-4 md:block"
+                />
+                <AboutVideoFacade
+                  kind={film.kind}
+                  src={film.src}
+                  title={film.video.title}
+                  poster={filmPoster}
+                  posterFallback={filmPosterBase !== filmPoster ? filmPosterBase : undefined}
+                  playLabel={t('watchFilm')}
+                  duration={filmDuration || undefined}
+                  className="shadow-[0_32px_80px_rgba(0,0,0,0.35)]"
+                />
+              </div>
             </div>
 
             {/* What the walkthrough shows, plus routes deeper into the library. */}
@@ -407,7 +469,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
               )}
             </div>
             <div className="lg:col-span-3" data-reveal>
-              <div className="border border-warm-border bg-sand/60 p-6 md:p-7 lg:sticky lg:top-32">
+              <div className="border border-warm-border border-t-2 border-t-bronze bg-sand/60 p-6 md:p-7 lg:sticky lg:top-32">
                 <p className="mb-5 font-body text-[12px] font-semibold uppercase tracking-[0.18em] text-bronze">
                   {t('factFileTitle')}
                 </p>
@@ -433,7 +495,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
       </section>
 
       {/* Factory gallery — every still opens full-screen. */}
-      {factoryPhotos.length > 0 && (
+      {galleryPhotos.length > 0 && (
         <section className="bg-sand border-b border-warm-border">
           <div className="container-wide py-20 md:py-24">
             <div className="mb-12 grid grid-cols-1 items-end gap-8 lg:grid-cols-12 lg:gap-16" data-reveal>
@@ -452,7 +514,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
               </div>
             </div>
             <FactoryGalleryShowcase
-              photos={factoryPhotos.map((photo) => ({
+              photos={galleryPhotos.map((photo) => ({
                 id: photo.id,
                 imageUrl: photo.imageUrl,
                 caption: photo.caption,
@@ -569,17 +631,29 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
         </section>
       )}
 
-      {/* Closing CTA */}
-      <section className="bg-cream">
-        <div className="container-wide py-16 md:py-24">
-          <div className="grid grid-cols-1 items-end gap-8 lg:grid-cols-12">
+      {/* Closing CTA — a full statement band rather than a footer strip. */}
+      <section className="relative overflow-hidden bg-cream">
+        <span
+          aria-hidden
+          className="pointer-events-none select-none absolute -top-8 end-0 font-display text-[24vw] leading-none tracking-[-0.02em] text-ink/[0.035] lg:text-[13vw]"
+        >
+          60+
+        </span>
+        <div className="container-wide relative py-20 md:py-28">
+          <div className="grid grid-cols-1 items-end gap-10 lg:grid-cols-12">
             <div className="lg:col-span-7" data-reveal>
-              <h2 className="font-display text-3xl font-normal leading-[1.05] tracking-[-0.02em] text-ink md:text-4xl lg:text-5xl">
+              <h2 className="font-display text-4xl font-normal leading-[1.02] tracking-[-0.02em] text-ink md:text-5xl lg:text-[64px]">
                 {t('ctaHeading')}
               </h2>
-              <p className="mt-5 max-w-xl font-body text-[16px] font-normal leading-[1.65] text-ink-mid md:text-[17px]">
+              <p className="mt-6 max-w-xl font-body text-[16px] font-normal leading-[1.65] text-ink-mid md:text-[17px]">
                 {t('ctaBody')}
               </p>
+              <a
+                href={`mailto:${CONTACT_EMAIL}`}
+                className="link-underline mt-6 inline-flex font-body text-[15px] font-medium text-ink transition-colors duration-300 hover:text-bronze"
+              >
+                {CONTACT_EMAIL}
+              </a>
             </div>
             <div className="flex flex-wrap items-center gap-4 lg:col-span-5 lg:justify-end" data-reveal>
               <Link href={localizedPath(locale, '/contact')} className="btn-primary group">
