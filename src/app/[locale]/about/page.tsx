@@ -100,16 +100,6 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
   const mastheadPhoto = factoryPhotos[0];
   const galleryPhotos = factoryPhotos.length > 1 ? factoryPhotos.slice(1) : [];
 
-  const tickerItems = [
-    t('factFoundedValue'),
-    t('factLogisticsValue'),
-    t('factServicesValue'),
-    t('factCatalogValue'),
-    t('factMarketsValue'),
-    t('factRdValue'),
-    t('factWarrantyValue'),
-  ];
-
   const stats = [
     { raw: about?.factorySize || '50,000', unit: t('unitSqm'), label: t('facilitySize') },
     { raw: about?.employeeCount || '200+', unit: '', label: t('employees') },
@@ -126,6 +116,8 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
     { label: t('factRdLabel'), value: t('factRdValue') },
     { label: t('factWarrantyLabel'), value: t('factWarrantyValue') },
   ];
+
+  const tickerItems = factFile.map(({ label, value }) => `${label} — ${value}`);
 
   const filmPoints = [t('filmPoint1'), t('filmPoint2'), t('filmPoint3'), t('filmPoint4')];
 
