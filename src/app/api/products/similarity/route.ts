@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDb, withDbRetryFast } from '@/lib/db';
-import { products, productTranslations } from '@/lib/db/schema';
+import { products, productSpecifications, productTranslations } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { getSession } from '@/lib/auth';
 import {
@@ -35,6 +35,7 @@ function roundScores(scores: ProductSimilarityScores): ProductSimilarityScores {
     nameScore: round3(scores.nameScore),
     shortScore: round3(scores.shortScore),
     fullScore: round3(scores.fullScore),
+    contentScore: round3(scores.contentScore),
     overall: round3(scores.overall),
   };
 }
@@ -49,6 +50,16 @@ async function loadCatalog(locale: string): Promise<CatalogEntry[]> {
   const trans = await withDbRetryFast(() =>
     db.select().from(productTranslations).where(eq(productTranslations.locale, locale)),
   );
+  const specRows = await withDbRetryFast(() =>
+    db.select().from(productSpecifications).where(eq(productSpecifications.locale, locale)),
+  );
+
+  const specsByProduct = new Map<number, string[]>();
+  for (const spec of specRows) {
+    const parts = specsByProduct.get(spec.productId) ?? [];
+    parts.push(`${spec.specKey} ${spec.specValue}`);
+    specsByProduct.set(spec.productId, parts);
+  }
 
   const productById = new Map(allProducts.map((p) => [p.id, p]));
   const entries: CatalogEntry[] = [];
@@ -62,7 +73,12 @@ async function loadCatalog(locale: string): Promise<CatalogEntry[]> {
       modelNumber: product.modelNumber,
       isActive: product.isActive,
       prepared: prepareProductText(
-        { name: t.name, shortDescription: t.shortDescription, fullDescription: t.fullDescription },
+        {
+          name: t.name,
+          shortDescription: t.shortDescription,
+          fullDescription: t.fullDescription,
+          specifications: (specsByProduct.get(t.productId) ?? []).join('. '),
+        },
         locale,
       ),
     });
@@ -81,6 +97,7 @@ function productSummary(entry: CatalogEntry) {
 }
 
 const SORT_KEYS = {
+  content: 'contentScore',
   overall: 'overall',
   name: 'nameScore',
   short: 'shortScore',
@@ -100,9 +117,9 @@ export async function GET(request: NextRequest) {
   const threshold = Number.isFinite(thresholdParam)
     ? Math.min(Math.max(thresholdParam, 0.05), 1)
     : DEFAULT_REPORT_THRESHOLD;
-  // Default to full-description similarity: the primary duplicate-content signal.
-  const sortParam = searchParams.get('sort') || 'full';
-  const sortKey = SORT_KEYS[sortParam as keyof typeof SORT_KEYS] ?? 'fullScore';
+  // Default to whole-page content containment: the closest proxy to Google's dedup.
+  const sortParam = searchParams.get('sort') || 'content';
+  const sortKey = SORT_KEYS[sortParam as keyof typeof SORT_KEYS] ?? 'contentScore';
   const statusParam = searchParams.get('status');
   const status = statusParam === 'active' || statusParam === 'inactive' ? statusParam : 'all';
 
@@ -137,7 +154,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       locale,
       threshold,
-      sort: sortParam in SORT_KEYS ? sortParam : 'full',
+      sort: sortParam in SORT_KEYS ? sortParam : 'content',
       status,
       scannedCount: catalog.length,
       pairCount: pairs.length,
@@ -164,6 +181,7 @@ export async function POST(request: NextRequest) {
       name?: unknown;
       shortDescription?: unknown;
       fullDescription?: unknown;
+      specifications?: unknown;
     };
     const locale = typeof body.locale === 'string' && body.locale ? body.locale : 'en';
     const excludeId = typeof body.productId === 'number' ? body.productId : null;
@@ -171,6 +189,7 @@ export async function POST(request: NextRequest) {
       name: typeof body.name === 'string' ? body.name : '',
       shortDescription: typeof body.shortDescription === 'string' ? body.shortDescription : '',
       fullDescription: typeof body.fullDescription === 'string' ? body.fullDescription : '',
+      specifications: typeof body.specifications === 'string' ? body.specifications : '',
     };
 
     if (!draft.name.trim() && !draft.shortDescription.trim() && !draft.fullDescription.trim()) {
@@ -187,10 +206,10 @@ export async function POST(request: NextRequest) {
     for (const entry of catalog) {
       if (excludeId !== null && entry.id === excludeId) continue;
       const scores = compareProductTexts(prepared, entry.prepared);
-      if (scores.overall < DRAFT_MATCH_THRESHOLD) continue;
+      if (Math.max(scores.overall, scores.contentScore) < DRAFT_MATCH_THRESHOLD) continue;
       matches.push({ product: productSummary(entry), ...roundScores(scores), risk: assessSeoRisk(scores) });
     }
-    matches.sort((x, y) => y.overall - x.overall);
+    matches.sort((x, y) => (y.contentScore - x.contentScore) || (y.overall - x.overall));
 
     return NextResponse.json({ locale, matches: matches.slice(0, DRAFT_MATCH_LIMIT) });
   } catch (error) {

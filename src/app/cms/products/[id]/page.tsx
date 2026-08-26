@@ -15,6 +15,7 @@ interface SeoRisk {
   level: 'duplicate' | 'high' | 'moderate' | 'none';
   titleRisk: boolean;
   metaRisk: boolean;
+  thinRisk: boolean;
 }
 
 interface SimMatch {
@@ -22,8 +23,20 @@ interface SimMatch {
   nameScore: number;
   shortScore: number;
   fullScore: number;
+  contentScore: number;
   overall: number;
   risk: SeoRisk;
+}
+
+interface SimDraft {
+  name: string;
+  shortDescription: string;
+  fullDescription: string;
+  specifications: string;
+}
+
+function specsToText(rows: Array<{ key: string; value: string }>): string {
+  return rows.map((s) => `${s.key} ${s.value}`.trim()).filter(Boolean).join('. ');
 }
 
 /** Pause the save only for pairs Google would care about: duplicated content or near-identical titles. */
@@ -94,6 +107,11 @@ export default function ProductEditPage() {
             name: enTrans?.name || '',
             shortDescription: enTrans?.shortDescription || '',
             fullDescription: enTrans?.fullDescription || '',
+            specifications: specsToText(
+              (data.specifications || [])
+                .filter((s: any) => s.locale === 'en')
+                .map((s: any) => ({ key: s.specKey || '', value: s.specValue || '' })),
+            ),
           });
         })
         .finally(() => setLoading(false));
@@ -101,7 +119,7 @@ export default function ProductEditPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, isNew]);
 
-  async function fetchSimilarity(draft: { name: string; shortDescription: string; fullDescription: string }): Promise<SimMatch[] | null> {
+  async function fetchSimilarity(draft: SimDraft): Promise<SimMatch[] | null> {
     try {
       const res = await fetch('/api/products/similarity', {
         method: 'POST',
@@ -120,12 +138,13 @@ export default function ProductEditPage() {
     }
   }
 
-  async function runPanelCheck(draft?: { name: string; shortDescription: string; fullDescription: string }) {
+  async function runPanelCheck(draft?: SimDraft) {
     setPanelLoading(true);
     const matches = await fetchSimilarity(draft ?? {
       name: form.name,
       shortDescription: form.shortDescription,
       fullDescription: form.fullDescription,
+      specifications: specsToText(specs),
     });
     setPanelError(matches === null);
     setPanelMatches(matches);
@@ -189,6 +208,7 @@ export default function ProductEditPage() {
       name: form.name,
       shortDescription: form.shortDescription,
       fullDescription: form.fullDescription,
+      specifications: specsToText(specs),
     });
     setCheckingSim(false);
 
@@ -277,6 +297,14 @@ export default function ProductEditPage() {
             {t('prod.sim.risk.metaTag')}
           </span>
         )}
+        {m.risk.thinRisk && (
+          <span
+            title={t('prod.sim.risk.thin.tip')}
+            className="inline-flex items-center rounded-full bg-slate-200 px-2 py-0.5 text-[10px] font-semibold text-slate-700"
+          >
+            {t('prod.sim.risk.thinTag')}
+          </span>
+        )}
         <Link
           href={`/cms/products/${m.product.id}`}
           target="_blank"
@@ -291,8 +319,9 @@ export default function ProductEditPage() {
           </span>
         )}
         <span className="text-xs text-text-secondary">
-          {t('prod.sim.col.name')} {Math.round(m.nameScore * 100)}% · {t('prod.sim.col.short')}{' '}
-          {Math.round(m.shortScore * 100)}% · {t('prod.sim.col.full')} {Math.round(m.fullScore * 100)}%
+          {t('prod.sim.col.content')} {Math.round(m.contentScore * 100)}% · {t('prod.sim.col.name')}{' '}
+          {Math.round(m.nameScore * 100)}% · {t('prod.sim.col.short')} {Math.round(m.shortScore * 100)}% ·{' '}
+          {t('prod.sim.col.full')} {Math.round(m.fullScore * 100)}%
         </span>
       </li>
     );

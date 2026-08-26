@@ -8,7 +8,7 @@ import { useT } from '../../_lib/i18n';
 const LOCALES = ['en', 'es', 'pt', 'fr', 'it', 'de', 'he'] as const;
 const THRESHOLDS = ['0.25', '0.35', '0.5'] as const;
 
-type SortKey = 'overall' | 'name' | 'short' | 'full';
+type SortKey = 'content' | 'name' | 'short' | 'full';
 type StatusFilter = 'all' | 'active' | 'inactive';
 
 interface ProductRef {
@@ -23,6 +23,7 @@ interface SeoRisk {
   level: 'duplicate' | 'high' | 'moderate' | 'none';
   titleRisk: boolean;
   metaRisk: boolean;
+  thinRisk: boolean;
 }
 
 interface SimilarPair {
@@ -31,6 +32,7 @@ interface SimilarPair {
   nameScore: number;
   shortScore: number;
   fullScore: number;
+  contentScore: number;
   overall: number;
   risk: SeoRisk;
 }
@@ -50,7 +52,7 @@ export default function ProductSimilarityPage() {
   const { t } = useT();
   const [locale, setLocale] = useState<string>('en');
   const [threshold, setThreshold] = useState<string>('0.35');
-  const [sort, setSort] = useState<SortKey>('full');
+  const [sort, setSort] = useState<SortKey>('content');
   const [status, setStatus] = useState<StatusFilter>('all');
   const [report, setReport] = useState<Report | null>(null);
   const [loading, setLoading] = useState(true);
@@ -128,6 +130,14 @@ export default function ProductSimilarityPage() {
             className="inline-flex items-center rounded-full bg-sky-100 px-2 py-0.5 text-[10px] font-semibold text-sky-700"
           >
             {t('prod.sim.risk.metaTag')}
+          </span>
+        )}
+        {risk.thinRisk && (
+          <span
+            title={t('prod.sim.risk.thin.tip')}
+            className="inline-flex items-center rounded-full bg-slate-200 px-2 py-0.5 text-[10px] font-semibold text-slate-700"
+          >
+            {t('prod.sim.risk.thinTag')}
           </span>
         )}
       </div>
@@ -224,7 +234,7 @@ export default function ProductSimilarityPage() {
                 {sortableHeader('name', t('prod.sim.col.name'))}
                 {sortableHeader('short', t('prod.sim.col.short'))}
                 {sortableHeader('full', t('prod.sim.col.full'))}
-                {sortableHeader('overall', t('prod.sim.col.overall'))}
+                {sortableHeader('content', t('prod.sim.col.content'))}
                 <th className="text-left py-3">{t('prod.sim.col.risk')}</th>
               </tr>
             </thead>
@@ -236,7 +246,7 @@ export default function ProductSimilarityPage() {
                   <td className="py-3 pr-4 tabular-nums">{percent(pair.nameScore)}</td>
                   <td className="py-3 pr-4 tabular-nums">{percent(pair.shortScore)}</td>
                   <td className="py-3 pr-4 tabular-nums">{percent(pair.fullScore)}</td>
-                  <td className="py-3 pr-4 tabular-nums">{percent(pair.overall)}</td>
+                  <td className="py-3 pr-4 tabular-nums font-medium">{percent(pair.contentScore)}</td>
                   <td className="py-3">{riskBadge(pair.risk)}</td>
                 </tr>
               ))}

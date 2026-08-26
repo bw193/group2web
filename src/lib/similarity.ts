@@ -58,20 +58,36 @@ export type ProductTextFields = {
   name: string | null;
   shortDescription: string | null;
   fullDescription: string | null;
+  /** Spec rows joined to text ("Size 600x800mm. IP Rating IP44"), part of the page's main content. */
+  specifications?: string | null;
 };
 
 export type PreparedProductText = {
   name: Set<string>;
   short: Set<string>;
   full: Set<string>;
+  /** Shingles of the combined main content: name + short + full + specs. */
+  content: Set<string>;
+  /** Token count of the combined main content, used to spot thin pages. */
+  contentTokens: number;
 };
 
 export type ProductSimilarityScores = {
   nameScore: number;
   shortScore: number;
   fullScore: number;
+  /** Containment of the combined main content - closest to Google's whole-page dedup. */
+  contentScore: number;
   overall: number;
 };
+
+export type ProductComparison = ProductSimilarityScores & {
+  /** True when both pages carry so little unique text that shared template dominates. */
+  thin: boolean;
+};
+
+/** Below this many main-content tokens a product page is mostly boilerplate to Google. */
+export const THIN_CONTENT_TOKENS = 60;
 
 /**
  * Unlike shingleJaccard (where two empty texts count as identical), an empty
@@ -85,20 +101,47 @@ export function jaccardOfSets(a: Set<string>, b: Set<string>): number {
   return union === 0 ? 0 : intersection / union;
 }
 
+/**
+ * Containment (overlap coefficient): intersection over the smaller set.
+ * Google clusters a page whose content is a subset of another page as a
+ * duplicate even when the length difference keeps Jaccard low, so this is the
+ * better whole-page dedup proxy.
+ */
+export function overlapCoefficient(a: Set<string>, b: Set<string>): number {
+  if (a.size === 0 || b.size === 0) return 0;
+  let intersection = 0;
+  for (const value of a) if (b.has(value)) intersection += 1;
+  return intersection / Math.min(a.size, b.size);
+}
+
 /** Tokenize/shingle each field once so pairwise comparisons only intersect sets. */
 export function prepareProductText(fields: ProductTextFields, locale = 'en'): PreparedProductText {
+  const combined = [fields.name, fields.shortDescription, fields.fullDescription, fields.specifications]
+    .filter((part): part is string => Boolean(part && part.trim()))
+    .join('. ');
+  const contentTokens = wordTokens(combined, locale);
   return {
     name: shingles(wordTokens(fields.name ?? '', locale), NAME_SHINGLE_WIDTH),
     short: shingles(wordTokens(fields.shortDescription ?? '', locale), DESCRIPTION_SHINGLE_WIDTH),
     full: shingles(wordTokens(fields.fullDescription ?? '', locale), DESCRIPTION_SHINGLE_WIDTH),
+    content: shingles(contentTokens, DESCRIPTION_SHINGLE_WIDTH),
+    contentTokens: contentTokens.length,
   };
 }
 
-export function compareProductTexts(a: PreparedProductText, b: PreparedProductText): ProductSimilarityScores {
+export function compareProductTexts(a: PreparedProductText, b: PreparedProductText): ProductComparison {
   const nameScore = jaccardOfSets(a.name, b.name);
   const shortScore = jaccardOfSets(a.short, b.short);
   const fullScore = jaccardOfSets(a.full, b.full);
-  return { nameScore, shortScore, fullScore, overall: Math.max(nameScore, shortScore, fullScore) };
+  const contentScore = overlapCoefficient(a.content, b.content);
+  return {
+    nameScore,
+    shortScore,
+    fullScore,
+    contentScore,
+    overall: Math.max(nameScore, shortScore, fullScore),
+    thin: a.contentTokens < THIN_CONTENT_TOKENS && b.contentTokens < THIN_CONTENT_TOKENS,
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -108,32 +151,51 @@ export function compareProductTexts(a: PreparedProductText, b: PreparedProductTe
 export type SeoRiskLevel = 'duplicate' | 'high' | 'moderate' | 'none';
 
 export type SeoRisk = {
-  /** Main-content (full description) duplication level, meta overlap can lift it to moderate. */
+  /** Strongest duplication signal across whole-page content and per-field overlap. */
   level: SeoRiskLevel;
   /** Near-identical product names: Google expects a unique, descriptive title per page. */
   titleRisk: boolean;
   /** Near-identical short descriptions, the meta-description source for product pages. */
   metaRisk: boolean;
+  /** Both pages are mostly boilerplate to Google (too little unique text). */
+  thinRisk: boolean;
 };
+
+const LEVEL_ORDER: SeoRiskLevel[] = ['none', 'moderate', 'high', 'duplicate'];
+
+function strongest(...levels: SeoRiskLevel[]): SeoRiskLevel {
+  return levels.reduce((worst, level) =>
+    LEVEL_ORDER.indexOf(level) > LEVEL_ORDER.indexOf(worst) ? level : worst,
+  );
+}
 
 /**
  * Grades a product pair against Google's duplicate-content guidance
  * (developers.google.com/search/docs/crawling-indexing/consolidate-duplicate-urls):
  * Google does not penalize duplicates, it canonicalizes - of near-identical
  * pages only one is indexed and the rest are filtered from results - and every
- * page should carry a unique title and meta description. The numeric cut-offs
- * are internal shingle-Jaccard heuristics; 0.55/0.35 match the offline
- * copy-quality gates in scripts/product-copy-batch-lib.ts.
+ * page should carry a unique title and meta description. Grading takes the
+ * strongest of two signals: containment of the combined main content
+ * (name + short + full + specs, Google's whole-page view) and overlap of the
+ * full description alone. Two thin pages are lifted to at least moderate
+ * because the shared page template dominates what Google renders.
  */
-export function assessSeoRisk(scores: ProductSimilarityScores): SeoRisk {
-  const level: SeoRiskLevel =
-    scores.fullScore >= 0.85 ? 'duplicate'
-    : scores.fullScore >= 0.55 ? 'high'
-    : scores.fullScore >= 0.35 || scores.shortScore >= 0.7 ? 'moderate'
+export function assessSeoRisk(cmp: ProductComparison): SeoRisk {
+  const contentLevel: SeoRiskLevel =
+    cmp.contentScore >= 0.9 ? 'duplicate'
+    : cmp.contentScore >= 0.7 ? 'high'
+    : cmp.contentScore >= 0.5 ? 'moderate'
     : 'none';
+  const fieldLevel: SeoRiskLevel =
+    cmp.fullScore >= 0.85 ? 'duplicate'
+    : cmp.fullScore >= 0.55 ? 'high'
+    : cmp.fullScore >= 0.35 || cmp.shortScore >= 0.7 ? 'moderate'
+    : 'none';
+  const thinLevel: SeoRiskLevel = cmp.thin ? 'moderate' : 'none';
   return {
-    level,
-    titleRisk: scores.nameScore >= 0.9,
-    metaRisk: scores.shortScore >= 0.7,
+    level: strongest(contentLevel, fieldLevel, thinLevel),
+    titleRisk: cmp.nameScore >= 0.9,
+    metaRisk: cmp.shortScore >= 0.7,
+    thinRisk: cmp.thin,
   };
 }
