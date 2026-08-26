@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Plus, Edit2, Trash2, Star, Search, Rocket } from 'lucide-react';
+import { Plus, Edit2, Trash2, Star, Search, Rocket, GitCompare } from 'lucide-react';
 import { getUploadUrl } from '@/lib/utils';
 import { useT } from '../_lib/i18n';
 
@@ -98,6 +98,9 @@ export default function ProductsListPage() {
       <div className="flex flex-col gap-4 mb-6 md:flex-row md:items-center md:justify-between">
         <h1 className="text-2xl font-heading font-bold">{t('prod.title')}</h1>
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end">
+          <Link href="/cms/products/similarity" className="btn-outline h-10 px-4 text-xs tracking-normal normal-case">
+            <GitCompare size={16} className="mr-1" /> {t('prod.sim.check')}
+          </Link>
           <button
             type="button"
             onClick={publishProductUpdates}

@@ -1,4 +1,7 @@
 import { createHash } from 'node:crypto';
+import { normalizeText, shingleJaccard, wordTokens } from '../src/lib/similarity';
+
+export { normalizeText, shingleJaccard, wordTokens };
 
 export const PRODUCT_COPY_LOCALES = ['en', 'es', 'pt', 'fr', 'it', 'de', 'he'] as const;
 export const LOCALIZED_COPY_LOCALES = ['es', 'pt', 'fr', 'it', 'de', 'he'] as const;
@@ -193,49 +196,6 @@ export function validateHtml(html: string, label: string): void {
   const residualAngles = html.replace(/<[^>]*>/g, '');
   if (/[<>]/.test(residualAngles)) throw new Error(`${label}: stray angle bracket found`);
   if (!/<p>/i.test(html)) throw new Error(`${label}: at least one paragraph is required`);
-}
-
-export function normalizeText(html: string, locale = 'en'): string {
-  return html
-    .replace(/<[^>]*>/g, ' ')
-    .replace(/&(?:nbsp|amp|quot|apos|lt|gt);/gi, ' ')
-    .normalize('NFKC')
-    .toLocaleLowerCase(locale)
-    .replace(/[^\p{L}\p{N}]+/gu, ' ')
-    .trim()
-    .replace(/\s+/g, ' ');
-}
-
-export function wordTokens(html: string, locale = 'en'): string[] {
-  const normalized = normalizeText(html, locale);
-  if (!normalized) return [];
-  const segmenter = new Intl.Segmenter(locale, { granularity: 'word' });
-  const segmented = [...segmenter.segment(normalized)]
-    .filter((part) => part.isWordLike)
-    .map((part) => part.segment);
-  return segmented.length > 0 ? segmented : normalized.split(' ');
-}
-
-function shingles(tokens: string[], width: number): Set<string> {
-  const result = new Set<string>();
-  if (tokens.length < width) {
-    if (tokens.length > 0) result.add(tokens.join(' '));
-    return result;
-  }
-  for (let index = 0; index <= tokens.length - width; index += 1) {
-    result.add(tokens.slice(index, index + width).join(' '));
-  }
-  return result;
-}
-
-export function shingleJaccard(left: string, right: string, locale = 'en', width = 3): number {
-  const a = shingles(wordTokens(left, locale), width);
-  const b = shingles(wordTokens(right, locale), width);
-  if (a.size === 0 && b.size === 0) return 1;
-  let intersection = 0;
-  for (const value of a) if (b.has(value)) intersection += 1;
-  const union = a.size + b.size - intersection;
-  return union === 0 ? 0 : intersection / union;
 }
 
 function percentile95(values: number[]): number {

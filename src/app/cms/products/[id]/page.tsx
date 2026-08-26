@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { ArrowLeft, Plus, X, Upload, Star, ArrowLeftCircle, ArrowRightCircle } from 'lucide-react';
+import { ArrowLeft, Plus, X, Upload, Star, ArrowLeftCircle, ArrowRightCircle, AlertTriangle, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
 import { getUploadUrl, slugify } from '@/lib/utils';
 import { useT } from '../../_lib/i18n';
@@ -11,6 +11,15 @@ import RichTextEditor from '../../_components/RichTextEditor';
 interface Category { id: number; name: string; }
 interface Spec { key: string; value: string; locale: string; }
 interface ProductImage { imageUrl: string; isPrimary: boolean; }
+interface SimMatch {
+  product: { id: number; name: string; slug: string; modelNumber: string | null; isActive: boolean };
+  nameScore: number;
+  shortScore: number;
+  fullScore: number;
+  overall: number;
+}
+
+const SIM_WARN_THRESHOLD = 0.35;
 
 export default function ProductEditPage() {
   const { t } = useT();
@@ -37,6 +46,12 @@ export default function ProductEditPage() {
   const [specs, setSpecs] = useState<Spec[]>([]);
   const [images, setImages] = useState<ProductImage[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [checkingSim, setCheckingSim] = useState(false);
+  const [simMatches, setSimMatches] = useState<SimMatch[] | null>(null);
+  // On-page similarity panel: null = not checked yet.
+  const [panelMatches, setPanelMatches] = useState<SimMatch[] | null>(null);
+  const [panelLoading, setPanelLoading] = useState(false);
+  const [panelError, setPanelError] = useState(false);
 
   useEffect(() => {
     fetch('/api/categories?locale=en').then((r) => r.json()).then(setCategories).catch(() => {});
@@ -63,10 +78,49 @@ export default function ProductEditPage() {
             loadedImages[0].isPrimary = true;
           }
           setImages(loadedImages);
+
+          // Show similar products right away when opening an existing product.
+          runPanelCheck({
+            name: enTrans?.name || '',
+            shortDescription: enTrans?.shortDescription || '',
+            fullDescription: enTrans?.fullDescription || '',
+          });
         })
         .finally(() => setLoading(false));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, isNew]);
+
+  async function fetchSimilarity(draft: { name: string; shortDescription: string; fullDescription: string }): Promise<SimMatch[] | null> {
+    try {
+      const res = await fetch('/api/products/similarity', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          productId: isNew ? undefined : parseInt(id),
+          locale: 'en',
+          ...draft,
+        }),
+      });
+      if (!res.ok) return null;
+      const data = await res.json() as { matches?: SimMatch[] };
+      return data.matches || [];
+    } catch {
+      return null;
+    }
+  }
+
+  async function runPanelCheck(draft?: { name: string; shortDescription: string; fullDescription: string }) {
+    setPanelLoading(true);
+    const matches = await fetchSimilarity(draft ?? {
+      name: form.name,
+      shortDescription: form.shortDescription,
+      fullDescription: form.fullDescription,
+    });
+    setPanelError(matches === null);
+    setPanelMatches(matches);
+    setPanelLoading(false);
+  }
 
   async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const files = e.target.files;
@@ -118,6 +172,32 @@ export default function ProductEditPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+
+    // Advisory duplicate-content check before saving; API errors never block the save.
+    setCheckingSim(true);
+    const matches = await fetchSimilarity({
+      name: form.name,
+      shortDescription: form.shortDescription,
+      fullDescription: form.fullDescription,
+    });
+    setCheckingSim(false);
+
+    if (matches) {
+      // Keep the on-page panel in sync with the latest check.
+      setPanelError(false);
+      setPanelMatches(matches);
+      const warnings = matches.filter((m) => m.overall >= SIM_WARN_THRESHOLD);
+      if (warnings.length > 0) {
+        setSimMatches(warnings);
+        return;
+      }
+    }
+
+    setSimMatches(null);
+    await save();
+  }
+
+  async function save() {
     setSaving(true);
 
     const payload = {
@@ -154,6 +234,41 @@ export default function ProductEditPage() {
       router.push('/cms/products');
     }
     setSaving(false);
+  }
+
+  function matchRow(m: SimMatch) {
+    return (
+      <li key={m.product.id} className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+        <span
+          className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold ${
+            m.overall >= 0.55
+              ? 'bg-red-100 text-red-700'
+              : m.overall >= SIM_WARN_THRESHOLD
+                ? 'bg-amber-100 text-amber-700'
+                : 'bg-gray-100 text-gray-600'
+          }`}
+        >
+          {Math.round(m.overall * 100)}%
+        </span>
+        <Link
+          href={`/cms/products/${m.product.id}`}
+          target="_blank"
+          className="font-medium text-accent-navy hover:underline"
+        >
+          {m.product.name}
+        </Link>
+        {m.product.modelNumber && <span className="text-text-secondary">{m.product.modelNumber}</span>}
+        {!m.product.isActive && (
+          <span className="rounded bg-gray-100 px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-gray-500">
+            {t('prod.sim.inactive')}
+          </span>
+        )}
+        <span className="text-xs text-text-secondary">
+          {t('prod.sim.col.name')} {Math.round(m.nameScore * 100)}% · {t('prod.sim.col.short')}{' '}
+          {Math.round(m.shortScore * 100)}% · {t('prod.sim.col.full')} {Math.round(m.fullScore * 100)}%
+        </span>
+      </li>
+    );
   }
 
   if (loading) return <div className="text-text-secondary">{t('common.loading')}</div>;
@@ -219,6 +334,31 @@ export default function ProductEditPage() {
             <label className="block text-sm font-medium mb-1.5">{t('pe.tags')}</label>
             <input type="text" value={form.tags} onChange={(e) => setForm({ ...form, tags: e.target.value })} className="input-field" placeholder={t('pe.tagsPlaceholder')} />
           </div>
+        </div>
+
+        {/* Similarity check */}
+        <div className="cms-card">
+          <div className="flex items-center justify-between mb-1">
+            <h2 className="text-lg font-semibold">{t('prod.sim.check')}</h2>
+            <button
+              type="button"
+              onClick={() => runPanelCheck()}
+              disabled={panelLoading}
+              className="text-sm text-accent-navy hover:underline flex items-center gap-1 disabled:opacity-50"
+            >
+              <RefreshCw size={14} className={panelLoading ? 'animate-spin' : ''} /> {t('prod.sim.checkNow')}
+            </button>
+          </div>
+          <p className="text-xs text-text-secondary mb-4">{t('prod.sim.panelHint')}</p>
+          {panelLoading ? (
+            <p className="text-sm text-text-secondary">{t('prod.sim.checking')}</p>
+          ) : panelError ? (
+            <p className="text-sm text-red-600">{t('prod.sim.error')}</p>
+          ) : panelMatches === null ? null : panelMatches.length === 0 ? (
+            <p className="text-sm text-text-secondary">{t('prod.sim.noMatches')}</p>
+          ) : (
+            <ul className="space-y-2">{panelMatches.map(matchRow)}</ul>
+          )}
         </div>
 
         {/* Specifications */}
@@ -314,9 +454,32 @@ export default function ProductEditPage() {
           {uploading && <p className="text-xs text-text-secondary">{t('pe.uploading')}</p>}
         </div>
 
+        {simMatches && simMatches.length > 0 && (
+          <div role="alert" className="rounded border border-amber-300 bg-amber-50 p-4">
+            <p className="flex items-center gap-2 font-semibold text-amber-800 mb-1">
+              <AlertTriangle size={18} /> {t('prod.sim.warnTitle')}
+            </p>
+            <p className="text-sm text-amber-700 mb-3">{t('prod.sim.warnBody')}</p>
+            <ul className="space-y-2 mb-4">{simMatches.map(matchRow)}</ul>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                disabled={saving}
+                onClick={() => { setSimMatches(null); save(); }}
+                className="btn-primary"
+              >
+                {saving ? t('pe.creating') : t('prod.sim.saveAnyway')}
+              </button>
+              <button type="button" onClick={() => setSimMatches(null)} className="btn-outline">
+                {t('common.cancel')}
+              </button>
+            </div>
+          </div>
+        )}
+
         <div className="flex gap-2">
-          <button type="submit" disabled={saving} className="btn-primary">
-            {saving ? t('pe.creating') : isNew ? t('pe.create') : t('pe.updateBtn')}
+          <button type="submit" disabled={saving || checkingSim} className="btn-primary">
+            {checkingSim ? t('prod.sim.checking') : saving ? t('pe.creating') : isNew ? t('pe.create') : t('pe.updateBtn')}
           </button>
           <Link href="/cms/products" className="btn-outline">{t('common.cancel')}</Link>
         </div>
