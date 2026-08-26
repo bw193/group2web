@@ -19,6 +19,12 @@ interface ProductRef {
   isActive: boolean;
 }
 
+interface SeoRisk {
+  level: 'duplicate' | 'high' | 'moderate' | 'none';
+  titleRisk: boolean;
+  metaRisk: boolean;
+}
+
 interface SimilarPair {
   a: ProductRef;
   b: ProductRef;
@@ -26,6 +32,7 @@ interface SimilarPair {
   shortScore: number;
   fullScore: number;
   overall: number;
+  risk: SeoRisk;
 }
 
 interface Report {
@@ -43,7 +50,7 @@ export default function ProductSimilarityPage() {
   const { t } = useT();
   const [locale, setLocale] = useState<string>('en');
   const [threshold, setThreshold] = useState<string>('0.35');
-  const [sort, setSort] = useState<SortKey>('overall');
+  const [sort, setSort] = useState<SortKey>('full');
   const [status, setStatus] = useState<StatusFilter>('all');
   const [report, setReport] = useState<Report | null>(null);
   const [loading, setLoading] = useState(true);
@@ -92,25 +99,38 @@ export default function ProductSimilarityPage() {
     );
   }
 
-  function overallBadge(overall: number) {
-    if (overall >= 0.55) {
-      return (
-        <span className="inline-flex items-center gap-1 rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-semibold text-red-700">
-          {percent(overall)} {t('prod.sim.high')}
-        </span>
-      );
-    }
-    if (overall >= 0.35) {
-      return (
-        <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-700">
-          {percent(overall)} {t('prod.sim.medium')}
-        </span>
-      );
-    }
+  function riskBadge(risk: SeoRisk) {
+    const levelStyles: Record<SeoRisk['level'], string> = {
+      duplicate: 'bg-red-100 text-red-700',
+      high: 'bg-orange-100 text-orange-700',
+      moderate: 'bg-amber-100 text-amber-700',
+      none: 'bg-gray-100 text-gray-500',
+    };
     return (
-      <span className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-semibold text-gray-600">
-        {percent(overall)}
-      </span>
+      <div className="flex flex-wrap items-center gap-1">
+        <span
+          title={t(`prod.sim.risk.${risk.level}.tip`)}
+          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${levelStyles[risk.level]}`}
+        >
+          {t(`prod.sim.risk.${risk.level}`)}
+        </span>
+        {risk.titleRisk && (
+          <span
+            title={t('prod.sim.risk.title.tip')}
+            className="inline-flex items-center rounded-full bg-purple-100 px-2 py-0.5 text-[10px] font-semibold text-purple-700"
+          >
+            {t('prod.sim.risk.titleTag')}
+          </span>
+        )}
+        {risk.metaRisk && (
+          <span
+            title={t('prod.sim.risk.meta.tip')}
+            className="inline-flex items-center rounded-full bg-sky-100 px-2 py-0.5 text-[10px] font-semibold text-sky-700"
+          >
+            {t('prod.sim.risk.metaTag')}
+          </span>
+        )}
+      </div>
     );
   }
 
@@ -205,6 +225,7 @@ export default function ProductSimilarityPage() {
                 {sortableHeader('short', t('prod.sim.col.short'))}
                 {sortableHeader('full', t('prod.sim.col.full'))}
                 {sortableHeader('overall', t('prod.sim.col.overall'))}
+                <th className="text-left py-3">{t('prod.sim.col.risk')}</th>
               </tr>
             </thead>
             <tbody>
@@ -215,7 +236,8 @@ export default function ProductSimilarityPage() {
                   <td className="py-3 pr-4 tabular-nums">{percent(pair.nameScore)}</td>
                   <td className="py-3 pr-4 tabular-nums">{percent(pair.shortScore)}</td>
                   <td className="py-3 pr-4 tabular-nums">{percent(pair.fullScore)}</td>
-                  <td className="py-3">{overallBadge(pair.overall)}</td>
+                  <td className="py-3 pr-4 tabular-nums">{percent(pair.overall)}</td>
+                  <td className="py-3">{riskBadge(pair.risk)}</td>
                 </tr>
               ))}
             </tbody>

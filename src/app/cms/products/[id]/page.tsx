@@ -11,15 +11,25 @@ import RichTextEditor from '../../_components/RichTextEditor';
 interface Category { id: number; name: string; }
 interface Spec { key: string; value: string; locale: string; }
 interface ProductImage { imageUrl: string; isPrimary: boolean; }
+interface SeoRisk {
+  level: 'duplicate' | 'high' | 'moderate' | 'none';
+  titleRisk: boolean;
+  metaRisk: boolean;
+}
+
 interface SimMatch {
   product: { id: number; name: string; slug: string; modelNumber: string | null; isActive: boolean };
   nameScore: number;
   shortScore: number;
   fullScore: number;
   overall: number;
+  risk: SeoRisk;
 }
 
-const SIM_WARN_THRESHOLD = 0.35;
+/** Pause the save only for pairs Google would care about: duplicated content or near-identical titles. */
+function isSeoWarning(m: SimMatch): boolean {
+  return m.risk.level !== 'none' || m.risk.titleRisk;
+}
 
 export default function ProductEditPage() {
   const { t } = useT();
@@ -186,7 +196,7 @@ export default function ProductEditPage() {
       // Keep the on-page panel in sync with the latest check.
       setPanelError(false);
       setPanelMatches(matches);
-      const warnings = matches.filter((m) => m.overall >= SIM_WARN_THRESHOLD);
+      const warnings = matches.filter(isSeoWarning);
       if (warnings.length > 0) {
         setSimMatches(warnings);
         return;
@@ -237,19 +247,36 @@ export default function ProductEditPage() {
   }
 
   function matchRow(m: SimMatch) {
+    const levelStyles: Record<SeoRisk['level'], string> = {
+      duplicate: 'bg-red-100 text-red-700',
+      high: 'bg-orange-100 text-orange-700',
+      moderate: 'bg-amber-100 text-amber-700',
+      none: 'bg-gray-100 text-gray-500',
+    };
     return (
       <li key={m.product.id} className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
         <span
-          className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold ${
-            m.overall >= 0.55
-              ? 'bg-red-100 text-red-700'
-              : m.overall >= SIM_WARN_THRESHOLD
-                ? 'bg-amber-100 text-amber-700'
-                : 'bg-gray-100 text-gray-600'
-          }`}
+          title={t(`prod.sim.risk.${m.risk.level}.tip`)}
+          className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold ${levelStyles[m.risk.level]}`}
         >
-          {Math.round(m.overall * 100)}%
+          {t(`prod.sim.risk.${m.risk.level}`)}
         </span>
+        {m.risk.titleRisk && (
+          <span
+            title={t('prod.sim.risk.title.tip')}
+            className="inline-flex items-center rounded-full bg-purple-100 px-2 py-0.5 text-[10px] font-semibold text-purple-700"
+          >
+            {t('prod.sim.risk.titleTag')}
+          </span>
+        )}
+        {m.risk.metaRisk && (
+          <span
+            title={t('prod.sim.risk.meta.tip')}
+            className="inline-flex items-center rounded-full bg-sky-100 px-2 py-0.5 text-[10px] font-semibold text-sky-700"
+          >
+            {t('prod.sim.risk.metaTag')}
+          </span>
+        )}
         <Link
           href={`/cms/products/${m.product.id}`}
           target="_blank"

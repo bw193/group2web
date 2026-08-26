@@ -100,3 +100,40 @@ export function compareProductTexts(a: PreparedProductText, b: PreparedProductTe
   const fullScore = jaccardOfSets(a.full, b.full);
   return { nameScore, shortScore, fullScore, overall: Math.max(nameScore, shortScore, fullScore) };
 }
+
+// ---------------------------------------------------------------------------
+// Google-aligned SEO risk grading
+// ---------------------------------------------------------------------------
+
+export type SeoRiskLevel = 'duplicate' | 'high' | 'moderate' | 'none';
+
+export type SeoRisk = {
+  /** Main-content (full description) duplication level, meta overlap can lift it to moderate. */
+  level: SeoRiskLevel;
+  /** Near-identical product names: Google expects a unique, descriptive title per page. */
+  titleRisk: boolean;
+  /** Near-identical short descriptions, the meta-description source for product pages. */
+  metaRisk: boolean;
+};
+
+/**
+ * Grades a product pair against Google's duplicate-content guidance
+ * (developers.google.com/search/docs/crawling-indexing/consolidate-duplicate-urls):
+ * Google does not penalize duplicates, it canonicalizes - of near-identical
+ * pages only one is indexed and the rest are filtered from results - and every
+ * page should carry a unique title and meta description. The numeric cut-offs
+ * are internal shingle-Jaccard heuristics; 0.55/0.35 match the offline
+ * copy-quality gates in scripts/product-copy-batch-lib.ts.
+ */
+export function assessSeoRisk(scores: ProductSimilarityScores): SeoRisk {
+  const level: SeoRiskLevel =
+    scores.fullScore >= 0.85 ? 'duplicate'
+    : scores.fullScore >= 0.55 ? 'high'
+    : scores.fullScore >= 0.35 || scores.shortScore >= 0.7 ? 'moderate'
+    : 'none';
+  return {
+    level,
+    titleRisk: scores.nameScore >= 0.9,
+    metaRisk: scores.shortScore >= 0.7,
+  };
+}

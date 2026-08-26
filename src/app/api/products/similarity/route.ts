@@ -4,10 +4,12 @@ import { products, productTranslations } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { getSession } from '@/lib/auth';
 import {
+  assessSeoRisk,
   compareProductTexts,
   prepareProductText,
   type PreparedProductText,
   type ProductSimilarityScores,
+  type SeoRisk,
 } from '@/lib/similarity';
 
 const DEFAULT_REPORT_THRESHOLD = 0.35;
@@ -98,8 +100,9 @@ export async function GET(request: NextRequest) {
   const threshold = Number.isFinite(thresholdParam)
     ? Math.min(Math.max(thresholdParam, 0.05), 1)
     : DEFAULT_REPORT_THRESHOLD;
-  const sortParam = searchParams.get('sort') || 'overall';
-  const sortKey = SORT_KEYS[sortParam as keyof typeof SORT_KEYS] ?? 'overall';
+  // Default to full-description similarity: the primary duplicate-content signal.
+  const sortParam = searchParams.get('sort') || 'full';
+  const sortKey = SORT_KEYS[sortParam as keyof typeof SORT_KEYS] ?? 'fullScore';
   const statusParam = searchParams.get('status');
   const status = statusParam === 'active' || statusParam === 'inactive' ? statusParam : 'all';
 
@@ -111,21 +114,30 @@ export async function GET(request: NextRequest) {
     const pairs: Array<ProductSimilarityScores & {
       a: ReturnType<typeof productSummary>;
       b: ReturnType<typeof productSummary>;
+      risk: SeoRisk;
     }> = [];
     for (let i = 0; i < catalog.length; i += 1) {
       for (let j = i + 1; j < catalog.length; j += 1) {
         const scores = compareProductTexts(catalog[i].prepared, catalog[j].prepared);
-        if (scores.overall < threshold) continue;
-        pairs.push({ a: productSummary(catalog[i]), b: productSummary(catalog[j]), ...roundScores(scores) });
+        // Threshold applies to the sorted column, so each view only surfaces
+        // pairs that actually overlap on that field (product names naturally
+        // share family terms and would otherwise drown out content duplicates).
+        if (scores[sortKey] < threshold) continue;
+        pairs.push({
+          a: productSummary(catalog[i]),
+          b: productSummary(catalog[j]),
+          ...roundScores(scores),
+          risk: assessSeoRisk(scores),
+        });
       }
     }
     // Sort before truncating so the top pairs are accurate for the chosen column.
-    pairs.sort((x, y) => y[sortKey] - x[sortKey]);
+    pairs.sort((x, y) => (y[sortKey] - x[sortKey]) || (y.overall - x.overall));
 
     return NextResponse.json({
       locale,
       threshold,
-      sort: sortParam in SORT_KEYS ? sortParam : 'overall',
+      sort: sortParam in SORT_KEYS ? sortParam : 'full',
       status,
       scannedCount: catalog.length,
       pairCount: pairs.length,
@@ -168,12 +180,15 @@ export async function POST(request: NextRequest) {
     const prepared = prepareProductText(draft, locale);
     const catalog = await loadCatalog(locale);
 
-    const matches: Array<ProductSimilarityScores & { product: ReturnType<typeof productSummary> }> = [];
+    const matches: Array<ProductSimilarityScores & {
+      product: ReturnType<typeof productSummary>;
+      risk: SeoRisk;
+    }> = [];
     for (const entry of catalog) {
       if (excludeId !== null && entry.id === excludeId) continue;
       const scores = compareProductTexts(prepared, entry.prepared);
       if (scores.overall < DRAFT_MATCH_THRESHOLD) continue;
-      matches.push({ product: productSummary(entry), ...roundScores(scores) });
+      matches.push({ product: productSummary(entry), ...roundScores(scores), risk: assessSeoRisk(scores) });
     }
     matches.sort((x, y) => y.overall - x.overall);
 
