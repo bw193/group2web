@@ -95,10 +95,10 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
     getAboutVideo(locale),
   ]);
 
-  // The lead photo anchors the masthead; the gallery shows the rest so no
-  // image appears twice on the page.
+  // The lead photo anchors the masthead, while the gallery mirrors the full
+  // CMS album so its published photo count stays intact.
   const mastheadPhoto = factoryPhotos[0];
-  const galleryPhotos = factoryPhotos.length > 1 ? factoryPhotos.slice(1) : [];
+  const galleryPhotos = factoryPhotos;
 
   const stats = [
     { raw: about?.factorySize || '50,000', unit: t('unitSqm'), label: t('facilitySize') },
@@ -108,16 +108,12 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
   ];
 
   const factFile = [
-    { label: t('factFoundedLabel'), value: t('factFoundedValue') },
-    { label: t('factLogisticsLabel'), value: t('factLogisticsValue') },
-    { label: t('factServicesLabel'), value: t('factServicesValue') },
-    { label: t('factCatalogLabel'), value: t('factCatalogValue') },
-    { label: t('factMarketsLabel'), value: t('factMarketsValue') },
-    { label: t('factRdLabel'), value: t('factRdValue') },
+    { label: t('factCertificationsLabel'), value: t('factCertificationsValue') },
+    { label: t('factCustomizationLabel'), value: t('factCustomizationValue') },
+    { label: t('factDeliveryLabel'), value: t('factDeliveryValue') },
+    { label: t('factPortfolioLabel'), value: t('factPortfolioValue') },
     { label: t('factWarrantyLabel'), value: t('factWarrantyValue') },
   ];
-
-  const tickerItems = factFile.map(({ label, value }) => `${label} — ${value}`);
 
   const filmPoints = [t('filmPoint1'), t('filmPoint2'), t('filmPoint3'), t('filmPoint4')];
 
@@ -317,28 +313,6 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
           </div>
         </div>
       </section>
-
-      {/* Rolling fact ticker — a quiet band of motion between the masthead and
-          the film. Purely decorative; every fact also appears in the fact file. */}
-      <div className="overflow-hidden border-b border-warm-border bg-cream" aria-hidden>
-        <div className="marquee-viewport py-4 md:py-[18px]">
-          <div className="marquee-track">
-            {[0, 1].map((half) => (
-              <div key={half} className="flex shrink-0 items-center">
-                {[...tickerItems, ...tickerItems].map((item, i) => (
-                  <span
-                    key={`${half}-${i}`}
-                    className="flex items-center font-body text-[12px] font-semibold uppercase tracking-[0.22em] text-ink-mid"
-                  >
-                    <span className="whitespace-nowrap px-8 md:px-10">{item}</span>
-                    <span className="h-1 w-1 rounded-full bg-bronze/70" />
-                  </span>
-                ))}
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
 
       {/* Factory film — the page's single dark band, so the selected video
           reads as the centrepiece. Nothing loads from the video host until the
