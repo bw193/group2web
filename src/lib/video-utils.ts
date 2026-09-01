@@ -446,3 +446,40 @@ export function videoExcerpt(html: string | null | undefined, max = 300): string
     .trim()
     .slice(0, max);
 }
+
+export interface VideoDescriptionSplit {
+  intro: string;
+  rest: string[];
+}
+
+/**
+ * Split plain-text video copy into a short standfirst for the detail-page
+ * header sidebar plus overflow paragraphs for the "About this video" section.
+ * CMS videos often carry the whole description in `excerpt` with no `body`,
+ * and rendered untrimmed it becomes a wall of small text beside the title.
+ * The standfirst is at most the first paragraph; a first paragraph that is
+ * itself too long gets trimmed at a sentence boundary so neither half reads
+ * chopped. Copy with no usable break moves below in full (an empty standfirst
+ * beats a mid-sentence one).
+ */
+export function splitVideoDescription(text: string | null | undefined, max = 320): VideoDescriptionSplit {
+  const raw = (text || '').trim();
+  const collapse = (value: string) => value.replace(/\s+/g, ' ').trim();
+  const toParagraphs = (value: string) => value.split(/\n{2,}/).map(collapse).filter(Boolean);
+  if (!raw) return { intro: '', rest: [] };
+  if (collapse(raw).length <= max) return { intro: collapse(raw), rest: [] };
+
+  const firstBreak = raw.search(/\n{2,}/);
+  if (firstBreak !== -1 && firstBreak <= max) {
+    return { intro: collapse(raw.slice(0, firstBreak)), rest: toParagraphs(raw.slice(firstBreak)) };
+  }
+
+  const sentenceEnd = /[.!?…](?=\s)|[。！？]/g;
+  let cut = -1;
+  for (let match = sentenceEnd.exec(raw); match; match = sentenceEnd.exec(raw)) {
+    if (match.index >= max) break;
+    cut = match.index + 1;
+  }
+  if (cut === -1) return { intro: '', rest: toParagraphs(raw) };
+  return { intro: collapse(raw.slice(0, cut)), rest: toParagraphs(raw.slice(cut)) };
+}

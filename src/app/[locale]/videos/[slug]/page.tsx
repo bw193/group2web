@@ -20,7 +20,7 @@ import { isIndexableLocalePath, robotsForPublicPage } from '@/lib/indexing';
 import { getUploadUrl } from '@/lib/utils';
 import { getVideoDetailData, getVideoStaticParams } from '@/lib/videos';
 import { buildVideoObjectSchema } from '@/lib/video-schema';
-import { formatVideoDate, formatVideoDuration, videoExcerpt } from '@/lib/video-utils';
+import { formatVideoDate, formatVideoDuration, splitVideoDescription, videoExcerpt } from '@/lib/video-utils';
 
 export const revalidate = 600;
 
@@ -91,11 +91,16 @@ export default async function VideoDetailPage({
 
   const { video, relatedProducts, relatedVideos } = detail;
   const videoUrl = localizedUrl(locale, `/videos/${video.slug}`);
-  const description = video.excerpt || videoExcerpt(video.body, 500);
+  const { intro: description, rest: descriptionOverflow } = splitVideoDescription(
+    video.excerpt || videoExcerpt(video.body, 500),
+  );
   const categoryLabel = video.category || t('videoFallback');
   const duration = formatVideoDuration(video.durationSeconds);
   const dateLabel = formatVideoDate(video.publishedAt, locale);
   const hasBody = videoExcerpt(video.body, 1).length > 0;
+  // The CMS body owns the long-form copy when present; otherwise excerpt
+  // overflow renders in the "About this video" section so nothing is lost.
+  const aboutParagraphs = hasBody ? [] : descriptionOverflow;
   const videoLd = buildVideoObjectSchema(
     { ...video, thumbnailUrl: video.thumbnailUrl ? getUploadUrl(video.thumbnailUrl) : video.thumbnailUrl },
     locale,
@@ -205,14 +210,22 @@ export default async function VideoDetailPage({
           </div>
         </header>
 
-        {hasBody && (
+        {(hasBody || aboutParagraphs.length > 0) && (
           <div className="container-narrow pb-16 md:pb-20">
             <div className="border-t border-warm-border pt-10 md:pt-12">
               <p className="kicker-plain mx-auto mb-8 max-w-[66ch]">{t('aboutVideo')}</p>
-              <div
-                className="article-prose"
-                dangerouslySetInnerHTML={{ __html: video.body }}
-              />
+              {hasBody ? (
+                <div
+                  className="article-prose"
+                  dangerouslySetInnerHTML={{ __html: video.body }}
+                />
+              ) : (
+                <div className="article-prose">
+                  {aboutParagraphs.map((paragraph, index) => (
+                    <p key={index}>{paragraph}</p>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         )}
