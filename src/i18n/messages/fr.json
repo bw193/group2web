@@ -58,7 +58,7 @@
     "statsLabel4": "Années de savoir-faire",
     "whyEyebrow": "Pourquoi Chengtai",
     "whyHeading": "Conçus pour être le fournisseur que l'on garde",
-    "whyPoint1": "Garantie de 2 ans de série — couverture prolongée pour les partenaires de longue durée",
+    "whyPoint1": "Garantie étendue de 3 ans — couverture prolongée pour les partenaires de longue durée",
     "whyPoint2": "R&D interne avec plus de 70 brevets, fabriqué selon votre cahier des charges",
     "whyPoint3": "Notre propre usine de 50 000 m² — une qualité maîtrisée de bout en bout",
     "whyCta": "Pourquoi nous choisir",
@@ -102,7 +102,7 @@
     "modelNumber": "N° de Modèle",
     "viewAll": "Voir Tous les Produits",
     "introText": "Miroirs conçus pour salles de bain, hôtellerie, retail et projets résidentiels — découvrez la collection complète.",
-    "proofPoint1": "Garantie standard de 2 ans, avec couverture prolongée pour les partenaires de longue durée",
+    "proofPoint1": "Garantie étendue de 3 ans, avec couverture prolongée pour les partenaires de longue durée",
     "proofPoint2": "Équipe R&D interne avec plus de 70 brevets, conçue selon votre cahier des charges exact",
     "proofPoint3": "Usine propre de 50 000 m², avec une qualité contrôlée du verre à l'emballage final",
     "placeholderImageAlt": "Miroir Premium",
@@ -146,7 +146,7 @@
     "factPortfolioLabel": "Portefeuille de produits",
     "factPortfolioValue": "100 000+ références · soutenues par 70+ brevets",
     "factWarrantyLabel": "Garantie",
-    "factWarrantyValue": "Garantie standard de 2 ans",
+    "factWarrantyValue": "Garantie étendue de 3 ans",
     "qaKicker": "Questions & Réponses",
     "qaHeading": "Les questions que posent les acheteurs",
     "qaBody": "Les détails pratiques d'une première commande — échantillons, délais, MOQ, personnalisation de marque et garantie. Si la vôtre n'y figure pas, notre équipe export répond sous un jour ouvré.",
@@ -218,7 +218,7 @@
     "copyright": "© 2025 Jiaxing Chengtai Mirror Co., Ltd. Tous droits réservés.",
     "tagline": "Façonner la lumière, reflétée",
     "sinceLabel": "Depuis",
-    "sinceBody": "Miroirs LED, armoires de toilette et miroirs sur pied issus de notre usine de 50 000 m² à Jiaxing — appuyés par plus de 70 brevets et une garantie standard de 2 ans.",
+    "sinceBody": "Miroirs LED, armoires de toilette et miroirs sur pied issus de notre usine de 50 000 m² à Jiaxing — appuyés par plus de 70 brevets et une garantie étendue de 3 ans.",
     "startInquiry": "Démarrer une demande",
     "followUs": "Suivez-nous"
   },
@@ -287,10 +287,10 @@
     "criteria": [
       {
         "label": "Garantie et service après-vente",
-        "us": "Garantie standard de 2 ans, 3 ans pour les grands comptes et couverture à vie pour les partenaires de longue durée.",
+        "us": "Garantie étendue de 3 ans et couverture à vie pour les partenaires de longue durée.",
         "them": "Garantie courte ou non garantie, souvent inexistante sur les commandes OEM/ODM.",
         "heading": "Une garantie qui grandit avec la relation",
-        "body": "Chaque commande est livrée avec une garantie de 2 ans de série. Les grands comptes passent à 3 ans et les partenaires de longue durée sont couverts pendant toute la durée du partenariat, car nous comptons travailler ensemble pendant des années, pas pour une seule expédition."
+        "body": "Chaque commande est livrée avec une garantie étendue de 3 ans. Les partenaires de longue durée sont couverts pendant toute la durée du partenariat, car nous comptons travailler ensemble pendant des années, pas pour une seule expédition."
       },
       {
         "label": "Conception et R&D",

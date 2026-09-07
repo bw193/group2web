@@ -58,7 +58,7 @@
     "statsLabel4": "Anni di mestiere",
     "whyEyebrow": "Perché Chengtai",
     "whyHeading": "Fatti per essere il fornitore che si conserva",
-    "whyPoint1": "Garanzia di 2 anni di serie — copertura più lunga per i partner di lungo periodo",
+    "whyPoint1": "Garanzia estesa di 3 anni — copertura più lunga per i partner di lungo periodo",
     "whyPoint2": "R&S interna con oltre 70 brevetti, realizzato secondo le tue specifiche",
     "whyPoint3": "Stabilimento di proprietà di 50.000 m² — qualità controllata dall'inizio alla fine",
     "whyCta": "Perché sceglierci",
@@ -102,7 +102,7 @@
     "modelNumber": "N. Modello",
     "viewAll": "Vedi Tutti i Prodotti",
     "introText": "Specchi progettati per bagni, hospitality, retail e progetti residenziali — esplora la collezione completa.",
-    "proofPoint1": "Garanzia standard di 2 anni, con copertura estesa per i partner di lungo periodo",
+    "proofPoint1": "Garanzia estesa di 3 anni, con copertura estesa per i partner di lungo periodo",
     "proofPoint2": "Team interno di R&S con oltre 70 brevetti, progettato secondo le tue specifiche esatte",
     "proofPoint3": "Stabilimento di proprietà di 50.000 m², con qualità controllata dal vetro all'imballaggio finale",
     "placeholderImageAlt": "Specchio Premium",
@@ -146,7 +146,7 @@
     "factPortfolioLabel": "Portafoglio prodotti",
     "factPortfolioValue": "100.000+ SKU · sostenuti da 70+ brevetti",
     "factWarrantyLabel": "Garanzia",
-    "factWarrantyValue": "Garanzia standard di 2 anni",
+    "factWarrantyValue": "Garanzia estesa di 3 anni",
     "qaKicker": "Domande e Risposte",
     "qaHeading": "Le domande che fanno i buyer",
     "qaBody": "I dettagli pratici di un primo ordine — campioni, tempi di consegna, MOQ, personalizzazione del marchio e garanzia. Se la tua non c'è, il nostro team export risponde entro un giorno lavorativo.",
@@ -218,7 +218,7 @@
     "copyright": "© 2025 Jiaxing Chengtai Mirror Co., Ltd. Tutti i diritti riservati.",
     "tagline": "Modellare la luce, riflessa",
     "sinceLabel": "Dal",
-    "sinceBody": "Specchi LED, specchi contenitore e specchi a figura intera dal nostro stabilimento di 50.000 mq a Jiaxing — supportati da oltre 70 brevetti e una garanzia standard di 2 anni.",
+    "sinceBody": "Specchi LED, specchi contenitore e specchi a figura intera dal nostro stabilimento di 50.000 mq a Jiaxing — supportati da oltre 70 brevetti e una garanzia estesa di 3 anni.",
     "startInquiry": "Avvia una richiesta",
     "followUs": "Seguici"
   },
@@ -287,10 +287,10 @@
     "criteria": [
       {
         "label": "Garanzia e assistenza",
-        "us": "Garanzia standard di 2 anni, 3 anni per i grandi clienti e copertura a vita per i partner di lungo periodo.",
+        "us": "Garanzia estesa di 3 anni e copertura a vita per i partner di lungo periodo.",
         "them": "Garanzia breve o non garantita, spesso assente sugli ordini OEM/ODM.",
         "heading": "Una garanzia che cresce con il rapporto",
-        "body": "Ogni ordine viene consegnato con una garanzia di 2 anni di serie. I grandi clienti passano a 3 anni e i partner di lungo periodo sono coperti per tutta la durata della collaborazione, perché contiamo di lavorare insieme per anni, non per una singola spedizione."
+        "body": "Ogni ordine viene consegnato con una garanzia estesa di 3 anni. I partner di lungo periodo sono coperti per tutta la durata della collaborazione, perché contiamo di lavorare insieme per anni, non per una singola spedizione."
       },
       {
         "label": "Progettazione e R&S",

@@ -17,7 +17,7 @@ const FALLBACK_FAQ: QA[] = [
   { q: 'Do you have an MOQ restriction?', a: 'Low MOQ — even a single piece is acceptable for sample checking.' },
   { q: 'Do you operate your own factory?', a: 'Yes. Fifteen years specializing in mirror manufacturing — LED, bathroom, dressing, and full mirror cabinets, all in-house.' },
   { q: 'Can we print our own logo on the products?', a: 'Yes. Confirm the design against our pre-production sample and let us know before production begins.' },
-  { q: 'Do you offer a warranty on the products?', a: 'Every product ships with a two-year warranty.' },
+  { q: 'Do you offer a warranty on the products?', a: 'Every product ships with a 3-Year Extended Warranty.' },
 ];
 
 const FALLBACK_FAQ_HE: QA[] = [
@@ -26,7 +26,7 @@ const FALLBACK_FAQ_HE: QA[] = [
   { q: 'האם יש מגבלת MOQ?', a: 'MOQ נמוך - גם יחידה אחת מתאימה לבדיקת דוגמה.' },
   { q: 'האם אתם מפעילים מפעל משלכם?', a: 'כן. אנו מתמחים בייצור מראות LED, מוצרי אמבטיה, פריטי הלבשה וארונות מראה - הכול בתוך המפעל.' },
   { q: 'האם אפשר להדפיס את הלוגו שלנו על המוצרים?', a: 'כן. אשרו את העיצוב מול דוגמת טרום הייצור ועדכנו אותנו לפני תחילת הייצור.' },
-  { q: 'האם אתם מציעים אחריות על המוצרים?', a: 'כל מוצר נשלח עם אחריות לשנתיים.' },
+  { q: 'האם אתם מציעים אחריות על המוצרים?', a: 'כל מוצר נשלח עם אחריות מורחבת ל-3 שנים.' },
 ];
 
 interface Props {

@@ -58,7 +58,7 @@
     "statsLabel4": "Años de oficio",
     "whyEyebrow": "Por qué Chengtai",
     "whyHeading": "Hechos para ser el proveedor que se conserva",
-    "whyPoint1": "Garantía de 2 años de serie — cobertura más larga para socios a largo plazo",
+    "whyPoint1": "Garantía ampliada de 3 años — cobertura más larga para socios a largo plazo",
     "whyPoint2": "I+D propio con más de 70 patentes, fabricado según su especificación",
     "whyPoint3": "Fábrica propia de 50.000 m² — calidad que controlamos de principio a fin",
     "whyCta": "Por qué elegirnos",
@@ -102,7 +102,7 @@
     "modelNumber": "Nº de Modelo",
     "viewAll": "Ver Todos los Productos",
     "introText": "Espejos diseñados para baños, hostelería, retail y proyectos residenciales — explore la colección completa.",
-    "proofPoint1": "Garantía estándar de 2 años, con cobertura más amplia para socios a largo plazo",
+    "proofPoint1": "Garantía ampliada de 3 años, con cobertura más amplia para socios a largo plazo",
     "proofPoint2": "Equipo interno de I+D con más de 70 patentes, diseñado según su especificación exacta",
     "proofPoint3": "Fábrica propia de 50.000 m², con calidad controlada desde el vidrio hasta el embalaje final",
     "placeholderImageAlt": "Espejo Premium",
@@ -146,7 +146,7 @@
     "factPortfolioLabel": "Portafolio de productos",
     "factPortfolioValue": "100.000+ SKUs · respaldados por 70+ patentes",
     "factWarrantyLabel": "Garantía",
-    "factWarrantyValue": "Garantía estándar de 2 años",
+    "factWarrantyValue": "Garantía ampliada de 3 años",
     "qaKicker": "Preguntas y Respuestas",
     "qaHeading": "Las preguntas que hacen los compradores",
     "qaBody": "Los detalles prácticos de un primer pedido — muestras, plazos, MOQ, personalización de marca y garantía. Si la suya no está aquí, nuestro equipo de exportación responde en un día hábil.",
@@ -218,7 +218,7 @@
     "copyright": "© 2025 Jiaxing Chengtai Mirror Co., Ltd. Todos los derechos reservados.",
     "tagline": "Modelando la luz, reflejada",
     "sinceLabel": "Desde",
-    "sinceBody": "Espejos LED, armarios con espejo y espejos de cuerpo entero desde nuestra fábrica de 50.000 m² en Jiaxing — respaldados por más de 70 patentes y una garantía estándar de 2 años.",
+    "sinceBody": "Espejos LED, armarios con espejo y espejos de cuerpo entero desde nuestra fábrica de 50.000 m² en Jiaxing — respaldados por más de 70 patentes y una garantía ampliada de 3 años.",
     "startInquiry": "Iniciar una consulta",
     "followUs": "Síguenos"
   },
@@ -287,10 +287,10 @@
     "criteria": [
       {
         "label": "Garantía y posventa",
-        "us": "Garantía estándar de 2 años, 3 años para grandes clientes y cobertura de por vida para socios a largo plazo.",
+        "us": "Garantía ampliada de 3 años y cobertura de por vida para socios a largo plazo.",
         "them": "Garantía corta o no garantizada, a menudo inexistente en pedidos OEM/ODM.",
         "heading": "Una garantía que crece con la relación",
-        "body": "Cada pedido se entrega con una garantía de 2 años de serie. Los grandes clientes pasan a 3 años y los socios a largo plazo quedan cubiertos durante toda la relación, porque esperamos trabajar juntos durante años, no en un solo envío."
+        "body": "Cada pedido se entrega con una garantía ampliada de 3 años. Los socios a largo plazo quedan cubiertos durante toda la relación, porque esperamos trabajar juntos durante años, no en un solo envío."
       },
       {
         "label": "Diseño e I+D",

@@ -58,7 +58,7 @@
     "statsLabel4": "Years of craft",
     "whyEyebrow": "Why Chengtai",
     "whyHeading": "Built to be the supplier you keep",
-    "whyPoint1": "2-year warranty as standard — longer cover for long-term partners",
+    "whyPoint1": "3-Year Extended Warranty — longer cover for long-term partners",
     "whyPoint2": "In-house R&D with 70+ patents, built to your specification",
     "whyPoint3": "Our own 50,000 m² factory — quality we control end to end",
     "whyCta": "Why choose us",
@@ -102,7 +102,7 @@
     "modelNumber": "Model No.",
     "viewAll": "View All Products",
     "introText": "Mirrors engineered for bathrooms, hotels, resorts, retail, and residential projects — browse the full collection.",
-    "proofPoint1": "2-year standard warranty, with longer coverage for long-term partners",
+    "proofPoint1": "3-Year Extended Warranty, with longer coverage for long-term partners",
     "proofPoint2": "In-house R&D team with 70+ patents, engineered to your exact specification",
     "proofPoint3": "50,000 m² owned factory, with quality controlled from glass to final packing",
     "placeholderImageAlt": "Premium Mirror",
@@ -146,7 +146,7 @@
     "factPortfolioLabel": "Product Portfolio",
     "factPortfolioValue": "100,000+ SKUs · backed by 70+ patents",
     "factWarrantyLabel": "Warranty",
-    "factWarrantyValue": "2-year standard warranty",
+    "factWarrantyValue": "3-Year Extended Warranty",
     "qaKicker": "Q&A",
     "qaHeading": "Questions buyers ask",
     "qaBody": "The practical details of a first order — samples, lead times, MOQ, branding, and warranty. If yours isn't covered here, our export team replies within one business day.",
@@ -218,7 +218,7 @@
     "copyright": "© 2025 Jiaxing Chengtai Mirror Co., Ltd. All rights reserved.",
     "tagline": "Crafting light, reflected",
     "sinceLabel": "Since",
-    "sinceBody": "LED mirrors, mirror cabinets, and full-length mirrors from our 50,000 m² Jiaxing factory — backed by 70+ patents and a 2-year standard warranty.",
+    "sinceBody": "LED mirrors, mirror cabinets, and full-length mirrors from our 50,000 m² Jiaxing factory — backed by 70+ patents and a 3-Year Extended Warranty.",
     "startInquiry": "Start an inquiry",
     "followUs": "Follow us"
   },
@@ -287,10 +287,10 @@
     "criteria": [
       {
         "label": "Warranty & after-sales",
-        "us": "2-year standard warranty, 3 years for large customers, and lifetime cover for long-term partners.",
+        "us": "3-Year Extended Warranty and lifetime cover for long-term partners.",
         "them": "Short or unguaranteed warranty — often none at all on OEM/ODM orders.",
         "heading": "A warranty that grows with the relationship",
-        "body": "Every order ships with a 2-year warranty as standard. Large customers move to 3 years, and long-term partners are covered for the lifetime of the partnership — because we expect to work together for years, not for a single shipment."
+        "body": "Every order ships with a 3-Year Extended Warranty. Long-term partners are covered for the lifetime of the partnership — because we expect to work together for years, not for a single shipment."
       },
       {
         "label": "Design & R&D",
