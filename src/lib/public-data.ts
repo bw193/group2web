@@ -1,6 +1,6 @@
 import 'server-only';
 
-import { and, desc, eq, inArray, ne } from 'drizzle-orm';
+import { and, desc, eq, inArray } from 'drizzle-orm';
 import { defaultLocale, locales } from '@/i18n/config';
 import { getDb } from '@/lib/db';
 import {
@@ -21,6 +21,7 @@ import {
   productTranslations,
 } from '@/lib/db/schema';
 import { localizedPath } from '@/lib/seo';
+import { RELATED_PRODUCT_COUNT, pickRelatedProducts } from '@/lib/related-products';
 import { getPublishedVideoListItems } from '@/lib/videos';
 import { getPublicDataSnapshot } from '@/lib/public-data-snapshot';
 import type {
@@ -638,11 +639,13 @@ export async function getProductDetailData(locale: string, slug: string): Promis
         ).find((c) => c.id === row.product.categoryId)?.name
       : null;
     const videoItems = await getPublishedVideoListItems(locale, 200);
-    const relatedRows = row.product.categoryId
-      ? snapshot.data.products
-          .filter((p) => p.categoryId === row.product.categoryId && p.id !== row.product.id && p.isActive)
-          .slice(0, 3)
-      : [];
+    const relatedRows = pickRelatedProducts(
+      row.product,
+      snapshot.data.products,
+      snapshot.data.productTranslations,
+      snapshot.data.productSpecifications,
+      { count: RELATED_PRODUCT_COUNT },
+    );
 
     return {
       type: 'ok',
@@ -733,12 +736,41 @@ export async function getProductDetailData(locale: string, slug: string): Promis
 
   let related: ProductCardData[] = [];
   if (product.categoryId) {
-    const relatedProducts = await db
+    // Similarity scoring needs the whole category, and the default-locale name,
+    // short description and specs of every product in it.
+    const categoryProducts = await db
       .select()
       .from(products)
-      .where(and(eq(products.categoryId, product.categoryId), ne(products.id, product.id), eq(products.isActive, true)))
-      .limit(3);
-    const relatedIds = relatedProducts.map((p) => p.id);
+      .where(and(eq(products.categoryId, product.categoryId), eq(products.isActive, true)));
+    const scoringIds = [...new Set([...categoryProducts.map((p) => p.id), product.id])];
+    const [scoringTrans, scoringSpecs] = await Promise.all([
+      db
+        .select({
+          productId: productTranslations.productId,
+          locale: productTranslations.locale,
+          name: productTranslations.name,
+          shortDescription: productTranslations.shortDescription,
+        })
+        .from(productTranslations)
+        .where(and(inArray(productTranslations.productId, scoringIds), eq(productTranslations.locale, defaultLocale))),
+      db
+        .select({
+          productId: productSpecifications.productId,
+          locale: productSpecifications.locale,
+          specKey: productSpecifications.specKey,
+          specValue: productSpecifications.specValue,
+        })
+        .from(productSpecifications)
+        .where(and(inArray(productSpecifications.productId, scoringIds), eq(productSpecifications.locale, defaultLocale))),
+    ]);
+    const relatedRows = pickRelatedProducts(
+      product,
+      categoryProducts,
+      scoringTrans,
+      scoringSpecs,
+      { count: RELATED_PRODUCT_COUNT },
+    );
+    const relatedIds = relatedRows.map((p) => p.id);
     if (relatedIds.length) {
       const [relTrans, relTransEn, relImages] = await Promise.all([
         db.select().from(productTranslations).where(and(inArray(productTranslations.productId, relatedIds), eq(productTranslations.locale, locale))),
@@ -747,7 +779,7 @@ export async function getProductDetailData(locale: string, slug: string): Promis
           : Promise.resolve([] as ProductTranslationRow[]),
         db.select().from(productImages).where(inArray(productImages.productId, relatedIds)),
       ]);
-      related = productCardsFromRows(relatedProducts, [...relTrans, ...relTransEn], relImages, locale);
+      related = productCardsFromRows(relatedRows, [...relTrans, ...relTransEn], relImages, locale);
     }
   }
 

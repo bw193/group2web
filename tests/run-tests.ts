@@ -3,6 +3,7 @@ import './public-paths.test';
 import './indexing.test';
 import './product-slugs.test';
 import './product-markup.test';
+import './related-products.test';
 import './article-slugs.test';
 import './product-copy-batch.test';
 import './product-catalog-deploy.test';
