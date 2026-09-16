@@ -1,5 +1,11 @@
 {
   "nav": {
+    "searchPlaceholder": "Produkte, Modelle, Kategorien suchen…",
+    "searchPlaceholderShort": "Produkte suchen…",
+    "searchSubmit": "Suchen →",
+    "searchLabel": "Suchen",
+    "searchProductsLabel": "Produkte suchen",
+    "menuToggle": "Menü öffnen oder schließen",
     "insight": "Insight",
     "videos": "Videos",
     "home": "Startseite",
@@ -10,6 +16,10 @@
     "whyUs": "Warum wir"
   },
   "home": {
+    "faqKicker": "FAQ",
+    "faqHeading": "Häufige Fragen",
+    "faqIntro": "Steht Ihre Frage hier nicht, beantworten wir direkte Anfragen in der Regel innerhalb eines Werktags.",
+    "faqCta": "Frage stellen",
     "heroTitle": "Premium LED & Smart Spiegel",
     "heroSubtitle": "21 Jahre Fertigungsexzellenz — Im Dienst Globaler Marken",
     "heroCta": "Produkte Entdecken",
@@ -58,7 +68,7 @@
     "statsLabel4": "Jahre Handwerk",
     "whyEyebrow": "Warum Chengtai",
     "whyHeading": "Gemacht, um der Lieferant zu sein, den man behält",
-    "whyPoint1": "Erweiterte Garantie von 3 Jahren — längere Garantiedauer für langfristige Partner",
+    "whyPoint1": "Standardgarantie von 3 Jahren — längere Garantiedauer für langfristige Partner",
     "whyPoint2": "Eigene F&E mit über 70 Patenten, gefertigt nach Ihrer Spezifikation",
     "whyPoint3": "Eigene 50.000 m²-Fabrik — Qualität, die wir von A bis Z kontrollieren",
     "whyCta": "Warum uns wählen",
@@ -102,7 +112,7 @@
     "modelNumber": "Modellnr.",
     "viewAll": "Alle Produkte Anzeigen",
     "introText": "Spiegel entwickelt für Bäder, Hotellerie, Retail und Wohnprojekte — entdecken Sie die komplette Kollektion.",
-    "proofPoint1": "Erweiterte Garantie von 3 Jahren, mit längerer Abdeckung für langfristige Partner",
+    "proofPoint1": "Standardgarantie von 3 Jahren, mit längerer Abdeckung für langfristige Partner",
     "proofPoint2": "Eigenes F&E-Team mit über 70 Patenten, entwickelt nach Ihrer genauen Spezifikation",
     "proofPoint3": "Eigene 50.000 m²-Fabrik, mit Qualitätskontrolle vom Glas bis zur Endverpackung",
     "placeholderImageAlt": "Premium Spiegel",
@@ -146,7 +156,7 @@
     "factPortfolioLabel": "Produktportfolio",
     "factPortfolioValue": "100.000+ SKUs · gestützt auf 70+ Patente",
     "factWarrantyLabel": "Garantie",
-    "factWarrantyValue": "Erweiterte Garantie von 3 Jahren",
+    "factWarrantyValue": "Standardgarantie von 3 Jahren",
     "qaKicker": "Fragen & Antworten",
     "qaHeading": "Was Einkäufer uns fragen",
     "qaBody": "Die praktischen Details einer ersten Bestellung — Muster, Lieferzeiten, MOQ, Branding und Garantie. Fehlt Ihre Frage, antwortet unser Exportteam innerhalb eines Werktags.",
@@ -211,6 +221,8 @@
     "clearSelectedProduct": "Ausgewähltes Produkt entfernen"
   },
   "footer": {
+    "staffPortal": "Mitarbeiterportal",
+    "staffPortalAria": "Anmeldung im Mitarbeiterportal",
     "company": "JIAXING CHENGTAI MIRROR CO., LTD",
     "slogan": "Ein globaler Marktführer in der Smart-Home-Spiegelindustrie werden",
     "quickLinks": "Schnelllinks",
@@ -218,7 +230,7 @@
     "copyright": "© 2025 Jiaxing Chengtai Mirror Co., Ltd. Alle Rechte vorbehalten.",
     "tagline": "Licht gestalten, gespiegelt",
     "sinceLabel": "Seit",
-    "sinceBody": "LED-Spiegel, Spiegelschränke und Ganzkörperspiegel aus unserem 50.000 m² großen Werk in Jiaxing — abgesichert durch über 70 Patente und eine erweiterte Garantie von 3 Jahren.",
+    "sinceBody": "LED-Spiegel, Spiegelschränke und Ganzkörperspiegel aus unserem 50.000 m² großen Werk in Jiaxing — abgesichert durch über 70 Patente und eine Standardgarantie von 3 Jahren.",
     "startInquiry": "Anfrage starten",
     "followUs": "Folgen Sie uns"
   },
@@ -287,10 +299,10 @@
     "criteria": [
       {
         "label": "Garantie & Kundendienst",
-        "us": "Erweiterte Garantie von 3 Jahren und lebenslange Abdeckung für langfristige Partner.",
+        "us": "Standardgarantie von 3 Jahren und lebenslange Abdeckung für langfristige Partner.",
         "them": "Kurze oder nicht garantierte Gewährleistung — bei OEM/ODM-Aufträgen oft gar keine.",
         "heading": "Eine Garantie, die mit der Beziehung wächst",
-        "body": "Jeder Auftrag wird mit einer erweiterten Garantie von 3 Jahren geliefert. Langfristige Partner sind für die gesamte Dauer der Partnerschaft abgesichert — denn wir rechnen mit einer Zusammenarbeit über Jahre, nicht mit einer einzigen Lieferung."
+        "body": "Jeder Auftrag wird mit einer Standardgarantie von 3 Jahren geliefert. Langfristige Partner sind für die gesamte Dauer der Partnerschaft abgesichert — denn wir rechnen mit einer Zusammenarbeit über Jahre, nicht mit einer einzigen Lieferung."
       },
       {
         "label": "Design & F&E",

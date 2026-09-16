@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { ArrowRight, Plus } from 'lucide-react';
 import { localizedPath } from '@/lib/public-paths';
 
@@ -17,7 +17,7 @@ const FALLBACK_FAQ: QA[] = [
   { q: 'Do you have an MOQ restriction?', a: 'Low MOQ — even a single piece is acceptable for sample checking.' },
   { q: 'Do you operate your own factory?', a: 'Yes. Fifteen years specializing in mirror manufacturing — LED, bathroom, dressing, and full mirror cabinets, all in-house.' },
   { q: 'Can we print our own logo on the products?', a: 'Yes. Confirm the design against our pre-production sample and let us know before production begins.' },
-  { q: 'Do you offer a warranty on the products?', a: 'Every product ships with a 3-Year Extended Warranty.' },
+  { q: 'Do you offer a warranty on the products?', a: 'Every product ships with a 3-Year Standard Warranty.' },
 ];
 
 const FALLBACK_FAQ_HE: QA[] = [
@@ -26,7 +26,7 @@ const FALLBACK_FAQ_HE: QA[] = [
   { q: 'האם יש מגבלת MOQ?', a: 'MOQ נמוך - גם יחידה אחת מתאימה לבדיקת דוגמה.' },
   { q: 'האם אתם מפעילים מפעל משלכם?', a: 'כן. אנו מתמחים בייצור מראות LED, מוצרי אמבטיה, פריטי הלבשה וארונות מראה - הכול בתוך המפעל.' },
   { q: 'האם אפשר להדפיס את הלוגו שלנו על המוצרים?', a: 'כן. אשרו את העיצוב מול דוגמת טרום הייצור ועדכנו אותנו לפני תחילת הייצור.' },
-  { q: 'האם אתם מציעים אחריות על המוצרים?', a: 'כל מוצר נשלח עם אחריות מורחבת ל-3 שנים.' },
+  { q: 'האם אתם מציעים אחריות על המוצרים?', a: 'כל מוצר נשלח עם אחריות סטנדרטית ל-3 שנים.' },
 ];
 
 interface Props {
@@ -35,6 +35,7 @@ interface Props {
 
 export default function FaqSection({ backendFaqs = [] }: Props) {
   const locale = useLocale();
+  const t = useTranslations('home');
   const FAQ: QA[] = backendFaqs.length > 0 ? backendFaqs : locale === 'he' ? FALLBACK_FAQ_HE : FALLBACK_FAQ;
   const [openIdx, setOpenIdx] = useState<number | null>(0);
 
@@ -47,14 +48,14 @@ export default function FaqSection({ backendFaqs = [] }: Props) {
           {/* Left column */}
           <aside className="lg:col-span-5 lg:sticky lg:top-32">
             <p className="text-[13px] font-body font-semibold text-bronze uppercase tracking-[0.18em] mb-5" data-reveal>
-              FAQ
+              {t('faqKicker')}
             </p>
             <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-normal text-ink leading-[1.05] tracking-[-0.02em]" data-reveal>
-              Frequently asked
+              {t('faqHeading')}
             </h2>
 
             <p className="mt-6 text-[17px] font-body font-normal text-ink leading-[1.6] max-w-md" data-reveal>
-              If your question isn&apos;t here, we typically reply to direct inquiries within a single business day.
+              {t('faqIntro')}
             </p>
 
             <div className="mt-10" data-reveal>
@@ -62,7 +63,7 @@ export default function FaqSection({ backendFaqs = [] }: Props) {
                 href={localizedPath(locale, '/contact')}
                 className="btn-primary group"
               >
-                Ask a question
+                {t('faqCta')}
                 <ArrowRight size={14} strokeWidth={1.75} className="ms-3 transition-transform duration-500 group-hover:translate-x-1 rtl:-scale-x-100" />
               </Link>
             </div>

@@ -116,7 +116,7 @@ export default function Header() {
             <button
               type="button"
               onClick={() => setSearchOpen((v) => !v)}
-              aria-label="Search"
+              aria-label={t('searchLabel')}
               className="p-1 text-ink-mid hover:text-ink transition-colors"
             >
               <Search size={16} strokeWidth={1.75} />
@@ -136,7 +136,7 @@ export default function Header() {
           <button
             className="xl:hidden p-2 text-ink"
             onClick={() => setMobileOpen(!mobileOpen)}
-            aria-label="Toggle menu"
+            aria-label={t('menuToggle')}
           >
             {mobileOpen ? <X size={22} strokeWidth={1.5} /> : <Menu size={22} strokeWidth={1.5} />}
           </button>
@@ -154,16 +154,16 @@ export default function Header() {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search products, models, categories…"
+              placeholder={t('searchPlaceholder')}
               autoFocus={searchOpen}
-              aria-label="Search products"
+              aria-label={t('searchProductsLabel')}
               className="flex-1 h-10 bg-transparent border-0 text-[15px] font-body text-ink placeholder:text-ink-mid focus:outline-none"
             />
             <button
               type="submit"
               className="text-[12px] font-body font-semibold tracking-[0.14em] uppercase text-ink hover:text-bronze transition-colors"
             >
-              Search →
+              {t('searchSubmit')}
             </button>
           </form>
         </div>
@@ -187,8 +187,8 @@ export default function Header() {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search products…"
-              aria-label="Search products"
+              placeholder={t('searchPlaceholderShort')}
+              aria-label={t('searchProductsLabel')}
               className="flex-1 h-10 bg-transparent border-0 text-base font-body font-light text-ink placeholder:text-ink-light focus:outline-none"
             />
           </form>

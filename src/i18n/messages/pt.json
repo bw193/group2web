@@ -1,5 +1,11 @@
 {
   "nav": {
+    "searchPlaceholder": "Pesquisar produtos, modelos, categorias…",
+    "searchPlaceholderShort": "Pesquisar produtos…",
+    "searchSubmit": "Pesquisar →",
+    "searchLabel": "Pesquisar",
+    "searchProductsLabel": "Pesquisar produtos",
+    "menuToggle": "Abrir ou fechar o menu",
     "insight": "Insight",
     "videos": "Vídeos",
     "home": "Início",
@@ -10,6 +16,10 @@
     "whyUs": "Por que nós"
   },
   "home": {
+    "faqKicker": "FAQ",
+    "faqHeading": "Perguntas frequentes",
+    "faqIntro": "Se a sua pergunta não estiver aqui, normalmente respondemos às consultas diretas em um dia útil.",
+    "faqCta": "Fazer uma pergunta",
     "heroTitle": "Espelhos LED e Smart Premium",
     "heroSubtitle": "21 Anos de Excelência em Fabricação — Atendendo Marcas Globais",
     "heroCta": "Explorar Produtos",
@@ -58,7 +68,7 @@
     "statsLabel4": "Anos de ofício",
     "whyEyebrow": "Por que a Chengtai",
     "whyHeading": "Feitos para ser o fornecedor que você mantém",
-    "whyPoint1": "Garantia estendida de 3 anos — cobertura mais longa para parceiros de longo prazo",
+    "whyPoint1": "Garantia padrão de 3 anos — cobertura mais longa para parceiros de longo prazo",
     "whyPoint2": "P&D próprio com mais de 70 patentes, fabricado conforme sua especificação",
     "whyPoint3": "Fábrica própria de 50.000 m² — qualidade que controlamos do início ao fim",
     "whyCta": "Por que nos escolher",
@@ -102,7 +112,7 @@
     "modelNumber": "Nº do Modelo",
     "viewAll": "Ver Todos os Produtos",
     "introText": "Espelhos projetados para banheiros, hospitalidade, varejo e projetos residenciais — explore a coleção completa.",
-    "proofPoint1": "Garantia estendida de 3 anos, com cobertura ampliada para parceiros de longo prazo",
+    "proofPoint1": "Garantia padrão de 3 anos, com cobertura ampliada para parceiros de longo prazo",
     "proofPoint2": "Equipe interna de P&D com mais de 70 patentes, projetada conforme sua especificação exata",
     "proofPoint3": "Fábrica própria de 50.000 m², com qualidade controlada do vidro à embalagem final",
     "placeholderImageAlt": "Espelho Premium",
@@ -146,7 +156,7 @@
     "factPortfolioLabel": "Portfólio de produtos",
     "factPortfolioValue": "100.000+ SKUs · respaldados por 70+ patentes",
     "factWarrantyLabel": "Garantia",
-    "factWarrantyValue": "Garantia estendida de 3 anos",
+    "factWarrantyValue": "Garantia padrão de 3 anos",
     "qaKicker": "Perguntas e Respostas",
     "qaHeading": "As perguntas que os compradores fazem",
     "qaBody": "Os detalhes práticos de um primeiro pedido — amostras, prazos, MOQ, personalização de marca e garantia. Se a sua não estiver aqui, nossa equipe de exportação responde em um dia útil.",
@@ -211,6 +221,8 @@
     "clearSelectedProduct": "Limpar produto selecionado"
   },
   "footer": {
+    "staffPortal": "Portal da equipe",
+    "staffPortalAria": "Acesso ao portal da equipe",
     "company": "JIAXING CHENGTAI MIRROR CO., LTD",
     "slogan": "Ser um líder global na indústria de espelhos inteligentes para o lar",
     "quickLinks": "Links Rápidos",
@@ -218,7 +230,7 @@
     "copyright": "© 2025 Jiaxing Chengtai Mirror Co., Ltd. Todos os direitos reservados.",
     "tagline": "Moldando a luz, refletida",
     "sinceLabel": "Desde",
-    "sinceBody": "Espelhos LED, espelheiras e espelhos de corpo inteiro da nossa fábrica de 50.000 m² em Jiaxing — com mais de 70 patentes e garantia estendida de 3 anos.",
+    "sinceBody": "Espelhos LED, espelheiras e espelhos de corpo inteiro da nossa fábrica de 50.000 m² em Jiaxing — com mais de 70 patentes e garantia padrão de 3 anos.",
     "startInquiry": "Iniciar uma consulta",
     "followUs": "Siga-nos"
   },
@@ -287,10 +299,10 @@
     "criteria": [
       {
         "label": "Garantia e pós-venda",
-        "us": "Garantia estendida de 3 anos e cobertura vitalícia para parceiros de longo prazo.",
+        "us": "Garantia padrão de 3 anos e cobertura vitalícia para parceiros de longo prazo.",
         "them": "Garantia curta ou não garantida — muitas vezes inexistente em pedidos OEM/ODM.",
         "heading": "Uma garantia que cresce com a parceria",
-        "body": "Cada pedido sai com garantia estendida de 3 anos. Parceiros de longo prazo ficam cobertos por toda a parceria, porque esperamos trabalhar juntos por anos, não por um único embarque."
+        "body": "Cada pedido sai com garantia padrão de 3 anos. Parceiros de longo prazo ficam cobertos por toda a parceria, porque esperamos trabalhar juntos por anos, não por um único embarque."
       },
       {
         "label": "Design e P&D",

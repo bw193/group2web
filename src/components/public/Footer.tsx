@@ -145,10 +145,10 @@ export default function Footer() {
           </p>
           <Link
             href="/cms/login"
-            aria-label="Staff portal login"
+            aria-label={t('staffPortalAria')}
             className="group inline-flex items-center gap-2 text-[12px] font-body font-semibold tracking-[0.14em] uppercase text-cream/60 transition-colors duration-300 hover:text-bronze-light focus-visible:text-bronze-light focus-visible:outline-none"
           >
-            Staff Portal
+            {t('staffPortal')}
             <span aria-hidden className="inline-block transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-px rtl:-scale-x-100">
               ↗
             </span>
