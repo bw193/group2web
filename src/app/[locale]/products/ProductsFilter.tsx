@@ -146,7 +146,9 @@ export default function ProductsFilter({ products, categories }: ProductsFilterP
               className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-14 md:gap-x-10 md:gap-y-16 animate-fade-up"
             >
               {filtered.map((product, i) => (
-                <ProductCard key={product.id} index={i} {...product} />
+                // The first row is above the fold on every breakpoint, and its
+                // first photo is the LCP element on this page.
+                <ProductCard key={product.id} index={i} {...product} priority={i < 4} />
               ))}
             </div>
           )}

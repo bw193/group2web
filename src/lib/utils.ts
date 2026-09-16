@@ -44,6 +44,15 @@ export function getUploadUrl(path: string | null | undefined): string {
   return `${uploadBaseUrl}/${clean}`;
 }
 
+/** Origin serving uploaded media, so pages can warm the connection up front. */
+export function getUploadOrigin(): string | null {
+  try {
+    return new URL(uploadBaseUrl).origin;
+  } catch {
+    return null;
+  }
+}
+
 export const LOCALES = ['en', 'es', 'pt', 'fr', 'it', 'de'] as const;
 export type Locale = (typeof LOCALES)[number];
 

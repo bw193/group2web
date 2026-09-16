@@ -52,6 +52,7 @@ export default function GalleryImage({
         sizes={sizes}
         alt={alt}
         loading={priority ? 'eager' : 'lazy'}
+        fetchPriority={priority ? 'high' : undefined}
         decoding="async"
         className={fill ? `absolute inset-0 h-full w-full ${className}` : className}
         {...(fill ? {} : { width, height })}

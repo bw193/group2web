@@ -12,6 +12,12 @@ import Footer from '@/components/public/Footer';
 import AnimationProvider from '@/components/public/AnimationProvider';
 import NavProgress from '@/components/public/NavProgress';
 import { fontDisplay, fontBody, fontDisplayHe, fontBodyHe } from '@/lib/fonts';
+import { getUploadOrigin } from '@/lib/utils';
+
+// Product, gallery and banner images all come from the upload origin, and the
+// LCP image on the catalog and detail pages is one of them. Warming the
+// connection costs nothing and saves the DNS + TLS round trips on mobile.
+const uploadOrigin = getUploadOrigin();
 
 // Run server rendering / ISR regeneration in Dublin (dub1) to colocate with
 // the Supabase database (eu-west-1) and avoid a transatlantic hop per query.
@@ -60,6 +66,7 @@ export default async function LocaleLayout({
   return (
     <html lang={locale} dir={rtl ? 'rtl' : 'ltr'} className={fontVars}>
       <body className="min-h-screen flex flex-col bg-cream relative">
+        {uploadOrigin ? <link rel="preconnect" href={uploadOrigin} /> : null}
         {/* Page-wide film grain — fixed, non-interactive */}
         <div className="atmosphere-grain" aria-hidden />
         <NextIntlClientProvider locale={locale} messages={messages}>

@@ -20,6 +20,13 @@ interface ProductCardProps {
    * homepage featured grid so cards stay compact and bottom-aligned.
    */
   hideDescription?: boolean;
+  /**
+   * Load this card's image eagerly, at high priority. Set on the first row of
+   * the catalog grid, where the first photo is the page's LCP element and was
+   * being lazy-loaded, so the browser only requested it after layout (F-06 in
+   * the 2026-09-15 SEO audit).
+   */
+  priority?: boolean;
 }
 
 export default function ProductCard({
@@ -32,6 +39,7 @@ export default function ProductCard({
   index,
   noSnippet = false,
   hideDescription = false,
+  priority = false,
 }: ProductCardProps) {
   const t = useTranslations('products');
   const locale = useLocale();
@@ -55,6 +63,7 @@ export default function ProductCard({
               path={imageUrl}
               alt={name}
               fill
+              priority={priority}
               sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
               className="object-cover transition-transform duration-[1.4s] ease-out group-hover:scale-[1.05]"
             />
