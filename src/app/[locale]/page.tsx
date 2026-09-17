@@ -196,29 +196,30 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           No negative margin: the banner artwork carries its own captions right
           up to the bottom edge, so any overlap eats image content. */}
       <section className="relative bg-cream border-b border-warm-border z-10 shadow-[0_-18px_48px_-40px_rgba(20,18,14,0.28)]">
-        <div className="container-wide pt-6 pb-10 md:pt-8 md:pb-12">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4" data-reveal-stagger>
+        <div className="container-wide py-1 md:py-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 md:gap-y-4 lg:grid-cols-4" data-reveal-stagger>
             {capabilities.map((item, i) => {
               const Icon = item.Icon;
               return (
                 <div
                   key={i}
-                  className={`group relative flex flex-col items-center text-center py-5 md:py-3 md:px-8 lg:px-10 ${
+                  className={`group relative flex flex-col items-center text-center py-3.5 md:py-1 md:px-6 lg:px-4 xl:px-5 ${
                     i < capabilities.length - 1 ? 'border-b md:border-b-0 md:border-e border-warm-border' : ''
                   }`}
                   data-reveal
                 >
-                  <div className="mb-4">
+                  {/* Icon sits inline in the heading so a long localized title
+                      wraps beneath it instead of leaving it beside two lines. */}
+                  <h3 className="font-display text-lg md:text-xl font-normal text-ink leading-tight text-balance mb-1.5 tracking-[-0.01em]">
                     <Icon
-                      size={32}
+                      size={22}
                       strokeWidth={1.5}
-                      className="text-bronze transition-transform duration-700 ease-out group-hover:-translate-y-0.5"
+                      aria-hidden="true"
+                      className="inline-block align-[-5px] me-2 text-bronze transition-transform duration-700 ease-out group-hover:-translate-y-0.5"
                     />
-                  </div>
-                  <h3 className="font-display text-lg md:text-xl font-normal text-ink leading-tight mb-1.5 tracking-[-0.01em]">
                     {item.title}
                   </h3>
-                  <p className="text-[14px] font-body font-normal text-ink leading-[1.55] max-w-xs">
+                  <p className="text-[14px] font-body font-normal text-ink leading-[1.5] max-w-xs">
                     {item.desc}
                   </p>
                 </div>
