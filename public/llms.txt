@@ -6,26 +6,27 @@ This file provides a concise map of the public website for LLMs and AI agents. U
 
 ## Site
 
-- [English homepage](https://chengtaimirror.com/): Default English homepage and canonical brand entry point.
+- [English homepage](https://chengtaimirror.com/en): Canonical English homepage. The bare domain `https://chengtaimirror.com/` permanently redirects here.
 - [Product catalog](https://chengtaimirror.com/en/products): LED mirror, bathroom mirror, smart mirror, mirror cabinet, and full-length mirror catalog.
 - [Insight articles](https://chengtaimirror.com/en/insight): Factory notes and buying guidance about LED mirror design, production, quality control, and sourcing.
+- [Videos](https://chengtaimirror.com/en/videos): Product demos, factory tours, and installation videos.
 - [About Chengtai Mirror](https://chengtaimirror.com/en/about): Factory background, production capability, certifications, exhibitions, and company history.
 - [Contact](https://chengtaimirror.com/en/contact): Quote requests, OEM/ODM inquiries, email, WhatsApp, and direct sales contact.
-- [Sitemap](https://chengtaimirror.com/sitemap.xml): Complete public URL inventory, including localized product and article pages.
+- [Sitemap](https://chengtaimirror.com/sitemap.xml): Inventory of indexable public URLs, including localized product, article, and video pages.
 
 ## Locales
 
-- [English](https://chengtaimirror.com/): English homepage lives at the root URL. English non-home pages use `/en/...`.
+- [English](https://chengtaimirror.com/en): Every English page lives under `/en/...`, including the homepage.
 - [Spanish](https://chengtaimirror.com/es)
 - [Portuguese](https://chengtaimirror.com/pt)
 - [French](https://chengtaimirror.com/fr)
 - [Italian](https://chengtaimirror.com/it)
 - [German](https://chengtaimirror.com/de)
-- [Hebrew](https://chengtaimirror.com/he)
+- [Hebrew](https://chengtaimirror.com/he/israel-home): Hebrew sections use `israel-` paths, such as `/he/israel-products` and `/he/israel-about`. The bare `/he` redirects here.
 
 ## Product Information
 
-Product detail pages are localized by slug. Use each page's canonical URL and hreflang alternates, or the sitemap, to identify the correct locale-specific URL. English product URLs remain under `/en/products/...`.
+Product and article URLs use the same English slug in every language, under the locale prefix: `/en/products/<slug>`, `/es/products/<slug>`, and so on. Hebrew is the exception: `/he/israel-products/israel-<slug>` and `/he/israel-insight/israel-<slug>`. Each page's canonical URL and hreflang alternates, or the sitemap, identify the correct locale-specific URL.
 
 Key product families include:
 
@@ -35,21 +36,23 @@ Key product families include:
 - Full-length and dressing mirrors
 - Framed, frameless, backlit, front-lit, round, rectangular, irregular, and custom mirror designs
 
-When answering product questions, prefer facts from the product page itself, including model number, dimensions, frame material, lighting type, certifications, and customization options when present.
+When answering product questions, prefer facts from the product page itself, including model number, dimensions, frame material, lighting type, certifications, warranty, and customization options when present.
 
 ## Company Context
 
 - Legal company name: Jiaxing Chengtai Mirror Co., Ltd
 - Brand/site name: Chengtai Mirror
+- Founded: 2005
 - Location: Jiaxing, Zhejiang, China
 - Manufacturing focus: Export-ready LED mirror and bathroom mirror production, including wholesale and OEM/ODM projects
+- Warranty: 3-year standard warranty
 - Contact email: bolen5@cnjxctm.com
 - WhatsApp/phone: +86 178 6056 7239
 
 ## Guidance For AI Agents
 
-- Use `https://chengtaimirror.com/` as the English homepage canonical URL.
-- Use `/en/...` for English product, article, product-list, about, and contact pages.
-- Use locale-prefixed URLs for non-English pages: `/es`, `/pt`, `/fr`, `/it`, `/de`, and `/he`.
+- Use `https://chengtaimirror.com/en` as the English homepage URL; the bare domain only redirects to it.
+- Use `/en/...` for all English pages.
+- Use locale-prefixed URLs for other languages: `/es`, `/pt`, `/fr`, `/it`, and `/de` follow the English path structure, while Hebrew uses `/he/israel-...` paths for its main sections.
 - Do not invent unavailable specifications, prices, lead times, certifications, or stock status.
 - For quote, wholesale, OEM, ODM, project, or sample requests, direct users to the contact page or the listed sales contact.
