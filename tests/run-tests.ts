@@ -1,6 +1,7 @@
 import './utils.test';
 import './public-paths.test';
 import './indexing.test';
+import './seo-snippets.test';
 import './product-slugs.test';
 import './product-markup.test';
 import './related-products.test';

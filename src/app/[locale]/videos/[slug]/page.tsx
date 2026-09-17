@@ -10,11 +10,14 @@ import { JsonLd } from '@/components/seo/JsonLd';
 import { locales, defaultLocale } from '@/i18n/config';
 import {
   SITE_OG_IMAGE,
+  leadingProse,
   localeToOg,
   localizedPath,
   localizedSiteName,
   localizedUrl,
   pageCopy,
+  snippet,
+  titleWithSiteName,
 } from '@/lib/seo';
 import { isIndexableLocalePath, robotsForPublicPage } from '@/lib/indexing';
 import { getUploadUrl } from '@/lib/utils';
@@ -41,8 +44,13 @@ export async function generateMetadata({
 
   const { video } = detail;
   const siteName = localizedSiteName(locale);
-  const title = `${video.seoTitle || video.title} - ${siteName}`;
-  const description = video.seoDescription || video.excerpt || videoExcerpt(video.body, 260) || pageCopy(locale, 'videos').description;
+  const title = titleWithSiteName(video.seoTitle || video.title, siteName);
+  // A written SEO description is used as-is. The fallbacks are whole paragraphs
+  // of copy (up to ~1,300 characters), so they are trimmed to snippet length.
+  const description =
+    video.seoDescription ||
+    snippet(video.excerpt || leadingProse(video.body)) ||
+    pageCopy(locale, 'videos').description;
   const canonical = localizedUrl(locale, `/videos/${video.slug}`);
   const image = video.thumbnailUrl ? getUploadUrl(video.thumbnailUrl) : SITE_OG_IMAGE;
   // Skip locales whose page is noindex at this path (Hebrew) — hreflang must

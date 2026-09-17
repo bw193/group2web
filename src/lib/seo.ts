@@ -401,6 +401,96 @@ export function pageCopy(locale: string, key: PageKey) {
   return COPY[safe][key] ?? COPY.en[key] ?? COPY.en.home;
 }
 
+// ---------------------------------------------------------------------------
+// Snippet helpers: <title> and meta description text for content pages
+// ---------------------------------------------------------------------------
+
+/** The brand as it appears inside titles, in every locale's site name. */
+const BRAND_TOKEN = 'Chengtai';
+
+/**
+ * "Title - Chengtai Mirror", unless the title already names the brand or the
+ * suffix would push it past what a results page shows (~65 characters).
+ *
+ * Appending the site name to every article and video produced titles up to 124
+ * characters and doubled the brand on titles that already carried it (F-08 in
+ * the 2026-09-15 SEO audit). Google shows the site name separately above each
+ * result, so on a long title those 18 characters only push the article's own
+ * words out of view.
+ */
+export function titleWithSiteName(title: string, siteName: string, separator = ' - ', max = 65): string {
+  const clean = title.trim();
+  if (clean.toLowerCase().includes(BRAND_TOKEN.toLowerCase())) return clean;
+  const full = `${clean}${separator}${siteName}`;
+  return full.length <= max ? full : clean;
+}
+
+const NAMED_ENTITIES: Record<string, string> = {
+  nbsp: ' ', amp: '&', quot: '"', apos: "'", lt: '<', gt: '>',
+  lsquo: '\u2018', rsquo: '\u2019', ldquo: '\u201C', rdquo: '\u201D',
+  hellip: '\u2026', ndash: '\u2013', mdash: '\u2014',
+};
+
+/** Tag-free, entity-decoded, whitespace-collapsed text. */
+export function plainText(html: string | null | undefined): string {
+  if (!html) return '';
+  return html
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi, (match, entity: string) => {
+      if (entity[0] === '#') {
+        const code = entity[1].toLowerCase() === 'x' ? parseInt(entity.slice(2), 16) : Number(entity.slice(1));
+        return Number.isInteger(code) && code >= 0 && code <= 0x10ffff ? String.fromCodePoint(code) : match;
+      }
+      return NAMED_ENTITIES[entity.toLowerCase()] ?? match;
+    })
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/** A paragraph that only spaces the layout or repeats a heading. */
+function isHeadingLikeParagraph(innerHtml: string): boolean {
+  const text = plainText(innerHtml);
+  if (!text) return true; // <p></p>, <p>&nbsp;</p>, <p><br></p>
+  // Entirely bold: the pasted title, e.g. <p><strong>Shining at KBC 2026 | …</strong></p>
+  if (!plainText(innerHtml.replace(/<(strong|b)\b[^>]*>[\s\S]*?<\/\1>/gi, ' '))) return true;
+  // A short line with no closing punctuation reads as a heading, not prose.
+  return text.length < 120 && !/[.!?\u2026:;]["'\u201D\u2019)]*$/.test(text);
+}
+
+/**
+ * The opening prose of a rich-text body, for use as a meta description.
+ *
+ * Pasted articles often repeat their title as the first paragraph — in bold,
+ * or as a short unpunctuated line — followed by empty spacer paragraphs. Those
+ * are skipped so the description starts where the article does.
+ */
+export function leadingProse(html: string | null | undefined): string {
+  if (!html) return '';
+  const paragraphs = [...html.matchAll(/<p\b[^>]*>([\s\S]*?)<\/p>/gi)].map((match) => match[1]);
+  if (paragraphs.length === 0) {
+    return plainText(html.replace(/<(h[1-6]|table|figure)\b[\s\S]*?<\/\1>/gi, ' '));
+  }
+  let start = 0;
+  while (start < paragraphs.length && isHeadingLikeParagraph(paragraphs[start])) start += 1;
+  return plainText(paragraphs.slice(start === paragraphs.length ? 0 : start).join(' '));
+}
+
+/**
+ * Trim text to a search-snippet length. Ends on the last full sentence when
+ * one closes in the final 40% of the window; otherwise cuts at a word
+ * boundary and adds an ellipsis, so the text never stops mid-word.
+ */
+export function snippet(text: string | null | undefined, max = 155): string {
+  const clean = (text ?? '').replace(/\s+/g, ' ').trim();
+  if (clean.length <= max) return clean;
+  const head = clean.slice(0, max + 1);
+  const sentenceEnd = Math.max(head.lastIndexOf('. '), head.lastIndexOf('! '), head.lastIndexOf('? '));
+  if (sentenceEnd >= max * 0.6) return head.slice(0, sentenceEnd + 1);
+  const wordEnd = head.lastIndexOf(' ');
+  const cut = wordEnd >= max * 0.6 ? head.slice(0, wordEnd) : clean.slice(0, max);
+  return `${cut.replace(/[\s,;:\u2013\u2014-]+$/u, '')}\u2026`;
+}
+
 /** "Product Name — Chengtai Mirror", localized when the page locale needs it. */
 export function productTitle(name: string, locale: string = defaultLocale): string {
   return `${name} — ${localizedSiteName(locale)}`;

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import {
+  getArticleBody,
   getArticleRouteData,
   getArticleAllTranslations,
   getArticleStaticParams,
@@ -8,10 +9,13 @@ import { locales, defaultLocale } from '@/i18n/config';
 import { isIndexableLocalePath } from '@/lib/indexing';
 import {
   SITE_OG_IMAGE,
+  leadingProse,
   localeToOg,
   localizedSiteName,
   localizedUrl,
   pageCopy,
+  snippet,
+  titleWithSiteName,
 } from '@/lib/seo';
 import { getUploadUrl } from '@/lib/utils';
 import { renderArticlePage, type ArticlePageProps } from './ArticleDetailRoute';
@@ -49,8 +53,13 @@ export async function generateMetadata({
     const def = allTrans.find((tr) => tr.locale === defaultLocale);
     if (def) languages['x-default'] = localizedUrl(defaultLocale, `/insight/${def.slug}`);
 
-    const title = `${row.trans.title} - ${siteName}`;
-    const description = row.trans.dek || pageCopy(locale, 'insight').description;
+    const title = titleWithSiteName(row.trans.title, siteName);
+    // Articles without a dek used to fall back to the Insight index description,
+    // so nine English articles shared one meta description (F-08 in the
+    // 2026-09-15 SEO audit). Their own opening prose is unique to each page.
+    const body = row.trans.dek ? null : await getArticleBody(row.trans.id);
+    const description =
+      snippet(row.trans.dek || leadingProse(body)) || pageCopy(locale, 'insight').description;
     const canonical = localizedUrl(locale, `/insight/${row.trans.slug}`);
     const ogImage = row.article.coverImageUrl
       ? getUploadUrl(row.article.coverImageUrl)
