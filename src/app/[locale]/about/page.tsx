@@ -7,6 +7,7 @@ import WordsReveal from '@/components/public/WordsReveal';
 import AboutVideoFacade from '@/components/public/about/AboutVideoFacade';
 import AboutAccordion from '@/components/public/about/AboutAccordion';
 import FactoryGalleryShowcase from '@/components/public/about/FactoryGalleryShowcase';
+import ProductionProcessSection from '@/components/public/about/ProductionProcessSection';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { getAboutPagePublicData } from '@/lib/public-data';
 import { getAboutVideo } from '@/lib/videos';
@@ -496,6 +497,11 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
           </div>
         </section>
       )}
+
+      {/* Production process — a short walkthrough of the four stages, set
+          just before the certifications so the compliance marks land on a
+          visitor who has already seen how the mirror is built. */}
+      <ProductionProcessSection />
 
       {/* Certifications */}
       <section className="bg-cream border-b border-warm-border">

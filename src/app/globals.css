@@ -515,6 +515,24 @@
 }
 
 /* ============================================================================
+   STAGE DWELL — the About production walkthrough's timing line
+   Width (not transform) so it grows from the reading-start edge in both
+   directions; the component owns duration and play state.
+   ============================================================================ */
+
+@keyframes process-dwell {
+  from { width: 0; }
+  to   { width: 100%; }
+}
+
+.process-dwell {
+  width: 0;
+  animation-name: process-dwell;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+
+/* ============================================================================
    RTL — direction-aware overrides for Hebrew (dir="rtl")
    Tailwind logical utilities (ms/me/ps/pe/start/end) flip automatically; these
    handle the few raw-CSS rules that hard-code a physical side.
