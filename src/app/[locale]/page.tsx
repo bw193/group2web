@@ -74,7 +74,7 @@ const FALLBACK_FAQ_FOR_SEO: { q: string; a: string }[] = [
   { q: 'Do you have an MOQ restriction?', a: 'Low MOQ - even a single piece is acceptable for sample checking.' },
   { q: 'Do you operate your own factory?', a: 'Yes. Fifteen years specializing in mirror manufacturing - LED, bathroom, dressing, and full mirror cabinets, all in-house.' },
   { q: 'Can we print our own logo on the products?', a: 'Yes. Confirm the design against our pre-production sample and let us know before production begins.' },
-  { q: 'Do you offer a warranty on the products?', a: 'Every product ships with a 3-Year Standard Warranty.' },
+  { q: 'Do you offer a warranty on the products?', a: 'Every product ships with a 3-year standard warranty.' },
 ];
 
 const FALLBACK_FAQ_FOR_SEO_HE: { q: string; a: string }[] = [
