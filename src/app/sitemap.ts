@@ -5,6 +5,10 @@ import {
   buildLanguageAlternates,
 } from '@/lib/seo';
 import { getArticleSitemapRows, getProductSitemapRows } from '@/lib/public-data';
+import {
+  insightArticlePathAfterLocale,
+  insightCategoryPathAfterLocale,
+} from '@/lib/public-paths';
 import { getVideoSitemapRows } from '@/lib/videos';
 import { isIndexableLocalePath } from '@/lib/indexing';
 
@@ -109,43 +113,70 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     const byArticle = new Map<
       number,
-      { updatedAt: string; isActive: boolean; slugs: Record<string, string> }
+      { updatedAt: string; isActive: boolean; category: string; slugs: Record<string, string> }
     >();
     for (const r of rows) {
       const existing = byArticle.get(r.articleId) ?? {
         updatedAt: r.updatedAt,
         isActive: r.isActive,
+        category: r.category,
         slugs: {} as Record<string, string>,
       };
       existing.slugs[r.locale] = r.slug;
       byArticle.set(r.articleId, existing);
     }
 
-    for (const [, { updatedAt, isActive, slugs }] of byArticle) {
+    // Category landing pages, listed once per category that holds a live
+    // article. Keys are locale-independent, so one path serves every locale's
+    // hreflang set.
+    const liveCategories = new Set<string>();
+
+    for (const [, { updatedAt, isActive, category, slugs }] of byArticle) {
       if (!isActive) continue;
+      liveCategories.add(category);
+
+      const articlePath = (loc: string) => {
+        const slug = slugs[loc];
+        return slug ? insightArticlePathAfterLocale(category, slug) : null;
+      };
 
       const languages: Record<string, string> = {};
       for (const loc of locales) {
-        const slug = slugs[loc];
-        if (!slug) continue;
-        if (!isIndexableLocalePath(loc, `/insight/${slug}`)) continue;
-        languages[loc] = localizedUrl(loc, `/insight/${slug}`);
+        const path = articlePath(loc);
+        if (!path) continue;
+        if (!isIndexableLocalePath(loc, path)) continue;
+        languages[loc] = localizedUrl(loc, path);
       }
-      const defaultSlug = slugs[defaultLocale];
-      if (defaultSlug) {
-        languages['x-default'] = localizedUrl(defaultLocale, `/insight/${defaultSlug}`);
+      const defaultPath = articlePath(defaultLocale);
+      if (defaultPath) {
+        languages['x-default'] = localizedUrl(defaultLocale, defaultPath);
       }
 
       for (const loc of locales) {
-        const slug = slugs[loc];
-        if (!slug) continue;
-        if (!isIndexableLocalePath(loc, `/insight/${slug}`)) continue;
+        const path = articlePath(loc);
+        if (!path) continue;
+        if (!isIndexableLocalePath(loc, path)) continue;
         const lastModified = updatedAt ? new Date(updatedAt) : STATIC_LAST_MODIFIED;
         entries.push({
-          url: localizedUrl(loc, `/insight/${slug}`),
+          url: localizedUrl(loc, path),
           lastModified: Number.isNaN(lastModified.getTime()) ? STATIC_LAST_MODIFIED : lastModified,
           changeFrequency: 'monthly',
           priority: 0.7,
+          alternates: { languages },
+        });
+      }
+    }
+
+    for (const category of liveCategories) {
+      const pathAfterLocale = insightCategoryPathAfterLocale(category);
+      const languages = buildLanguageAlternates(pathAfterLocale);
+      for (const loc of locales) {
+        if (!isIndexableLocalePath(loc, pathAfterLocale)) continue;
+        entries.push({
+          url: localizedUrl(loc, pathAfterLocale),
+          lastModified: STATIC_LAST_MODIFIED,
+          changeFrequency: 'weekly',
+          priority: 0.6,
           alternates: { languages },
         });
       }

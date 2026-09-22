@@ -12,7 +12,8 @@ import {
 } from '@/lib/articles';
 import {
   revalidateAllLocalizedPublicPaths,
-  revalidateLocalizedDetailPath,
+  revalidateAllInsightCategoryPaths,
+  revalidateInsightArticlePath,
   revalidatePublicSitemap,
 } from '@/lib/public-revalidation';
 
@@ -156,8 +157,9 @@ export async function POST(request: NextRequest) {
 
     revalidateInsightIndexes();
     for (const t of finalTranslations) {
-      revalidateLocalizedDetailPath(t.locale, 'insight', t.slug);
+      revalidateInsightArticlePath(t.locale, article.category, t.slug);
     }
+    revalidateAllInsightCategoryPaths(article.category);
     revalidatePublicSitemap();
 
     return NextResponse.json({ ...article, translations: finalTranslations }, { status: 201 });

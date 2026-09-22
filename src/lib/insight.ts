@@ -17,6 +17,7 @@ import { and, desc, eq, inArray, ne } from 'drizzle-orm';
 import { getPublicDataSnapshot } from '@/lib/public-data-snapshot';
 import type { ArticleSlugHistoryRow, PublicDataSnapshot } from '@/lib/public-data-snapshot';
 import { localizedPath } from '@/lib/seo';
+import { insightArticlePathAfterLocale } from '@/lib/public-paths';
 
 // Insight reads mirror the product pages: direct, batched Drizzle queries on
 // the shared pool, cached only by page-level ISR. Critically, the list /
@@ -344,22 +345,36 @@ export async function getArticleAllTranslations(articleId: number) {
     .where(eq(articleTranslations.articleId, articleId));
 }
 
-export async function getArticleStaticParams(): Promise<Array<{ locale: string; slug: string }>> {
+/**
+ * One entry per (locale, slug), carrying the article's category so the route
+ * can prerender /insight/<category>/<slug>. `category` is the stable key, not
+ * the URL segment: the Hebrew route prefixes it with `hebrewCategorySegment`.
+ */
+export async function getArticleStaticParams(): Promise<
+  Array<{ locale: string; category: string; slug: string }>
+> {
   const snapshot = getSnapshot();
   if (snapshot) {
-    const activeArticleIds = new Set(snapshot.data.articles.filter((a) => a.isActive).map((a) => a.id));
-    return snapshot.data.articleTranslations
-      .filter((r) => activeArticleIds.has(r.articleId))
-      .map((r) => ({ locale: r.locale, slug: r.slug }));
+    const categoryById = new Map(
+      snapshot.data.articles.filter((a) => a.isActive).map((a) => [a.id, a.category]),
+    );
+    return snapshot.data.articleTranslations.flatMap((r) => {
+      const category = categoryById.get(r.articleId);
+      return category ? [{ locale: r.locale, category, slug: r.slug }] : [];
+    });
   }
 
   const db = getDb();
   const rows = await db
-    .select({ locale: articleTranslations.locale, slug: articleTranslations.slug })
+    .select({
+      locale: articleTranslations.locale,
+      slug: articleTranslations.slug,
+      category: articles.category,
+    })
     .from(articleTranslations)
     .innerJoin(articles, eq(articles.id, articleTranslations.articleId))
     .where(eq(articles.isActive, true));
-  return rows.map((r) => ({ locale: r.locale, slug: r.slug }));
+  return rows.map((r) => ({ locale: r.locale, category: r.category, slug: r.slug }));
 }
 
 function getArticleHistoryRedirectInSnapshot(
@@ -376,7 +391,7 @@ function getArticleHistoryRedirectInSnapshot(
     (t) => t.articleId === article.id && t.locale === locale,
   );
   if (localizedSlugRow?.slug && localizedSlugRow.slug !== slug) {
-    return localizedPath(locale, `/insight/${localizedSlugRow.slug}`);
+    return localizedPath(locale, insightArticlePathAfterLocale(article.category, localizedSlugRow.slug));
   }
   return null;
 }
@@ -400,9 +415,9 @@ export async function getArticleMissingLocaleRedirect(
       (t) => t.articleId === article.id && t.locale === locale,
     );
     if (localizedSlugRow?.slug && localizedSlugRow.slug !== slug) {
-      return localizedPath(locale, `/insight/${localizedSlugRow.slug}`);
+      return localizedPath(locale, insightArticlePathAfterLocale(article.category, localizedSlugRow.slug));
     }
-    return localizedPath(anyTrans.locale, `/insight/${anyTrans.slug}`);
+    return localizedPath(anyTrans.locale, insightArticlePathAfterLocale(article.category, anyTrans.slug));
   }
 
   const db = getDb();
@@ -417,7 +432,10 @@ export async function getArticleMissingLocaleRedirect(
     .where(and(eq(articleSlugHistory.oldSlug, slug), eq(articleSlugHistory.locale, locale), eq(articles.isActive, true)))
     .limit(1);
   if (history[0]?.trans.slug && history[0].trans.slug !== slug) {
-    return localizedPath(locale, `/insight/${history[0].trans.slug}`);
+    return localizedPath(
+      locale,
+      insightArticlePathAfterLocale(history[0].article.category, history[0].trans.slug),
+    );
   }
 
   const any = await db
@@ -436,10 +454,16 @@ export async function getArticleMissingLocaleRedirect(
     .limit(1);
 
   if (localizedSlugRow[0]?.slug && localizedSlugRow[0].slug !== slug) {
-    return localizedPath(locale, `/insight/${localizedSlugRow[0].slug}`);
+    return localizedPath(
+      locale,
+      insightArticlePathAfterLocale(target.article.category, localizedSlugRow[0].slug),
+    );
   }
 
-  return localizedPath(target.trans.locale, `/insight/${target.trans.slug}`);
+  return localizedPath(
+    target.trans.locale,
+    insightArticlePathAfterLocale(target.article.category, target.trans.slug),
+  );
 }
 
 /**

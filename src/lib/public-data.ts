@@ -124,6 +124,8 @@ export interface ArticleSitemapRow {
   locale: string;
   slug: string;
   articleId: number;
+  /** Category key, the first segment of /insight/<category>/<slug>. */
+  category: string;
   updatedAt: string;
   isActive: boolean;
 }
@@ -839,7 +841,14 @@ export async function getArticleSitemapRows(): Promise<ArticleSitemapRow[]> {
     return snapshot.data.articleTranslations.flatMap((t) => {
       const article = snapshot.data.articles.find((a) => a.id === t.articleId);
       return article
-        ? [{ locale: t.locale, slug: t.slug, articleId: t.articleId, updatedAt: article.updatedAt, isActive: article.isActive }]
+        ? [{
+            locale: t.locale,
+            slug: t.slug,
+            articleId: t.articleId,
+            category: article.category,
+            updatedAt: article.updatedAt,
+            isActive: article.isActive,
+          }]
         : [];
     });
   }
@@ -849,6 +858,7 @@ export async function getArticleSitemapRows(): Promise<ArticleSitemapRow[]> {
       locale: articleTranslations.locale,
       slug: articleTranslations.slug,
       articleId: articleTranslations.articleId,
+      category: articles.category,
       updatedAt: articles.updatedAt,
       isActive: articles.isActive,
     })

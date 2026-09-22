@@ -26,17 +26,22 @@ import {
   localizedPath,
   localizedUrl,
 } from '@/lib/seo';
+import {
+  categoryKeyFromSegment,
+  insightArticlePathAfterLocale,
+  insightCategoryPathAfterLocale,
+} from '@/lib/public-paths';
 import { getUploadUrl } from '@/lib/utils';
 
 export type ArticlePageProps = {
-  params: Promise<{ locale: string; slug: string }>;
+  params: Promise<{ locale: string; category: string; slug: string }>;
 };
 
 export async function renderArticlePage(
   { params }: ArticlePageProps,
   options: { redirectHebrewSegment?: boolean } = {},
 ) {
-  const { locale, slug } = await params;
+  const { locale, category: categorySegment, slug } = await params;
   setRequestLocale(locale);
   const t = await getTranslations('insight');
   const breadcrumbT = await getTranslations('breadcrumb');
@@ -51,8 +56,15 @@ export async function renderArticlePage(
 
   const { article, trans: translation } = row;
   const siteName = localizedSiteName(locale);
+  const articlePath = insightArticlePathAfterLocale(article.category, translation.slug);
   if (options.redirectHebrewSegment && locale === 'he') {
-    permanentRedirect(localizedPath(locale, `/insight/${translation.slug}`));
+    permanentRedirect(localizedPath(locale, articlePath));
+  }
+  // One article, one URL: a stale or hand-typed category segment redirects to
+  // the category the article actually belongs to rather than serving a second
+  // copy of the page under a URL that hreflang and the sitemap never name.
+  if (categoryKeyFromSegment(locale, categorySegment) !== article.category) {
+    permanentRedirect(localizedPath(locale, articlePath));
   }
 
   const body = await getArticleBody(translation.id);
@@ -66,7 +78,9 @@ export async function renderArticlePage(
   const dateLabel = formatArticleDate(article.publishedAt, locale);
   const readLabel = t('readTime', { minutes: article.readMinutes });
 
-  const articleUrl = localizedUrl(locale, `/insight/${translation.slug}`);
+  const articleUrl = localizedUrl(locale, articlePath);
+  const categoryPath = insightCategoryPathAfterLocale(article.category);
+  const categoryUrl = localizedUrl(locale, categoryPath);
   const blogPostingLd = {
     '@context': 'https://schema.org',
     '@type': 'BlogPosting',
@@ -97,7 +111,8 @@ export async function renderArticlePage(
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: breadcrumbT('home'), item: localizedUrl(locale, '') },
       { '@type': 'ListItem', position: 2, name: breadcrumbT('insight'), item: localizedUrl(locale, '/insight') },
-      { '@type': 'ListItem', position: 3, name: translation.title, item: articleUrl },
+      { '@type': 'ListItem', position: 3, name: categoryLabel, item: categoryUrl },
+      { '@type': 'ListItem', position: 4, name: translation.title, item: articleUrl },
     ],
   };
 
@@ -126,6 +141,14 @@ export async function renderArticlePage(
             <li aria-hidden className="flex-shrink-0 text-ink-light">
               <ChevronRight size={13} strokeWidth={2} className="rtl:-scale-x-100" />
             </li>
+            <li className="flex-shrink-0">
+              <Link href={localizedPath(locale, categoryPath)} className="text-ink-mid hover:text-ink transition-colors duration-300">
+                {categoryLabel}
+              </Link>
+            </li>
+            <li aria-hidden className="flex-shrink-0 text-ink-light">
+              <ChevronRight size={13} strokeWidth={2} className="rtl:-scale-x-100" />
+            </li>
             <li className="min-w-0 truncate text-ink" aria-current="page">
               {translation.title}
             </li>
@@ -137,7 +160,12 @@ export async function renderArticlePage(
         <header className="container-wide pt-12 md:pt-16">
           <div className="max-w-[780px] mx-auto text-center">
             <div className="flex flex-wrap items-baseline justify-center gap-x-3.5 gap-y-1.5 text-[12px] font-body uppercase">
-              <span className="font-semibold tracking-[0.16em] text-bronze">{categoryLabel}</span>
+              <Link
+                href={localizedPath(locale, categoryPath)}
+                className="font-semibold tracking-[0.16em] text-bronze hover:text-ink transition-colors duration-300"
+              >
+                {categoryLabel}
+              </Link>
               <span aria-hidden className="text-ink-light">—</span>
               <span className="tracking-[0.1em] text-ink-mid">{dateLabel}</span>
               <span aria-hidden className="text-ink-light">—</span>
@@ -230,7 +258,7 @@ export async function renderArticlePage(
         allStoriesLabel={t('back')}
         allStoriesHref={localizedPath(locale, '/insight')}
         items={moreStories.map((m) => ({
-          href: localizedPath(m.translationLocale, `/insight/${m.slug}`),
+          href: localizedPath(m.translationLocale, insightArticlePathAfterLocale(m.category, m.slug)),
           categoryLabel: catLabel(m.category),
           dateLabel: formatArticleDate(m.publishedAt, locale),
           title: m.title,

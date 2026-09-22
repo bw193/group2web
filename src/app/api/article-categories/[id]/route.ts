@@ -10,7 +10,8 @@ import { and, eq, sql } from 'drizzle-orm';
 import { getSession } from '@/lib/auth';
 import {
   revalidateAllLocalizedPublicPaths,
-  revalidateLocalizedDetailPath,
+  revalidateAllInsightCategoryPaths,
+  revalidateInsightArticlePath,
 } from '@/lib/public-revalidation';
 
 // Refresh the insight index in every locale; the detail pages render the
@@ -28,8 +29,9 @@ async function revalidateCategoryArticles(key: string) {
     .innerJoin(articles, eq(articles.id, articleTranslations.articleId))
     .where(eq(articles.category, key));
   for (const r of rows) {
-    revalidateLocalizedDetailPath(r.locale, 'insight', r.slug);
+    revalidateInsightArticlePath(r.locale, key, r.slug);
   }
+  revalidateAllInsightCategoryPaths(key);
 }
 
 export async function PUT(

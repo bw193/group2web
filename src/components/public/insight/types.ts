@@ -20,4 +20,6 @@ export interface DisplayArticle {
 export interface CategoryTab {
   key: string;
   label: string;
+  /** Landing page for the category ('all' points back at the index). */
+  href: string;
 }

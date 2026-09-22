@@ -18,6 +18,7 @@ import {
   titleWithSiteName,
 } from '@/lib/seo';
 import { getUploadUrl } from '@/lib/utils';
+import { insightArticlePathAfterLocale } from '@/lib/public-paths';
 import { renderArticlePage, type ArticlePageProps } from './ArticleDetailRoute';
 
 export const revalidate = 600;
@@ -26,10 +27,16 @@ export async function generateStaticParams() {
   return (await getArticleStaticParams()).filter((p) => p.locale !== 'he');
 }
 
+/**
+ * hreflang and canonical both name /insight/<category>/<slug>. The category is
+ * a property of the article, shared by every translation, so one lookup covers
+ * all locales.
+ */
+
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ locale: string; slug: string }>;
+  params: Promise<{ locale: string; category: string; slug: string }>;
 }): Promise<Metadata> {
   const { locale, slug } = await params;
   const siteName = localizedSiteName(locale);
@@ -47,11 +54,17 @@ export async function generateMetadata({
     const languages: Record<string, string> = {};
     for (const tr of allTrans) {
       if (!(locales as readonly string[]).includes(tr.locale)) continue;
-      if (!isIndexableLocalePath(tr.locale, `/insight/${tr.slug}`)) continue;
-      languages[tr.locale] = localizedUrl(tr.locale, `/insight/${tr.slug}`);
+      const trPath = insightArticlePathAfterLocale(row.article.category, tr.slug);
+      if (!isIndexableLocalePath(tr.locale, trPath)) continue;
+      languages[tr.locale] = localizedUrl(tr.locale, trPath);
     }
     const def = allTrans.find((tr) => tr.locale === defaultLocale);
-    if (def) languages['x-default'] = localizedUrl(defaultLocale, `/insight/${def.slug}`);
+    if (def) {
+      languages['x-default'] = localizedUrl(
+        defaultLocale,
+        insightArticlePathAfterLocale(row.article.category, def.slug),
+      );
+    }
 
     const title = titleWithSiteName(row.trans.title, siteName);
     // Articles without a dek used to fall back to the Insight index description,
@@ -60,7 +73,10 @@ export async function generateMetadata({
     const body = row.trans.dek ? null : await getArticleBody(row.trans.id);
     const description =
       snippet(row.trans.dek || leadingProse(body)) || pageCopy(locale, 'insight').description;
-    const canonical = localizedUrl(locale, `/insight/${row.trans.slug}`);
+    const canonical = localizedUrl(
+      locale,
+      insightArticlePathAfterLocale(row.article.category, row.trans.slug),
+    );
     const ogImage = row.article.coverImageUrl
       ? getUploadUrl(row.article.coverImageUrl)
       : SITE_OG_IMAGE;

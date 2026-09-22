@@ -17,7 +17,11 @@ import {
   localizedUrl,
   pageCopy,
 } from '@/lib/seo';
-import { localizedPath } from '@/lib/public-paths';
+import {
+  insightArticlePathAfterLocale,
+  insightCategoryPathAfterLocale,
+  localizedPath,
+} from '@/lib/public-paths';
 import { getUploadUrl } from '@/lib/utils';
 
 export const revalidate = 600;
@@ -87,13 +91,25 @@ export default async function InsightPage({ params }: { params: Promise<{ locale
     // current page locale. Prevents English-fallback cards on /pt/insight
     // from creating phantom /pt/insight/<en-slug> URLs that ISR would have
     // to render dynamically — the root cause of the DbTimeoutErrors.
-    href: localizedPath(a.translationLocale, `/insight/${a.slug}`),
+    href: localizedPath(
+      a.translationLocale,
+      insightArticlePathAfterLocale(a.category, a.slug),
+    ),
     imagePath: a.thumbnailUrl || a.coverImageUrl,
   }));
 
+  // Only categories that actually hold a story get a tab: an empty category
+  // has no landing page to link to, and its page redirects back here.
+  const stocked = new Set(list.map((a) => a.category));
   const tabs = [
-    { key: 'all', label: t('all') },
-    ...categories.map((c) => ({ key: c.key, label: c.name })),
+    { key: 'all', label: t('all'), href: localizedPath(locale, '/insight') },
+    ...categories
+      .filter((c) => stocked.has(c.key))
+      .map((c) => ({
+        key: c.key,
+        label: c.name,
+        href: localizedPath(locale, insightCategoryPathAfterLocale(c.key)),
+      })),
   ];
 
   const insightUrl = localizedUrl(locale, '/insight');
@@ -112,7 +128,7 @@ export default async function InsightPage({ params }: { params: Promise<{ locale
       headline: a.title,
       // Use the locale that actually owns this (slug) row — English-fallback
       // cards point at /en/…, never a phantom /{locale}/… that only redirects.
-      url: localizedUrl(a.translationLocale, `/insight/${a.slug}`),
+      url: localizedUrl(a.translationLocale, insightArticlePathAfterLocale(a.category, a.slug)),
       datePublished: new Date(a.publishedAt).toISOString(),
       articleSection: catLabel(a.category),
       author: a.author

@@ -9,6 +9,12 @@ This file provides a concise map of the public website for LLMs and AI agents. U
 - [English homepage](https://chengtaimirror.com/en): Canonical English homepage. The bare domain `https://chengtaimirror.com/` permanently redirects here.
 - [Product catalog](https://chengtaimirror.com/en/products): LED mirror, bathroom mirror, smart mirror, mirror cabinet, and full-length mirror catalog.
 - [Insight articles](https://chengtaimirror.com/en/insight): Factory notes and buying guidance about LED mirror design, production, quality control, and sourcing.
+- [Sourcing](https://chengtaimirror.com/en/insight/sourcing): Briefs, samples, MOQs, lead times, and certificates for OEM and wholesale mirror orders.
+- [Design](https://chengtaimirror.com/en/insight/design): Shapes, light temperature, and frame finishes for custom LED mirrors.
+- [Craft](https://chengtaimirror.com/en/insight/craft): How a mirror is made — copper-free silvering, edge work, and tolerances.
+- [Manufacturing](https://chengtaimirror.com/en/insight/manufacturing): Production lines, quality gates, and capacity at the Jiaxing factory.
+- [Technology](https://chengtaimirror.com/en/insight/technology): Anti-fog heating, touch and sensor controls, dimming, and IP ratings.
+- [Factory news](https://chengtaimirror.com/en/insight/news): Trade shows, certifications, and capacity news.
 - [Videos](https://chengtaimirror.com/en/videos): Product demos, factory tours, and installation videos.
 - [About Chengtai Mirror](https://chengtaimirror.com/en/about): Factory background, production capability, certifications, exhibitions, and company history.
 - [Contact](https://chengtaimirror.com/en/contact): Quote requests, OEM/ODM inquiries, email, WhatsApp, and direct sales contact.
@@ -26,7 +32,7 @@ This file provides a concise map of the public website for LLMs and AI agents. U
 
 ## Product Information
 
-Product and article URLs use the same English slug in every language, under the locale prefix: `/en/products/<slug>`, `/es/products/<slug>`, and so on. Hebrew is the exception: `/he/israel-products/israel-<slug>` and `/he/israel-insight/israel-<slug>`. Each page's canonical URL and hreflang alternates, or the sitemap, identify the correct locale-specific URL.
+Product and article URLs use the same English slug in every language, under the locale prefix. Products sit directly under the catalog — `/en/products/<slug>`, `/es/products/<slug>`, and so on — while every article sits under its category, `/en/insight/<category>/<slug>`, and each category has a landing page of its own at `/en/insight/<category>`. Hebrew is the exception: it prefixes each section segment, giving `/he/israel-products/israel-<slug>` and `/he/israel-insight/israel-<category>/israel-<slug>`. Article URLs without the category segment permanently redirect to the categorized URL. Each page's canonical URL and hreflang alternates, or the sitemap, identify the correct locale-specific URL.
 
 Key product families include:
 
