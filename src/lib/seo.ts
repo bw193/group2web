@@ -178,7 +178,7 @@ const COPY: Record<Locale, RoutedCopy> = {
     about: {
       title: 'About Chengtai Mirror — Jiaxing LED Mirror Factory',
       description:
-        'Founded 2005 in Jiaxing, Zhejiang. 50,000 sqm facility, 200+ staff, 2,000,000 units/year. CE, CB, SAA, ETL, RoHS, ISO 9001 — shipping to 60+ countries.',
+        'Founded 2005 in Jiaxing, Zhejiang. 48,000 sqm facility, 200+ staff, 2,000,000 units/year. CE, CB, SAA, ETL, RoHS, ISO 9001 — shipping to 60+ countries.',
     },
     contact: {
       title: 'Contact Chengtai Mirror — Request a Quote',
@@ -206,7 +206,7 @@ const COPY: Record<Locale, RoutedCopy> = {
     about: {
       title: 'Sobre Chengtai Mirror — Fábrica en Jiaxing, China',
       description:
-        'Fundada en 2005 en Jiaxing, Zhejiang. Planta de 50.000 m², más de 200 empleados, 2.000.000 unidades/año. Espejos certificados CE, CB, SAA, ETL, IP44, IP54, RoHS, ISO 9001 enviados a más de 60 países.',
+        'Fundada en 2005 en Jiaxing, Zhejiang. Planta de 48.000 m², más de 200 empleados, 2.000.000 unidades/año. Espejos certificados CE, CB, SAA, ETL, IP44, IP54, RoHS, ISO 9001 enviados a más de 60 países.',
     },
     contact: {
       title: 'Contactar Chengtai Mirror — Solicitar Cotización',
@@ -234,7 +234,7 @@ const COPY: Record<Locale, RoutedCopy> = {
     about: {
       title: 'Sobre a Chengtai Mirror — Fábrica em Jiaxing',
       description:
-        'Fundada em 2005 em Jiaxing, Zhejiang. Instalação de 50.000 m², mais de 200 funcionários, 2.000.000 unidades/ano. Espelhos certificados CE, CB, SAA, ETL, IP44, IP54, RoHS, ISO 9001 enviados para mais de 60 países.',
+        'Fundada em 2005 em Jiaxing, Zhejiang. Instalação de 48.000 m², mais de 200 funcionários, 2.000.000 unidades/ano. Espelhos certificados CE, CB, SAA, ETL, IP44, IP54, RoHS, ISO 9001 enviados para mais de 60 países.',
     },
     contact: {
       title: 'Contato Chengtai Mirror — Solicitar Orçamento',
@@ -262,7 +262,7 @@ const COPY: Record<Locale, RoutedCopy> = {
     about: {
       title: 'À Propos de Chengtai Mirror — Usine à Jiaxing',
       description:
-        "Fondée en 2005 à Jiaxing, Zhejiang. Site de 50 000 m², plus de 200 employés, capacité de 2 000 000 unités/an. Miroirs certifiés CE, CB, SAA, ETL, IP44, IP54, RoHS, ISO 9001 expédiés dans plus de 60 pays.",
+        "Fondée en 2005 à Jiaxing, Zhejiang. Site de 48 000 m², plus de 200 employés, capacité de 2 000 000 unités/an. Miroirs certifiés CE, CB, SAA, ETL, IP44, IP54, RoHS, ISO 9001 expédiés dans plus de 60 pays.",
     },
     contact: {
       title: 'Contacter Chengtai Mirror — Demander un Devis',
@@ -290,7 +290,7 @@ const COPY: Record<Locale, RoutedCopy> = {
     about: {
       title: 'Chi è Chengtai Mirror — Stabilimento a Jiaxing',
       description:
-        'Fondata nel 2005 a Jiaxing, Zhejiang. Stabilimento di 50.000 mq, oltre 200 dipendenti, 2.000.000 unità/anno. Specchi certificati CE, CB, SAA, ETL, IP44, IP54, RoHS, ISO 9001 spediti in oltre 60 paesi.',
+        'Fondata nel 2005 a Jiaxing, Zhejiang. Stabilimento di 48.000 mq, oltre 200 dipendenti, 2.000.000 unità/anno. Specchi certificati CE, CB, SAA, ETL, IP44, IP54, RoHS, ISO 9001 spediti in oltre 60 paesi.',
     },
     contact: {
       title: 'Contatta Chengtai Mirror — Richiedi un Preventivo',
@@ -318,7 +318,7 @@ const COPY: Record<Locale, RoutedCopy> = {
     about: {
       title: 'Über Chengtai Mirror — Spiegelfabrik in Jiaxing',
       description:
-        'Gegründet 2005 in Jiaxing, Zhejiang. 50.000 m² Werk, über 200 Mitarbeiter, Jahreskapazität 2.000.000 Einheiten. CE-, CB-, SAA-, ETL-, IP44-, IP54-, RoHS- und ISO-9001-zertifizierte Spiegel — Lieferung in 60+ Länder.',
+        'Gegründet 2005 in Jiaxing, Zhejiang. 48.000 m² Werk, über 200 Mitarbeiter, Jahreskapazität 2.000.000 Einheiten. CE-, CB-, SAA-, ETL-, IP44-, IP54-, RoHS- und ISO-9001-zertifizierte Spiegel — Lieferung in 60+ Länder.',
     },
     contact: {
       title: 'Chengtai Mirror Kontakt — Angebot Anfordern',
@@ -346,7 +346,7 @@ const COPY: Record<Locale, RoutedCopy> = {
     about: {
       title: 'אודות מראות Chengtai — מפעל מראות LED בג׳יאשינג',
       description:
-        'נוסדה ב-2005 בג׳יאשינג, ז׳ג׳יאנג. מתקן בן 50,000 מ״ר, 200+ עובדים, 2,000,000 יחידות בשנה. תקני CE, CB, SAA, ETL, RoHS, ISO 9001 — משלוח ל-60+ מדינות.',
+        'נוסדה ב-2005 בג׳יאשינג, ז׳ג׳יאנג. מתקן בן 48,000 מ״ר, 200+ עובדים, 2,000,000 יחידות בשנה. תקני CE, CB, SAA, ETL, RoHS, ISO 9001 — משלוח ל-60+ מדינות.',
     },
     contact: {
       title: 'צרו קשר עם מראות Chengtai — בקשת הצעת מחיר',

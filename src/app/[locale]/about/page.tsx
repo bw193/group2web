@@ -42,7 +42,7 @@ export const revalidate = 600;
 
 /**
  * CMS figures are typed free-form and usually carry their own unit
- * ("42800㎡", "2,000,000 units"). Extract the number for the count-up and let
+ * ("48000㎡", "2,000,000 units"). Extract the number for the count-up and let
  * the localized unit label render exactly once beside it. Returns null when
  * there is no digit to animate, in which case the raw string is shown as-is.
  */
@@ -101,7 +101,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
   const galleryPhotos = factoryPhotos;
 
   const stats = [
-    { raw: about?.factorySize || '50,000', unit: t('unitSqm'), label: t('facilitySize') },
+    { raw: about?.factorySize || '48,000', unit: t('unitSqm'), label: t('facilitySize') },
     { raw: about?.employeeCount || '200+', unit: '', label: t('employees') },
     { raw: about?.annualCapacity || '2,000,000', unit: t('unitUnits'), label: t('annualCapacity') },
     { raw: '21+', unit: '', label: t('yearsExperience') },

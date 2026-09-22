@@ -15,7 +15,7 @@ const FALLBACK_FAQ: QA[] = [
   { q: 'Do you accept sample orders?', a: 'Yes — we support our customers in ordering samples to test quality and function before placing a full production order.' },
   { q: 'What is your typical lead time?', a: 'Generally 10–15 days for standard orders. Larger volumes are scheduled with you in advance.' },
   { q: 'Do you have an MOQ restriction?', a: 'Low MOQ — even a single piece is acceptable for sample checking.' },
-  { q: 'Do you operate your own factory?', a: 'Yes. Fifteen years specializing in mirror manufacturing — LED, bathroom, dressing, and full mirror cabinets, all in-house.' },
+  { q: 'Do you operate your own factory?', a: 'Yes. We have specialized in mirror manufacturing since 2005 — LED, bathroom, dressing, and full mirror cabinets, all in-house.' },
   { q: 'Can we print our own logo on the products?', a: 'Yes. Confirm the design against our pre-production sample and let us know before production begins.' },
   { q: 'Do you offer a warranty on the products?', a: 'Every product ships with a 3-year standard warranty.' },
 ];
