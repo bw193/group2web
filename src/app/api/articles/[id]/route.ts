@@ -12,7 +12,8 @@ import {
 } from '@/lib/articles';
 import {
   revalidateAllLocalizedPublicPaths,
-  revalidateLocalizedDetailPath,
+  revalidateInsightArticlePath,
+  revalidateInsightCategoryPaths,
   revalidatePublicSitemap,
 } from '@/lib/public-revalidation';
 
@@ -241,11 +242,17 @@ export async function PUT(
     return NextResponse.json({ error: 'Failed to update article' }, { status: 500 });
   }
 
-  // Bust ISR: old + new detail URLs (slug may have changed) and every
-  // locale's journal index (EN fallback surfaces edits everywhere).
+  // Bust ISR: old + new detail URLs — the slug and the category are both in
+  // the path and either may have changed — the category landing pages on both
+  // sides of a move, and every locale's journal index (EN fallback surfaces
+  // edits everywhere).
+  const nextCategory: string = body.category ?? existing.category;
   for (const t of [...prevTrans, ...newTrans]) {
-    revalidateLocalizedDetailPath(t.locale, 'insight', t.slug);
+    for (const category of new Set([existing.category, nextCategory])) {
+      revalidateInsightArticlePath(t.locale, category, t.slug);
+    }
   }
+  revalidateInsightCategoryPaths(existing.category, nextCategory);
   revalidateInsightIndexes();
   revalidatePublicSitemap();
 
@@ -272,11 +279,19 @@ export async function DELETE(
     .select({ locale: articleTranslations.locale, slug: articleTranslations.slug })
     .from(articleTranslations)
     .where(eq(articleTranslations.articleId, articleId));
+  const [deleted] = await db
+    .select({ category: articles.category })
+    .from(articles)
+    .where(eq(articles.id, articleId))
+    .limit(1);
 
   await db.delete(articles).where(eq(articles.id, articleId));
 
-  for (const t of delTrans) {
-    revalidateLocalizedDetailPath(t.locale, 'insight', t.slug);
+  if (deleted) {
+    for (const t of delTrans) {
+      revalidateInsightArticlePath(t.locale, deleted.category, t.slug);
+    }
+    revalidateInsightCategoryPaths(deleted.category);
   }
   revalidateInsightIndexes();
   revalidatePublicSitemap();

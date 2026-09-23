@@ -1,5 +1,7 @@
 import './utils.test';
 import './public-paths.test';
+import './insight-paths.test';
+import './insight-list.test';
 import './indexing.test';
 import './seo-snippets.test';
 import './product-slugs.test';

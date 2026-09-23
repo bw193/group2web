@@ -18,18 +18,27 @@ import {
   titleWithSiteName,
 } from '@/lib/seo';
 import { getUploadUrl } from '@/lib/utils';
+import { insightArticlePathAfterLocale } from '@/lib/public-paths';
 import { renderArticlePage, type ArticlePageProps } from './ArticleDetailRoute';
 
 export const revalidate = 600;
 
-export async function generateStaticParams() {
-  return (await getArticleStaticParams()).filter((p) => p.locale !== 'he');
+/**
+ * Called once per locale by the [locale] layout, so it returns this locale's
+ * articles only. Hebrew articles render under /israel-insight instead.
+ */
+export async function generateStaticParams({ params }: { params: { locale: string } }) {
+  if (params.locale === 'he') return [];
+  return (await getArticleStaticParams(params.locale)).map(({ category, slug }) => ({
+    category,
+    slug,
+  }));
 }
 
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ locale: string; slug: string }>;
+  params: Promise<{ locale: string; category: string; slug: string }>;
 }): Promise<Metadata> {
   const { locale, slug } = await params;
   const siteName = localizedSiteName(locale);
@@ -43,15 +52,20 @@ export async function generateMetadata({
     const allTrans = await getArticleAllTranslations(row.article.id);
 
     // Skip locales whose page is noindex at this path (Hebrew detail pages) —
-    // hreflang must never point at a URL we've asked not to be indexed.
+    // hreflang must never point at a URL we've asked not to be indexed. The
+    // category belongs to the article, so every translation shares it; the
+    // URL's own segment is ignored here because the page redirects when it
+    // disagrees.
+    const pathFor = (slugInLocale: string) =>
+      insightArticlePathAfterLocale(row.article.category, slugInLocale);
     const languages: Record<string, string> = {};
     for (const tr of allTrans) {
       if (!(locales as readonly string[]).includes(tr.locale)) continue;
-      if (!isIndexableLocalePath(tr.locale, `/insight/${tr.slug}`)) continue;
-      languages[tr.locale] = localizedUrl(tr.locale, `/insight/${tr.slug}`);
+      if (!isIndexableLocalePath(tr.locale, pathFor(tr.slug))) continue;
+      languages[tr.locale] = localizedUrl(tr.locale, pathFor(tr.slug));
     }
     const def = allTrans.find((tr) => tr.locale === defaultLocale);
-    if (def) languages['x-default'] = localizedUrl(defaultLocale, `/insight/${def.slug}`);
+    if (def) languages['x-default'] = localizedUrl(defaultLocale, pathFor(def.slug));
 
     const title = titleWithSiteName(row.trans.title, siteName);
     // Articles without a dek used to fall back to the Insight index description,
@@ -60,7 +74,7 @@ export async function generateMetadata({
     const body = row.trans.dek ? null : await getArticleBody(row.trans.id);
     const description =
       snippet(row.trans.dek || leadingProse(body)) || pageCopy(locale, 'insight').description;
-    const canonical = localizedUrl(locale, `/insight/${row.trans.slug}`);
+    const canonical = localizedUrl(locale, pathFor(row.trans.slug));
     const ogImage = row.article.coverImageUrl
       ? getUploadUrl(row.article.coverImageUrl)
       : SITE_OG_IMAGE;
