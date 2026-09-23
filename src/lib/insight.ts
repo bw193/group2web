@@ -17,6 +17,18 @@ import { and, desc, eq, inArray, ne } from 'drizzle-orm';
 import { getPublicDataSnapshot } from '@/lib/public-data-snapshot';
 import type { ArticleSlugHistoryRow, PublicDataSnapshot } from '@/lib/public-data-snapshot';
 import { localizedPath } from '@/lib/seo';
+import { insightArticlePathAfterLocale } from '@/lib/public-paths';
+import { categoryFallbackLabel } from '@/lib/insight-list';
+
+// Pure list helpers live in insight-list.ts so tests can load them without
+// this module's server-only guard; callers keep importing them from here.
+export {
+  articleListItemPath,
+  categoryFallbackLabel,
+  categoryTabs,
+  formatArticleDate,
+  toDisplayArticles,
+} from '@/lib/insight-list';
 
 // Insight reads mirror the product pages: direct, batched Drizzle queries on
 // the shared pool, cached only by page-level ISR. Critically, the list /
@@ -28,11 +40,6 @@ import { localizedPath } from '@/lib/seo';
 export interface ArticleCategory {
   key: string;
   name: string;
-}
-
-/** Title-cased key, the last-resort label when no translation row exists. */
-export function categoryFallbackLabel(key: string): string {
-  return key ? key.charAt(0).toUpperCase() + key.slice(1) : key;
 }
 
 function getSnapshot(): PublicDataSnapshot | null {
@@ -344,22 +351,43 @@ export async function getArticleAllTranslations(articleId: number) {
     .where(eq(articleTranslations.articleId, articleId));
 }
 
-export async function getArticleStaticParams(): Promise<Array<{ locale: string; slug: string }>> {
+/**
+ * Every live (locale, slug) pair with its article's category key — the key,
+ * not the URL segment: the Hebrew route turns it into one via
+ * insightCategorySegment.
+ * Pass `locale` to get one locale's pairs, which is how the routes call it
+ * from a per-locale generateStaticParams.
+ */
+export async function getArticleStaticParams(
+  locale?: string,
+): Promise<Array<{ locale: string; category: string; slug: string }>> {
   const snapshot = getSnapshot();
   if (snapshot) {
-    const activeArticleIds = new Set(snapshot.data.articles.filter((a) => a.isActive).map((a) => a.id));
-    return snapshot.data.articleTranslations
-      .filter((r) => activeArticleIds.has(r.articleId))
-      .map((r) => ({ locale: r.locale, slug: r.slug }));
+    const categoryById = new Map(
+      snapshot.data.articles.filter((a) => a.isActive).map((a) => [a.id, a.category]),
+    );
+    return snapshot.data.articleTranslations.flatMap((r) => {
+      const category = categoryById.get(r.articleId);
+      if (!category || (locale && r.locale !== locale)) return [];
+      return [{ locale: r.locale, category, slug: r.slug }];
+    });
   }
 
   const db = getDb();
   const rows = await db
-    .select({ locale: articleTranslations.locale, slug: articleTranslations.slug })
+    .select({
+      locale: articleTranslations.locale,
+      slug: articleTranslations.slug,
+      category: articles.category,
+    })
     .from(articleTranslations)
     .innerJoin(articles, eq(articles.id, articleTranslations.articleId))
-    .where(eq(articles.isActive, true));
-  return rows.map((r) => ({ locale: r.locale, slug: r.slug }));
+    .where(
+      locale
+        ? and(eq(articles.isActive, true), eq(articleTranslations.locale, locale))
+        : eq(articles.isActive, true),
+    );
+  return rows;
 }
 
 function getArticleHistoryRedirectInSnapshot(
@@ -376,7 +404,7 @@ function getArticleHistoryRedirectInSnapshot(
     (t) => t.articleId === article.id && t.locale === locale,
   );
   if (localizedSlugRow?.slug && localizedSlugRow.slug !== slug) {
-    return localizedPath(locale, `/insight/${localizedSlugRow.slug}`);
+    return localizedPath(locale, insightArticlePathAfterLocale(article.category, localizedSlugRow.slug));
   }
   return null;
 }
@@ -400,9 +428,9 @@ export async function getArticleMissingLocaleRedirect(
       (t) => t.articleId === article.id && t.locale === locale,
     );
     if (localizedSlugRow?.slug && localizedSlugRow.slug !== slug) {
-      return localizedPath(locale, `/insight/${localizedSlugRow.slug}`);
+      return localizedPath(locale, insightArticlePathAfterLocale(article.category, localizedSlugRow.slug));
     }
-    return localizedPath(anyTrans.locale, `/insight/${anyTrans.slug}`);
+    return localizedPath(anyTrans.locale, insightArticlePathAfterLocale(article.category, anyTrans.slug));
   }
 
   const db = getDb();
@@ -417,7 +445,8 @@ export async function getArticleMissingLocaleRedirect(
     .where(and(eq(articleSlugHistory.oldSlug, slug), eq(articleSlugHistory.locale, locale), eq(articles.isActive, true)))
     .limit(1);
   if (history[0]?.trans.slug && history[0].trans.slug !== slug) {
-    return localizedPath(locale, `/insight/${history[0].trans.slug}`);
+    const { article, trans } = history[0];
+    return localizedPath(locale, insightArticlePathAfterLocale(article.category, trans.slug));
   }
 
   const any = await db
@@ -435,11 +464,12 @@ export async function getArticleMissingLocaleRedirect(
     .where(and(eq(articleTranslations.articleId, target.article.id), eq(articleTranslations.locale, locale)))
     .limit(1);
 
+  const { category } = target.article;
   if (localizedSlugRow[0]?.slug && localizedSlugRow[0].slug !== slug) {
-    return localizedPath(locale, `/insight/${localizedSlugRow[0].slug}`);
+    return localizedPath(locale, insightArticlePathAfterLocale(category, localizedSlugRow[0].slug));
   }
 
-  return localizedPath(target.trans.locale, `/insight/${target.trans.slug}`);
+  return localizedPath(target.trans.locale, insightArticlePathAfterLocale(category, target.trans.slug));
 }
 
 /**
@@ -590,16 +620,6 @@ export async function getArticleProducts(
 }
 
 /** Locale-aware "12 May 2026" style label for an article's publish date. */
-export function formatArticleDate(publishedAt: string, locale: string): string {
-  const d = new Date(publishedAt);
-  if (Number.isNaN(d.getTime())) return '';
-  try {
-    return new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'long', year: 'numeric' }).format(d);
-  } catch {
-    return new Intl.DateTimeFormat('en', { day: 'numeric', month: 'long', year: 'numeric' }).format(d);
-  }
-}
-
 /** Plain-text excerpt from stored HTML, for meta descriptions and JSON-LD. */
 export function articleExcerpt(html: string | null | undefined, max = 300): string {
   if (!html) return '';

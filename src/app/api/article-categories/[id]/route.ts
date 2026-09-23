@@ -10,7 +10,8 @@ import { and, eq, sql } from 'drizzle-orm';
 import { getSession } from '@/lib/auth';
 import {
   revalidateAllLocalizedPublicPaths,
-  revalidateLocalizedDetailPath,
+  revalidateInsightArticlePath,
+  revalidateInsightCategoryPaths,
 } from '@/lib/public-revalidation';
 
 // Refresh the insight index in every locale; the detail pages render the
@@ -19,7 +20,11 @@ function revalidateInsightIndexes() {
   revalidateAllLocalizedPublicPaths('/insight');
 }
 
-/** Bust the detail pages of every article in this category (label appears there). */
+/**
+ * Bust the detail pages of every article in this category (the label appears
+ * there) and the category's own landing page (its name is the breadcrumb and
+ * kicker).
+ */
 async function revalidateCategoryArticles(key: string) {
   const db = getDb();
   const rows = await db
@@ -28,8 +33,9 @@ async function revalidateCategoryArticles(key: string) {
     .innerJoin(articles, eq(articles.id, articleTranslations.articleId))
     .where(eq(articles.category, key));
   for (const r of rows) {
-    revalidateLocalizedDetailPath(r.locale, 'insight', r.slug);
+    revalidateInsightArticlePath(r.locale, key, r.slug);
   }
+  revalidateInsightCategoryPaths(key);
 }
 
 export async function PUT(
@@ -139,5 +145,6 @@ export async function DELETE(
   await db.delete(articleCategories).where(eq(articleCategories.id, categoryId));
 
   revalidateInsightIndexes();
+  revalidateInsightCategoryPaths(existing.key);
   return NextResponse.json({ message: 'Category deleted' });
 }

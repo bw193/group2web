@@ -93,7 +93,7 @@ Insight page redesign should consult this doc before reinventing the schema
 - `article_products_article_idx (article_id)`
 - `article_products_product_idx (product_id)`
 
-The two UNIQUE indexes are the routing keys: a URL like `/{locale}/insight/{slug}`
+The two UNIQUE indexes are the routing keys: a URL like `/{locale}/insight/{category}/{slug}`
 is resolved via `(locale, slug)`, and `(article_id, locale)` prevents duplicate
 translations for the same article in the same language.
 
@@ -245,7 +245,10 @@ rather than from scratch, cherry-pick from there.
 - **API routes:** `src/app/api/articles/route.ts` (list/create),
   `src/app/api/articles/[id]/route.ts` (get/update/delete)
 - **Public pages:** `src/app/[locale]/insight/page.tsx` (index),
-  `src/app/[locale]/insight/[slug]/page.tsx` (article — SSG+ISR, BlogPosting
+  `src/app/[locale]/insight/[category]/page.tsx` (category landing page — also
+  301s the old flat `/insight/{slug}` URLs to their categorized form; body in
+  `CategoryRoute.tsx`, copy in `src/lib/insight-category-copy.ts`),
+  `src/app/[locale]/insight/[category]/[slug]/page.tsx` (article — SSG+ISR, BlogPosting
   JSON-LD, hreflang, sitemap entries)
 - **Public components:** `src/components/public/insight/`
   (`ArticleListRow`, `CategoryFilter`, `MoreFromInsight`)

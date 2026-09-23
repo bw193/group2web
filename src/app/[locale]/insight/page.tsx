@@ -2,11 +2,11 @@ import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import {
   getInsightIndexData,
-  formatArticleDate,
   categoryFallbackLabel,
+  categoryTabs,
+  toDisplayArticles,
 } from '@/lib/insight';
 import InsightIndex from '@/components/public/insight/InsightIndex';
-import type { DisplayArticle } from '@/components/public/insight/types';
 import { JsonLd } from '@/components/seo/JsonLd';
 import {
   SITE_OG_IMAGE,
@@ -17,7 +17,7 @@ import {
   localizedUrl,
   pageCopy,
 } from '@/lib/seo';
-import { localizedPath } from '@/lib/public-paths';
+import { insightArticlePathAfterLocale } from '@/lib/public-paths';
 import { getUploadUrl } from '@/lib/utils';
 
 export const revalidate = 600;
@@ -74,27 +74,10 @@ export default async function InsightPage({ params }: { params: Promise<{ locale
   const catMap = new Map(categories.map((c) => [c.key, c.name]));
   const catLabel = (key: string) => catMap.get(key) ?? categoryFallbackLabel(key);
 
-  const displayArticles: DisplayArticle[] = list.map((a) => ({
-    id: a.id,
-    categoryKey: a.category,
-    categoryLabel: catLabel(a.category),
-    dateLabel: formatArticleDate(a.publishedAt, locale),
-    readLabel: t('readTime', { minutes: a.readMinutes }),
-    title: a.title,
-    dek: a.dek,
-    author: a.author,
-    // Link to the locale where the translation actually exists, not the
-    // current page locale. Prevents English-fallback cards on /pt/insight
-    // from creating phantom /pt/insight/<en-slug> URLs that ISR would have
-    // to render dynamically — the root cause of the DbTimeoutErrors.
-    href: localizedPath(a.translationLocale, `/insight/${a.slug}`),
-    imagePath: a.thumbnailUrl || a.coverImageUrl,
-  }));
-
-  const tabs = [
-    { key: 'all', label: t('all') },
-    ...categories.map((c) => ({ key: c.key, label: c.name })),
-  ];
+  const displayArticles = toDisplayArticles(list, categories, locale, (minutes) =>
+    t('readTime', { minutes }),
+  );
+  const tabs = categoryTabs(locale, list, categories, t('all'));
 
   const insightUrl = localizedUrl(locale, '/insight');
 
@@ -112,7 +95,7 @@ export default async function InsightPage({ params }: { params: Promise<{ locale
       headline: a.title,
       // Use the locale that actually owns this (slug) row — English-fallback
       // cards point at /en/…, never a phantom /{locale}/… that only redirects.
-      url: localizedUrl(a.translationLocale, `/insight/${a.slug}`),
+      url: localizedUrl(a.translationLocale, insightArticlePathAfterLocale(a.category, a.slug)),
       datePublished: new Date(a.publishedAt).toISOString(),
       articleSection: catLabel(a.category),
       author: a.author

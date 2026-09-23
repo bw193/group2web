@@ -1,6 +1,10 @@
 import { revalidatePath } from 'next/cache';
 import { locales } from '@/i18n/config';
-import { localizedPath } from '@/lib/public-paths';
+import {
+  insightArticlePathAfterLocale,
+  insightCategoryPathAfterLocale,
+  localizedPath,
+} from '@/lib/public-paths';
 
 type RevalidationOptions = {
   includeLegacyHebrewPath?: boolean;
@@ -42,12 +46,42 @@ export function revalidateLocalizedPublicPath(
 
 export function revalidateLocalizedDetailPath(
   locale: string,
-  section: 'products' | 'insight' | 'videos',
+  section: 'products' | 'videos',
   slug: string,
 ): void {
   revalidateLocalizedPublicPath(locale, `/${section}/${slug}`, {
     includeLegacyHebrewPath: true,
   });
+}
+
+/**
+ * Insight articles are the one nested detail route —
+ * /insight/<category>/<slug> — so busting one takes the category too. Kept
+ * separate from revalidateLocalizedDetailPath so a caller cannot bust the
+ * flat /insight/<slug> form, which only redirects now.
+ */
+export function revalidateInsightArticlePath(
+  locale: string,
+  categoryKey: string,
+  slug: string,
+): void {
+  revalidateLocalizedPublicPath(locale, insightArticlePathAfterLocale(categoryKey, slug), {
+    includeLegacyHebrewPath: true,
+  });
+}
+
+/**
+ * Category landing pages list their stories, so any article mutation busts the
+ * categories involved — both sides of a move — in every locale.
+ */
+export function revalidateInsightCategoryPaths(...categoryKeys: string[]): void {
+  for (const key of new Set(categoryKeys.filter(Boolean))) {
+    for (const locale of locales) {
+      revalidateLocalizedPublicPath(locale, insightCategoryPathAfterLocale(key), {
+        includeLegacyHebrewPath: true,
+      });
+    }
+  }
 }
 
 /**
@@ -58,8 +92,9 @@ export function revalidateLocalizedDetailPath(
 export function revalidateLocalizedDetailRoute(
   section: 'products' | 'insight' | 'videos',
 ): void {
+  const pattern = section === 'insight' ? '/[category]/[slug]' : '/[slug]';
   for (const locale of locales) {
-    revalidatePath(`${localizedPath(locale, `/${section}`)}/[slug]`, 'page');
+    revalidatePath(`${localizedPath(locale, `/${section}`)}${pattern}`, 'page');
   }
 }
 
