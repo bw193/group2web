@@ -5,8 +5,8 @@ import { defaultLocale, locales, type Locale } from '@/i18n/config';
  * spirit of the `pageCopy` records in seo.ts.
  *
  * - `title`   the <title>, led by the search terms in keywords.md
- *             (manufacturer / supplier / wholesale / OEM / China, hotel and
- *             commercial). titleWithSiteName appends the brand when it fits.
+ *             (manufacturer / supplier / wholesale / OEM, hotel and commercial).
+ *             titleWithSiteName appends the brand when it fits.
  * - `heading` the H1: editorial, shorter than the title.
  * - `intro`   one sentence under the H1 that is also the meta description, so
  *             it stays inside snippet()'s 155 characters (tests hold every
@@ -45,10 +45,10 @@ const CATEGORY_COPY: Record<Locale, Record<string, InsightCategoryCopy>> = {
         'From float glass to finished mirror: the silvering and protective coats of our coating line, and the polished edges we still set by hand.',
     },
     manufacturing: {
-      title: 'LED Mirror Manufacturing in China: Supply Chain & Scale',
-      heading: 'LED mirror manufacturing in China',
+      title: 'LED Mirror Manufacturing: Supply Chain, Scale & Materials',
+      heading: 'Inside LED mirror manufacturing',
       intro:
-        'Why China leads LED mirror manufacturing — supply chains, scale and materials engineering — and what that means for buyers sourcing from a factory.',
+        'What goes into making LED mirrors at volume — supply chains, economies of scale and materials engineering — and what it means for wholesale buyers.',
     },
     technology: {
       title: 'LED Mirror Installation & Maintenance Guides',
@@ -57,10 +57,10 @@ const CATEGORY_COPY: Record<Locale, Record<string, InsightCategoryCopy>> = {
         "Step-by-step LED mirror installation, and the maintenance mistakes that shorten a mirror's life — practical guides from the factory that builds them.",
     },
     news: {
-      title: 'Chengtai Mirror News: Trade Shows & Company Updates',
-      heading: 'News from the factory',
+      title: 'Company News & Trade Shows',
+      heading: 'News and events',
       intro:
-        'Trade shows, exhibitions and company updates from Chengtai Mirror, an LED and bathroom mirror manufacturer in Jiaxing, China.',
+        'Trade shows we exhibit at, the products we bring to them, and other news from the company.',
     },
     projects: {
       title: 'Hotel & Commercial Bathroom Mirror Projects',
@@ -89,10 +89,10 @@ const CATEGORY_COPY: Record<Locale, Record<string, InsightCategoryCopy>> = {
         'Del vidrio float al espejo terminado: el plateado y las capas protectoras de nuestra línea de recubrimiento, y los cantos que aún pulimos a mano.',
     },
     manufacturing: {
-      title: 'Fabricación de espejos LED en China: suministro y escala',
-      heading: 'Fabricación de espejos LED en China',
+      title: 'Fabricación de espejos LED: suministro, escala y materiales',
+      heading: 'Dentro de la fabricación de espejos LED',
       intro:
-        'Por qué China lidera la fabricación de espejos LED —cadena de suministro, escala e ingeniería de materiales— y qué implica para quien compra en fábrica.',
+        'Qué implica fabricar espejos LED en volumen —cadena de suministro, economías de escala e ingeniería de materiales— y qué significa para el mayorista.',
     },
     technology: {
       title: 'Instalación y mantenimiento de espejos LED',
@@ -101,10 +101,10 @@ const CATEGORY_COPY: Record<Locale, Record<string, InsightCategoryCopy>> = {
         'Instalación de espejos LED paso a paso y los errores de mantenimiento que acortan su vida útil: guías prácticas de la fábrica que los produce.',
     },
     news: {
-      title: 'Noticias de Chengtai Mirror: ferias y novedades',
-      heading: 'Noticias de la fábrica',
+      title: 'Noticias de la empresa y ferias',
+      heading: 'Noticias y eventos',
       intro:
-        'Ferias, exposiciones y novedades de Chengtai Mirror, fabricante de espejos LED y de baño en Jiaxing, China.',
+        'Las ferias en las que exponemos, los productos que llevamos a ellas y otras novedades de la empresa.',
     },
     projects: {
       title: 'Proyectos de espejos de baño para hoteles y comercios',
@@ -133,10 +133,10 @@ const CATEGORY_COPY: Record<Locale, Record<string, InsightCategoryCopy>> = {
         'Do vidro float ao espelho pronto: a prateação e as camadas protetoras da nossa linha de revestimento, e as bordas que ainda polimos à mão.',
     },
     manufacturing: {
-      title: 'Fabricação de espelhos LED na China: cadeia e escala',
-      heading: 'Fabricação de espelhos LED na China',
+      title: 'Fabricação de espelhos LED: suprimentos, escala e materiais',
+      heading: 'Por dentro da fabricação de espelhos LED',
       intro:
-        'Por que a China lidera a fabricação de espelhos LED — cadeia de suprimentos, escala e engenharia de materiais — e o que isso significa para o comprador.',
+        'O que envolve fabricar espelhos LED em volume — cadeia de suprimentos, economia de escala e engenharia de materiais — e o que muda para o atacadista.',
     },
     technology: {
       title: 'Instalação e manutenção de espelhos LED',
@@ -145,10 +145,10 @@ const CATEGORY_COPY: Record<Locale, Record<string, InsightCategoryCopy>> = {
         'Instalação de espelhos LED passo a passo e os erros de manutenção que encurtam a vida útil: guias práticos da fábrica que os produz.',
     },
     news: {
-      title: 'Notícias da Chengtai Mirror: feiras e novidades',
-      heading: 'Notícias da fábrica',
+      title: 'Notícias da empresa e feiras',
+      heading: 'Notícias e eventos',
       intro:
-        'Feiras, exposições e novidades da Chengtai Mirror, fabricante de espelhos LED e de banheiro em Jiaxing, China.',
+        'As feiras em que expomos, os produtos que levamos a elas e outras novidades da empresa.',
     },
     projects: {
       title: 'Projetos de espelhos de banheiro para hotéis e comércio',
@@ -177,10 +177,10 @@ const CATEGORY_COPY: Record<Locale, Record<string, InsightCategoryCopy>> = {
         'Du verre float au miroir fini : l’argenture et les couches protectrices de notre ligne de revêtement, et les chants encore polis à la main.',
     },
     manufacturing: {
-      title: 'Fabrication de miroirs LED en Chine : filière et échelle',
-      heading: 'Fabriquer des miroirs LED en Chine',
+      title: 'Fabrication de miroirs LED : filière, échelle et matériaux',
+      heading: 'Au cœur de la fabrication des miroirs LED',
       intro:
-        'Pourquoi la Chine domine la fabrication de miroirs LED — filière, échelle, ingénierie des matériaux — et ce que cela change pour l’acheteur.',
+        'Ce qu’exige la fabrication de miroirs LED en volume — filière, économies d’échelle, ingénierie des matériaux — et ce que cela change pour le grossiste.',
     },
     technology: {
       title: 'Installation et entretien des miroirs LED',
@@ -189,10 +189,10 @@ const CATEGORY_COPY: Record<Locale, Record<string, InsightCategoryCopy>> = {
         'L’installation d’un miroir LED pas à pas et les erreurs d’entretien qui réduisent sa durée de vie : guides pratiques de l’usine qui les fabrique.',
     },
     news: {
-      title: 'Actualités de Chengtai Mirror : salons et nouvelles',
-      heading: 'Actualités de l’usine',
+      title: 'Actualités de l’entreprise et salons',
+      heading: 'Actualités et événements',
       intro:
-        'Salons, expositions et actualités de Chengtai Mirror, fabricant de miroirs LED et de salle de bains à Jiaxing, en Chine.',
+        'Les salons où nous exposons, les produits que nous y présentons et les autres nouvelles de l’entreprise.',
     },
     projects: {
       title: 'Projets de miroirs de salle de bains pour l’hôtellerie',
@@ -221,10 +221,10 @@ const CATEGORY_COPY: Record<Locale, Record<string, InsightCategoryCopy>> = {
         'Dal vetro float allo specchio finito: l’argentatura e gli strati protettivi della nostra linea di rivestimento, e i bordi che levighiamo ancora a mano.',
     },
     manufacturing: {
-      title: 'Produzione di specchi LED in Cina: filiera e scala',
-      heading: 'Produrre specchi LED in Cina',
+      title: 'Produzione di specchi LED: filiera, scala e materiali',
+      heading: 'Dentro la produzione di specchi LED',
       intro:
-        'Perché la Cina guida la produzione di specchi LED — filiera, scala e ingegneria dei materiali — e cosa significa per chi acquista in fabbrica.',
+        'Cosa serve per produrre specchi LED in volume — filiera, economie di scala e ingegneria dei materiali — e cosa significa per chi compra all’ingrosso.',
     },
     technology: {
       title: 'Installazione e manutenzione degli specchi LED',
@@ -233,10 +233,10 @@ const CATEGORY_COPY: Record<Locale, Record<string, InsightCategoryCopy>> = {
         'Installare uno specchio LED passo dopo passo e gli errori di manutenzione che ne accorciano la vita: guide pratiche dalla fabbrica che li produce.',
     },
     news: {
-      title: 'Notizie da Chengtai Mirror: fiere e novità',
-      heading: 'Notizie dalla fabbrica',
+      title: 'Notizie aziendali e fiere',
+      heading: 'Notizie ed eventi',
       intro:
-        'Fiere, esposizioni e novità di Chengtai Mirror, produttore di specchi LED e da bagno a Jiaxing, in Cina.',
+        'Le fiere a cui partecipiamo, i prodotti che vi portiamo e le altre novità dell’azienda.',
     },
     projects: {
       title: 'Progetti di specchi da bagno per hotel e spazi commerciali',
@@ -265,10 +265,10 @@ const CATEGORY_COPY: Record<Locale, Record<string, InsightCategoryCopy>> = {
         'Vom Floatglas zum fertigen Spiegel: Versilberung und Schutzlacke auf unserer Beschichtungslinie – und Kanten, die wir noch von Hand polieren.',
     },
     manufacturing: {
-      title: 'LED-Spiegel-Fertigung in China: Lieferkette und Größe',
-      heading: 'LED-Spiegel-Fertigung in China',
+      title: 'LED-Spiegel-Fertigung: Lieferkette, Größe und Werkstoffe',
+      heading: 'Einblick in die LED-Spiegel-Fertigung',
       intro:
-        'Warum China die LED-Spiegel-Fertigung anführt – Lieferketten, Skalierung, Werkstofftechnik – und was das für Einkäufer direkt ab Werk bedeutet.',
+        'Was es braucht, um LED-Spiegel in Stückzahl zu fertigen – Lieferkette, Skaleneffekte, Werkstofftechnik – und was das für Großhändler bedeutet.',
     },
     technology: {
       title: 'LED-Spiegel montieren und pflegen: Ratgeber',
@@ -277,10 +277,10 @@ const CATEGORY_COPY: Record<Locale, Record<string, InsightCategoryCopy>> = {
         'LED-Spiegel Schritt für Schritt montieren – und die Pflegefehler, die ihre Lebensdauer verkürzen: Praxisratgeber aus dem Werk, das sie baut.',
     },
     news: {
-      title: 'Chengtai Mirror aktuell: Messen und Neuigkeiten',
-      heading: 'Aktuelles aus dem Werk',
+      title: 'Neuigkeiten aus dem Unternehmen und Messen',
+      heading: 'Aktuelles und Termine',
       intro:
-        'Messen, Ausstellungen und Neuigkeiten von Chengtai Mirror, Hersteller von LED- und Badspiegeln in Jiaxing, China.',
+        'Die Messen, auf denen wir ausstellen, was wir dort zeigen, und weitere Neuigkeiten aus dem Unternehmen.',
     },
     projects: {
       title: 'Badspiegel für Hotel- und Objektprojekte',
@@ -309,10 +309,10 @@ const CATEGORY_COPY: Record<Locale, Record<string, InsightCategoryCopy>> = {
         'מזכוכית פלואט למראה מוגמרת: ההכספה ושכבות ההגנה בקו הציפוי שלנו, והשוליים שאנו עדיין מלטשים ביד.',
     },
     manufacturing: {
-      title: 'ייצור מראות LED בסין: שרשרת אספקה והיקף',
-      heading: 'ייצור מראות LED בסין',
+      title: 'ייצור מראות LED: שרשרת אספקה, היקף וחומרים',
+      heading: 'מאחורי הקלעים של ייצור מראות LED',
       intro:
-        'למה סין מובילה את ייצור מראות ה-LED — שרשרת אספקה, היקף והנדסת חומרים — ומה זה אומר לקונים שרוכשים ישירות מהמפעל.',
+        'מה נדרש כדי לייצר מראות LED בהיקפים גדולים — שרשרת אספקה, יתרונות לגודל והנדסת חומרים — ומה זה אומר לקונים סיטונאיים.',
     },
     technology: {
       title: 'התקנה ותחזוקה של מראות LED',
@@ -321,10 +321,10 @@ const CATEGORY_COPY: Record<Locale, Record<string, InsightCategoryCopy>> = {
         'התקנת מראת LED צעד אחר צעד, וטעויות התחזוקה שמקצרות את חייה — מדריכים מעשיים מהמפעל שמייצר אותן.',
     },
     news: {
-      title: 'חדשות Chengtai Mirror: תערוכות ועדכונים',
-      heading: 'חדשות מהמפעל',
+      title: 'חדשות החברה ותערוכות',
+      heading: 'חדשות ואירועים',
       intro:
-        'תערוכות, ירידים ועדכונים מ-Chengtai Mirror, יצרנית מראות LED ומראות אמבטיה בג׳יאשינג, סין.',
+        'התערוכות שבהן אנו מציגים, המוצרים שאנו מביאים אליהן ועדכונים נוספים מהחברה.',
     },
     projects: {
       title: 'פרויקטי מראות אמבטיה למלונות ולמסחר',

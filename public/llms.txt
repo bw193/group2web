@@ -12,9 +12,9 @@ This file provides a concise map of the public website for LLMs and AI agents. U
   - [Sourcing](https://chengtaimirror.com/en/insight/sourcing): Comparing LED mirror manufacturers, vetting bathroom mirror suppliers, glass and IP-rating specifications for wholesale and hotel orders.
   - [Design](https://chengtaimirror.com/en/insight/design): Arched and custom shapes, colour temperature and CRI, built-in LED mirror features.
   - [Craft](https://chengtaimirror.com/en/insight/craft): Silvering, protective coatings, and hand-polished edges.
-  - [Manufacturing](https://chengtaimirror.com/en/insight/manufacturing): Why China leads LED mirror manufacturing: supply chains, scale, materials.
+  - [Manufacturing](https://chengtaimirror.com/en/insight/manufacturing): What goes into making LED mirrors at volume: supply chains, economies of scale, materials engineering.
   - [Technology](https://chengtaimirror.com/en/insight/technology): LED mirror installation and maintenance guides.
-  - [News](https://chengtaimirror.com/en/insight/news): Trade shows, exhibitions, and company updates.
+  - [News](https://chengtaimirror.com/en/insight/news): Trade shows the company exhibits at, and other company news.
 - [Videos](https://chengtaimirror.com/en/videos): Product demos, factory tours, and installation videos.
 - [About Chengtai Mirror](https://chengtaimirror.com/en/about): Factory background, production capability, certifications, exhibitions, and company history.
 - [Contact](https://chengtaimirror.com/en/contact): Quote requests, OEM/ODM inquiries, email, WhatsApp, and direct sales contact.
