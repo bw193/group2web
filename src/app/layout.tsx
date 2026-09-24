@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { SITE_LOGO_URL, SITE_URL } from '@/lib/seo';
+import { SITE_URL } from '@/lib/seo';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -13,11 +13,10 @@ export const metadata: Metadata = {
   applicationName: 'Chengtai Mirror',
   authors: [{ name: 'Jiaxing Chengtai Mirror Co., Ltd' }],
   formatDetection: { telephone: false },
-  icons: {
-    icon: SITE_LOGO_URL,
-    shortcut: SITE_LOGO_URL,
-    apple: SITE_LOGO_URL,
-  },
+  // Icons come from the file conventions beside this layout — favicon.ico,
+  // icon.png, apple-icon.png — served from the site's own domain. The
+  // Supabase-hosted SITE_LOGO_URL stays the logo in structured data only:
+  // it is the wide lockup, and search engines ignore non-square favicons.
 };
 
 export default function RootLayout({
