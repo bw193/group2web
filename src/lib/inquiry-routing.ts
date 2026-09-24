@@ -1,4 +1,5 @@
 export const INQUIRY_RECIPIENT_USER_IDS_KEY = 'inquiry_recipient_user_ids';
+export const INQUIRY_RECIPIENT_WINDOW_DAYS = 30;
 
 export interface InquiryRoutingState {
   recipientUserIds: number[];

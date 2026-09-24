@@ -10,6 +10,7 @@
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "test": "tsx tests/run-tests.ts",
+    "test:inquiry-routing": "node --conditions=react-server --import tsx --test tests/inquiry-distribution.test.ts",
     "db:generate": "drizzle-kit generate",
     "db:push": "drizzle-kit push",
     "db:migrate": "drizzle-kit migrate",

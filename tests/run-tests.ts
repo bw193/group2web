@@ -16,3 +16,4 @@ import './video-recommendations.test';
 import './video-description.test';
 import './about-video.test';
 import './inquiry-email.test';
+import './inquiry-recipient-history.test';

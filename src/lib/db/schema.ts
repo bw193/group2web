@@ -1,3 +1,4 @@
+import { sql } from 'drizzle-orm';
 import { index, jsonb, pgTable, text, integer, serial, boolean, timestamp, uuid } from 'drizzle-orm/pg-core';
 
 export const users = pgTable('users', {
@@ -217,8 +218,14 @@ export const inquiries = pgTable('inquiries', {
   message: text('message').notNull(),
   isRead: boolean('is_read').notNull().default(false),
   isReplied: boolean('is_replied').notNull().default(false),
+  recipientUserId: integer('recipient_user_id').references(() => users.id, { onDelete: 'set null' }),
   createdAt: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
-});
+}, (table) => ({
+  emailRecipientHistoryIdx: index('inquiries_email_recipient_history_idx')
+    .on(sql`lower(btrim(${table.email}))`, table.createdAt.desc(), table.id.desc())
+    .where(sql`${table.recipientUserId} is not null`),
+  recipientUserIdx: index('inquiries_recipient_user_idx').on(table.recipientUserId),
+}));
 
 export const siteSettings = pgTable('site_settings', {
   id: serial('id').primaryKey(),
