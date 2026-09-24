@@ -3,6 +3,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import ProductsFilter from './ProductsFilter';
 import ProofPoints from '@/components/public/ProofPoints';
 import { JsonLd } from '@/components/seo/JsonLd';
+import { rotateDaily } from '@/lib/daily-rotation';
 import { getProductsPagePublicData } from '@/lib/public-data';
 import {
   SITE_OG_IMAGE,
@@ -57,12 +58,17 @@ export default async function ProductsPage({ params }: { params: Promise<{ local
   setRequestLocale(locale);
   const t = await getTranslations('products');
   const breadcrumbT = await getTranslations('breadcrumb');
-  const { products: productsData, categories: categoriesData } = await getProductsPagePublicData(locale);
+  const { products: newestFirst, categories: categoriesData } = await getProductsPagePublicData(locale);
+
+  // Catalog order rotates daily instead of newest-first, so older products
+  // take their turn at the top of the grid. Deterministic per calendar day, so
+  // ISR regenerations and every locale agree on the same order.
+  const productsData = rotateDaily(newestFirst);
 
   const itemList = {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
-    itemListOrder: 'https://schema.org/ItemListOrderDescending',
+    itemListOrder: 'https://schema.org/ItemListUnordered',
     numberOfItems: productsData.length,
     itemListElement: productsData.slice(0, 30).map((p, i) => ({
       '@type': 'ListItem',

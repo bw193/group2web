@@ -2,12 +2,12 @@
  * Deterministic "shuffle of the day".
  *
  * The homepage featured grid shows a different selection of products every
- * day. The order has to be a pure function of the calendar date rather than
- * Math.random(): public pages are statically generated and revalidated every
- * few minutes (ISR), so a non-deterministic order would reshuffle on every
- * regeneration and a visitor refreshing twice in a minute would see a
- * different grid. Seeding on the date keeps the order stable for a full day
- * and turns it over at midnight.
+ * day, and the /products catalog a different order. The order has to be a
+ * pure function of the calendar date rather than Math.random(): public pages
+ * are statically generated and revalidated every few minutes (ISR), so a
+ * non-deterministic order would reshuffle on every regeneration and a visitor
+ * refreshing twice in a minute would see a different grid. Seeding on the
+ * date keeps the order stable for a full day and turns it over at midnight.
  */
 
 // Day boundary is Asia/Shanghai (UTC+8), where the business runs — "today's
