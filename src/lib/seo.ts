@@ -15,7 +15,7 @@ export const SITE_LOGO_URL =
 export const SITE_OG_IMAGE =
   'https://yleuaykcrrrqdhzmrmoq.supabase.co/storage/v1/object/public/assets/og-image.jpg';
 
-export const CONTACT_EMAIL = 'bolen5@cnjxctm.com';
+export const CONTACT_EMAIL = 'inquiry@chengtaimirror.com';
 export const CONTACT_PHONE = '+86-178-6056-7239';
 export const ADDRESS = {
   streetAddress: 'No. 768 Xinda Road, Xinfeng Town, Nanhu District',

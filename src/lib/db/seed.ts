@@ -66,7 +66,7 @@ async function seed() {
   const settings = [
     { key: 'company_name', value: 'JIAXING CHENGTAI MIRROR CO., LTD' },
     { key: 'slogan', value: 'To be a global leader in the smart home mirror industry' },
-    { key: 'contact_email', value: 'bolen5@cnjxctm.com' },
+    { key: 'contact_email', value: 'inquiry@chengtaimirror.com' },
     { key: 'whatsapp', value: '+86 17860567239' },
     { key: 'address', value: 'No.768, Xinda Road, Xinfeng Town, Nanhu District, Jiaxing, Zhejiang, China' },
     { key: 'copyright', value: '© 2025 Jiaxing Chengtai Mirror Co., Ltd. All rights reserved.' },
@@ -94,7 +94,7 @@ async function seed() {
     { pageSlug: 'home', locale: 'en', metaTitle: 'Chengtai Mirror - Premium LED & Bathroom Mirrors Manufacturer', metaDescription: 'JIAXING CHENGTAI MIRROR CO., LTD - 21 years of manufacturing excellence in LED mirrors, bathroom mirrors, and mirror cabinets. CE/UL/SAA certified. OEM/ODM supported.' },
     { pageSlug: 'products', locale: 'en', metaTitle: 'Products - LED Mirrors, Bathroom Mirrors, Mirror Cabinets | Chengtai', metaDescription: 'Browse our complete range of LED mirrors, bathroom mirrors, full-length mirrors, and mirror cabinets. Over 100,000 SKUs available with full OEM/ODM support.' },
     { pageSlug: 'about', locale: 'en', metaTitle: 'About Us - Chengtai Mirror | 21 Years of Manufacturing Excellence', metaDescription: 'Learn about Jiaxing Chengtai Mirror Co., Ltd. - 48,000㎡ facility, 200+ employees, globally certified manufacturer serving clients across Europe, Americas, and Asia.' },
-    { pageSlug: 'contact', locale: 'en', metaTitle: 'Contact Us - Get a Quote | Chengtai Mirror', metaDescription: 'Contact Jiaxing Chengtai Mirror Co., Ltd. for inquiries, quotes, and OEM/ODM partnerships. Email: bolen5@cnjxctm.com | WhatsApp: +86 17860567239' },
+    { pageSlug: 'contact', locale: 'en', metaTitle: 'Contact Us - Get a Quote | Chengtai Mirror', metaDescription: 'Contact Jiaxing Chengtai Mirror Co., Ltd. for inquiries, quotes, and OEM/ODM partnerships. Email: inquiry@chengtaimirror.com | WhatsApp: +86 17860567239' },
   ];
 
   for (const seo of seoDefaults) {

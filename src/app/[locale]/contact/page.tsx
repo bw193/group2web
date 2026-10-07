@@ -114,12 +114,12 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
           {/* Form */}
-          <div className="lg:col-span-8">
+          <div className="lg:col-span-7">
             <InquiryForm categories={categories} />
           </div>
 
           {/* Direct contact - simple, readable, no vertical rule or quote */}
-          <aside className="lg:col-span-4">
+          <aside className="lg:col-span-5">
             <div className="bg-sand p-6 md:p-7">
               <h2 className="font-display text-[24px] font-normal text-ink mb-6">
                 {t('directLine')}
@@ -129,8 +129,8 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
                 <ContactRow
                   icon={<Mail size={18} strokeWidth={1.75} />}
                   label={t('emailLabel')}
-                  value="bolen5@cnjxctm.com"
-                  href="mailto:bolen5@cnjxctm.com"
+                  value="inquiry@chengtaimirror.com"
+                  href="mailto:inquiry@chengtaimirror.com"
                   trackingMethod="email"
                   trackingLocation="contact_sidebar"
                 />

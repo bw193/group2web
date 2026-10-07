@@ -86,12 +86,12 @@ export default async function ContactThankYouPage({
           <p className="mt-10 text-[14px] font-body text-ink-mid" data-reveal>
             {t('directLine')}:{' '}
             <TrackedContactLink
-              href="mailto:bolen5@cnjxctm.com"
+              href="mailto:inquiry@chengtaimirror.com"
               method="email"
               location="thank_you"
               className="text-ink underline decoration-bronze/40 underline-offset-4 hover:text-bronze transition-colors"
             >
-              bolen5@cnjxctm.com
+              inquiry@chengtaimirror.com
             </TrackedContactLink>
             <span className="mx-2 text-ink-light" aria-hidden>·</span>
             <TrackedContactLink

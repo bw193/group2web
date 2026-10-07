@@ -113,12 +113,12 @@ export default function Footer() {
             </p>
             <div className="space-y-4 text-[15px] font-body font-normal leading-[1.55]">
               <TrackedContactLink
-                href="mailto:bolen5@cnjxctm.com"
+                href="mailto:inquiry@chengtaimirror.com"
                 method="email"
                 location="footer"
                 className="block text-cream hover:text-bronze-light transition-colors"
               >
-                bolen5@cnjxctm.com
+                inquiry@chengtaimirror.com
               </TrackedContactLink>
               <TrackedContactLink
                 href="https://wa.me/8617860567239"
