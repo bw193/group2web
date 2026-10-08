@@ -112,14 +112,14 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
           </p>
         </header>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
           {/* Form */}
-          <div className="lg:col-span-7">
+          <div className="lg:col-span-8">
             <InquiryForm categories={categories} />
           </div>
 
           {/* Direct contact - simple, readable, no vertical rule or quote */}
-          <aside className="lg:col-span-5">
+          <aside className="lg:col-span-4">
             <div className="bg-sand p-6 md:p-7">
               <h2 className="font-display text-[24px] font-normal text-ink mb-6">
                 {t('directLine')}
@@ -127,7 +127,7 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
 
               <ul className="space-y-5">
                 <ContactRow
-                  icon={<Mail size={18} strokeWidth={1.75} />}
+                  icon={<Mail size={15} strokeWidth={1.75} />}
                   label={t('emailLabel')}
                   value="inquiry@chengtaimirror.com"
                   href="mailto:inquiry@chengtaimirror.com"
@@ -135,7 +135,7 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
                   trackingLocation="contact_sidebar"
                 />
                 <ContactRow
-                  icon={<MessageCircle size={18} strokeWidth={1.75} />}
+                  icon={<MessageCircle size={15} strokeWidth={1.75} />}
                   label={t('whatsappLabel')}
                   value="+86 178 6056 7239"
                   href="https://wa.me/8617860567239"
@@ -144,7 +144,7 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
                   external
                 />
                 <ContactRow
-                  icon={<MapPin size={18} strokeWidth={1.75} />}
+                  icon={<MapPin size={15} strokeWidth={1.75} />}
                   label={t('addressLabel')}
                   value={
                     <>
@@ -186,20 +186,20 @@ function ContactRow({
   trackingMethod?: DirectContactMethod;
   trackingLocation?: string;
 }) {
+  // The icon sits beside the label so the value gets the card's full width:
+  // the email address has to fit on one line in the narrow desktop column.
   const content = (
     <>
-      <span className="shrink-0 mt-0.5 text-bronze">{icon}</span>
-      <div>
-        <p className="text-[12px] font-body font-medium text-ink-mid uppercase tracking-[0.1em] mb-1">
-          {label}
-        </p>
-        <p className="text-[15px] font-body text-ink leading-[1.55]">{value}</p>
-      </div>
+      <p className="flex items-center gap-2 text-[12px] font-body font-medium text-ink-mid uppercase tracking-[0.1em] mb-1">
+        <span className="flex shrink-0 text-bronze">{icon}</span>
+        {label}
+      </p>
+      <p className="text-[15px] font-body text-ink leading-[1.55]">{value}</p>
     </>
   );
 
   if (href) {
-    const linkClassName = 'flex items-start gap-3 hover:text-bronze transition-colors';
+    const linkClassName = 'block hover:text-bronze transition-colors';
 
     return (
       <li>
@@ -227,5 +227,5 @@ function ContactRow({
       </li>
     );
   }
-  return <li className="flex items-start gap-3">{content}</li>;
+  return <li>{content}</li>;
 }
