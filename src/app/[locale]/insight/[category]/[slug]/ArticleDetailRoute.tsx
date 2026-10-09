@@ -32,6 +32,8 @@ import {
   insightCategorySegment,
 } from '@/lib/public-paths';
 import { getUploadUrl } from '@/lib/utils';
+import { authorEmail } from '@/lib/insight-authors';
+import TrackedContactLink from '@/components/public/TrackedContactLink';
 
 export type ArticlePageProps = {
   params: Promise<{ locale: string; category: string; slug: string }>;
@@ -78,6 +80,7 @@ export async function renderArticlePage(
   const categoryLabel = catLabel(article.category);
   const dateLabel = formatArticleDate(article.publishedAt, locale);
   const readLabel = t('readTime', { minutes: article.readMinutes });
+  const authorContact = authorEmail(translation.author);
 
   const articleUrl = localizedUrl(locale, articlePath);
   const categoryPath = insightCategoryPathAfterLocale(article.category);
@@ -188,6 +191,18 @@ export async function renderArticlePage(
                 <span className="w-10 h-px bg-warm-border" aria-hidden />
               </div>
             )}
+            {authorContact && (
+              <p className="mt-2.5">
+                <TrackedContactLink
+                  href={`mailto:${authorContact}`}
+                  method="email"
+                  location="insight_article_byline"
+                  className="font-body text-[14px] tracking-[0.02em] text-ink-mid whitespace-nowrap underline decoration-ink/20 underline-offset-4 hover:text-ink transition-colors"
+                >
+                  {authorContact}
+                </TrackedContactLink>
+              </p>
+            )}
           </div>
         </header>
 
@@ -223,6 +238,21 @@ export async function renderArticlePage(
                   <span className="font-semibold tracking-[0.18em] text-ink">
                     {translation.author}
                   </span>
+                  {authorContact && (
+                    <>
+                      <span aria-hidden className="text-ink-light">
+                        ·
+                      </span>
+                      <TrackedContactLink
+                        href={`mailto:${authorContact}`}
+                        method="email"
+                        location="insight_article_closer"
+                        className="normal-case text-[13px] tracking-[0.02em] text-ink-mid whitespace-nowrap underline decoration-ink/20 underline-offset-4 hover:text-ink transition-colors"
+                      >
+                        {authorContact}
+                      </TrackedContactLink>
+                    </>
+                  )}
                   <span aria-hidden className="text-ink-light">
                     —
                   </span>
