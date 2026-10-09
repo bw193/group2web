@@ -44,29 +44,24 @@ export const SOCIAL_SAME_AS = SOCIAL_PROFILES.filter((p) => p.url).map((p) => p.
 // English across locales: these are domain terms used for entity resolution,
 // not display copy.
 //
-// Two halves on purpose. The first states the company's role in the supply
-// chain, which is how buyers search. Exact word-order permutations are left
-// out - "LED Mirror OEM" carries no meaning "OEM LED Mirror" doesn't already
-// carry, and permutation lists read as keyword stuffing. The second half
-// states subject matter, so a model learns what the company knows about
-// mirrors and not only what kind of vendor it is; every topic there is
-// attested by the product specification data.
+// Two halves. The first states the company's role, once per product line and
+// once per way of buying (OEM, wholesale). It used to hold 15
+// "<product> Manufacturer/Supplier/Factory/Wholesale/OEM" variants. After the
+// site lost its rankings in the September 2026 spam update, the synonyms
+// (Supplier, Factory, "Mirror OEM") came out: they repeat the same claim and
+// read as keyword stuffing. Don't grow this half back into permutations. The
+// second half is subject matter, each topic attested by the product
+// specification data.
 export const ORG_KNOWS_ABOUT = [
   'LED Mirror Manufacturer',
-  'LED Mirror Supplier',
-  'LED Mirror Factory',
-  'Wholesale LED Mirror',
-  'OEM LED Mirror',
   'Bathroom Mirror Manufacturer',
-  'Bathroom Mirror Supplier',
-  'Bathroom Mirror Factory',
-  'Wholesale Bathroom Mirror',
-  'OEM Bathroom Mirror',
   'Vanity Mirror Manufacturer',
-  'Vanity Mirror Supplier',
-  'Wholesale Vanity Mirror',
-  'OEM Bathroom Vanity Mirror',
-  'Mirror OEM',
+  'Mirror Cabinet Manufacturer',
+  'Full-Length Mirror Manufacturer',
+  'Dressing Mirror Manufacturer',
+  'OEM LED Mirror',
+  'Wholesale LED Mirror',
+  'LED bathroom mirrors',
   'Smart mirrors with touch and sensor controls',
   'Anti-fog mirror technology',
   'Backlit and front-lit mirror lighting',

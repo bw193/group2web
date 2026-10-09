@@ -74,6 +74,19 @@ const nextConfig = {
       static: 180,
     },
   },
+  // The production alias group2web-one.vercel.app serves a full copy of the
+  // site. Vercel noindexes per-deployment URLs but not this alias, so keep it
+  // out of Google here. A header rather than a redirect, so CMS logins and
+  // webhooks that may use that host keep working.
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        has: [{ type: 'host' as const, value: 'group2web-one.vercel.app' }],
+        headers: [{ key: 'X-Robots-Tag', value: 'noindex' }],
+      },
+    ];
+  },
   async redirects() {
     return [
       ...TYPO_SLUG_REDIRECTS.flatMap(({ from, to }) => [

@@ -168,8 +168,6 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     })),
   };
 
-  const homeCopy = pageCopy(locale, 'home');
-
   return (
     <>
       <JsonLd
@@ -178,10 +176,8 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       />
       <JsonLd id="ld-faq" data={faqJsonLd} />
 
-      {/* Primary heading for the page. The hero is image-led by design,
-          so the H1 is kept off-screen but exposed to assistive tech and
-          crawlers. Removing this breaks the document outline. */}
-      <h1 className="sr-only">{homeCopy.h1 ?? homeCopy.title}</h1>
+      {/* No H1 here: the homepage's H1 is the footer headline (Footer.tsx),
+          visible text rather than the old sr-only keyword heading. */}
 
       {/* Hero Banner */}
       <HeroBanner

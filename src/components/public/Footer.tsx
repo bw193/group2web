@@ -1,11 +1,12 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useTranslations, useLocale } from 'next-intl';
 import { Facebook, Instagram } from 'lucide-react';
 import TrackedContactLink from '@/components/public/TrackedContactLink';
 import { localizedPath } from '@/lib/public-paths';
-import { SOCIAL_PROFILES } from '@/lib/seo';
+import { SOCIAL_PROFILES, pageCopy } from '@/lib/seo';
 
 const SOCIAL_ICONS = { instagram: Instagram, facebook: Facebook } as const;
 
@@ -17,6 +18,16 @@ export default function Footer() {
   const year = new Date().getFullYear();
   const brandName = locale === 'he' ? 'מראות Chengtai' : 'Chengtai Mirror';
   const companyDisplayName = locale === 'he' ? 'Jiaxing Chengtai מראות בע״מ' : 'Jiaxing Chengtai Mirror Co., Ltd';
+
+  // The headline states what the company is, in each locale's words. On the
+  // homepage it is the page's H1: the hero is image-led, and a visible
+  // heading down here replaces the old sr-only one (hidden keyword text).
+  // Every other page has its own H1, so there it stays an H2.
+  const pathname = usePathname();
+  const isHome = pathname === `/${locale}` || pathname === localizedPath(locale, '');
+  const Headline = isHome ? 'h1' : 'h2';
+  const homeCopy = pageCopy(locale, 'home');
+  const headline = homeCopy.h1 ?? homeCopy.title;
 
   const socials = SOCIAL_PROFILES.filter((p) => p.url).map((p) => ({
     ...p,
@@ -32,9 +43,9 @@ export default function Footer() {
             <p className="font-body text-[13px] font-semibold tracking-[0.16em] uppercase text-bronze-light mb-4">
               {companyDisplayName}
             </p>
-            <h2 className="font-display text-4xl md:text-5xl font-normal leading-[1.05] text-cream tracking-[-0.01em]">
-              {t('tagline')}
-            </h2>
+            <Headline className="font-display text-4xl md:text-5xl font-normal leading-[1.05] text-cream tracking-[-0.01em]">
+              {headline}
+            </Headline>
           </div>
           <Link
             href={localizedPath(locale, '/contact')}
