@@ -1,4 +1,4 @@
-import { Cormorant_Garamond, Outfit, Frank_Ruhl_Libre, Heebo } from 'next/font/google';
+import { Bodoni_Moda, Cormorant_Garamond, Outfit, Frank_Ruhl_Libre, Heebo } from 'next/font/google';
 
 export const fontDisplay = Cormorant_Garamond({
   subsets: ['latin'],
@@ -14,6 +14,20 @@ export const fontBody = Outfit({
   weight: ['300', '400', '500', '600', '700'],
   display: 'swap',
   variable: '--font-body',
+});
+
+// Footer slogan only (the homepage H1, Footer.tsx). Upright Bodoni Moda with
+// its optical-size axis, so the 24–30px line gets display contrast (thin
+// hairlines), as in the approved preview. `preload: false`: it sits far below
+// the fold and shouldn't compete with the LCP image; the @font-face rule still
+// ships, so the footer loads it when it renders. Latin pages only.
+export const fontAccent = Bodoni_Moda({
+  subsets: ['latin'],
+  style: ['normal'],
+  axes: ['opsz'],
+  display: 'swap',
+  preload: false,
+  variable: '--font-accent',
 });
 
 // Hebrew (RTL) faces. They bind to the SAME CSS variables as the Latin fonts,

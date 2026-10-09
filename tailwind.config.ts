@@ -37,6 +37,8 @@ const config: Config = {
       fontFamily: {
         display: ['var(--font-display)', '"Cormorant Garamond"', 'Georgia', 'serif'],
         body: ['var(--font-body)', '"Outfit"', 'system-ui', 'sans-serif'],
+        // Footer slogan only (Footer.tsx).
+        accent: ['var(--font-accent)', '"Bodoni Moda"', 'Georgia', 'serif'],
         // Legacy
         sans: ['var(--font-body)', 'Inter', 'Montserrat', 'system-ui', 'sans-serif'],
         heading: ['var(--font-display)', 'Montserrat', 'Inter', 'system-ui', 'sans-serif'],

@@ -23,6 +23,10 @@ export default function Footer() {
   // homepage it is the page's H1: the hero is image-led, and a visible
   // heading down here replaces the old sr-only one (hidden keyword text).
   // Every other page has its own H1, so there it stays an H2.
+  // Set in upright Bodoni Moda at 24/30px: in the big Cormorant display size
+  // the slogan read like an ad. Bodoni has no Hebrew glyphs, so Hebrew keeps
+  // the locale's display face.
+  const headlineFont = locale === 'he' ? 'font-display' : 'font-accent';
   const pathname = usePathname();
   const isHome = pathname === `/${locale}` || pathname === localizedPath(locale, '');
   const Headline = isHome ? 'h1' : 'h2';
@@ -43,7 +47,7 @@ export default function Footer() {
             <p className="font-body text-[13px] font-semibold tracking-[0.16em] uppercase text-bronze-light mb-4">
               {companyDisplayName}
             </p>
-            <Headline className="font-display text-4xl md:text-5xl font-normal leading-[1.05] text-cream tracking-[-0.01em]">
+            <Headline className={`${headlineFont} text-[24px] md:text-[30px] font-normal leading-[1.15] tracking-normal text-cream`}>
               {headline}
             </Headline>
           </div>

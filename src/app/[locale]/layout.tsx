@@ -11,7 +11,7 @@ import Header from '@/components/public/Header';
 import Footer from '@/components/public/Footer';
 import AnimationProvider from '@/components/public/AnimationProvider';
 import NavProgress from '@/components/public/NavProgress';
-import { fontDisplay, fontBody, fontDisplayHe, fontBodyHe } from '@/lib/fonts';
+import { fontDisplay, fontBody, fontAccent, fontDisplayHe, fontBodyHe } from '@/lib/fonts';
 import { getUploadOrigin } from '@/lib/utils';
 
 // Product, gallery and banner images all come from the upload origin, and the
@@ -61,7 +61,7 @@ export default async function LocaleLayout({
   const rtl = isRtlLocale(locale);
   const fontVars = rtl
     ? `${fontDisplayHe.variable} ${fontBodyHe.variable}`
-    : `${fontDisplay.variable} ${fontBody.variable}`;
+    : `${fontDisplay.variable} ${fontBody.variable} ${fontAccent.variable}`;
 
   return (
     <html lang={locale} dir={rtl ? 'rtl' : 'ltr'} className={fontVars}>
