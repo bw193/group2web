@@ -7,6 +7,7 @@ import VideoCard from '@/components/public/videos/VideoCard';
 import ProofPoints from '@/components/public/ProofPoints';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { getProductDetailData } from '@/lib/public-data';
+import { withResponsiveDescriptionImages } from '@/lib/description-images';
 import { usesItemPageMarkup } from '@/lib/product-markup';
 import { getUploadUrl } from '@/lib/utils';
 import {
@@ -217,11 +218,13 @@ export async function renderProductDetailPage(
 
           {trans.fullDescription && (
             <div className="mt-20 pt-14 border-t border-warm-border">
-              <p className="kicker-plain mb-5">{t('detailsTitle')}</p>
-              <div
-                className="prose-content text-[16px] max-w-[760px]"
-                dangerouslySetInnerHTML={{ __html: trans.fullDescription }}
-              />
+              <div className="max-w-[760px] mx-auto">
+                <p className="kicker-plain mb-5">{t('detailsTitle')}</p>
+                <div
+                  className="prose-content text-[16px]"
+                  dangerouslySetInnerHTML={{ __html: withResponsiveDescriptionImages(trans.fullDescription) }}
+                />
+              </div>
             </div>
           )}
 

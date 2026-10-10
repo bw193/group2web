@@ -6,6 +6,7 @@ import { getSession } from '@/lib/auth';
 import {
   PRODUCT_SLUG_SOURCE_LOCALE,
   disambiguateSharedProductSlug,
+  findTranslationImageProblems,
   productSlugFromInput,
   resolveProductTranslationSlug,
 } from '@/lib/products';
@@ -140,6 +141,20 @@ export async function POST(request: NextRequest) {
     }
 
     const db = getDb();
+
+    // Every photo in a description needs its own description; the CMS editor
+    // checks as staff type, this catches anything that got past it.
+    const imageCheck = await findTranslationImageProblems(db, translationInputs, null);
+    if (imageCheck) {
+      return NextResponse.json(
+        {
+          error: 'Every photo in the description needs its own description',
+          locale: imageCheck.locale,
+          imageProblems: imageCheck.problems,
+        },
+        { status: 400 },
+      );
+    }
 
     // Single transaction: a translation slug collision (or any other failure)
     // rolls back the product row too, so the public site never sees a product

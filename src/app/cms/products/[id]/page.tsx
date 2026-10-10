@@ -5,8 +5,14 @@ import { useRouter, useParams } from 'next/navigation';
 import { ArrowLeft, Plus, X, Upload, Star, ArrowLeftCircle, ArrowRightCircle, AlertTriangle, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
 import { getUploadUrl, slugify } from '@/lib/utils';
+import {
+  findDescriptionImageProblems,
+  type DescriptionImageProblem,
+  type UsedDescription,
+} from '@/lib/description-images';
 import { useT } from '../../_lib/i18n';
 import RichTextEditor from '../../_components/RichTextEditor';
+import { descriptionIssueText } from '../../_components/DescriptionImageDialog';
 
 interface Category { id: number; name: string; }
 interface Spec { key: string; value: string; locale: string; }
@@ -75,9 +81,16 @@ export default function ProductEditPage() {
   const [panelMatches, setPanelMatches] = useState<SimMatch[] | null>(null);
   const [panelLoading, setPanelLoading] = useState(false);
   const [panelError, setPanelError] = useState(false);
+  // Photo descriptions on other products, which this product may not reuse.
+  const [usedDescriptions, setUsedDescriptions] = useState<UsedDescription[]>([]);
+  const [imageProblems, setImageProblems] = useState<DescriptionImageProblem[]>([]);
 
   useEffect(() => {
     fetch('/api/categories?locale=en').then((r) => r.json()).then(setCategories).catch(() => {});
+    fetch(`/api/products/description-images?locale=en${isNew ? '' : `&exclude=${id}`}`)
+      .then((r) => r.json())
+      .then((data) => setUsedDescriptions(data.images || []))
+      .catch(() => {});
 
     if (!isNew) {
       fetch(`/api/products/${id}?locale=en`)
@@ -202,6 +215,11 @@ export default function ProductEditPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
+    // Every photo in the description needs its own description (the API checks again).
+    const problems = findDescriptionImageProblems(form.fullDescription, usedDescriptions);
+    setImageProblems(problems);
+    if (problems.length > 0) return;
+
     // Advisory duplicate-content check before saving; API errors never block the save.
     setCheckingSim(true);
     const matches = await fetchSimilarity({
@@ -262,6 +280,11 @@ export default function ProductEditPage() {
 
     if (res.ok) {
       router.push('/cms/products');
+    } else {
+      // A photo description the editor couldn't know was taken, e.g. saved on
+      // another product since this page loaded.
+      const data = await res.json().catch(() => null);
+      if (Array.isArray(data?.imageProblems)) setImageProblems(data.imageProblems);
     }
     setSaving(false);
   }
@@ -374,6 +397,7 @@ export default function ProductEditPage() {
               onChange={(html) => setForm({ ...form, fullDescription: html })}
               placeholder={t('rt.placeholder')}
               minHeight={240}
+              images={{ uploadSlug: form.slug || slugify(form.name), usedElsewhere: usedDescriptions }}
             />
           </div>
           <div className="mt-4 flex gap-6">
@@ -509,6 +533,19 @@ export default function ProductEditPage() {
           </div>
           {uploading && <p className="text-xs text-text-secondary">{t('pe.uploading')}</p>}
         </div>
+
+        {imageProblems.length > 0 && (
+          <div role="alert" className="rounded border border-red-300 bg-red-50 p-4">
+            <p className="flex items-center gap-2 font-semibold text-red-800 mb-2">
+              <AlertTriangle size={18} /> {t('pe.imageProblems')}
+            </p>
+            <ul className="list-disc ps-6 space-y-1 text-sm text-red-700">
+              {imageProblems.map((p) => (
+                <li key={p.photo}>{t('pe.imageProblem', { n: p.photo, problem: descriptionIssueText(t, p) })}</li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         {simMatches && simMatches.length > 0 && (
           <div role="alert" className="rounded border border-amber-300 bg-amber-50 p-4">

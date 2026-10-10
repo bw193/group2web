@@ -7,6 +7,7 @@ import { HEBREW_SLUG_LOCALE } from '@/lib/localized-slugs';
 import {
   PRODUCT_SLUG_SOURCE_LOCALE,
   disambiguateSharedProductSlug,
+  findTranslationImageProblems,
   productSlugFromInput,
   resolveProductTranslationSlug,
 } from '@/lib/products';
@@ -83,6 +84,20 @@ export async function PUT(
     ? body.translations.filter((t: any) => t?.locale && t?.name?.trim())
     : [];
   const englishInput = translationInputs.find((t: any) => t.locale === PRODUCT_SLUG_SOURCE_LOCALE);
+
+  // Every photo in a description needs its own description; the CMS editor
+  // checks as staff type, this catches anything that got past it.
+  const imageCheck = await findTranslationImageProblems(db, translationInputs, productId);
+  if (imageCheck) {
+    return NextResponse.json(
+      {
+        error: 'Every photo in the description needs its own description',
+        locale: imageCheck.locale,
+        imageProblems: imageCheck.problems,
+      },
+      { status: 400 },
+    );
+  }
 
   // Effective model number after the update; used by the disambiguator.
   const effectiveModel = body.modelNumber ?? existing.modelNumber;

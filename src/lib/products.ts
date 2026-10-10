@@ -1,9 +1,72 @@
-import { and, eq, ne, type SQL } from 'drizzle-orm';
+import { and, eq, like, ne, type SQL } from 'drizzle-orm';
 import { productSlugHistory, productTranslations } from './db/schema';
+import {
+  extractDescriptionImages,
+  findDescriptionImageProblems,
+  type DescriptionImageProblem,
+  type UsedDescription,
+} from './description-images';
 import { slugForLocaleFromEnglish } from './localized-slugs';
 import { slugify } from './utils';
 
 export const PRODUCT_SLUG_SOURCE_LOCALE = 'en';
+
+/**
+ * The descriptions on photos in other products' full descriptions for
+ * `locale`, which a product may not reuse (src/lib/description-images.ts).
+ */
+export async function loadUsedDescriptions(
+  // Accepts either the top-level db or a transaction handle.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  db: any,
+  locale: string,
+  excludeProductId: number | null,
+): Promise<UsedDescription[]> {
+  const conditions: SQL[] = [
+    eq(productTranslations.locale, locale),
+    like(productTranslations.fullDescription, '%<img%'),
+  ];
+  if (excludeProductId != null) conditions.push(ne(productTranslations.productId, excludeProductId));
+  const rows: Array<{ productId: number; name: string; fullDescription: string | null }> = await db
+    .select({
+      productId: productTranslations.productId,
+      name: productTranslations.name,
+      fullDescription: productTranslations.fullDescription,
+    })
+    .from(productTranslations)
+    .where(and(...conditions));
+  return rows.flatMap((row) =>
+    extractDescriptionImages(row.fullDescription).map((image) => ({
+      productId: row.productId,
+      productName: row.name,
+      description: image.description,
+    })),
+  );
+}
+
+/**
+ * Checks the photos in each translation's full description before a product
+ * is saved. Returns the first translation with problems, or null when the
+ * save can go ahead. Only descriptions whose photos pass the checks that need
+ * no other product touch the database.
+ */
+export async function findTranslationImageProblems(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  db: any,
+  translations: ReadonlyArray<{ locale: string; fullDescription?: string | null }>,
+  productId: number | null,
+): Promise<{ locale: string; problems: DescriptionImageProblem[] } | null> {
+  for (const t of translations) {
+    if (!t.fullDescription || !/<img\b/i.test(t.fullDescription)) continue;
+    let problems = findDescriptionImageProblems(t.fullDescription);
+    if (problems.length === 0) {
+      const usedElsewhere = await loadUsedDescriptions(db, t.locale, productId);
+      problems = findDescriptionImageProblems(t.fullDescription, usedElsewhere);
+    }
+    if (problems.length > 0) return { locale: t.locale, problems };
+  }
+  return null;
+}
 
 export function resolveProductTranslationSlug(args: {
   locale: string;

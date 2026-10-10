@@ -22,10 +22,14 @@ import {
   Rows,
   Columns,
   Trash2,
+  ImagePlus,
 } from 'lucide-react';
 import { DOMParser as ProseMirrorDOMParser } from '@tiptap/pm/model';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import type { UsedDescription } from '@/lib/description-images';
 import { useT } from '../_lib/i18n';
+import { DescriptionImage, type DescriptionImageAttrs } from './DescriptionImage';
+import DescriptionImageDialog from './DescriptionImageDialog';
 
 function escapeHtml(s: string): string {
   return s
@@ -102,6 +106,16 @@ interface Props {
   onChange: (html: string) => void;
   placeholder?: string;
   minHeight?: number;
+  /**
+   * Turns on Insert image (product descriptions). Every photo needs its own
+   * description; see src/lib/description-images.ts.
+   */
+  images?: {
+    /** Names the stored files after the product, like the gallery uploads. */
+    uploadSlug: string;
+    /** Descriptions already used on photos in other products' descriptions. */
+    usedElsewhere: readonly UsedDescription[];
+  };
 }
 
 export default function RichTextEditor({
@@ -109,8 +123,11 @@ export default function RichTextEditor({
   onChange,
   placeholder,
   minHeight = 220,
+  images,
 }: Props) {
   const { t } = useT();
+  // Open image dialog: `pos` is the photo being edited, or null for a new one.
+  const [imageDialog, setImageDialog] = useState<{ pos: number | null; attrs: DescriptionImageAttrs | null } | null>(null);
 
   const editor = useEditor({
     // Required by Next.js App Router to avoid hydration mismatch
@@ -132,6 +149,9 @@ export default function RichTextEditor({
       TableRow,
       TableHeader,
       TableCell,
+      ...(images
+        ? [DescriptionImage.configure({ onEdit: (pos, attrs) => setImageDialog({ pos, attrs }) })]
+        : []),
     ],
     content: value || '',
     onUpdate: ({ editor }) => {
@@ -193,6 +213,34 @@ export default function RichTextEditor({
       return;
     }
     editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
+  }
+
+  /** Descriptions of the photos in this text, except the one at `exceptPos`. */
+  function photoDescriptions(exceptPos: number | null): string[] {
+    const descriptions: string[] = [];
+    editor?.state.doc.descendants((node, pos) => {
+      if (node.type.name === 'descriptionImage' && pos !== exceptPos) descriptions.push(node.attrs.description);
+    });
+    return descriptions;
+  }
+
+  function submitImage(attrs: DescriptionImageAttrs) {
+    if (!editor || !imageDialog) return;
+    const { pos } = imageDialog;
+    if (pos === null) {
+      editor.chain().focus().insertContent({ type: 'descriptionImage', attrs }).run();
+    } else {
+      editor
+        .chain()
+        .focus()
+        .command(({ tr }) => {
+          if (tr.doc.nodeAt(pos)?.type.name !== 'descriptionImage') return false;
+          tr.setNodeMarkup(pos, undefined, attrs);
+          return true;
+        })
+        .run();
+    }
+    setImageDialog(null);
   }
 
   return (
@@ -279,6 +327,15 @@ export default function RichTextEditor({
           <Unlink size={14} />
         </ToolbarBtn>
 
+        {images && (
+          <>
+            <Divider />
+            <ToolbarBtn onClick={() => setImageDialog({ pos: null, attrs: null })} title={t('rt.image')}>
+              <ImagePlus size={14} />
+            </ToolbarBtn>
+          </>
+        )}
+
         <Divider />
 
         <ToolbarBtn
@@ -340,6 +397,17 @@ export default function RichTextEditor({
       </div>
 
       <EditorContent editor={editor} />
+
+      {images && imageDialog && (
+        <DescriptionImageDialog
+          initial={imageDialog.attrs}
+          uploadSlug={images.uploadSlug}
+          others={photoDescriptions(imageDialog.pos)}
+          usedElsewhere={images.usedElsewhere}
+          onSubmit={submitImage}
+          onClose={() => setImageDialog(null)}
+        />
+      )}
 
       {/* Inline styles for editor content. Scoped via .rt-content class. */}
       <style jsx global>{`
@@ -412,6 +480,57 @@ export default function RichTextEditor({
         }
         .rt-content .selectedCell {
           background: #dbeafe;
+        }
+        /* Description photos (DescriptionImage node view) */
+        .rt-content .rt-figure {
+          position: relative;
+          margin: 0.8em 0;
+        }
+        .rt-content .rt-figure img {
+          display: block;
+          max-width: 100%;
+          max-height: 320px;
+          cursor: grab;
+        }
+        .rt-content .rt-figure.is-selected img {
+          outline: 2px solid #1b2a4a;
+          outline-offset: 2px;
+        }
+        .rt-content .rt-figure figcaption {
+          margin-top: 0.4em;
+          font-size: 0.85em;
+          color: #6b7280;
+        }
+        .rt-content .rt-figure figcaption.is-missing {
+          color: #dc2626;
+        }
+        .rt-content .rt-figure-actions {
+          position: absolute;
+          top: 8px;
+          left: 8px;
+          display: flex;
+          gap: 4px;
+          opacity: 0;
+          transition: opacity 0.15s;
+        }
+        .rt-content .rt-figure:hover .rt-figure-actions,
+        .rt-content .rt-figure.is-selected .rt-figure-actions {
+          opacity: 1;
+        }
+        .rt-content .rt-figure-actions button {
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          padding: 3px 8px;
+          border: 1px solid #d1d5db;
+          border-radius: 4px;
+          background: rgba(255, 255, 255, 0.95);
+          font-size: 12px;
+          color: #374151;
+        }
+        .rt-content .rt-figure-actions button:hover {
+          background: #fff;
+          color: #111827;
         }
         /* Placeholder */
         .rt-content p.is-editor-empty:first-child::before {

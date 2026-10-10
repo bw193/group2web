@@ -207,6 +207,10 @@
 .prose-content a { @apply text-ink underline decoration-bronze decoration-1 underline-offset-4 hover:decoration-ink transition-colors; }
 .prose-content blockquote { @apply border-s-2 border-bronze ps-6 my-6 text-ink font-display text-xl font-normal; }
 .prose-content img { @apply my-6 max-w-full; }
+/* Photos staff add to a product description; the caption is the photo's description. */
+.prose-content figure { @apply my-9; }
+.prose-content figure img { @apply block h-auto my-0 bg-sand; }
+.prose-content figcaption { @apply mt-3 font-body text-[14px] leading-[1.6] text-ink-mid; }
 
 /* ============================================================================
    ARTICLE PROSE — Insight long-form reading column
