@@ -40,7 +40,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p .indexnow
-          artifact_id=$(gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts?per_page=100" --jq '[.artifacts[] | select((.name | startswith("indexnow-state-")) and .expired == false and .workflow_run.head_branch == "main")] | first | .id // empty')
+          artifact_id=$(gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts?per_page=100" --paginate --jq '.artifacts[] | select((.name | startswith("indexnow-state-")) and .expired == false and .workflow_run.head_branch == "main") | [.created_at, .id] | @tsv' | sort | tail -n 1 | cut -f 2)
           if [[ -n "$artifact_id" ]]; then
             [[ "$artifact_id" =~ ^[0-9]+$ ]]
             gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${artifact_id}/zip" > .indexnow/previous.zip
