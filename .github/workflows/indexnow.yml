@@ -1,0 +1,58 @@
+name: IndexNow
+
+on:
+  repository_dispatch:
+    types: [vercel.deployment.success, vercel.deployment.promoted]
+  deployment_status:
+  schedule:
+    - cron: '11 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: indexnow-production
+  cancel-in-progress: false
+
+jobs:
+  notify:
+    if: >-
+      github.event_name == 'schedule' ||
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'repository_dispatch' && github.event.client_payload.environment == 'production') ||
+      (github.event_name == 'deployment_status' && github.event.deployment_status.state == 'success' && github.event.deployment.environment == 'Production')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: main
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '24'
+      - name: Restore last successful production sitemap
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .indexnow
+          artifact_id=$(gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts?per_page=100" --jq '[.artifacts[] | select((.name | startswith("indexnow-state-")) and .expired == false and .workflow_run.head_branch == "main")] | first | .id // empty')
+          if [[ -n "$artifact_id" ]]; then
+            [[ "$artifact_id" =~ ^[0-9]+$ ]]
+            gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${artifact_id}/zip" > .indexnow/previous.zip
+            unzip -p .indexnow/previous.zip state.json > .indexnow/state.json
+          fi
+      - name: Submit changed production URLs
+        run: node scripts/indexnow.mjs
+      - name: Save state only after successful submissions
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: indexnow-state-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .indexnow/state.json
+          include-hidden-files: true
+          retention-days: 7
+          if-no-files-found: error
