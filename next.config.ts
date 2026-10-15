@@ -4,11 +4,13 @@ const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
 // 301s for slug typos corrected in drizzle/0003_fix_product_typos.sql.
 // Keeps any inbound link/index entry to a typoed slug from 404ing after
-// the DB rename. Add a new entry here every time a slug is corrected.
-const TYPO_SLUG_REDIRECTS: { from: string; to: string }[] = [
-  { from: 'asymmetrical-led-miirror', to: 'asymmetrical-led-mirror' },
-  { from: 'ps-full-length-mirorr', to: 'ps-full-length-mirror' },
-  { from: 'silm-framed-bathroom-mirror', to: 'slim-framed-bathroom-mirror' },
+// the DB rename. Each goes straight to the product's URL under its category
+// (the segment from src/lib/product-categories.ts), so the old link is one
+// hop, not two. Add a new entry here every time a slug is corrected.
+const TYPO_SLUG_REDIRECTS: { from: string; to: string; category: string }[] = [
+  { from: 'asymmetrical-led-miirror', to: 'asymmetrical-led-mirror', category: 'led-mirrors' },
+  { from: 'ps-full-length-mirorr', to: 'ps-full-length-mirror', category: 'full-length-mirrors' },
+  { from: 'silm-framed-bathroom-mirror', to: 'slim-framed-bathroom-mirror', category: 'bathroom-mirrors' },
 ];
 
 // Static unprefixed English routes that were live before the /en-prefix
@@ -89,17 +91,17 @@ const nextConfig = {
   },
   async redirects() {
     return [
-      ...TYPO_SLUG_REDIRECTS.flatMap(({ from, to }) => [
+      ...TYPO_SLUG_REDIRECTS.flatMap(({ from, to, category }) => [
         {
           source: `/:locale/products/${from}`,
-          destination: `/:locale/products/${to}`,
+          destination: `/:locale/products/${category}/${to}`,
           permanent: true,
         },
         // Unprefixed legacy form, in case it was ever indexed before the
         // `localePrefix: 'always'` switch.
         {
           source: `/products/${from}`,
-          destination: `/en/products/${to}`,
+          destination: `/en/products/${category}/${to}`,
           permanent: true,
         },
       ]),

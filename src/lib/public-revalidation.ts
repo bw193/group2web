@@ -4,6 +4,8 @@ import {
   insightArticlePathAfterLocale,
   insightCategoryPathAfterLocale,
   localizedPath,
+  productCategoryPathAfterLocale,
+  productPathAfterLocale,
 } from '@/lib/public-paths';
 
 type RevalidationOptions = {
@@ -46,7 +48,7 @@ export function revalidateLocalizedPublicPath(
 
 export function revalidateLocalizedDetailPath(
   locale: string,
-  section: 'products' | 'videos',
+  section: 'videos',
   slug: string,
 ): void {
   revalidateLocalizedPublicPath(locale, `/${section}/${slug}`, {
@@ -55,10 +57,10 @@ export function revalidateLocalizedDetailPath(
 }
 
 /**
- * Insight articles are the one nested detail route —
- * /insight/<category>/<slug> — so busting one takes the category too. Kept
- * separate from revalidateLocalizedDetailPath so a caller cannot bust the
- * flat /insight/<slug> form, which only redirects now.
+ * Insight articles and products are nested detail routes —
+ * /insight/<category>/<slug>, /products/<category>/<slug> — so busting one
+ * takes the category too. Kept apart from revalidateLocalizedDetailPath so a
+ * caller cannot bust only the flat form, which redirects now.
  */
 export function revalidateInsightArticlePath(
   locale: string,
@@ -68,6 +70,32 @@ export function revalidateInsightArticlePath(
   revalidateLocalizedPublicPath(locale, insightArticlePathAfterLocale(categoryKey, slug), {
     includeLegacyHebrewPath: true,
   });
+}
+
+/**
+ * A product's page, plus its flat /products/<slug>: that URL only redirects
+ * now, and a cached redirect would keep pointing at the category a product
+ * has moved out of.
+ */
+export function revalidateProductPath(
+  locale: string,
+  categorySlug: string | null,
+  slug: string,
+): void {
+  const options = { includeLegacyHebrewPath: true };
+  revalidateLocalizedPublicPath(locale, productPathAfterLocale(categorySlug, slug), options);
+  if (categorySlug) revalidateLocalizedPublicPath(locale, productPathAfterLocale(null, slug), options);
+}
+
+/** Every locale's landing page of each category given — both sides of a move. */
+export function revalidateProductCategoryPaths(...categorySlugs: Array<string | null>): void {
+  for (const slug of new Set(categorySlugs.filter((s): s is string => Boolean(s)))) {
+    for (const locale of locales) {
+      revalidateLocalizedPublicPath(locale, productCategoryPathAfterLocale(slug), {
+        includeLegacyHebrewPath: true,
+      });
+    }
+  }
 }
 
 /**
@@ -92,7 +120,7 @@ export function revalidateInsightCategoryPaths(...categoryKeys: string[]): void 
 export function revalidateLocalizedDetailRoute(
   section: 'products' | 'insight' | 'videos',
 ): void {
-  const pattern = section === 'insight' ? '/[category]/[slug]' : '/[slug]';
+  const pattern = section === 'videos' ? '/[slug]' : '/[category]/[slug]';
   for (const locale of locales) {
     revalidatePath(`${localizedPath(locale, `/${section}`)}${pattern}`, 'page');
   }

@@ -29,12 +29,28 @@ export function insightArticlePathAfterLocale(categoryKey: string, slug: string)
 }
 
 /**
+ * Products follow the same shape: /products/<category> lists one category,
+ * /products/<category>/<slug> is a product in it. The category segment comes
+ * from product-categories.ts. A product with no category keeps the flat
+ * /products/<slug>, so it is never left without a page. Generic paths, like
+ * the Insight pair above.
+ */
+export function productCategoryPathAfterLocale(categorySlug: string): string {
+  return `/products/${categorySlug}`;
+}
+
+export function productPathAfterLocale(categorySlug: string | null, slug: string): string {
+  return categorySlug ? `/products/${categorySlug}/${slug}` : `/products/${slug}`;
+}
+
+/**
  * Hebrew prefixes every public segment with israel- (see
  * israel-url-style-change.zh-CN.md: even /he/israel-contact/israel-thank-you),
  * so the category segment carries it too:
- * /he/israel-insight/israel-sourcing/israel-<slug>. Article slugs are stored
- * already prefixed in article_translations, so they pass through untouched;
- * only the category segment is rewritten here, in both directions.
+ * /he/israel-insight/israel-sourcing/israel-<slug> and
+ * /he/israel-products/israel-led-mirrors/israel-<slug>. Article and product
+ * slugs are stored already prefixed, so they pass through untouched; only the
+ * category segment is rewritten here, in both directions.
  */
 function hebrewCategorySegment(categoryKey: string): string {
   return categoryKey.startsWith(HEBREW_SEGMENT_PREFIX)
@@ -49,6 +65,11 @@ function hebrewCategorySegment(categoryKey: string): string {
  */
 export function insightCategorySegment(locale: string, categoryKey: string): string {
   return locale === 'he' ? hebrewCategorySegment(categoryKey) : categoryKey;
+}
+
+/** The same rule for a product category's segment. */
+export function productCategorySegment(locale: string, categorySlug: string): string {
+  return insightCategorySegment(locale, categorySlug);
 }
 
 /** The category key a route's `[category]` segment names, in any locale. */
@@ -86,7 +107,8 @@ export function canonicalPathAfterLocale(locale: string, pathAfterLocale: string
   if (path === '/contact') return `${HEBREW_PUBLIC_PATHS.contact}${suffix}`;
   if (path === '/contact/thank-you') return `${HEBREW_PUBLIC_PATHS.contactThankYou}${suffix}`;
   if (path === '/products' || path.startsWith('/products/')) {
-    return `${HEBREW_PUBLIC_PATHS.products}${path.slice('/products'.length)}${suffix}`;
+    const rest = mapFirstSegment(path.slice('/products'.length), hebrewCategorySegment);
+    return `${HEBREW_PUBLIC_PATHS.products}${rest}${suffix}`;
   }
   if (path === '/insight' || path.startsWith('/insight/')) {
     const rest = mapFirstSegment(path.slice('/insight'.length), hebrewCategorySegment);
@@ -105,7 +127,10 @@ export function genericPathAfterLocale(locale: string, pathAfterLocale: string):
   if (path === HEBREW_PUBLIC_PATHS.contact) return `/contact${suffix}`;
   if (path === HEBREW_PUBLIC_PATHS.contactThankYou) return `/contact/thank-you${suffix}`;
   if (path === HEBREW_PUBLIC_PATHS.products || path.startsWith(`${HEBREW_PUBLIC_PATHS.products}/`)) {
-    return `/products${path.slice(HEBREW_PUBLIC_PATHS.products.length)}${suffix}`;
+    const rest = mapFirstSegment(path.slice(HEBREW_PUBLIC_PATHS.products.length), (segment) =>
+      categoryKeyFromSegment('he', segment),
+    );
+    return `/products${rest}${suffix}`;
   }
   if (path === HEBREW_PUBLIC_PATHS.insight || path.startsWith(`${HEBREW_PUBLIC_PATHS.insight}/`)) {
     const rest = mapFirstSegment(path.slice(HEBREW_PUBLIC_PATHS.insight.length), (segment) =>

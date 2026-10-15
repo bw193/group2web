@@ -1,9 +1,11 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
+import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { Search, X } from 'lucide-react';
 import ProductCard from '@/components/public/ProductCard';
+import type { ProductCategoryTab } from '@/lib/product-categories';
 
 interface Product {
   id: number;
@@ -16,24 +18,25 @@ interface Product {
   categoryId: number | null;
 }
 
-interface Category {
-  id: number;
-  name: string;
-}
-
 interface ProductsFilterProps {
   products: Product[];
-  categories: Category[];
+  /**
+   * "All" plus one tab per stocked category. Each links to its own page —
+   * /products or /products/<category> — rather than filtering in place, so
+   * every category has a URL to rank (F-05 in the 2026-09-15 SEO audit).
+   */
+  tabs: ProductCategoryTab[];
+  /** The page being shown: 'all' on /products, the category slug on its page. */
+  activeKey: string;
 }
 
-export default function ProductsFilter({ products, categories }: ProductsFilterProps) {
+export default function ProductsFilter({ products, tabs, activeKey }: ProductsFilterProps) {
   const t = useTranslations('products');
   // Start empty so the full product grid is statically prerendered (good for
   // SEO and LCP). The ?q= deep-link is read on the client after mount — using
   // useSearchParams() here would force this whole grid into client-only
   // rendering on a now-static page.
   const [search, setSearch] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<number | 'all'>('all');
 
   useEffect(() => {
     const readQuery = () =>
@@ -53,21 +56,13 @@ export default function ProductsFilter({ products, categories }: ProductsFilterP
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase().trim();
-    return products.filter((p) => {
-      const matchSearch =
-        !q ||
+    if (!q) return products;
+    return products.filter(
+      (p) =>
         p.name.toLowerCase().includes(q) ||
-        (p.modelNumber && p.modelNumber.toLowerCase().includes(q));
-      const matchCategory =
-        selectedCategory === 'all' || p.categoryId === selectedCategory;
-      return matchSearch && matchCategory;
-    });
-  }, [products, search, selectedCategory]);
-
-  const allTabs: { id: number | 'all'; label: string }[] = [
-    { id: 'all', label: t('allCategories') },
-    ...categories.map((c) => ({ id: c.id, label: c.name })),
-  ];
+        (p.modelNumber && p.modelNumber.toLowerCase().includes(q)),
+    );
+  }, [products, search]);
 
   return (
     <>
@@ -77,12 +72,13 @@ export default function ProductsFilter({ products, categories }: ProductsFilterP
           <div className="flex flex-col md:flex-row md:items-center gap-5 md:gap-8">
             {/* Category tabs */}
             <div className="flex gap-6 md:gap-8 overflow-x-auto no-scrollbar -mx-1 px-1 flex-1">
-              {allTabs.map((tab) => {
-                const active = tab.id === selectedCategory;
+              {tabs.map((tab) => {
+                const active = tab.key === activeKey;
                 return (
-                  <button
-                    key={String(tab.id)}
-                    onClick={() => setSelectedCategory(tab.id)}
+                  <Link
+                    key={tab.key}
+                    href={tab.href}
+                    aria-current={active ? 'page' : undefined}
                     className={`relative whitespace-nowrap py-2 text-[13px] font-body font-semibold tracking-[0.12em] uppercase transition-colors duration-300 ${
                       active ? 'text-ink' : 'text-ink-mid hover:text-ink'
                     }`}
@@ -93,7 +89,7 @@ export default function ProductsFilter({ products, categories }: ProductsFilterP
                         active ? 'w-full' : 'w-0'
                       }`}
                     />
-                  </button>
+                  </Link>
                 );
               })}
             </div>
@@ -142,7 +138,7 @@ export default function ProductsFilter({ products, categories }: ProductsFilterP
             </div>
           ) : (
             <div
-              key={selectedCategory}
+              key={activeKey}
               className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-14 md:gap-x-10 md:gap-y-16 animate-fade-up"
             >
               {filtered.map((product, i) => (

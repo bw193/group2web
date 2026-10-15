@@ -3,7 +3,8 @@
 import Link from 'next/link';
 import { useTranslations, useLocale } from 'next-intl';
 import GalleryImage from '@/components/public/GalleryImage';
-import { localizedPath } from '@/lib/public-paths';
+import { productCategorySlug } from '@/lib/product-categories';
+import { localizedPath, productPathAfterLocale } from '@/lib/public-paths';
 
 interface ProductCardProps {
   id: number;
@@ -13,6 +14,8 @@ interface ProductCardProps {
   modelNumber?: string | null;
   imageUrl?: string | null;
   isFeatured?: boolean;
+  /** The card links to /products/<category>/<slug>, or the flat URL without one. */
+  categoryId?: number | null;
   index?: number;
   noSnippet?: boolean;
   /**
@@ -36,6 +39,7 @@ export default function ProductCard({
   modelNumber,
   imageUrl,
   isFeatured,
+  categoryId,
   index,
   noSnippet = false,
   hideDescription = false,
@@ -43,7 +47,7 @@ export default function ProductCard({
 }: ProductCardProps) {
   const t = useTranslations('products');
   const locale = useLocale();
-  const productHref = localizedPath(locale, `/products/${slug}`);
+  const productHref = localizedPath(locale, productPathAfterLocale(productCategorySlug(categoryId), slug));
 
   return (
     <article className="h-full">

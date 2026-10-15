@@ -5,9 +5,12 @@ import {
   buildLanguageAlternates,
 } from '@/lib/seo';
 import { getArticleSitemapRows, getProductSitemapRows } from '@/lib/public-data';
+import { productCategorySlug } from '@/lib/product-categories';
 import {
   insightArticlePathAfterLocale,
   insightCategoryPathAfterLocale,
+  productCategoryPathAfterLocale,
+  productPathAfterLocale,
 } from '@/lib/public-paths';
 import { getVideoSitemapRows } from '@/lib/videos';
 import { isIndexableLocalePath } from '@/lib/indexing';
@@ -24,6 +27,11 @@ const STATIC_LAST_MODIFIED = new Date('2026-05-20T00:00:00Z');
 // Static routes shared across every locale, expressed as the path segment
 // AFTER the (optional) locale prefix. Use '' for the locale's homepage.
 const STATIC_ROUTES = ['', '/about', '/contact', '/products', '/videos', '/insight'] as const;
+
+function validDate(value: string): Date {
+  const date = value ? new Date(value) : STATIC_LAST_MODIFIED;
+  return Number.isNaN(date.getTime()) ? STATIC_LAST_MODIFIED : date;
+}
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const entries: MetadataRoute.Sitemap = [];
@@ -45,7 +53,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   }
 
-  // Dynamic product detail pages. Slugs are stored per-locale in
+  // Dynamic product detail pages, each under its category:
+  // /products/<category>/<slug>. Slugs are stored per-locale in
   // `product_translations`. If the DB isn't reachable at build time (the
   // same scenario `generateStaticParams` guards against), fall back to
   // the static entries only.
@@ -56,46 +65,80 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // (with hreflang alternates pointing at the per-locale slugs).
     const byProduct = new Map<
       number,
-      { updatedAt: string; isActive: boolean; slugs: Record<string, string> }
+      {
+        updatedAt: string;
+        isActive: boolean;
+        categoryId: number | null;
+        categoryIsActive: boolean;
+        slugs: Record<string, string>;
+      }
     >();
     for (const r of rows) {
       const existing = byProduct.get(r.productId) ?? {
         updatedAt: r.updatedAt,
         isActive: r.isActive,
+        categoryId: r.categoryId,
+        categoryIsActive: r.categoryIsActive,
         slugs: {} as Record<string, string>,
       };
       existing.slugs[r.locale] = r.slug;
       byProduct.set(r.productId, existing);
     }
 
-    for (const [, { updatedAt, isActive, slugs }] of byProduct) {
+    // Each category landing page changes when one of its products does, so
+    // it is dated by its newest product rather than a fixed build date.
+    const categoryLastModified = new Map<string, Date>();
+
+    for (const [, { updatedAt, isActive, categoryId, categoryIsActive, slugs }] of byProduct) {
       if (!isActive) continue;
+      const lastModified = validDate(updatedAt);
+      const categorySlug = productCategorySlug(categoryId);
+      if (categorySlug && categoryIsActive) {
+        const newest = categoryLastModified.get(categorySlug);
+        if (!newest || lastModified > newest) categoryLastModified.set(categorySlug, lastModified);
+      }
+
+      const pathIn = (loc: string) =>
+        slugs[loc] ? productPathAfterLocale(categorySlug, slugs[loc]) : null;
 
       // Build hreflang languages map from this product's per-locale slugs,
       // skipping locales that are noindex at this path (Hebrew).
       const languages: Record<string, string> = {};
       for (const loc of locales) {
-        const slug = slugs[loc];
-        if (!slug) continue;
-        if (!isIndexableLocalePath(loc, `/products/${slug}`)) continue;
-        languages[loc] = localizedUrl(loc, `/products/${slug}`);
+        const path = pathIn(loc);
+        if (!path || !isIndexableLocalePath(loc, path)) continue;
+        languages[loc] = localizedUrl(loc, path);
       }
-      const defaultSlug = slugs[defaultLocale];
-      if (defaultSlug) {
-        languages['x-default'] = localizedUrl(defaultLocale, `/products/${defaultSlug}`);
-      }
+      const defaultPath = pathIn(defaultLocale);
+      if (defaultPath) languages['x-default'] = localizedUrl(defaultLocale, defaultPath);
 
       // Emit one sitemap entry per locale that has a translation and is indexable.
       for (const loc of locales) {
-        const slug = slugs[loc];
-        if (!slug) continue;
-        if (!isIndexableLocalePath(loc, `/products/${slug}`)) continue;
-        const lastModified = updatedAt ? new Date(updatedAt) : STATIC_LAST_MODIFIED;
+        const path = pathIn(loc);
+        if (!path || !isIndexableLocalePath(loc, path)) continue;
         entries.push({
-          url: localizedUrl(loc, `/products/${slug}`),
-          lastModified: Number.isNaN(lastModified.getTime()) ? STATIC_LAST_MODIFIED : lastModified,
+          url: localizedUrl(loc, path),
+          lastModified,
           changeFrequency: 'monthly',
           priority: 0.8,
+          alternates: { languages },
+        });
+      }
+    }
+
+    // Category landing pages: only active categories holding a live product
+    // have one. Slugs are the same in every locale, so one path serves every
+    // hreflang set.
+    for (const [categorySlug, lastModified] of categoryLastModified) {
+      const pathAfterLocale = productCategoryPathAfterLocale(categorySlug);
+      const languages = buildLanguageAlternates(pathAfterLocale);
+      for (const loc of locales) {
+        if (!isIndexableLocalePath(loc, pathAfterLocale)) continue;
+        entries.push({
+          url: localizedUrl(loc, pathAfterLocale),
+          lastModified,
+          changeFrequency: 'weekly',
+          priority: 0.7,
           alternates: { languages },
         });
       }
@@ -126,10 +169,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       byArticle.set(r.articleId, existing);
     }
 
-    const validDate = (value: string) => {
-      const date = value ? new Date(value) : STATIC_LAST_MODIFIED;
-      return Number.isNaN(date.getTime()) ? STATIC_LAST_MODIFIED : date;
-    };
     // Each category landing page changes when one of its stories does, so it
     // is dated by its newest article rather than a fixed build date.
     const categoryLastModified = new Map<string, Date>();

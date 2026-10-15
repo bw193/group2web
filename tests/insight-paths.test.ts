@@ -37,18 +37,6 @@ test('Hebrew prefixes the category segment and leaves the stored slug alone', ()
   assert.equal(localizedPath('he', '/insight'), '/he/israel-insight');
 });
 
-test('products keep their flat paths — this change is Insight only', () => {
-  assert.equal(localizedPath('en', '/products/round-led-mirror'), '/en/products/round-led-mirror');
-  assert.equal(
-    localizedPath('he', '/products/israel-round-led-mirror'),
-    '/he/israel-products/israel-round-led-mirror',
-  );
-  assert.equal(
-    genericPathAfterLocale('he', '/israel-products/israel-round-led-mirror'),
-    '/products/israel-round-led-mirror',
-  );
-});
-
 test('Hebrew category paths round-trip through the generic form', () => {
   for (const hebrew of [
     '/israel-insight/israel-sourcing',

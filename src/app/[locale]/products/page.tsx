@@ -5,6 +5,8 @@ import ProofPoints from '@/components/public/ProofPoints';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { rotateDaily } from '@/lib/daily-rotation';
 import { getProductsPagePublicData } from '@/lib/public-data';
+import { productCategorySlug, productCategoryTabs } from '@/lib/product-categories';
+import { productPathAfterLocale } from '@/lib/public-paths';
 import {
   SITE_OG_IMAGE,
   buildAlternates,
@@ -73,7 +75,7 @@ export default async function ProductsPage({ params }: { params: Promise<{ local
     itemListElement: productsData.slice(0, 30).map((p, i) => ({
       '@type': 'ListItem',
       position: i + 1,
-      url: localizedUrl(locale, `/products/${p.slug}`),
+      url: localizedUrl(locale, productPathAfterLocale(productCategorySlug(p.categoryId), p.slug)),
       name: p.name,
       image: p.imageUrl ? getUploadUrl(p.imageUrl) : undefined,
     })),
@@ -130,7 +132,11 @@ export default async function ProductsPage({ params }: { params: Promise<{ local
         </div>
       </section>
 
-      <ProductsFilter products={productsData} categories={categoriesData} />
+      <ProductsFilter
+        products={productsData}
+        tabs={productCategoryTabs(locale, productsData, categoriesData, t('allCategories'))}
+        activeKey="all"
+      />
     </>
   );
 }

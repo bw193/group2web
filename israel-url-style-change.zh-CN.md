@@ -11,12 +11,13 @@
 - Contact：`/he/israel-contact`
 - Contact thank-you：`/he/israel-contact/israel-thank-you`
 - 产品列表：`/he/israel-products`
-- 产品详情：`/he/israel-products/israel-<english-slug>`
+- 产品分类：`/he/israel-products/israel-<category>`
+- 产品详情：`/he/israel-products/israel-<category>/israel-<english-slug>`
 - Insight 列表：`/he/israel-insight`
 - Insight 分类：`/he/israel-insight/israel-<category>`
 - Insight 详情：`/he/israel-insight/israel-<category>/israel-<english-slug>`
 
-Insight 文章现在位于所属分类之下，分类段同样加 `israel-` 前缀。文章 slug 在数据库中已带前缀，因此路径 helper 只改写分类段。
+产品和 Insight 文章现在都位于所属分类之下，分类段同样加 `israel-` 前缀。产品和文章 slug 在数据库中已带前缀，因此路径 helper 只改写分类段。产品分类段来自 `src/lib/product-categories.ts`（按分类 id 固定）。
 
 ## 兼容旧 URL
 
@@ -30,7 +31,7 @@ Insight 文章现在位于所属分类之下，分类段同样加 `israel-` 前�
 - `/he/insight` -> `/he/israel-insight`
 
 旧 Hebrew 产品和 Insight 详情路径会先按当前 slug / slug history 解析到实体，再一步跳转到新的 canonical URL，避免跳转链和重复内容。
-没有分类段的旧 Insight 详情 URL（`/he/israel-insight/israel-<slug>`）同样一步跳转到带分类的 URL；分类段缺少 `israel-` 前缀时也会跳转到 canonical 形式。
+没有分类段的旧产品和 Insight 详情 URL（`/he/israel-products/israel-<slug>`、`/he/israel-insight/israel-<slug>`）同样一步跳转到带分类的 URL；分类段缺少 `israel-` 前缀时也会跳转到 canonical 形式。没有分类的产品保留 `/he/israel-products/israel-<slug>`。
 
 ## 实现位置
 

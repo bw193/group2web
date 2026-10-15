@@ -21,6 +21,8 @@ import {
   productTranslations,
 } from '@/lib/db/schema';
 import { localizedPath } from '@/lib/seo';
+import { productCategorySlug } from '@/lib/product-categories';
+import { productPathAfterLocale } from '@/lib/public-paths';
 import { RELATED_PRODUCT_COUNT, pickRelatedProducts } from '@/lib/related-products';
 import { getPublishedVideoListItems } from '@/lib/videos';
 import { getPublicDataSnapshot } from '@/lib/public-data-snapshot';
@@ -104,6 +106,8 @@ export type ProductDetailData =
       type: 'ok';
       product: ProductRow;
       translation: ProductTranslationRow;
+      /** The product's active category in this locale, for the breadcrumb. */
+      categoryName: string | null;
       specs: ProductSpecificationRow[];
       images: ProductImageRow[];
       related: ProductCardData[];
@@ -116,6 +120,10 @@ export interface ProductSitemapRow {
   locale: string;
   slug: string;
   productId: number;
+  /** The first segment of /products/<category>/<slug>; null keeps the flat URL. */
+  categoryId: number | null;
+  /** Only an active category has a landing page to list. */
+  categoryIsActive: boolean;
   updatedAt: string;
   isActive: boolean;
 }
@@ -261,6 +269,11 @@ function faqPairsFromRows(
       return t ? { q: t.question, a: t.answer } : null;
     })
     .filter((item): item is { q: string; a: string } => Boolean(item));
+}
+
+/** Where a product lives in `locale`: under its category, or flat without one. */
+function productDetailPath(locale: string, product: Pick<ProductRow, 'categoryId'>, slug: string): string {
+  return localizedPath(locale, productPathAfterLocale(productCategorySlug(product.categoryId), slug));
 }
 
 function findProductRouteInSnapshot(snapshot: PublicDataSnapshot, locale: string, slug: string) {
@@ -495,22 +508,36 @@ export async function getAboutPagePublicData(locale: string): Promise<AboutPageP
   };
 }
 
-export async function getProductStaticParams(): Promise<Array<{ locale: string; slug: string }>> {
+/**
+ * The /products/<category>/<slug> pages `locale` prerenders. A product with no
+ * category has no entry here: its flat URL renders on demand.
+ */
+export async function getProductStaticParams(
+  locale: string,
+): Promise<Array<{ category: string; slug: string }>> {
+  const toParams = (rows: Array<{ categoryId: number | null; slug: string }>) =>
+    rows.flatMap((r) => {
+      const category = productCategorySlug(r.categoryId);
+      return category ? [{ category, slug: r.slug }] : [];
+    });
+
   const snapshot = getSnapshot();
   if (snapshot) {
-    const activeProductIds = new Set(snapshot.data.products.filter((p) => p.isActive).map((p) => p.id));
-    return snapshot.data.productTranslations
-      .filter((r) => activeProductIds.has(r.productId))
-      .map((r) => ({ locale: r.locale, slug: r.slug }));
+    const activeProducts = new Map(snapshot.data.products.filter((p) => p.isActive).map((p) => [p.id, p]));
+    return toParams(
+      snapshot.data.productTranslations
+        .filter((r) => r.locale === locale && activeProducts.has(r.productId))
+        .map((r) => ({ categoryId: activeProducts.get(r.productId)!.categoryId, slug: r.slug })),
+    );
   }
 
   const db = getDb();
   const rows = await db
-    .select({ locale: productTranslations.locale, slug: productTranslations.slug })
+    .select({ categoryId: products.categoryId, slug: productTranslations.slug })
     .from(productTranslations)
     .innerJoin(products, eq(products.id, productTranslations.productId))
-    .where(eq(products.isActive, true));
-  return rows.map((r) => ({ locale: r.locale, slug: r.slug }));
+    .where(and(eq(products.isActive, true), eq(productTranslations.locale, locale)));
+  return toParams(rows);
 }
 
 export async function getProductMetadataData(locale: string, slug: string): Promise<ProductMetadataData | null> {
@@ -612,7 +639,10 @@ export async function getProductDetailData(locale: string, slug: string): Promis
     if (!row) {
       const historyTarget = findProductHistoryInSnapshot(snapshot, locale, slug);
       if (historyTarget?.translation.slug && historyTarget.translation.slug !== slug) {
-        return { type: 'redirect', destination: localizedPath(locale, `/products/${historyTarget.translation.slug}`) };
+        return {
+          type: 'redirect',
+          destination: productDetailPath(locale, historyTarget.product, historyTarget.translation.slug),
+        };
       }
 
       const target = findProductAnySlugInSnapshot(snapshot, slug);
@@ -621,7 +651,7 @@ export async function getProductDetailData(locale: string, slug: string): Promis
         (t) => t.productId === target.product.id && t.locale === locale,
       );
       if (localized?.slug && localized.slug !== slug) {
-        return { type: 'redirect', destination: localizedPath(locale, `/products/${localized.slug}`) };
+        return { type: 'redirect', destination: productDetailPath(locale, target.product, localized.slug) };
       }
       row = target;
     }
@@ -653,6 +683,7 @@ export async function getProductDetailData(locale: string, slug: string): Promis
       type: 'ok',
       product: row.product,
       translation,
+      categoryName: categoryName ?? null,
       specs,
       images,
       related: productCardsFromRows(relatedRows, snapshot.data.productTranslations, snapshot.data.productImages, locale).map((p) => ({
@@ -695,7 +726,10 @@ export async function getProductDetailData(locale: string, slug: string): Promis
       .limit(1);
 
     if (historyTarget[0]?.trans.slug && historyTarget[0].trans.slug !== slug) {
-      return { type: 'redirect', destination: localizedPath(locale, `/products/${historyTarget[0].trans.slug}`) };
+      return {
+        type: 'redirect',
+        destination: productDetailPath(locale, historyTarget[0].product, historyTarget[0].trans.slug),
+      };
     }
 
     const any = await db
@@ -714,7 +748,7 @@ export async function getProductDetailData(locale: string, slug: string): Promis
       .limit(1);
 
     if (localizedSlugRow[0]?.slug && localizedSlugRow[0].slug !== slug) {
-      return { type: 'redirect', destination: localizedPath(locale, `/products/${localizedSlugRow[0].slug}`) };
+      return { type: 'redirect', destination: productDetailPath(locale, target.product, localizedSlugRow[0].slug) };
     }
 
     product = target.product;
@@ -787,8 +821,12 @@ export async function getProductDetailData(locale: string, slug: string): Promis
 
   const categoryName = product.categoryId
     ? await db
-        .select()
+        .select({ locale: categoryTranslations.locale, name: categoryTranslations.name })
         .from(categoryTranslations)
+        .innerJoin(
+          productCategories,
+          and(eq(productCategories.id, categoryTranslations.categoryId), eq(productCategories.isActive, true)),
+        )
         .where(
           and(
             eq(categoryTranslations.categoryId, product.categoryId),
@@ -809,30 +847,45 @@ export async function getProductDetailData(locale: string, slug: string): Promis
     3,
   );
 
-  return { type: 'ok', product, translation, specs, images, related, relatedVideos };
+  return { type: 'ok', product, translation, categoryName, specs, images, related, relatedVideos };
 }
 
 export async function getProductSitemapRows(): Promise<ProductSitemapRow[]> {
   const snapshot = getSnapshot();
   if (snapshot) {
+    const activeCategoryIds = new Set(
+      snapshot.data.productCategories.filter((c) => c.isActive).map((c) => c.id),
+    );
     return snapshot.data.productTranslations.flatMap((t) => {
       const product = snapshot.data.products.find((p) => p.id === t.productId);
       return product
-        ? [{ locale: t.locale, slug: t.slug, productId: t.productId, updatedAt: product.updatedAt, isActive: product.isActive }]
+        ? [{
+            locale: t.locale,
+            slug: t.slug,
+            productId: t.productId,
+            categoryId: product.categoryId,
+            categoryIsActive: product.categoryId != null && activeCategoryIds.has(product.categoryId),
+            updatedAt: product.updatedAt,
+            isActive: product.isActive,
+          }]
         : [];
     });
   }
   const db = getDb();
-  return db
+  const rows = await db
     .select({
       locale: productTranslations.locale,
       slug: productTranslations.slug,
       productId: productTranslations.productId,
+      categoryId: products.categoryId,
+      categoryIsActive: productCategories.isActive,
       updatedAt: products.updatedAt,
       isActive: products.isActive,
     })
     .from(productTranslations)
-    .innerJoin(products, eq(products.id, productTranslations.productId));
+    .innerJoin(products, eq(products.id, productTranslations.productId))
+    .leftJoin(productCategories, eq(productCategories.id, products.categoryId));
+  return rows.map((r) => ({ ...r, categoryIsActive: r.categoryIsActive === true }));
 }
 
 export async function getArticleSitemapRows(): Promise<ArticleSitemapRow[]> {

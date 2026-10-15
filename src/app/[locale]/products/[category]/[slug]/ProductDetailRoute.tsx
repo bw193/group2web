@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
 import { notFound, permanentRedirect } from 'next/navigation';
@@ -6,27 +7,115 @@ import ProductCard from '@/components/public/ProductCard';
 import VideoCard from '@/components/public/videos/VideoCard';
 import ProofPoints from '@/components/public/ProofPoints';
 import { JsonLd } from '@/components/seo/JsonLd';
-import { getProductDetailData } from '@/lib/public-data';
+import { defaultLocale, locales } from '@/i18n/config';
+import { isIndexableLocalePath } from '@/lib/indexing';
+import { getProductDetailData, getProductMetadataData } from '@/lib/public-data';
 import { withResponsiveDescriptionImages } from '@/lib/description-images';
+import { productCategorySlug } from '@/lib/product-categories';
 import { usesItemPageMarkup } from '@/lib/product-markup';
+import {
+  productCategoryPathAfterLocale,
+  productCategorySegment,
+  productPathAfterLocale,
+} from '@/lib/public-paths';
 import { getUploadUrl } from '@/lib/utils';
 import {
+  SITE_OG_IMAGE,
   SITE_URL,
+  localeToOg,
   localizedSiteName,
   localizedPath,
   localizedUrl,
+  productTitle,
 } from '@/lib/seo';
 import ImageGallery from './ImageGallery';
 
+/**
+ * /products/<category>/<slug> — a product page, under the category it belongs
+ * to. `category` is absent when the flat /products/<slug> reaches here
+ * through the [category] route: an old link, sent on to the categorized URL,
+ * or the page of a product that has no category and so keeps the flat one.
+ *
+ * Lives outside page.tsx because a page module may only export Next's own
+ * names, and the Hebrew mirror and the [category] route render it too — the
+ * same split as the Insight routes.
+ */
 export type ProductDetailPageProps = {
-  params: Promise<{ locale: string; slug: string }>;
+  params: Promise<{ locale: string; category?: string; slug: string }>;
 };
+
+export async function productMetadata({ params }: ProductDetailPageProps): Promise<Metadata> {
+  const { locale, slug } = await params;
+  const siteName = localizedSiteName(locale);
+
+  try {
+    const row = await getProductMetadataData(locale, slug);
+    if (!row) {
+      return { title: productTitle('Product', locale), robots: { index: false, follow: true } };
+    }
+
+    // The category belongs to the product, so every translation shares it;
+    // the URL's own segment is ignored because the page redirects when it
+    // disagrees. Skip locales whose page is noindex at this path (Hebrew
+    // detail pages) — hreflang must never point at a URL we've asked not to
+    // be indexed.
+    const pathFor = (slugInLocale: string) =>
+      productPathAfterLocale(productCategorySlug(row.product.categoryId), slugInLocale);
+    const languages: Record<string, string> = {};
+    for (const t of row.allTranslations) {
+      if (!(locales as readonly string[]).includes(t.locale)) continue;
+      if (!isIndexableLocalePath(t.locale, pathFor(t.slug))) continue;
+      languages[t.locale] = localizedUrl(t.locale, pathFor(t.slug));
+    }
+    const defaultRow = row.allTranslations.find((t) => t.locale === defaultLocale);
+    if (defaultRow) {
+      languages['x-default'] = localizedUrl(defaultLocale, pathFor(defaultRow.slug));
+    }
+
+    const ogImage = row.primaryImage?.imageUrl
+      ? getUploadUrl(row.primaryImage.imageUrl)
+      : SITE_OG_IMAGE;
+
+    const title = productTitle(row.translation.name, locale);
+    const description = row.translation.shortDescription
+      ? row.translation.shortDescription.slice(0, 300)
+      : `${row.trans.name}${row.product.modelNumber ? ` (Model ${row.product.modelNumber})` : ''} - manufactured by ${siteName}, Jiaxing, China. OEM/ODM available.`;
+
+    const canonical = localizedUrl(locale, pathFor(row.translation.slug));
+
+    return {
+      title,
+      description,
+      alternates: {
+        canonical,
+        languages: Object.keys(languages).length ? languages : undefined,
+      },
+      openGraph: {
+        type: 'website',
+        url: canonical,
+        siteName,
+        title,
+        description,
+        locale: localeToOg(locale),
+        images: [{ url: ogImage, width: 1200, height: 630, alt: row.trans.name }],
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title,
+        description,
+        images: [ogImage],
+      },
+    };
+  } catch {
+    return { title: productTitle('Product', locale) };
+  }
+}
 
 export async function renderProductDetailPage(
   { params }: ProductDetailPageProps,
   options: { redirectHebrewSegment?: boolean } = {},
 ) {
-  const { locale, slug } = await params;
+  const { locale, category: categorySegment, slug } = await params;
   setRequestLocale(locale);
   const t = await getTranslations('products');
   const videosT = await getTranslations('videos');
@@ -34,18 +123,32 @@ export async function renderProductDetailPage(
   const detail = await getProductDetailData(locale, slug);
   if (detail.type === 'notFound') notFound();
   if (detail.type === 'redirect') permanentRedirect(detail.destination);
-  if (options.redirectHebrewSegment && locale === 'he') {
-    permanentRedirect(localizedPath(locale, `/products/${detail.translation.slug}`));
+
+  const { product, translation: trans, categoryName, specs, images, related, relatedVideos } = detail;
+  const categorySlug = productCategorySlug(product.categoryId);
+  const productPath = productPathAfterLocale(categorySlug, trans.slug);
+  // One product, one URL. A Hebrew request on the generic route, a flat
+  // /products/<slug> for a product that has a category, or a category segment
+  // that is not this product's own in this locale's form (a moved product, a
+  // stale link, a Hebrew segment missing its israel- prefix) goes to the
+  // canonical URL in a single permanent redirect.
+  const expectedSegment = categorySlug ? productCategorySegment(locale, categorySlug) : undefined;
+  if ((options.redirectHebrewSegment && locale === 'he') || categorySegment !== expectedSegment) {
+    permanentRedirect(localizedPath(locale, productPath));
   }
 
-  const { product, translation: trans, specs, images, related, relatedVideos } = detail;
   const siteName = localizedSiteName(locale);
+  // The category level of the breadcrumb, when the category has a page.
+  const categoryCrumb =
+    categorySlug && categoryName
+      ? { name: categoryName, path: productCategoryPathAfterLocale(categorySlug) }
+      : null;
 
   const imageUrls = images.length > 0
     ? images.map((img) => getUploadUrl(img.imageUrl))
     : ['/images/placeholder.svg'];
 
-  const productUrl = localizedUrl(locale, `/products/${trans.slug}`);
+  const productUrl = localizedUrl(locale, productPath);
   const breadcrumbId = `${productUrl}#breadcrumb`;
   const description =
     trans.shortDescription ||
@@ -110,10 +213,11 @@ export async function renderProductDetailPage(
     '@type': 'BreadcrumbList',
     '@id': breadcrumbId,
     itemListElement: [
-      { '@type': 'ListItem', position: 1, name: breadcrumbT('home'), item: localizedUrl(locale, '') },
-      { '@type': 'ListItem', position: 2, name: breadcrumbT('products'), item: localizedUrl(locale, '/products') },
-      { '@type': 'ListItem', position: 3, name: trans.name, item: localizedUrl(locale, `/products/${trans.slug}`) },
-    ],
+      { name: breadcrumbT('home'), item: localizedUrl(locale, '') },
+      { name: breadcrumbT('products'), item: localizedUrl(locale, '/products') },
+      ...(categoryCrumb ? [{ name: categoryCrumb.name, item: localizedUrl(locale, categoryCrumb.path) }] : []),
+      { name: trans.name, item: productUrl },
+    ].map((crumb, i) => ({ '@type': 'ListItem', position: i + 1, ...crumb })),
   };
 
   return (
@@ -127,12 +231,16 @@ export async function renderProductDetailPage(
       <nav aria-label="Breadcrumb" className="bg-cream border-b border-warm-border">
         <div className="container-wide py-4">
           <ol className="flex items-center gap-2.5 text-[12px] font-body font-semibold tracking-[0.12em] uppercase">
-            <li className="flex-shrink-0">
+            {/* Four levels do not fit a phone (German's run past 400px), so
+                below sm a product with a category shows just Products and the
+                category: the logo already leads home, and the H1 just below
+                names the product. */}
+            <li className={`${categoryCrumb ? 'hidden sm:block ' : ''}flex-shrink-0`}>
               <Link href={localizedPath(locale, '')} className="text-ink-mid hover:text-ink transition-colors duration-300">
                 {breadcrumbT('home')}
               </Link>
             </li>
-            <li aria-hidden className="flex-shrink-0 text-ink-light">
+            <li aria-hidden className={`${categoryCrumb ? 'hidden sm:block ' : ''}flex-shrink-0 text-ink-light`}>
               <ChevronRight size={13} strokeWidth={2} />
             </li>
             <li className="flex-shrink-0">
@@ -143,7 +251,22 @@ export async function renderProductDetailPage(
             <li aria-hidden className="flex-shrink-0 text-ink-light">
               <ChevronRight size={13} strokeWidth={2} />
             </li>
-            <li className="min-w-0 truncate text-ink" aria-current="page">
+            {categoryCrumb && (
+              <>
+                <li className="min-w-0 truncate">
+                  <Link href={localizedPath(locale, categoryCrumb.path)} className="text-ink-mid hover:text-ink transition-colors duration-300">
+                    {categoryCrumb.name}
+                  </Link>
+                </li>
+                <li aria-hidden className="hidden sm:block flex-shrink-0 text-ink-light">
+                  <ChevronRight size={13} strokeWidth={2} />
+                </li>
+              </>
+            )}
+            <li
+              className={`${categoryCrumb ? 'hidden sm:block ' : ''}min-w-0 truncate text-ink`}
+              aria-current="page"
+            >
               {trans.name}
             </li>
           </ol>

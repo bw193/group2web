@@ -523,6 +523,8 @@ export interface ArticleRelatedProduct {
   modelNumber: string | null;
   imageUrl: string | null;
   isFeatured: boolean;
+  /** ProductCard files the link under it: /products/<category>/<slug>. */
+  categoryId: number | null;
 }
 
 /**
@@ -568,6 +570,7 @@ export async function getArticleProducts(
         modelNumber: p.modelNumber,
         imageUrl: imgMap.get(p.id)?.imageUrl ?? null,
         isFeatured: p.isFeatured,
+        categoryId: p.categoryId,
       };
     });
   }
@@ -615,6 +618,7 @@ export async function getArticleProducts(
       modelNumber: p.modelNumber,
       imageUrl: imgMap.get(p.id)?.imageUrl ?? null,
       isFeatured: p.isFeatured,
+      categoryId: p.categoryId,
     };
   });
 }

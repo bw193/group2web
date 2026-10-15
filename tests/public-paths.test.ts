@@ -38,7 +38,10 @@ test('localizedPath leaves non-Hebrew paths unchanged', () => {
 test('genericPathAfterLocale reverses Hebrew public paths for locale switching', () => {
   assert.equal(genericPathAfterLocale('he', '/israel-home'), '');
   assert.equal(genericPathAfterLocale('he', '/israel-about'), '/about');
-  assert.equal(genericPathAfterLocale('he', '/israel-products/israel-round-backlit-led-mirror'), '/products/israel-round-backlit-led-mirror');
+  assert.equal(
+    genericPathAfterLocale('he', '/israel-products/israel-led-mirrors/israel-round-backlit-led-mirror'),
+    '/products/led-mirrors/israel-round-backlit-led-mirror',
+  );
   assert.equal(canonicalPathAfterLocale('he', genericPathAfterLocale('he', '/israel-insight/israel-story')), '/israel-insight/israel-story');
 });
 

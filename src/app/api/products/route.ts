@@ -10,9 +10,11 @@ import {
   productSlugFromInput,
   resolveProductTranslationSlug,
 } from '@/lib/products';
+import { productCategorySlug } from '@/lib/product-categories';
 import {
-  revalidateLocalizedDetailPath,
   revalidateLocalizedPublicPath,
+  revalidateProductCategoryPaths,
+  revalidateProductPath,
   revalidatePublicSitemap,
 } from '@/lib/public-revalidation';
 
@@ -222,12 +224,15 @@ export async function POST(request: NextRequest) {
     });
 
     // Bust ISR cache for the home page (featured grid), the products index,
-    // and the new product's detail page in every locale with a translation.
+    // the category's landing pages, and the new product's detail page in
+    // every locale with a translation.
+    const category = productCategorySlug(product.categoryId);
     for (const t of finalTranslations) {
       revalidateLocalizedPublicPath(t.locale, '');
       revalidateLocalizedPublicPath(t.locale, '/products');
-      revalidateLocalizedDetailPath(t.locale, 'products', t.slug);
+      revalidateProductPath(t.locale, category, t.slug);
     }
+    revalidateProductCategoryPaths(category);
     revalidatePublicSitemap();
 
     return NextResponse.json({ ...product, translations: finalTranslations }, { status: 201 });

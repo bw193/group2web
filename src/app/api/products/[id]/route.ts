@@ -11,9 +11,11 @@ import {
   productSlugFromInput,
   resolveProductTranslationSlug,
 } from '@/lib/products';
+import { productCategorySlug } from '@/lib/product-categories';
 import {
-  revalidateLocalizedDetailPath,
   revalidateLocalizedPublicPath,
+  revalidateProductCategoryPaths,
+  revalidateProductPath,
   revalidatePublicSitemap,
 } from '@/lib/public-revalidation';
 
@@ -240,17 +242,23 @@ export async function PUT(
   }
 
   // Bust ISR cache so CMS edits show up on the public site immediately.
-  // Covers both old and new slugs (in case the slug changed) plus the listing
-  // and home (featured grid) once per locale.
+  // Covers both old and new URLs (in case the slug or the category changed),
+  // both categories' landing pages, plus the listing and home (featured grid)
+  // once per locale.
+  const prevCategory = productCategorySlug(existing.categoryId);
+  const newCategory = productCategorySlug(body.categoryId ?? existing.categoryId);
   const seenLocales = new Set<string>();
-  for (const t of [...prevTrans, ...newTrans]) {
-    revalidateLocalizedDetailPath(t.locale, 'products', t.slug);
-    if (!seenLocales.has(t.locale)) {
-      seenLocales.add(t.locale);
-      revalidateLocalizedPublicPath(t.locale, '/products');
-      revalidateLocalizedPublicPath(t.locale, '');
+  for (const [category, rows] of [[prevCategory, prevTrans], [newCategory, newTrans]] as const) {
+    for (const t of rows) {
+      revalidateProductPath(t.locale, category, t.slug);
+      if (!seenLocales.has(t.locale)) {
+        seenLocales.add(t.locale);
+        revalidateLocalizedPublicPath(t.locale, '/products');
+        revalidateLocalizedPublicPath(t.locale, '');
+      }
     }
   }
+  revalidateProductCategoryPaths(prevCategory, newCategory);
   revalidatePublicSitemap();
 
   return NextResponse.json({ message: 'Product updated', translations: newTrans });
@@ -269,24 +277,32 @@ export async function DELETE(
   const productId = parseInt(id);
   const db = getDb();
 
-  // Capture localized slugs before deleting so we can bust the detail pages,
-  // listing, and home grid in each locale the product appeared in.
+  // Capture localized slugs and the category before deleting so we can bust
+  // the detail pages, the category's landing pages, listing, and home grid in
+  // each locale the product appeared in.
   const delTrans = await db
     .select({ locale: productTranslations.locale, slug: productTranslations.slug })
     .from(productTranslations)
     .where(eq(productTranslations.productId, productId));
+  const [deleted] = await db
+    .select({ categoryId: products.categoryId })
+    .from(products)
+    .where(eq(products.id, productId))
+    .limit(1);
+  const category = productCategorySlug(deleted?.categoryId);
 
   await db.delete(products).where(eq(products.id, productId));
 
   const seenLocales = new Set<string>();
   for (const t of delTrans) {
-    revalidateLocalizedDetailPath(t.locale, 'products', t.slug);
+    revalidateProductPath(t.locale, category, t.slug);
     if (!seenLocales.has(t.locale)) {
       seenLocales.add(t.locale);
       revalidateLocalizedPublicPath(t.locale, '/products');
       revalidateLocalizedPublicPath(t.locale, '');
     }
   }
+  revalidateProductCategoryPaths(category);
   revalidatePublicSitemap();
 
   return NextResponse.json({ message: 'Product deleted' });
