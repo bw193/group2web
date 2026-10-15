@@ -7,6 +7,11 @@ on:
   schedule:
     - cron: '11 * * * *'
   workflow_dispatch:
+    inputs:
+      allow_removals:
+        description: 'Allow removals: a deliberate URL move took out more than 25% of the sitemap; submit every removed and added URL once'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -47,7 +52,14 @@ jobs:
             unzip -p .indexnow/previous.zip state.json > .indexnow/state.json
           fi
       - name: Submit changed production URLs
-        run: node scripts/indexnow.mjs
+        env:
+          ALLOW_REMOVALS: ${{ github.event_name == 'workflow_dispatch' && inputs.allow_removals }}
+        run: |
+          if [ "$ALLOW_REMOVALS" = "true" ]; then
+            node scripts/indexnow.mjs --allow-removals
+          else
+            node scripts/indexnow.mjs
+          fi
       - name: Save state only after successful submissions
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:

@@ -86,3 +86,34 @@ test('a wrong key and a drastic inventory drop cannot advance the state', async 
     await rm(directory, { recursive: true });
   }
 });
+
+test('a deliberate URL move is submitted once with --allow-removals, then checks resume', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'indexnow-test-'));
+  const statePath = join(directory, 'state.json');
+  const oldPaths = Array.from({ length: 30 }, (_, i) => `/en/products/item-${i}`);
+  const newPaths = oldPaths.map((path) => path.replace('/products/', '/products/led-mirrors/'));
+  const submitted = [];
+  const fetchImpl = async (url, options) => {
+    if (url.endsWith('/sitemap.xml')) return new Response(xml(...newPaths.map((path) => [path, '2026-10-15'])));
+    if (url === KEY_LOCATION) return new Response(KEY);
+    submitted.push(...JSON.parse(options.body).urlList);
+    return new Response(null, { status: 200 });
+  };
+  try {
+    const previous = Object.fromEntries(oldPaths.map((path) => [`${SITE}${path}`, '2026-10-01']));
+    await writeFile(statePath, JSON.stringify({ version: 1, host: 'chengtaimirror.com', urls: previous }));
+    await assert.rejects(run({ statePath, fetchImpl }), /--allow-removals/);
+    assert.equal(submitted.length, 0);
+    // Every old URL, so its redirect is recrawled, and every new one.
+    assert.deepEqual(await run({ statePath, allowRemovals: true, fetchImpl }), { submitted: 60, changed: 60 });
+    assert.deepEqual(new Set(submitted), new Set([...oldPaths, ...newPaths].map((path) => `${SITE}${path}`)));
+    const saved = JSON.parse(await readFile(statePath, 'utf8')).urls;
+    assert.deepEqual(Object.keys(saved).sort(), newPaths.map((path) => `${SITE}${path}`).sort());
+    // The next ordinary run compares against the new inventory and passes.
+    assert.deepEqual(await run({ statePath, fetchImpl }), { submitted: 0, changed: 0 });
+  } finally {
+    assert.equal(dirname(resolve(directory)), resolve(tmpdir()));
+    assert.ok(basename(directory).startsWith('indexnow-test-'));
+    await rm(directory, { recursive: true });
+  }
+});

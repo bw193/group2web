@@ -95,7 +95,7 @@ async function readState(path) {
   return state.urls;
 }
 
-export async function run({ statePath = STATE_PATH, dryRun = false, urls = [], fetchImpl = fetch } = {}) {
+export async function run({ statePath = STATE_PATH, dryRun = false, urls = [], allowRemovals = false, fetchImpl = fetch } = {}) {
   if (urls.length) {
     const canonical = [...new Set(urls.map(publicUrl))];
     if (dryRun) { console.log(JSON.stringify(canonical, null, 2)); return { submitted: 0, changed: canonical.length }; }
@@ -111,7 +111,12 @@ export async function run({ statePath = STATE_PATH, dryRun = false, urls = [], f
   const changed = previous ? changedUrls(previous, current) : [];
   const removed = previous ? Object.keys(previous).filter((url) => !Object.hasOwn(current, url)).length : 0;
   if (previous && removed > 20 && removed > Object.keys(previous).length / 4) {
-    throw new Error('More than 25% of URLs disappeared. Check production sitemap health before replacing the state.');
+    // A deliberate URL move (Oct 2026: every product URL gained its category)
+    // looks the same as a broken sitemap, so only a person can let it through.
+    if (!allowRemovals) {
+      throw new Error('More than 25% of URLs disappeared. Check production sitemap health before replacing the state. If the move is deliberate, run once with --allow-removals.');
+    }
+    console.log(`${removed} URLs left the sitemap; --allow-removals submits them so search engines recrawl them.`);
   }
   console.log(previous
     ? `${Object.keys(current).length} live URLs; ${changed.length} added, updated or removed URLs.`
@@ -134,6 +139,7 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
   const args = process.argv.slice(2);
   for (let i = 0; i < args.length; i++) {
     if (args[i] === '--dry-run') options.dryRun = true;
+    else if (args[i] === '--allow-removals') options.allowRemovals = true;
     else if (args[i] === '--url' && args[i + 1]) options.urls.push(args[++i]);
     else if (args[i] === '--state' && args[i + 1]) options.statePath = args[++i];
     else throw new Error(`Unknown or incomplete option: ${args[i]}`);

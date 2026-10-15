@@ -21,6 +21,14 @@ The script also stops if over 25% of the inventory (and more than 20 URLs)
 disappears in one check, so a database or sitemap failure cannot trigger mass
 removal notifications. Inspect the sitemap before establishing a new baseline.
 
+A deliberate change can move that much at once: in October 2026 every product
+URL gained its category (`/en/products/<category>/<slug>`). After checking the
+live sitemap, run the workflow once by hand with **Allow removals** ticked
+(`gh workflow run indexnow.yml -f allow_removals=true`). That run submits every
+removed URL, so search engines recrawl it and find its redirect, and every
+added one. It then saves the new inventory, and later runs go back to the
+normal check.
+
 CMS edits that need a catalog deployment are submitted when that content becomes
 visible in the production sitemap. Keep sitemap `lastmod` accurate, including
 bumping `STATIC_LAST_MODIFIED` in `src/app/sitemap.ts` when static pages change.
