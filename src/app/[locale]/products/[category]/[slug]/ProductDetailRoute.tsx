@@ -374,7 +374,7 @@ export async function renderProductDetailPage(
           )}
 
           {relatedVideos.length > 0 && (
-            <div className="mt-24 pt-14 border-t border-warm-border" data-reveal>
+            <div className="mt-24 pt-14 border-t border-warm-border" data-reveal data-nosnippet="">
               <div className="flex items-end justify-between mb-10">
                 <h2 className="font-display text-3xl md:text-4xl font-normal text-ink tracking-[-0.015em] leading-[1.1]">
                   {videosT('relatedVideos')}
