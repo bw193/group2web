@@ -40,7 +40,17 @@ export async function uploadFile(
     // 1-year immutable cache: keys are unique per upload, so the bytes at a
     // given key never change. Critical for gallery images served straight from
     // Supabase's CDN (they don't get Vercel's cache otherwise).
-    .upload(key, body, { contentType, upsert: true, cacheControl: '31536000' });
+    //
+    // Supabase serves a file with `X-Robots-Tag: none` (noindex, nofollow)
+    // unless its upload set another value, which keeps photos served straight
+    // from Supabase out of Google Images. Files uploaded before this was added
+    // still have `none`.
+    .upload(key, body, {
+      contentType,
+      upsert: true,
+      cacheControl: '31536000',
+      headers: { 'x-robots-tag': 'all' },
+    });
 
   if (error) throw error;
 
