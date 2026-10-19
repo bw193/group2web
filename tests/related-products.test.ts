@@ -2,8 +2,8 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
   RELATED_PRODUCT_COUNT,
-  orderCategoryProducts,
   pickRelatedProducts,
+  rankRelatedProducts,
   type RelatedProductRow,
   type RelatedSpecRow,
   type RelatedTextRow,
@@ -38,10 +38,32 @@ const catalog = {
   specs: [] as RelatedSpecRow[],
 };
 
-test('the nearest products win, not the newest', () => {
-  const picked = pickRelatedProducts(catalog.products[0], catalog.products, catalog.texts, catalog.specs);
-  assert.deepEqual(new Set(picked.slice(0, 2).map((p) => p.id)), new Set([2, 3]));
-  assert.equal(picked.length, RELATED_PRODUCT_COUNT);
+// Twelve products in four shapes and three styles: alike in different degrees,
+// and enough of them for every rule to hold at once.
+const shapes = ['Oval', 'Round', 'Arch', 'Capsule'];
+const styles = ['Backlit LED', 'Front Lit LED', 'Frameless'];
+const grid = {
+  products: Array.from({ length: 12 }, (_, i) => product(i + 1)),
+  texts: shapes.flatMap((shape, s) => styles.map((style, t) => text(s * 3 + t + 1, `${shape} ${style} Bathroom Mirror`))),
+};
+// Twelve shapes plus a plain "LED Mirror" that is every one's nearest match.
+const hubShapes = ['Oval', 'Round', 'Arch', 'Capsule', 'Square', 'Cloud', 'Pebble', 'Teardrop', 'Hexagon', 'Octagon', 'Leaf', 'Moon'];
+const hub = {
+  products: Array.from({ length: 13 }, (_, i) => product(i + 1)),
+  texts: [...hubShapes.map((shape, i) => text(i + 1, `${shape} LED Mirror`)), text(13, 'LED Mirror')],
+};
+const cardsOf = (catalogue: { products: RelatedProductRow[]; texts: RelatedTextRow[] }) =>
+  new Map(catalogue.products.map((p) => [p.id, pickRelatedProducts(p, catalogue.products, catalogue.texts, []).map((r) => r.id)]));
+const inboundOf = (cards: Map<number, number[]>) => {
+  const inbound = new Map([...cards.keys()].map((id) => [id, 0]));
+  for (const list of cards.values()) for (const id of list) inbound.set(id, inbound.get(id)! + 1);
+  return inbound;
+};
+
+test('the nearest products rank first, not the newest', () => {
+  const ranked = rankRelatedProducts(catalog.products[0], catalog.products, catalog.texts, catalog.specs);
+  assert.deepEqual(new Set(ranked.slice(0, 2).map((p) => p.id)), new Set([2, 3]));
+  assert.equal(pickRelatedProducts(catalog.products[0], catalog.products, catalog.texts, catalog.specs).length, RELATED_PRODUCT_COUNT);
 });
 
 test('shared specifications rank a sibling above one that shares nothing', () => {
@@ -51,8 +73,7 @@ test('shared specifications rank a sibling above one that shares nothing', () =>
     spec(1, 'Shape', 'Round'), spec(1, 'Frame', 'Aluminium'),
     spec(3, 'Shape', 'Round'), spec(3, 'Frame', 'Aluminium'),
   ];
-  const picked = pickRelatedProducts(products[0], products, texts, specs, { count: 1, neighbourSlots: 0 });
-  assert.deepEqual(picked.map((p) => p.id), [3]);
+  assert.equal(rankRelatedProducts(products[0], products, texts, specs)[0].id, 3);
 });
 
 test('the model series breaks a tie between equally worded siblings', () => {
@@ -62,7 +83,7 @@ test('the model series breaks a tie between equally worded siblings', () => {
     product(3, { modelNumber: 'CTL0061D-AAA' }),
   ];
   const texts = [text(1, 'LED Mirror'), text(2, 'LED Mirror'), text(3, 'LED Mirror')];
-  assert.deepEqual(pickRelatedProducts(products[0], products, texts, [], { count: 1, neighbourSlots: 0 }).map((p) => p.id), [3]);
+  assert.equal(rankRelatedProducts(products[0], products, texts, [])[0].id, 3);
 });
 
 test('shared tags count towards relatedness', () => {
@@ -72,15 +93,32 @@ test('shared tags count towards relatedness', () => {
     product(3, { tags: '["anti-fog","hotel"]' }),
   ];
   const texts = [text(1, 'Mirror'), text(2, 'Mirror'), text(3, 'Mirror')];
-  assert.deepEqual(pickRelatedProducts(products[0], products, texts, [], { count: 1, neighbourSlots: 0 }).map((p) => p.id), [3]);
+  assert.equal(rankRelatedProducts(products[0], products, texts, [])[0].id, 3);
 });
 
-test('a category with no shared wording still fills every card, in catalog order', () => {
+test('scoring reads the default locale, so every language links the same products', () => {
+  const products = [1, 2, 3].map((id) => product(id));
+  const texts = [
+    text(1, 'Oval LED Mirror'), text(2, 'Oval LED Mirror'), text(3, 'Wood Cabinet'),
+    // Spanish rows that would reverse the ranking if they were scored.
+    text(1, 'Espejo LED Ovalado', null, 'es'), text(2, 'Armario de Madera', null, 'es'), text(3, 'Espejo LED Ovalado', null, 'es'),
+  ];
+  assert.equal(rankRelatedProducts(products[0], products, texts, [])[0].id, 2);
+  const english = texts.filter((t) => t.locale === 'en');
+  for (const current of products) {
+    assert.deepEqual(
+      pickRelatedProducts(current, products, texts, []).map((p) => p.id),
+      pickRelatedProducts(current, [...products], english, []).map((p) => p.id),
+    );
+  }
+});
+
+test('a category with no shared wording still fills every card', () => {
   const products = [1, 2, 3, 4].map((id) => product(id));
   const texts = [text(1, 'Alpha'), text(2, 'Beta'), text(3, 'Gamma'), text(4, 'Delta')];
-  const picked = pickRelatedProducts(products[0], products, texts, []);
-  assert.equal(picked.length, RELATED_PRODUCT_COUNT);
-  assert.deepEqual(picked.map((p) => p.id), orderCategoryProducts(products.slice(1)).map((p) => p.id));
+  for (const current of products) {
+    assert.equal(pickRelatedProducts(current, products, texts, []).length, RELATED_PRODUCT_COUNT);
+  }
 });
 
 test('a product never lists itself and never repeats a sibling', () => {
@@ -93,20 +131,12 @@ test('a product never lists itself and never repeats a sibling', () => {
 
 test('input order does not change the result', () => {
   const shuffled = [catalog.products[3], catalog.products[0], catalog.products[5], catalog.products[1], catalog.products[4], catalog.products[2]];
-  assert.deepEqual(
-    pickRelatedProducts(catalog.products[0], catalog.products, catalog.texts, catalog.specs).map((p) => p.id),
-    pickRelatedProducts(catalog.products[0], shuffled, catalog.texts, catalog.specs).map((p) => p.id),
-  );
-});
-
-test('scoring reads the default locale, so every language links the same products', () => {
-  const products = [1, 2, 3].map((id) => product(id));
-  const texts = [
-    text(1, 'Oval LED Mirror'), text(2, 'Oval LED Mirror'), text(3, 'Wood Cabinet'),
-    // Spanish rows that would reverse the ranking if they were scored.
-    text(1, 'Espejo LED Ovalado', null, 'es'), text(2, 'Armario de Madera', null, 'es'), text(3, 'Espejo LED Ovalado', null, 'es'),
-  ];
-  assert.deepEqual(pickRelatedProducts(products[0], products, texts, [], { count: 1, neighbourSlots: 0 }).map((p) => p.id), [2]);
+  for (const current of catalog.products) {
+    assert.deepEqual(
+      pickRelatedProducts(current, catalog.products, catalog.texts, catalog.specs).map((p) => p.id),
+      pickRelatedProducts(current, shuffled, catalog.texts, catalog.specs).map((p) => p.id),
+    );
+  }
 });
 
 test('other categories, uncategorised products and inactive siblings are left out', () => {
@@ -114,6 +144,13 @@ test('other categories, uncategorised products and inactive siblings are left ou
   const texts = [text(1, 'Mirror'), text(2, 'Mirror'), text(3, 'Mirror'), text(4, 'Mirror')];
   assert.deepEqual(pickRelatedProducts(products[0], products, texts, []).map((p) => p.id), [2]);
   assert.deepEqual(pickRelatedProducts({ ...product(9), categoryId: null }, products, texts, []), []);
+});
+
+test('a two-product category links the pair to each other', () => {
+  const products = [product(1), product(2)];
+  const texts = [text(1, 'Oval Mirror'), text(2, 'Round Mirror')];
+  assert.deepEqual(pickRelatedProducts(products[0], products, texts, []).map((p) => p.id), [2]);
+  assert.deepEqual(pickRelatedProducts(products[1], products, texts, []).map((p) => p.id), [1]);
 });
 
 test('every product is linked from at least one sibling page, even when it is nobody\'s nearest match', () => {
@@ -127,30 +164,52 @@ test('every product is linked from at least one sibling page, even when it is no
     text(5, 'Rectangle LED Bathroom Mirror'),
     text(6, 'Odd One Out'),
   ];
-  const inbound = new Map(products.map((p) => [p.id, 0]));
-  for (const current of products) {
-    for (const related of pickRelatedProducts(current, products, texts, [])) {
-      inbound.set(related.id, (inbound.get(related.id) ?? 0) + 1);
-    }
+  for (const catalogue of [{ products, texts }, grid, hub]) {
+    const inbound = inboundOf(cardsOf(catalogue));
+    assert.ok(Math.min(...inbound.values()) >= 1, `orphans: ${JSON.stringify([...inbound])}`);
   }
-  assert.ok(Math.min(...inbound.values()) >= 1, `orphans: ${JSON.stringify([...inbound])}`);
-
-  // Without the reserved slot the same catalog does leave it unlinked.
-  const pureInbound = new Map(products.map((p) => [p.id, 0]));
-  for (const current of products) {
-    for (const related of pickRelatedProducts(current, products, texts, [], { neighbourSlots: 0 })) {
-      pureInbound.set(related.id, (pureInbound.get(related.id) ?? 0) + 1);
-    }
-  }
-  assert.equal(pureInbound.get(6), 0);
 });
 
-test('the reserved card is the category neighbour, after the similarity picks', () => {
-  const picked = pickRelatedProducts(catalog.products[0], catalog.products, catalog.texts, catalog.specs);
-  assert.equal(picked.length, RELATED_PRODUCT_COUNT);
-  // Slots 1-2 are the two close relatives; slot 3 is the neighbour in catalog order.
-  assert.deepEqual(new Set(picked.slice(0, 2).map((p) => p.id)), new Set([2, 3]));
-  const ordered = orderCategoryProducts(catalog.products).map((p) => p.id);
-  const successor = ordered[(ordered.indexOf(1) + 1) % ordered.length];
-  assert.equal(picked[2].id, successor);
+test('no card points back at a page that links to it', () => {
+  for (const catalogue of [grid, hub]) {
+    const cards = cardsOf(catalogue);
+    for (const [from, list] of cards) {
+      assert.equal(list.length, RELATED_PRODUCT_COUNT);
+      for (const to of list) assert.ok(!cards.get(to)!.includes(from), `${from} <-> ${to}`);
+    }
+  }
+});
+
+test('the next page never repeats a card the visitor just saw', () => {
+  for (const catalogue of [grid, hub]) {
+    const cards = cardsOf(catalogue);
+    for (const [from, list] of cards) {
+      const seen = new Set([from, ...list]);
+      for (const to of list) {
+        const repeated = cards.get(to)!.filter((id) => seen.has(id));
+        assert.deepEqual(repeated, [], `${from} -> ${to} repeats ${repeated}`);
+      }
+    }
+  }
+});
+
+test('no product is on more than four sibling pages, however much it resembles the rest', () => {
+  // "LED Mirror" is every product's nearest match...
+  for (const p of hub.products.slice(0, 12)) {
+    assert.equal(rankRelatedProducts(p, hub.products, hub.texts, [])[0].id, 13);
+  }
+  // ...but it is shown on four pages, not twelve.
+  const inbound = inboundOf(cardsOf(hub));
+  assert.equal(inbound.get(13), RELATED_PRODUCT_COUNT + 1);
+  assert.ok(Math.max(...inbound.values()) <= RELATED_PRODUCT_COUNT + 1, JSON.stringify([...inbound]));
+});
+
+test('new text rows are scored afresh rather than served from an earlier call', () => {
+  // Same product array, different wording: the second call must match a fresh computation.
+  const renamed = grid.texts.map((t, i) => text(t.productId, grid.texts[(i * 5) % grid.texts.length].name));
+  for (const p of grid.products) pickRelatedProducts(p, grid.products, grid.texts, []);
+  const reused = grid.products.map((p) => pickRelatedProducts(p, grid.products, renamed, []).map((r) => r.id));
+  const fresh = grid.products.map((p) => pickRelatedProducts(p, [...grid.products], renamed, []).map((r) => r.id));
+  assert.deepEqual(reused, fresh);
+  assert.notDeepEqual(reused, grid.products.map((p) => pickRelatedProducts(p, grid.products, grid.texts, []).map((r) => r.id)));
 });
