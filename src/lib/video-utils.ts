@@ -414,18 +414,6 @@ export function pickAboutVideo<T extends Pick<VideoPost, 'slug' | 'category' | '
   );
 }
 
-export function recommendVideosForProduct<T extends VideoListItem>(
-  product: ProductRecommendationInput,
-  videoItems: T[],
-  limit = 3,
-): T[] {
-  return videoItems
-    .map((video, index) => ({ video, score: scoreProductForVideo(video, product), index }))
-    .sort((a, b) => b.score - a.score || a.index - b.index)
-    .slice(0, limit)
-    .map((item) => item.video);
-}
-
 export function rawVideoSearchText(video: VideoPost): string {
   return [
     textFromLocalized(video.title),

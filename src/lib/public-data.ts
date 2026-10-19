@@ -42,11 +42,8 @@ import type {
   ProductTranslationRow,
   PublicDataSnapshot,
 } from '@/lib/public-data-snapshot';
-import {
-  recommendVideosForProduct,
-  type ProductRecommendationInput,
-  type VideoListItem,
-} from '@/lib/video-utils';
+import { pickVideosForProducts } from '@/lib/product-videos';
+import type { ProductRecommendationInput, VideoListItem } from '@/lib/video-utils';
 
 export interface ProductCardData {
   id: number;
@@ -231,21 +228,72 @@ function parseProductTags(tags: string | null): string[] {
   }
 }
 
+// The product side of the Related videos match (see product-videos.ts). Only the
+// short description: the full one is long and largely shared wording, which is
+// what let the longest videos win on every page.
 function productRecommendationInput(args: {
   product: ProductRow;
-  translation: ProductTranslationRow;
-  primaryImage?: ProductImageRow | Pick<ProductImageRow, 'imageUrl'>;
+  translation: Pick<ProductTranslationRow, 'name' | 'shortDescription'>;
   categoryName?: string | null;
 }): ProductRecommendationInput {
   return {
     id: String(args.product.id),
     title: args.translation.name,
-    description: [args.translation.shortDescription, args.translation.fullDescription].filter(Boolean).join(' '),
+    description: args.translation.shortDescription,
     category: args.categoryName ?? null,
     modelNumber: args.product.modelNumber,
     tags: parseProductTags(args.product.tags),
-    imageUrl: args.primaryImage?.imageUrl ?? null,
   };
+}
+
+function productVideoInputs(
+  productRows: ProductRow[],
+  translations: Array<Pick<ProductTranslationRow, 'productId' | 'locale' | 'name' | 'shortDescription'>>,
+  categories: CategoryOption[],
+): ProductRecommendationInput[] {
+  const english = new Map(translations.filter((t) => t.locale === defaultLocale).map((t) => [t.productId, t]));
+  const categoryNames = new Map(categories.map((c) => [c.id, c.name]));
+  return productRows.filter((p) => p.isActive).flatMap((product) => {
+    const translation = english.get(product.id);
+    if (!translation) return [];
+    const categoryName = product.categoryId ? categoryNames.get(product.categoryId) : null;
+    return [productRecommendationInput({ product, translation, categoryName })];
+  });
+}
+
+// Video picks are made for the whole catalog at once, from default-locale text
+// so every language shows the same videos. The snapshot never changes within a
+// process, so its picks are worked out once.
+const snapshotVideoPicks = new WeakMap<PublicDataSnapshot, Promise<Map<string, string[]>>>();
+
+function snapshotProductVideoPicks(snapshot: PublicDataSnapshot): Promise<Map<string, string[]>> {
+  let picks = snapshotVideoPicks.get(snapshot);
+  if (!picks) {
+    const categories = categoryOptionsFromRows(
+      snapshot.data.productCategories.filter((c) => c.isActive),
+      snapshot.data.categoryTranslations,
+      defaultLocale,
+    );
+    const inputs = productVideoInputs(snapshot.data.products, snapshot.data.productTranslations, categories);
+    picks = getPublishedVideoListItems(defaultLocale, 200).then((videoItems) => pickVideosForProducts(inputs, videoItems));
+    snapshotVideoPicks.set(snapshot, picks);
+  }
+  return picks;
+}
+
+/**
+ * The page's Related videos, in its own language. Without catalog picks — no
+ * snapshot, or a product with no default-locale row — the product is matched
+ * on its own: its best matches, without the spread across the catalog.
+ */
+function relatedVideosFor(
+  picks: Map<string, string[]> | null,
+  product: ProductRecommendationInput,
+  videoItems: VideoListItem[],
+): VideoListItem[] {
+  const ids = picks?.get(product.id) ?? pickVideosForProducts([product], videoItems).get(product.id) ?? [];
+  const byId = new Map(videoItems.map((video) => [video.id, video]));
+  return ids.flatMap((id) => byId.get(id) ?? []);
 }
 
 function faqPairsFromRows(
@@ -689,15 +737,10 @@ export async function getProductDetailData(locale: string, slug: string): Promis
       related: productCardsFromRows(relatedRows, snapshot.data.productTranslations, snapshot.data.productImages, locale).map((p) => ({
         ...p,
       })),
-      relatedVideos: recommendVideosForProduct(
-        productRecommendationInput({
-          product: row.product,
-          translation,
-          primaryImage: images.find((img) => img.isPrimary) || images[0],
-          categoryName,
-        }),
+      relatedVideos: relatedVideosFor(
+        await snapshotProductVideoPicks(snapshot),
+        productRecommendationInput({ product: row.product, translation, categoryName }),
         videoItems,
-        3,
       ),
     };
   }
@@ -836,15 +879,12 @@ export async function getProductDetailData(locale: string, slug: string): Promis
         .then((rows) => rows.find((row) => row.locale === locale)?.name || rows.find((row) => row.locale === defaultLocale)?.name || null)
     : null;
   const videoItems = await getPublishedVideoListItems(locale, 200);
-  const relatedVideos = recommendVideosForProduct(
-    productRecommendationInput({
-      product,
-      translation,
-      primaryImage: images.find((img) => img.isPrimary) || images[0],
-      categoryName,
-    }),
+  // The catalog-wide spread would need the whole catalog loaded on every
+  // render; off the snapshot, the page keeps to the one query it always made.
+  const relatedVideos = relatedVideosFor(
+    null,
+    productRecommendationInput({ product, translation, categoryName }),
     videoItems,
-    3,
   );
 
   return { type: 'ok', product, translation, categoryName, specs, images, related, relatedVideos };
