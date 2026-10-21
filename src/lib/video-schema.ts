@@ -1,5 +1,5 @@
-import type { LocalizedVideoPost, VideoListItem } from '@/lib/video-utils';
-import { SITE_LOGO_URL, SITE_NAME, SITE_URL, localizedUrl } from '@/lib/seo';
+import { getVideoPlayback, type LocalizedVideoPost, type VideoListItem } from '@/lib/video-utils';
+import { SITE_LOGO_URL, SITE_NAME, SITE_URL, localizedUrl, w3cDateTime } from '@/lib/seo';
 
 function toIsoDuration(seconds: number): string {
   const h = Math.floor(seconds / 3600);
@@ -24,7 +24,7 @@ export function buildVideoObjectSchema(video: LocalizedVideoPost | VideoListItem
     name: video.title,
     description: video.excerpt || '',
     thumbnailUrl: video.thumbnailUrl ? [video.thumbnailUrl] : [],
-    uploadDate: video.publishedAt || undefined,
+    uploadDate: w3cDateTime(video.publishedAt),
     publisher: {
       '@type': 'Organization',
       '@id': `${SITE_URL}/#organization`,
@@ -36,7 +36,11 @@ export function buildVideoObjectSchema(video: LocalizedVideoPost | VideoListItem
     mainEntityOfPage: { '@type': 'WebPage', '@id': url },
   };
   if (video.durationSeconds) schema.duration = toIsoDuration(video.durationSeconds);
-  if (video.embedUrl) schema.embedUrl = video.embedUrl;
-  if (video.videoUrl) schema.contentUrl = video.videoUrl;
+  // Name what the page plays: the embed for YouTube and Vimeo, the file for
+  // uploads. A YouTube link is a page, not a media file, so it is never the
+  // contentUrl, and a stored link to a different video cannot leak in.
+  const playback = getVideoPlayback(video);
+  if (playback.kind === 'embed') schema.embedUrl = playback.src;
+  if (playback.kind === 'video') schema.contentUrl = playback.src;
   return schema;
 }

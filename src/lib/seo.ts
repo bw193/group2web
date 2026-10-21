@@ -486,6 +486,17 @@ export function snippet(text: string | null | undefined, max = 155): string {
   return `${cut.replace(/[\s,;:\u2013\u2014-]+$/u, '')}\u2026`;
 }
 
+/**
+ * A W3C datetime, the ISO 8601 form sitemaps and schema.org dates expect, or
+ * undefined when the value is missing or unreadable. Database rows carry
+ * Postgres-style "2026-09-24 00:00:00+00", which is neither.
+ */
+export function w3cDateTime(value: string | null | undefined): string | undefined {
+  const date = value ? new Date(value) : null;
+  if (!date || Number.isNaN(date.getTime())) return undefined;
+  return date.toISOString().replace(/\.\d{3}Z$/, 'Z');
+}
+
 /** "Product Name — Chengtai Mirror", localized when the page locale needs it. */
 export function productTitle(name: string, locale: string = defaultLocale): string {
   return `${name} — ${localizedSiteName(locale)}`;
