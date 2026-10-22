@@ -5,3 +5,4 @@ Disallow: /cms/
 Disallow: /api/
 
 Sitemap: https://chengtaimirror.com/sitemap.xml
+Sitemap: https://chengtaimirror.com/video-sitemap.xml

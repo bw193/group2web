@@ -134,4 +134,5 @@ export function revalidateAllLocalizedPublicPaths(pathAfterLocale: string): void
 
 export function revalidatePublicSitemap(): void {
   revalidatePath('/sitemap.xml');
+  revalidatePath('/video-sitemap.xml');
 }

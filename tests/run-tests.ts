@@ -16,6 +16,7 @@ import './public-data-snapshot-config.test';
 import './public-revalidation.test';
 import './video-recommendations.test';
 import './video-description.test';
+import './video-sitemap.test';
 import './video-schema.test';
 import './about-video.test';
 import './inquiry-email.test';

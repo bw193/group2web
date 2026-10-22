@@ -52,6 +52,7 @@ export interface VideoSitemapRow {
   videoId: string;
   updatedAt: string;
   status: string;
+  video: LocalizedVideoPost;
 }
 
 const videoListColumns = {
@@ -358,38 +359,24 @@ export async function getVideoStaticParams(): Promise<Array<{ locale: string; sl
   return [];
 }
 
+// One row per video and locale, carrying the localized copy the sitemap's
+// <video:video> entry is built from.
 export async function getVideoSitemapRows(): Promise<VideoSitemapRow[]> {
   const snapshot = getSnapshot();
-  if (snapshot) {
-    const rows = snapshot.data.videos.map(videoRowToPost);
-    return rows.flatMap((video) =>
-      locales.map((locale) => ({
-        locale,
-        slug: video.slug,
-        videoId: video.id,
-        updatedAt: video.updatedAt || video.publishedAt || new Date().toISOString(),
-        status: video.status,
-      })),
-    );
-  }
+  const posts = snapshot
+    ? snapshot.data.videos.map(videoRowToPost)
+    : (await getDb().select(videoDetailColumns).from(videos).where(eq(videos.status, 'published'))).map(
+        videoRowToPost,
+      );
 
-  const rows = await getDb()
-    .select({
-      id: videos.id,
-      slug: videos.slug,
-      status: videos.status,
-      publishedAt: videos.publishedAt,
-      updatedAt: videos.updatedAt,
-    })
-    .from(videos)
-    .where(eq(videos.status, 'published'));
-  return rows.flatMap((video) =>
+  return posts.flatMap((video) =>
     locales.map((locale) => ({
       locale,
       slug: video.slug,
       videoId: video.id,
       updatedAt: video.updatedAt || video.publishedAt || new Date().toISOString(),
       status: video.status,
+      video: localizeVideo(video, locale),
     })),
   );
 }
