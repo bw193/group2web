@@ -19,5 +19,6 @@ import './video-description.test';
 import './video-sitemap.test';
 import './video-schema.test';
 import './about-video.test';
+import './video-duration.test';
 import './inquiry-email.test';
 import './inquiry-recipient-history.test';

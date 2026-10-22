@@ -135,6 +135,20 @@ export function formatVideoDuration(seconds: number | null | undefined): string 
   return `${mins}:${String(secs).padStart(2, '0')}`;
 }
 
+/**
+ * Seconds from a duration as an editor types it ("2:10", "1:02:03" or plain
+ * seconds like "130"), the inverse of formatVideoDuration. Null when empty or
+ * unreadable.
+ */
+export function parseVideoDuration(value: string | null | undefined): number | null {
+  const match = (value || '').trim().match(/^(?:(?:(\d+):)?(\d+):)?(\d+)$/);
+  if (!match) return null;
+  const [, hours, mins, secs] = match;
+  if ((mins !== undefined && Number(secs) > 59) || (hours !== undefined && Number(mins) > 59)) return null;
+  const total = Number(hours || 0) * 3600 + Number(mins || 0) * 60 + Number(secs);
+  return total > 0 ? total : null;
+}
+
 export function formatVideoDate(value: string | null | undefined, locale: string): string {
   if (!value) return '';
   const date = new Date(value);

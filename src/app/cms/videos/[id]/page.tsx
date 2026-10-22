@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, ImagePlus, Loader2, Upload, Wand2, X } from 'lucide-react';
-import { buildEmbedUrl, getYouTubeThumbnail } from '@/lib/video-utils';
+import { buildEmbedUrl, formatVideoDuration, getYouTubeThumbnail, parseVideoDuration } from '@/lib/video-utils';
 import { getUploadUrl, slugify } from '@/lib/utils';
 
 type SourceType = 'embed' | 'upload' | 'direct';
@@ -132,6 +132,7 @@ export default function VideoEditPage() {
   const [error, setError] = useState('');
   const [uploading, setUploading] = useState<'' | 'video' | 'thumbnail'>('');
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [deriving, setDeriving] = useState(false);
   const [form, setForm] = useState({
     title: '',
     slug: '',
@@ -140,6 +141,7 @@ export default function VideoEditPage() {
     videoUrl: '',
     embedUrl: '',
     thumbnailUrl: '',
+    duration: '',
     description: '',
     publishedAt: today(),
   });
@@ -157,6 +159,7 @@ export default function VideoEditPage() {
             videoUrl: data.videoUrl || '',
             embedUrl: data.embedUrl || '',
             thumbnailUrl: data.thumbnailUrl || '',
+            duration: formatVideoDuration(data.durationSeconds),
             description: en(data.excerpt),
             publishedAt: (data.publishedAt || '').slice(0, 10) || today(),
           });
@@ -181,6 +184,7 @@ export default function VideoEditPage() {
         ...prev,
         sourceType: 'upload',
         videoUrl: publicUrl,
+        duration: meta.duration ? formatVideoDuration(meta.duration) : prev.duration,
       }));
       if (meta.thumbnail && !form.thumbnailUrl) {
         setUploading('thumbnail');
@@ -215,6 +219,7 @@ export default function VideoEditPage() {
   }
 
   async function deriveEmbed() {
+    setDeriving(true);
     const embedUrl = buildEmbedUrl(form.videoUrl);
     const youtubeThumb = getYouTubeThumbnail(form.videoUrl);
     let thumbnailUrl = youtubeThumb || form.thumbnailUrl;
@@ -227,11 +232,31 @@ export default function VideoEditPage() {
         }
       } catch {}
     }
-    setForm((prev) => ({ ...prev, sourceType: 'embed', embedUrl, thumbnailUrl }));
+    // YouTube's length comes through our server, which can read YouTube's page.
+    let durationSeconds: number | null = null;
+    if (youtubeThumb) {
+      try {
+        const res = await fetch(`/api/videos/duration?url=${encodeURIComponent(form.videoUrl)}`);
+        if (res.ok) durationSeconds = (await res.json()).durationSeconds ?? null;
+      } catch {}
+    }
+    setForm((prev) => ({
+      ...prev,
+      sourceType: 'embed',
+      embedUrl,
+      thumbnailUrl,
+      ...(durationSeconds ? { duration: formatVideoDuration(durationSeconds) } : {}),
+    }));
+    setDeriving(false);
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    const durationSeconds = parseVideoDuration(form.duration);
+    if (form.duration.trim() && !durationSeconds) {
+      setError('Duration must be minutes:seconds, like 2:10');
+      return;
+    }
     setSaving(true);
     setError('');
 
@@ -244,7 +269,7 @@ export default function VideoEditPage() {
       thumbnailUrl: form.thumbnailUrl || null,
       category: null,
       tags: [],
-      durationSeconds: null,
+      durationSeconds,
       title: { en: form.title },
       excerpt: { en: form.description },
       body: {},
@@ -270,7 +295,7 @@ export default function VideoEditPage() {
 
   if (loading) return <div className="text-text-secondary">Loading...</div>;
 
-  const isBusy = Boolean(uploading || saving);
+  const isBusy = Boolean(uploading || saving || deriving);
 
   return (
     <div>
@@ -361,8 +386,8 @@ export default function VideoEditPage() {
               />
             </div>
             {form.sourceType === 'embed' && (
-              <button type="button" onClick={deriveEmbed} className="btn-outline self-end">
-                <Wand2 size={15} className="mr-1" /> Derive
+              <button type="button" onClick={deriveEmbed} disabled={deriving} className="btn-outline self-end">
+                {deriving ? <Loader2 size={15} className="mr-1 animate-spin" /> : <Wand2 size={15} className="mr-1" />} Derive
               </button>
             )}
           </div>
@@ -373,6 +398,17 @@ export default function VideoEditPage() {
               <input value={form.embedUrl} onChange={(e) => setForm({ ...form, embedUrl: e.target.value })} className="input-field" />
             </div>
           )}
+
+          <div className="mt-4">
+            <label className="block text-sm font-medium mb-1.5">Duration</label>
+            <input
+              value={form.duration}
+              onChange={(e) => setForm({ ...form, duration: e.target.value })}
+              className="input-field md:w-48"
+              placeholder="2:10"
+            />
+            <p className="text-xs text-gray-400 mt-1">Minutes:seconds. Derive fills this in for YouTube links, and uploads fill it in from the file.</p>
+          </div>
 
           <div className="mt-4">
             <label className="block text-sm font-medium mb-1.5">Thumbnail URL</label>
