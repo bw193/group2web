@@ -268,7 +268,8 @@
 .article-prose a:hover { @apply decoration-ink; }
 
 /* A link to one of our PDFs (served at /documents/<file> by the rewrite in
-   next.config.ts) is a download button. Give it a paragraph of its own. */
+   next.config.ts) is a button with an arrow after the text, like the site's
+   other buttons. Give it a paragraph of its own. */
 .article-prose a[href^="https://chengtaimirror.com/documents/"],
 .article-prose a[href^="/documents/"] {
   @apply inline-flex items-center gap-3 border border-ink text-ink no-underline
@@ -278,14 +279,19 @@
   padding: 12px 28px;
   line-height: 1.5;
 }
-.article-prose a[href^="https://chengtaimirror.com/documents/"]::before,
-.article-prose a[href^="/documents/"]::before {
+.article-prose a[href^="https://chengtaimirror.com/documents/"]::after,
+.article-prose a[href^="/documents/"]::after {
   content: '';
   flex: none;
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
   background-color: currentColor;
-  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4'/%3E%3Cpath d='m7 10 5 5 5-5'/%3E%3Cpath d='M12 15V3'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h14'/%3E%3Cpath d='m12 5 7 7-7 7'/%3E%3C/svg%3E") center / contain no-repeat;
+  transition: transform 500ms;
+}
+.article-prose a[href^="https://chengtaimirror.com/documents/"]:hover::after,
+.article-prose a[href^="/documents/"]:hover::after {
+  transform: translateX(4px);
 }
 .article-prose strong { font-weight: 600; }
 .article-prose em { font-style: italic; }
@@ -709,6 +715,12 @@
   [dir="rtl"] .workflow-line { transform-origin: right center; }
   [dir="rtl"] .workflow-timeline.revealed .workflow-line::after { animation-name: workflow-flow-x-rtl; }
 }
+
+/* PDF button arrow points, and nudges, toward the reading end (left in RTL). */
+[dir="rtl"] .article-prose a[href^="https://chengtaimirror.com/documents/"]::after,
+[dir="rtl"] .article-prose a[href^="/documents/"]::after { transform: scaleX(-1); }
+[dir="rtl"] .article-prose a[href^="https://chengtaimirror.com/documents/"]:hover::after,
+[dir="rtl"] .article-prose a[href^="/documents/"]:hover::after { transform: scaleX(-1) translateX(4px); }
 
 /* ============================================================================
    REDUCE MOTION
