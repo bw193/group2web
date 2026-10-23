@@ -88,42 +88,60 @@ export default function HeroBanner({ slides, fallbackTitle, fallbackSubtitle, fa
     );
   }
 
-  const currentRatio = hasSlides ? ratios[slides[current].id] : undefined;
+  // One height for every slide: the tallest artwork's (the narrowest ratio).
+  // Resizing per slide moved the whole page up and down every 7s. Shorter
+  // artwork shows in full, centered over a blurred copy of itself.
+  const loadedRatios = Object.values(ratios);
+  const frameRatio = loadedRatios.length ? Math.min(...loadedRatios) : undefined;
 
   return (
     <section
       className="relative aspect-[var(--banner-ratio,64/25)] transition-[aspect-ratio] duration-[1.2s] ease-out-expo overflow-hidden bg-ink"
-      style={currentRatio ? ({ ['--banner-ratio' as never]: String(currentRatio) }) : undefined}
+      style={frameRatio ? ({ ['--banner-ratio' as never]: String(frameRatio) }) : undefined}
     >
       {/* Background Images — stacked cross-fade layers.
           Only slide 0 gets `priority` so it remains the LCP candidate;
           other slides fetch normally but stay mounted so transitions are instant. */}
-      {slides.map((s, i) => (
-        <div
-          key={s.id}
-          aria-hidden={i !== current}
-          className={`absolute inset-0 transition-opacity duration-[1.2s] ease-out-expo ${
-            i === current ? 'opacity-100' : 'opacity-0'
-          }`}
-        >
-          <Image
-            src={getUploadUrl(s.imageUrl)}
-            alt=""
-            fill
-            priority={i === 0}
-            sizes="100vw"
-            quality={85}
-            className="object-cover"
-            onLoad={(e) => {
-              const img = e.currentTarget;
-              if (!img.naturalWidth || !img.naturalHeight) return;
-              setRatios((r) =>
-                r[s.id] ? r : { ...r, [s.id]: img.naturalWidth / img.naturalHeight }
-              );
-            }}
-          />
-        </div>
-      ))}
+      {slides.map((s, i) => {
+        const src = getUploadUrl(s.imageUrl);
+        const shorterThanFrame = !!frameRatio && ratios[s.id] > frameRatio + 0.005;
+        return (
+          <div
+            key={s.id}
+            aria-hidden={i !== current}
+            className={`absolute inset-0 transition-opacity duration-[1.2s] ease-out-expo ${
+              i === current ? 'opacity-100' : 'opacity-0'
+            }`}
+          >
+            {shorterThanFrame && (
+              <Image
+                src={src}
+                alt=""
+                fill
+                sizes="100vw"
+                quality={85}
+                className="object-cover scale-110 blur-2xl"
+              />
+            )}
+            <Image
+              src={src}
+              alt=""
+              fill
+              priority={i === 0}
+              sizes="100vw"
+              quality={85}
+              className={shorterThanFrame ? 'object-contain' : 'object-cover'}
+              onLoad={(e) => {
+                const img = e.currentTarget;
+                if (!img.naturalWidth || !img.naturalHeight) return;
+                setRatios((r) =>
+                  r[s.id] ? r : { ...r, [s.id]: img.naturalWidth / img.naturalHeight }
+                );
+              }}
+            />
+          </div>
+        );
+      })}
 
       {/* Navigation */}
       {slides.length > 1 && (
