@@ -29,6 +29,14 @@ const HEBREW_STATIC_ROUTE_REDIRECTS: { from: string; to: string }[] = [
   { from: '/he/insight', to: '/he/israel-insight' },
 ];
 
+// PDFs such as installation instructions are stored in Supabase storage under
+// assets/documents/ and served from our own domain at /documents/<file name>,
+// so Google indexes them as part of chengtaimirror.com rather than
+// supabase.co. Supabase's X-Robots-Tag passes through this rewrite and
+// defaults to `none`, so upload each file with `x-robots-tag: all`.
+const UPLOAD_BASE_URL =
+  process.env.NEXT_PUBLIC_UPLOAD_URL || 'https://yleuaykcrrrqdhzmrmoq.supabase.co/storage/v1/object/public/assets';
+
 const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
@@ -115,6 +123,14 @@ const nextConfig = {
         destination: to,
         permanent: true,
       })),
+    ];
+  },
+  async rewrites() {
+    return [
+      {
+        source: '/documents/:file',
+        destination: `${UPLOAD_BASE_URL}/documents/:file`,
+      },
     ];
   },
 };
