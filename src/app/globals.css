@@ -430,7 +430,7 @@
 
 /* ============================================================================
    WORKFLOW TIMELINE — homepage customization section
-   Each step builds in turn: its node pops in and the icon draws itself, the
+   Each step builds in turn: its node fades in and the icon draws itself, the
    text rises, then the hairline draws on to the next step (left to right
    from lg, step by step on phones as they scroll in). --i is the step index
    and --d a per-element delay, both set inline. Once the timeline is in
@@ -443,8 +443,9 @@
 .workflow-node,
 .workflow-in { opacity: 0; }
 
+/* No overshoot: a springy scale read as the circles shaking. */
 .workflow-step.revealed .workflow-node {
-  animation: workflow-pop 700ms cubic-bezier(0.34, 1.56, 0.64, 1) var(--t) both;
+  animation: workflow-node-in 800ms cubic-bezier(0.16, 1, 0.3, 1) var(--t) both;
 }
 
 .workflow-step.revealed .workflow-in,
@@ -538,8 +539,8 @@
   .workflow-timeline.revealed .workflow-line::after { animation-name: workflow-flow-x; }
 }
 
-@keyframes workflow-pop {
-  from { opacity: 0; transform: scale(0.4); }
+@keyframes workflow-node-in {
+  from { opacity: 0; transform: scale(0.9); }
   to   { opacity: 1; transform: scale(1); }
 }
 @keyframes workflow-draw {
