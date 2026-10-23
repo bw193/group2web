@@ -150,6 +150,9 @@
   transition: clip-path 1.2s cubic-bezier(0.7, 0, 0.2, 1);
 }
 [data-reveal="clip"].revealed > * { clip-path: inset(0 0 0 0); }
+/* The container stays put; its children animate themselves on .revealed
+   (see WORKFLOW TIMELINE). */
+[data-reveal="cascade"] { opacity: 1; transform: none; }
 [data-reveal="lift"] {
   opacity: 0;
   transform: translateY(20px);
@@ -405,6 +408,152 @@
 }
 
 /* ============================================================================
+   WORKFLOW TIMELINE — homepage customization section
+   Each step builds in turn: its node pops in and the icon draws itself, the
+   text rises, then the hairline draws on to the next step (left to right
+   from lg, step by step on phones as they scroll in). --i is the step index
+   and --d a per-element delay, both set inline. Once the timeline is in
+   view, a soft light runs along the line every 8s and each node pings as
+   the light reaches it.
+   ============================================================================ */
+
+.workflow-step { --t: calc(var(--i, 0) * 120ms); }
+
+.workflow-node,
+.workflow-in { opacity: 0; }
+
+.workflow-step.revealed .workflow-node {
+  animation: workflow-pop 700ms cubic-bezier(0.34, 1.56, 0.64, 1) var(--t) both;
+}
+
+.workflow-step.revealed .workflow-in,
+.workflow-band.revealed .workflow-in {
+  animation: fade-up 800ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: calc(var(--t, 0ms) + var(--d, 0ms));
+}
+
+/* Icon strokes draw in. Every Lucide path is shorter than 150 units; the
+   extra unit keeps round caps from leaving a dot before the draw starts. */
+.workflow-draw :is(path, rect, circle, line, polyline, polygon, ellipse) {
+  stroke-dasharray: 150;
+  stroke-dashoffset: 151;
+}
+.workflow-step.revealed .workflow-draw :is(path, rect, circle, line, polyline, polygon, ellipse),
+.workflow-band.revealed .workflow-draw :is(path, rect, circle, line, polyline, polygon, ellipse) {
+  animation: workflow-draw 1000ms cubic-bezier(0.65, 0, 0.35, 1) both;
+  animation-delay: calc(var(--t, 0ms) + var(--d, 0ms) + 200ms);
+}
+
+/* Connector to the next step: grows down on phones, across from lg. The
+   clip lets the light below glow a pixel past the hairline on each side. */
+.workflow-line {
+  clip-path: inset(0 -1px);
+  transform: scaleY(0);
+  transform-origin: center top;
+}
+.workflow-step.revealed .workflow-line {
+  animation: workflow-line-y 550ms cubic-bezier(0.65, 0, 0.35, 1) calc(var(--t) + 250ms) both;
+}
+
+/* Divider above the smart function row. */
+.workflow-rule {
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+.workflow-band.revealed .workflow-rule {
+  animation: workflow-line-x 1000ms cubic-bezier(0.65, 0, 0.35, 1) both;
+}
+
+/* The light pass, after the build has finished. Node i ripples at
+   900ms × i; 150ms later the light sets off along the next segment and
+   reaches the following node just before that node's ripple. */
+.workflow-ring {
+  position: absolute;
+  inset: -1px;
+  z-index: -1; /* over the node's fill, under its icon */
+  border: 1px solid rgba(168, 142, 111, 0.7);
+  border-radius: 9999px;
+  background: rgba(168, 142, 111, 0.14);
+  opacity: 0;
+  pointer-events: none;
+}
+.workflow-timeline.revealed .workflow-ring {
+  animation: workflow-ping 8s cubic-bezier(0.2, 0.6, 0.35, 1) infinite;
+  animation-delay: calc(3300ms + var(--i, 0) * 900ms);
+}
+.workflow-line::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -1px;
+  width: 3px;
+  height: 40%;
+  border-radius: 3px;
+  background: linear-gradient(180deg, rgba(168, 142, 111, 0), #A88E6F, rgba(168, 142, 111, 0));
+  transform: translateY(-100%);
+  pointer-events: none;
+}
+.workflow-timeline.revealed .workflow-line::after {
+  animation: workflow-flow-y 8s linear infinite;
+  animation-delay: calc(3450ms + var(--i, 0) * 900ms);
+}
+
+@media (min-width: 1024px) {
+  .workflow-step { --t: calc(var(--i, 0) * 520ms); }
+  .workflow-line {
+    clip-path: inset(-1px 0);
+    transform: scaleX(0);
+    transform-origin: left center;
+  }
+  .workflow-step.revealed .workflow-line { animation-name: workflow-line-x; }
+  .workflow-line::after {
+    top: -1px;
+    left: 0;
+    width: 40%;
+    height: 3px;
+    background: linear-gradient(90deg, rgba(168, 142, 111, 0), #A88E6F, rgba(168, 142, 111, 0));
+    transform: translateX(-100%);
+  }
+  .workflow-timeline.revealed .workflow-line::after { animation-name: workflow-flow-x; }
+}
+
+@keyframes workflow-pop {
+  from { opacity: 0; transform: scale(0.4); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes workflow-draw {
+  from { stroke-dashoffset: 151; }
+  to   { stroke-dashoffset: 0; }
+}
+@keyframes workflow-line-x {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+@keyframes workflow-line-y {
+  from { transform: scaleY(0); }
+  to   { transform: scaleY(1); }
+}
+/* Per 8s cycle: a ~1s ripple, then rest. */
+@keyframes workflow-ping {
+  0%        { opacity: 1; transform: scale(1); }
+  14%, 100% { opacity: 0; transform: scale(1.8); }
+}
+/* Per 8s cycle: cross the segment in 0.9s (11.25%), then wait out of view.
+   The light is 40% of the segment, so 250% clears the far end. */
+@keyframes workflow-flow-x {
+  0%           { transform: translateX(-100%); }
+  11.25%, 100% { transform: translateX(250%); }
+}
+@keyframes workflow-flow-x-rtl {
+  0%           { transform: translateX(250%); }
+  11.25%, 100% { transform: translateX(-100%); }
+}
+@keyframes workflow-flow-y {
+  0%           { transform: translateY(-100%); }
+  11.25%, 100% { transform: translateY(250%); }
+}
+
+/* ============================================================================
    HERO-ONLY LEGACY CLASSES
    Preserved because HeroBanner.tsx is not being touched.
    ============================================================================ */
@@ -532,6 +681,13 @@
 /* Top route-change progress bar fills from the start edge (right in RTL). */
 [dir="rtl"] .nav-progress__bar { transform-origin: right center; }
 
+/* Workflow timeline: lines draw and the light runs from the right. */
+[dir="rtl"] .workflow-rule { transform-origin: right center; }
+@media (min-width: 1024px) {
+  [dir="rtl"] .workflow-line { transform-origin: right center; }
+  [dir="rtl"] .workflow-timeline.revealed .workflow-line::after { animation-name: workflow-flow-x-rtl; }
+}
+
 /* ============================================================================
    REDUCE MOTION
    ============================================================================ */
@@ -545,4 +701,15 @@
     clip-path: none !important;
   }
   .nav-progress__bar { animation: none !important; }
+  .workflow-node,
+  .workflow-in,
+  .workflow-line,
+  .workflow-rule {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .workflow-draw * { animation: none !important; stroke-dashoffset: 0 !important; }
+  .workflow-ring,
+  .workflow-line::after { animation: none !important; display: none !important; }
 }

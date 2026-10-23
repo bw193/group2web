@@ -79,34 +79,56 @@ export default async function CustomizationWorkflowSection({ locale }: Props) {
 
         {/* Timeline — icon nodes joined by a bronze hairline: down the start
             edge on phones and tablets, across five centered columns from lg.
-            Logical start/end keep it running right-to-left in Hebrew. */}
+            Logical start/end keep it running right-to-left in Hebrew. The
+            motion lives in globals.css (WORKFLOW TIMELINE): --i is the step
+            index, --d a per-element delay. */}
         <ol
-          className="mt-12 md:mt-16 grid grid-cols-1 lg:grid-cols-5 gap-y-10 lg:gap-x-8"
-          data-reveal-stagger
+          data-reveal="cascade"
+          className="workflow-timeline mt-12 md:mt-16 grid grid-cols-1 lg:grid-cols-5 gap-y-10 lg:gap-x-8"
         >
           {steps.map((s, i) => {
             const Icon = s.Icon;
             return (
-              <li key={i} data-reveal className="group relative ps-[4.5rem] lg:ps-0 lg:text-center">
+              <li
+                key={i}
+                data-reveal="cascade"
+                className="workflow-step group relative ps-[4.5rem] lg:ps-0 lg:text-center"
+                style={{ ['--i' as never]: i }}
+              >
                 {i < steps.length - 1 && (
                   <span
                     aria-hidden
-                    className="absolute start-6 top-14 -bottom-8 w-px bg-bronze/35 lg:start-[calc(50%+2rem)] lg:top-6 lg:bottom-auto lg:h-px lg:w-[calc(100%-2rem)]"
+                    className="workflow-line absolute start-6 top-14 -bottom-8 w-px bg-bronze/35 lg:start-[calc(50%+2rem)] lg:top-6 lg:bottom-auto lg:h-px lg:w-[calc(100%-2rem)]"
                   />
                 )}
-                <span className="absolute start-0 top-0 lg:static lg:mx-auto flex h-12 w-12 items-center justify-center rounded-full border border-bronze/45 bg-cream text-bronze transition-colors duration-500 group-hover:border-bronze group-hover:bg-bronze-subtle">
-                  <Icon size={20} strokeWidth={1.5} aria-hidden />
+                <span className="workflow-node absolute start-0 top-0 lg:relative lg:mx-auto flex h-12 w-12 items-center justify-center rounded-full border border-bronze/45 bg-cream text-bronze transition-[background-color,border-color,box-shadow] duration-500 group-hover:border-bronze group-hover:bg-bronze-subtle group-hover:shadow-[0_0_0_6px_rgba(168,142,111,0.12)]">
+                  <span aria-hidden className="workflow-ring" />
+                  <Icon
+                    size={20}
+                    strokeWidth={1.5}
+                    aria-hidden
+                    className="workflow-draw transition-transform duration-500 group-hover:-translate-y-0.5"
+                  />
                 </span>
-                <span className="block lg:mt-7 font-display text-[28px] font-normal leading-none tabular-nums tracking-[-0.02em]">
+                <span
+                  className="workflow-in block lg:mt-7 font-display text-[28px] font-normal leading-none tabular-nums tracking-[-0.02em]"
+                  style={{ ['--d' as never]: '180ms' }}
+                >
                   <span className="text-bronze/35">0</span>
                   <span className="text-bronze">{i + 1}</span>
                 </span>
                 {/* lining-nums: the display face's old-style "3" sinks below the
                     "D" in "3D Design". */}
-                <h3 className="mt-3 font-display text-[20px] md:text-[22px] font-normal text-ink leading-[1.25] tracking-[-0.01em] lining-nums transition-colors duration-300 group-hover:text-bronze">
+                <h3
+                  className="workflow-in mt-3 font-display text-[20px] md:text-[22px] font-normal text-ink leading-[1.25] tracking-[-0.01em] lining-nums transition-colors duration-300 group-hover:text-bronze"
+                  style={{ ['--d' as never]: '260ms' }}
+                >
                   {s.title}
                 </h3>
-                <p className="mt-2 text-[14px] md:text-[15px] font-body font-normal text-ink-mid leading-[1.6] max-w-xs lg:mx-auto">
+                <p
+                  className="workflow-in mt-2 text-[14px] md:text-[15px] font-body font-normal text-ink-mid leading-[1.6] max-w-xs lg:mx-auto"
+                  style={{ ['--d' as never]: '340ms' }}
+                >
                   {s.desc}
                 </p>
               </li>
@@ -115,33 +137,47 @@ export default async function CustomizationWorkflowSection({ locale }: Props) {
         </ol>
 
         {/* Smart function options as quiet square tags, with the four service
-            perks beside them. */}
-        <div className="mt-12 md:mt-14 pt-10 border-t border-warm-border grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16">
-          <div className="lg:col-span-7" data-reveal>
-            <h3 className="text-[13px] font-body font-semibold text-bronze uppercase tracking-[0.22em]">
+            perks beside them. The divider draws in, then the tags cascade. */}
+        <div
+          data-reveal="cascade"
+          className="workflow-band relative mt-12 md:mt-14 pt-10 border-t border-transparent grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16"
+        >
+          <span aria-hidden className="workflow-rule absolute inset-x-0 -top-px h-px bg-warm-border" />
+          <div className="lg:col-span-7">
+            <h3 className="workflow-in text-[13px] font-body font-semibold text-bronze uppercase tracking-[0.22em]">
               {t('optionsHeading')}
             </h3>
             <ul className="mt-5 flex flex-wrap gap-2">
-              {options.map((o) => (
+              {options.map((o, n) => (
                 <li
                   key={o}
-                  className="border border-warm-border bg-sand px-3.5 py-2 text-[14px] font-body font-normal text-ink leading-none"
+                  className="workflow-in border border-warm-border bg-sand px-3.5 py-2 text-[14px] font-body font-normal text-ink leading-none transition-colors duration-300 hover:border-bronze/50"
+                  style={{ ['--d' as never]: `${150 + n * 60}ms` }}
                 >
                   {o}
                 </li>
               ))}
             </ul>
-            <p className="mt-3 text-[14px] font-body font-normal text-ink-mid leading-snug">
+            <p
+              className="workflow-in mt-3 text-[14px] font-body font-normal text-ink-mid leading-snug"
+              style={{ ['--d' as never]: `${150 + options.length * 60 + 60}ms` }}
+            >
               {t('optionsMore')}
             </p>
           </div>
-          <ul
-            className="lg:col-span-5 lg:mt-9 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5 content-start"
-            data-reveal-stagger
-          >
-            {perks.map(({ label, Icon }) => (
-              <li key={label} data-reveal className="flex items-center gap-3">
-                <Icon size={20} strokeWidth={1.5} className="text-bronze shrink-0" aria-hidden />
+          <ul className="lg:col-span-5 lg:mt-9 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5 content-start">
+            {perks.map(({ label, Icon }, n) => (
+              <li
+                key={label}
+                className="workflow-in group flex items-center gap-3"
+                style={{ ['--d' as never]: `${300 + n * 100}ms` }}
+              >
+                <Icon
+                  size={20}
+                  strokeWidth={1.5}
+                  className="workflow-draw text-bronze shrink-0 transition-transform duration-500 group-hover:-translate-y-0.5"
+                  aria-hidden
+                />
                 <span className="text-[15px] font-body font-normal text-ink leading-snug">{label}</span>
               </li>
             ))}
