@@ -159,7 +159,7 @@ export async function renderProductCategoryPage(
   const copy = landingCopy(locale, slug, category);
   // The catalog's daily order, so the category reads like a slice of it.
   const shown = rotateDaily(inCategory);
-  const tabs = productCategoryTabs(locale, products, categories, t('allCategories'));
+  const tabs = productCategoryTabs(locale, products, categories, t('all'));
 
   const catalogUrl = localizedUrl(locale, '/products');
   const categoryUrl = localizedUrl(locale, pathAfterLocale);

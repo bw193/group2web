@@ -1,11 +1,12 @@
 ﻿import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import ProductsFilter from './ProductsFilter';
+import ProductCategoryTiles from '@/components/public/ProductCategoryTiles';
 import ProofPoints from '@/components/public/ProofPoints';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { rotateDaily } from '@/lib/daily-rotation';
 import { getProductsPagePublicData } from '@/lib/public-data';
-import { productCategorySlug, productCategoryTabs } from '@/lib/product-categories';
+import { productCategorySlug, productCategoryTabs, productCategoryTiles } from '@/lib/product-categories';
 import { productPathAfterLocale } from '@/lib/public-paths';
 import {
   SITE_OG_IMAGE,
@@ -132,10 +133,14 @@ export default async function ProductsPage({ params }: { params: Promise<{ local
         </div>
       </section>
 
+      <ProductCategoryTiles tiles={productCategoryTiles(locale, newestFirst, categoriesData)} />
+
       <ProductsFilter
         products={productsData}
-        tabs={productCategoryTabs(locale, productsData, categoriesData, t('allCategories'))}
+        tabs={productCategoryTabs(locale, productsData, categoriesData, t('all'))}
         activeKey="all"
+        showCategories
+        eagerFirstRow={false}
       />
     </>
   );

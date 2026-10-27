@@ -2,10 +2,12 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { locales } from '../src/i18n/config';
 import {
+  PRODUCT_CATEGORY_COVERS,
   PRODUCT_CATEGORY_SLUGS,
   productCategoryIdFromSlug,
   productCategorySlug,
   productCategoryTabs,
+  productCategoryTiles,
 } from '../src/lib/product-categories';
 import { productCategoryCopy } from '../src/lib/product-category-copy';
 import {
@@ -146,6 +148,40 @@ test('only categories that hold a product get a tab, each linking to its landing
     productCategoryTabs('he', products, categories, 'הכל').map((t) => t.href),
     ['/he/israel-products', '/he/israel-products/israel-led-mirrors', '/he/israel-products/israel-mirror-cabinets'],
   );
+});
+
+test('each category tile counts its products and shows its chosen cover, or a stand-in', () => {
+  const categories = [
+    { id: 1, name: 'LED Mirrors' },
+    { id: 2, name: 'Bathroom Mirrors' },
+    { id: 3, name: 'Full-Length Mirrors' },
+    { id: 4, name: 'Mirror Cabinets' },
+  ];
+  // Newest first, as the catalog loads them. Category 2's chosen cover isn't
+  // here, so its newest featured product with a photo stands in; category 4
+  // has nothing featured, so its newest product does; category 3 is empty.
+  const products = [
+    { id: 300, categoryId: 1, imageUrl: 'led-new.jpg', isFeatured: true },
+    { id: PRODUCT_CATEGORY_COVERS[1], categoryId: 1, imageUrl: 'led-cover.jpg', isFeatured: false },
+    { id: 201, categoryId: 2, imageUrl: null, isFeatured: true },
+    { id: 200, categoryId: 2, imageUrl: 'bath-new.jpg', isFeatured: false },
+    { id: 199, categoryId: 2, imageUrl: 'bath-featured.jpg', isFeatured: true },
+    { id: 401, categoryId: 4, imageUrl: 'cabinet-new.jpg', isFeatured: false },
+    { id: 400, categoryId: 4, imageUrl: 'cabinet-old.jpg', isFeatured: false },
+    { id: 999, categoryId: null, imageUrl: 'loose.jpg', isFeatured: true },
+  ];
+  assert.deepEqual(
+    productCategoryTiles('en', products, categories).map((t) => [t.key, t.label, t.href, t.count, t.imageUrl]),
+    [
+      ['led-mirrors', 'LED Mirrors', '/en/products/led-mirrors', 2, 'led-cover.jpg'],
+      ['bathroom-mirrors', 'Bathroom Mirrors', '/en/products/bathroom-mirrors', 3, 'bath-featured.jpg'],
+      ['mirror-cabinets', 'Mirror Cabinets', '/en/products/mirror-cabinets', 2, 'cabinet-new.jpg'],
+    ],
+  );
+  assert.equal(productCategoryTiles('he', products, categories)[0].href, '/he/israel-products/israel-led-mirrors');
+  for (const id of Object.keys(PRODUCT_CATEGORY_COVERS)) {
+    assert.ok(PRODUCT_CATEGORY_SLUGS[Number(id)], `cover for unknown category ${id}`);
+  }
 });
 
 test('every category landing page has fitting copy in every locale', () => {

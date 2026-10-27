@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { Search, X } from 'lucide-react';
 import ProductCard from '@/components/public/ProductCard';
-import type { ProductCategoryTab } from '@/lib/product-categories';
+import { productCategorySlug, type ProductCategoryTab } from '@/lib/product-categories';
 
 interface Product {
   id: number;
@@ -28,10 +28,28 @@ interface ProductsFilterProps {
   tabs: ProductCategoryTab[];
   /** The page being shown: 'all' on /products, the category slug on its page. */
   activeKey: string;
+  /**
+   * Name each card's category at the end of its model-number line. Set on
+   * /products, where every category shares one grid.
+   */
+  showCategories?: boolean;
+  /**
+   * Load the first row's photos eagerly, since one of them is the LCP element
+   * when the grid opens the page. Off on /products, where the category tiles
+   * above hold the first photos.
+   */
+  eagerFirstRow?: boolean;
 }
 
-export default function ProductsFilter({ products, tabs, activeKey }: ProductsFilterProps) {
+export default function ProductsFilter({
+  products,
+  tabs,
+  activeKey,
+  showCategories = false,
+  eagerFirstRow = true,
+}: ProductsFilterProps) {
   const t = useTranslations('products');
+  const categoryLabels = useMemo(() => new Map(tabs.map((tab) => [tab.key, tab.label])), [tabs]);
   // Start empty so the full product grid is statically prerendered (good for
   // SEO and LCP). The ?q= deep-link is read on the client after mount — using
   // useSearchParams() here would force this whole grid into client-only
@@ -70,8 +88,10 @@ export default function ProductsFilter({ products, tabs, activeKey }: ProductsFi
       <section className="bg-cream sticky top-[72px] md:top-20 z-30 border-b border-warm-border">
         <div className="container-wide py-4 md:py-6">
           <div className="flex flex-col md:flex-row md:items-center gap-5 md:gap-8">
-            {/* Category tabs */}
-            <div className="flex gap-6 md:gap-8 overflow-x-auto no-scrollbar -mx-1 px-1 flex-1">
+            {/* Category buttons. On phones they share one row that swipes
+                sideways, its end faded so a cut-off button reads as "more";
+                wider screens wrap them rather than hide one. */}
+            <div className="flex gap-2 overflow-x-auto no-scrollbar -mx-1 px-1 -my-1 py-1 flex-1 max-md:pe-12 max-md:[mask-image:linear-gradient(to_var(--fade-to),#000_calc(100%-3.25rem),transparent)] [--fade-to:right] rtl:[--fade-to:left] md:flex-wrap">
               {tabs.map((tab) => {
                 const active = tab.key === activeKey;
                 return (
@@ -79,16 +99,13 @@ export default function ProductsFilter({ products, tabs, activeKey }: ProductsFi
                     key={tab.key}
                     href={tab.href}
                     aria-current={active ? 'page' : undefined}
-                    className={`relative whitespace-nowrap py-2 text-[13px] font-body font-semibold tracking-[0.12em] uppercase transition-colors duration-300 ${
-                      active ? 'text-ink' : 'text-ink-mid hover:text-ink'
+                    className={`inline-flex shrink-0 items-center h-9 px-4 rounded-full border whitespace-nowrap text-[11px] font-body font-semibold tracking-[0.1em] uppercase transition-colors duration-300 ${
+                      active
+                        ? 'bg-ink border-ink text-cream'
+                        : 'border-bronze/45 text-ink hover:border-bronze hover:bg-sand'
                     }`}
                   >
                     {tab.label}
-                    <span
-                      className={`absolute start-0 bottom-0 h-0.5 bg-bronze transition-all duration-500 ease-out ${
-                        active ? 'w-full' : 'w-0'
-                      }`}
-                    />
                   </Link>
                 );
               })}
@@ -142,9 +159,17 @@ export default function ProductsFilter({ products, tabs, activeKey }: ProductsFi
               className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-14 md:gap-x-10 md:gap-y-16 animate-fade-up"
             >
               {filtered.map((product, i) => (
-                // The first row is above the fold on every breakpoint, and its
-                // first photo is the LCP element on this page.
-                <ProductCard key={product.id} index={i} {...product} priority={i < 4} />
+                // Without tiles above it, the first row is above the fold on
+                // every breakpoint, and its first photo is the LCP element.
+                <ProductCard
+                  key={product.id}
+                  index={i}
+                  {...product}
+                  categoryLabel={
+                    showCategories ? categoryLabels.get(productCategorySlug(product.categoryId) ?? '') : undefined
+                  }
+                  priority={eagerFirstRow && i < 4}
+                />
               ))}
             </div>
           )}

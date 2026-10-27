@@ -16,6 +16,11 @@ interface ProductCardProps {
   isFeatured?: boolean;
   /** The card links to /products/<category>/<slug>, or the flat URL without one. */
   categoryId?: number | null;
+  /**
+   * The category's name, shown at the end of the model-number line. Set on
+   * /products, where every category shares one grid.
+   */
+  categoryLabel?: string | null;
   index?: number;
   noSnippet?: boolean;
   /**
@@ -40,6 +45,7 @@ export default function ProductCard({
   imageUrl,
   isFeatured,
   categoryId,
+  categoryLabel,
   index,
   noSnippet = false,
   hideDescription = false,
@@ -90,13 +96,24 @@ export default function ProductCard({
       {/* Content — flex column so the action row pins to the bottom
           and every card in a row ends at the same baseline. */}
       <div className="flex flex-col flex-1">
-        <div className="flex items-baseline justify-between gap-3 mb-2 min-h-[16px]">
+        <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 mb-2 min-h-[16px]">
           {modelNumber ? (
-            <p className="text-[12px] font-body font-semibold text-bronze tracking-[0.12em] uppercase">
+            <p className="shrink-0 text-[12px] font-body font-semibold text-bronze tracking-[0.12em] uppercase">
               {modelNumber}
             </p>
           ) : (
             <span />
+          )}
+          {/* The same few words on every card, so kept out of snippets. A
+              long name beside a long model number drops to the next line
+              rather than being cut. */}
+          {categoryLabel && (
+            <span
+              data-nosnippet=""
+              className="whitespace-nowrap text-[11px] font-body font-medium text-ink-mid tracking-[0.12em] uppercase"
+            >
+              {categoryLabel}
+            </span>
           )}
         </div>
         {/* Reserve two lines of title height so 1-line titles don't

@@ -122,6 +122,8 @@
     "title": "Nossos Produtos",
     "search": "Pesquisar produtos...",
     "allCategories": "Todas as Categorias",
+    "all": "Todos",
+    "categoryCount": "{count, plural, one {# produto} other {# produtos}}",
     "noProducts": "Nenhum produto encontrado.",
     "viewDetails": "Ver Detalhes",
     "sendInquiry": "Enviar Consulta",

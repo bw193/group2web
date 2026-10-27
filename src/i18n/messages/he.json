@@ -122,6 +122,8 @@
     "title": "המוצרים שלנו",
     "search": "חיפוש מוצרים...",
     "allCategories": "כל הקטגוריות",
+    "all": "הכל",
+    "categoryCount": "{count, plural, one {מוצר אחד} two {שני מוצרים} other {# מוצרים}}",
     "noProducts": "לא נמצאו מוצרים.",
     "viewDetails": "צפייה בפרטים",
     "sendInquiry": "שליחת פנייה",

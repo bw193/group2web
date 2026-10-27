@@ -73,3 +73,45 @@ export function productCategoryTabs(
       }),
   ];
 }
+
+/**
+ * The product whose photo fronts each category's tile on /products, by
+ * category id, picked by hand like the slugs above. A cover that is hidden,
+ * moved to another category or without a photo falls back to the category's
+ * newest featured product, then its newest product.
+ */
+export const PRODUCT_CATEGORY_COVERS: Readonly<Record<number, number>> = {
+  1: 40, // Round Backlit LED Mirror
+  2: 30, // Organic Wood Framed Mirror
+  3: 45, // Oval Framed Dressing Mirror
+  4: 187, // Modern Dual Door Mirror Cabinet
+};
+
+export interface ProductCategoryTile extends ProductCategoryTab {
+  count: number;
+  imageUrl: string | null;
+}
+
+/**
+ * The catalog's photo tiles: the tab bar's categories (without "all"), each
+ * with its product count and cover photo. Pass the products newest first, so
+ * a fallback cover stays put instead of following the daily rotation.
+ */
+export function productCategoryTiles(
+  locale: string,
+  products: Array<{ id: number; categoryId: number | null; imageUrl: string | null; isFeatured: boolean }>,
+  categories: Array<{ id: number; name: string }>,
+): ProductCategoryTile[] {
+  return productCategoryTabs(locale, products, categories, '')
+    .filter((tab) => tab.key !== 'all')
+    .map((tab) => {
+      const id = productCategoryIdFromSlug(tab.key)!;
+      const inCategory = products.filter((p) => p.categoryId === id);
+      const photographed = inCategory.filter((p) => p.imageUrl);
+      const cover =
+        photographed.find((p) => p.id === PRODUCT_CATEGORY_COVERS[id]) ??
+        photographed.find((p) => p.isFeatured) ??
+        photographed[0];
+      return { ...tab, count: inCategory.length, imageUrl: cover?.imageUrl ?? null };
+    });
+}
