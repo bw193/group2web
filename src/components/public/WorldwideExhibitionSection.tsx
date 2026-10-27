@@ -2,6 +2,7 @@ import { getTranslations } from 'next-intl/server';
 import GalleryImage from './GalleryImage';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { SITE_URL, localizedSiteName } from '@/lib/seo';
+import { getUploadUrl } from '@/lib/utils';
 
 interface ExhibitionPhoto {
   imageUrl: string;
@@ -112,8 +113,11 @@ export default async function WorldwideExhibitionSection({ locale, photos }: Pro
   );
 }
 
+// Resolve the photo the same way GalleryImage does: a leading "/" is a file in
+// public/, anything else is a storage key served from the upload bucket (not
+// from our own domain, where it would 404).
 function absoluteImageUrl(path: string): string {
   if (/^https?:\/\//i.test(path)) return path;
-  const base = SITE_URL.replace(/\/$/, '');
-  return path.startsWith('/') ? `${base}${path}` : `${base}/${path}`;
+  if (path.startsWith('/')) return `${SITE_URL.replace(/\/$/, '')}${path}`;
+  return getUploadUrl(path);
 }
