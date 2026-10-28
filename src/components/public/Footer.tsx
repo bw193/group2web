@@ -156,7 +156,7 @@ export default function Footer() {
         {/* Bottom rule */}
         <div className="border-t border-cream/15 mt-16 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-[13px] font-body font-normal text-cream/70">
-            © {year} {brandName} — {t('copyright')}
+            {t('copyright', { year })}
           </p>
           <Link
             href="/cms/login"
