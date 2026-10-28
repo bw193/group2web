@@ -27,6 +27,7 @@ import {
   localizedPath,
   localizedUrl,
   productTitle,
+  snippet,
 } from '@/lib/seo';
 import ImageGallery from './ImageGallery';
 
@@ -388,8 +389,16 @@ export async function renderProductDetailPage(
                 </Link>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-14 md:gap-x-10">
+                {/* Each card carries only the opening of the video's
+                    description. The same videos appear on dozens of product
+                    pages, so the full text would repeat there word for word. */}
                 {relatedVideos.map((video, i) => (
-                  <VideoCard key={video.id} video={video} locale={locale} index={i} />
+                  <VideoCard
+                    key={video.id}
+                    video={{ ...video, excerpt: snippet(video.excerpt, 120) }}
+                    locale={locale}
+                    index={i}
+                  />
                 ))}
               </div>
             </div>

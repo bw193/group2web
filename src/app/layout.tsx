@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     template: '%s',
   },
   description:
-    'Chengtai Mirror — specialized factory for premium LED bathroom mirrors, mirror cabinets & full-length mirrors. CE, ETL & RoHS certified for global retail.',
+    'Chengtai Mirror — specialized factory for premium LED bathroom mirrors, mirror cabinets & full-length mirrors. CE, UL & RoHS certified for global retail.',
   applicationName: 'Chengtai Mirror',
   authors: [{ name: 'Jiaxing Chengtai Mirror Co., Ltd' }],
   formatDetection: { telephone: false },
