@@ -5,6 +5,8 @@ export const HEBREW_PUBLIC_PATHS = {
   about: '/israel-about',
   contact: '/israel-contact',
   contactThankYou: '/israel-contact/israel-thank-you',
+  privacy: '/israel-privacy',
+  legalNotice: '/israel-legal-notice',
   products: '/israel-products',
   insight: '/israel-insight',
 } as const;
@@ -106,6 +108,8 @@ export function canonicalPathAfterLocale(locale: string, pathAfterLocale: string
   if (path === '/about') return `${HEBREW_PUBLIC_PATHS.about}${suffix}`;
   if (path === '/contact') return `${HEBREW_PUBLIC_PATHS.contact}${suffix}`;
   if (path === '/contact/thank-you') return `${HEBREW_PUBLIC_PATHS.contactThankYou}${suffix}`;
+  if (path === '/privacy') return `${HEBREW_PUBLIC_PATHS.privacy}${suffix}`;
+  if (path === '/legal-notice') return `${HEBREW_PUBLIC_PATHS.legalNotice}${suffix}`;
   if (path === '/products' || path.startsWith('/products/')) {
     const rest = mapFirstSegment(path.slice('/products'.length), hebrewCategorySegment);
     return `${HEBREW_PUBLIC_PATHS.products}${rest}${suffix}`;
@@ -126,6 +130,8 @@ export function genericPathAfterLocale(locale: string, pathAfterLocale: string):
   if (path === HEBREW_PUBLIC_PATHS.about) return `/about${suffix}`;
   if (path === HEBREW_PUBLIC_PATHS.contact) return `/contact${suffix}`;
   if (path === HEBREW_PUBLIC_PATHS.contactThankYou) return `/contact/thank-you${suffix}`;
+  if (path === HEBREW_PUBLIC_PATHS.privacy) return `/privacy${suffix}`;
+  if (path === HEBREW_PUBLIC_PATHS.legalNotice) return `/legal-notice${suffix}`;
   if (path === HEBREW_PUBLIC_PATHS.products || path.startsWith(`${HEBREW_PUBLIC_PATHS.products}/`)) {
     const rest = mapFirstSegment(path.slice(HEBREW_PUBLIC_PATHS.products.length), (segment) =>
       categoryKeyFromSegment('he', segment),

@@ -12,6 +12,8 @@ test('localizedPath maps Hebrew static pages to Israel-specific paths', () => {
   assert.equal(localizedPath('he', '/about'), '/he/israel-about');
   assert.equal(localizedPath('he', '/contact'), '/he/israel-contact');
   assert.equal(localizedPath('he', '/contact/thank-you'), '/he/israel-contact/israel-thank-you');
+  assert.equal(localizedPath('he', '/privacy'), '/he/israel-privacy');
+  assert.equal(localizedPath('he', '/legal-notice'), '/he/israel-legal-notice');
 });
 
 test('localizedPath maps Hebrew product and Insight sections while preserving slugs and queries', () => {
@@ -38,6 +40,8 @@ test('localizedPath leaves non-Hebrew paths unchanged', () => {
 test('genericPathAfterLocale reverses Hebrew public paths for locale switching', () => {
   assert.equal(genericPathAfterLocale('he', '/israel-home'), '');
   assert.equal(genericPathAfterLocale('he', '/israel-about'), '/about');
+  assert.equal(genericPathAfterLocale('he', '/israel-privacy'), '/privacy');
+  assert.equal(genericPathAfterLocale('he', '/israel-legal-notice'), '/legal-notice');
   assert.equal(
     genericPathAfterLocale('he', '/israel-products/israel-led-mirrors/israel-round-backlit-led-mirror'),
     '/products/led-mirrors/israel-round-backlit-led-mirror',

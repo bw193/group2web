@@ -155,9 +155,17 @@ export default function Footer() {
 
         {/* Bottom rule */}
         <div className="border-t border-cream/15 mt-16 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-[13px] font-body font-normal text-cream/70">
-            {t('copyright', { year })}
-          </p>
+          <div className="flex flex-col md:flex-row items-center gap-x-8 gap-y-3 text-[13px] font-body font-normal text-cream/70">
+            <p>{t('copyright', { year })}</p>
+            <div className="flex items-center gap-6">
+              <Link href={localizedPath(locale, '/privacy')} className="transition-colors hover:text-bronze-light">
+                {t('privacy')}
+              </Link>
+              <Link href={localizedPath(locale, '/legal-notice')} className="transition-colors hover:text-bronze-light">
+                {t('legalNotice')}
+              </Link>
+            </div>
+          </div>
           <Link
             href="/cms/login"
             aria-label={t('staffPortalAria')}

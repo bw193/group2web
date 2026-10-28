@@ -18,7 +18,7 @@ const TYPO_SLUG_REDIRECTS: { from: string; to: string; category: string }[] = [
 // crawlers can transfer signal instead of finding 404s.
 // Dynamic /products/<slug> is handled in middleware.ts (Next.js redirects()
 // can't pattern-match dynamic segments cleanly).
-const UNPREFIXED_STATIC_ROUTES = ['/products', '/videos', '/about', '/contact'];
+const UNPREFIXED_STATIC_ROUTES = ['/products', '/videos', '/about', '/contact', '/privacy', '/legal-notice'];
 
 const HEBREW_STATIC_ROUTE_REDIRECTS: { from: string; to: string }[] = [
   { from: '/he', to: '/he/israel-home' },
@@ -27,6 +27,8 @@ const HEBREW_STATIC_ROUTE_REDIRECTS: { from: string; to: string }[] = [
   { from: '/he/contact/thank-you', to: '/he/israel-contact/israel-thank-you' },
   { from: '/he/products', to: '/he/israel-products' },
   { from: '/he/insight', to: '/he/israel-insight' },
+  { from: '/he/privacy', to: '/he/israel-privacy' },
+  { from: '/he/legal-notice', to: '/he/israel-legal-notice' },
 ];
 
 // PDFs such as installation instructions are stored in Supabase storage under

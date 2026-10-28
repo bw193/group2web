@@ -22,11 +22,20 @@ export const revalidate = 300;
 
 // Stable date for static routes so Google doesn't see every locale homepage
 // "changing" on each rebuild. Bump manually when nav/footer/structure shifts.
-const STATIC_LAST_MODIFIED = new Date('2026-05-20T00:00:00Z');
+const STATIC_LAST_MODIFIED = new Date('2026-10-28T00:00:00Z');
 
 // Static routes shared across every locale, expressed as the path segment
 // AFTER the (optional) locale prefix. Use '' for the locale's homepage.
-const STATIC_ROUTES = ['', '/about', '/contact', '/products', '/videos', '/insight'] as const;
+const STATIC_ROUTES = [
+  '',
+  '/about',
+  '/contact',
+  '/products',
+  '/videos',
+  '/insight',
+  '/privacy',
+  '/legal-notice',
+] as const;
 
 function validDate(value: string): Date {
   const date = value ? new Date(value) : STATIC_LAST_MODIFIED;
