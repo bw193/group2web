@@ -26,7 +26,6 @@ import {
   localizedSiteName,
   localizedPath,
   localizedUrl,
-  snippet,
 } from '@/lib/seo';
 import ImageGallery from './ImageGallery';
 
@@ -366,8 +365,10 @@ export async function renderProductDetailPage(
                 </Link>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-14 md:gap-x-10 md:gap-y-16">
+                {/* Name and picture only: the same products appear on many pages,
+                    so their descriptions would repeat there word for word. */}
                 {related.map((p, i) => (
-                  <ProductCard key={p.id} index={i} {...p} noSnippet />
+                  <ProductCard key={p.id} index={i} {...p} shortDescription={null} noSnippet />
                 ))}
               </div>
             </div>
@@ -388,15 +389,15 @@ export async function renderProductDetailPage(
                 </Link>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-14 md:gap-x-10">
-                {/* Each card carries only the opening of the video's
-                    description. The same videos appear on dozens of product
-                    pages, so the full text would repeat there word for word. */}
+                {/* Title and picture only, for the same reason as the products above. */}
                 {relatedVideos.map((video, i) => (
                   <VideoCard
                     key={video.id}
-                    video={{ ...video, excerpt: snippet(video.excerpt, 120) }}
+                    video={{ ...video, excerpt: '' }}
                     locale={locale}
                     index={i}
+                    categoryFallback={videosT('videoFallback')}
+                    watchLabel={videosT('watchVideo')}
                   />
                 ))}
               </div>

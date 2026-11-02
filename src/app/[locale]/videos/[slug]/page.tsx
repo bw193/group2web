@@ -253,8 +253,10 @@ export default async function VideoDetailPage({
                 </Link>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-14 md:gap-x-10 md:gap-y-16">
+                {/* Name and picture only: the same products appear on many pages,
+                    so their descriptions would repeat there word for word. */}
                 {relatedProducts.map((product, i) => (
-                  <ProductCard key={product.id} index={i} {...product} noSnippet />
+                  <ProductCard key={product.id} index={i} {...product} shortDescription={null} noSnippet />
                 ))}
               </div>
             </div>
@@ -278,10 +280,11 @@ export default async function VideoDetailPage({
               </Link>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-14 md:gap-x-10">
+              {/* Title and picture only, for the same reason as the products above. */}
               {relatedVideos.map((item, i) => (
                 <VideoCard
                   key={item.id}
-                  video={item}
+                  video={{ ...item, excerpt: '' }}
                   locale={locale}
                   index={i}
                   categoryFallback={t('videoFallback')}

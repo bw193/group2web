@@ -60,7 +60,7 @@ export default function VideoCard({
           {dateLabel && <span className="font-normal tracking-[0.06em] text-ink-mid">{dateLabel}</span>}
         </div>
 
-        <h3 className="mb-3 line-clamp-2 font-display text-[23px] font-normal leading-[1.16] tracking-[-0.01em] text-ink">
+        <h3 className={`${video.excerpt ? 'mb-3' : 'mb-6'} line-clamp-2 font-display text-[23px] font-normal leading-[1.16] tracking-[-0.01em] text-ink`}>
           <Link
             href={videoHref}
             className="bg-left-bottom bg-gradient-to-r from-ink to-ink bg-[length:0%_1px] bg-no-repeat transition-[background-size] duration-500 group-hover:bg-[length:100%_1px] rtl:bg-right-bottom"
