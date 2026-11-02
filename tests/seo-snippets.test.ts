@@ -1,24 +1,17 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { leadingProse, plainText, snippet, titleWithSiteName } from '../src/lib/seo';
+import { locales } from '../src/i18n/config';
+import { leadingProse, pageCopy, plainText, snippet } from '../src/lib/seo';
 
-test('titleWithSiteName appends the site name when the result still fits', () => {
-  assert.equal(
-    titleWithSiteName('The return of the arched mirror', 'Chengtai Mirror'),
-    'The return of the arched mirror - Chengtai Mirror',
-  );
-});
-
-test('titleWithSiteName leaves a long title alone instead of pushing its words out of view', () => {
-  const long = 'How to Evaluate an LED Bathroom Mirror Supplier: 7 Things Buyers Should Check';
-  assert.equal(titleWithSiteName(long, 'Chengtai Mirror'), long);
-});
-
-test('titleWithSiteName never repeats the brand', () => {
-  const branded = 'Professional LED Mirror Manufacturer in China | Chengtai Mirror Factory Tour';
-  assert.equal(titleWithSiteName(branded, 'Chengtai Mirror'), branded);
-  assert.equal(titleWithSiteName('Inside CHENGTAI', 'Chengtai Mirror'), 'Inside CHENGTAI');
-  assert.equal(titleWithSiteName('מראות לאמבטיה', 'מראות Chengtai'), 'מראות לאמבטיה - מראות Chengtai');
+test('only the home, about and contact titles name the company', () => {
+  for (const locale of locales) {
+    for (const key of ['home', 'about', 'contact'] as const) {
+      assert.match(pageCopy(locale, key).title, /chengtai/i, `${locale}/${key}`);
+    }
+    for (const key of ['products', 'videos', 'insight'] as const) {
+      assert.doesNotMatch(pageCopy(locale, key).title, /chengtai/i, `${locale}/${key}`);
+    }
+  }
 });
 
 test('plainText strips tags and decodes named and numeric entities', () => {

@@ -26,7 +26,6 @@ import {
   localizedSiteName,
   localizedPath,
   localizedUrl,
-  productTitle,
   snippet,
 } from '@/lib/seo';
 import ImageGallery from './ImageGallery';
@@ -52,7 +51,7 @@ export async function productMetadata({ params }: ProductDetailPageProps): Promi
   try {
     const row = await getProductMetadataData(locale, slug);
     if (!row) {
-      return { title: productTitle('Product', locale), robots: { index: false, follow: true } };
+      return { title: 'Product', robots: { index: false, follow: true } };
     }
 
     // The category belongs to the product, so every translation shares it;
@@ -77,7 +76,7 @@ export async function productMetadata({ params }: ProductDetailPageProps): Promi
       ? getUploadUrl(row.primaryImage.imageUrl)
       : SITE_OG_IMAGE;
 
-    const title = productTitle(row.translation.name, locale);
+    const title = row.translation.name.trim();
     const description = row.translation.shortDescription
       ? row.translation.shortDescription.slice(0, 300)
       : `${row.trans.name}${row.product.modelNumber ? ` (Model ${row.product.modelNumber})` : ''} - manufactured by ${siteName}, Jiaxing, China. OEM/ODM available.`;
@@ -108,7 +107,7 @@ export async function productMetadata({ params }: ProductDetailPageProps): Promi
       },
     };
   } catch {
-    return { title: productTitle('Product', locale) };
+    return { title: 'Product' };
   }
 }
 

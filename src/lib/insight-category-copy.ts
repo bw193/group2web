@@ -6,7 +6,6 @@ import { defaultLocale, locales, type Locale } from '@/i18n/config';
  *
  * - `title`   the <title>, led by the search terms in keywords.md
  *             (manufacturer / supplier / wholesale / OEM, hotel and commercial).
- *             titleWithSiteName appends the brand when it fits.
  * - `heading` the H1: editorial, shorter than the title.
  * - `intro`   one sentence under the H1 that is also the meta description, so
  *             it stays inside snippet()'s 155 characters (tests hold every

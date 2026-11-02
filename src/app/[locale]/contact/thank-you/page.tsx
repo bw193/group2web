@@ -3,7 +3,6 @@ import Link from 'next/link';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Check, ArrowRight } from 'lucide-react';
 import TrackedContactLink from '@/components/public/TrackedContactLink';
-import { localizedSiteName } from '@/lib/seo';
 import { localizedPath } from '@/lib/public-paths';
 import { robotsForPublicPage } from '@/lib/indexing';
 
@@ -17,10 +16,9 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'contact' });
-  const siteName = localizedSiteName(locale);
   const localeRobots = robotsForPublicPage(locale);
   return {
-    title: `${t('successHeading')} | ${siteName}`,
+    title: t('successHeading'),
     description: t('success'),
     robots: localeRobots ?? { index: false, follow: true },
   };

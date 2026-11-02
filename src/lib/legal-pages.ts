@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { defaultLocale } from '@/i18n/config';
-import { buildAlternates, localizedSiteName } from '@/lib/seo';
+import { buildAlternates } from '@/lib/seo';
 
 // Content of the Privacy Policy and Legal Notice (Impressum), linked from the
 // footer on every page. The privacy text describes what the site actually
@@ -909,7 +909,7 @@ export function legalDocument(locale: string, key: LegalPageKey): LegalDocument 
 export function legalMetadata(locale: string, key: LegalPageKey): Metadata {
   const doc = legalDocument(locale, key);
   return {
-    title: `${doc.title} | ${localizedSiteName(locale)}`,
+    title: doc.title,
     description: doc.description,
     alternates: buildAlternates(locale, LEGAL_PAGE_PATHS[key]),
   };

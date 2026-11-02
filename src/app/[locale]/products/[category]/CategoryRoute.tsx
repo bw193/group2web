@@ -28,7 +28,6 @@ import {
   localizedUrl,
   pageCopy,
   snippet,
-  titleWithSiteName,
 } from '@/lib/seo';
 import { getUploadUrl } from '@/lib/utils';
 import { productMetadata, renderProductDetailPage } from './[slug]/ProductDetailRoute';
@@ -105,7 +104,7 @@ export async function productCategoryMetadata({ params }: ProductCategoryPagePro
     const copy = landingCopy(locale, loaded.slug, loaded.category);
     const pathAfterLocale = productCategoryPathAfterLocale(loaded.slug);
     const url = localizedUrl(locale, pathAfterLocale);
-    const title = titleWithSiteName(copy.title, siteName);
+    const title = copy.title;
     const description = snippet(copy.intro);
 
     return {

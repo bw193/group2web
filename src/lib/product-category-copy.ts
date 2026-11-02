@@ -8,7 +8,6 @@ import { defaultLocale, locales, type Locale } from '@/i18n/config';
  *             from keywords.md (wholesale, OEM, custom). One, not a stack of
  *             manufacturer/supplier/factory synonyms — that pattern is what
  *             088bbe4 trimmed after the September 2026 spam update.
- *             titleWithSiteName appends the brand when it fits.
  * - `heading` the H1.
  * - `intro`   one sentence under the H1 that is also the meta description, so
  *             it stays inside snippet()'s 155 characters (tests hold every

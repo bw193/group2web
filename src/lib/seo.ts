@@ -138,6 +138,10 @@ export function buildAlternates(locale: string, pathAfterLocale: string) {
  * Per-page SEO copy keyed by locale. Kept here (not in messages JSON) so
  * SERP-targeted phrasing can be tuned independently of in-page UI copy.
  * Falls back to English if a locale entry is missing.
+ *
+ * Only the home, about and contact titles name the company: Google shows the
+ * site name above every result, and those are the pages a search for the name
+ * should land on. Every other title is the page's own subject alone.
  */
 type PageKey = 'home' | 'products' | 'videos' | 'about' | 'contact' | 'insight';
 type PageEntry = { title: string; description: string; h1?: string };
@@ -152,12 +156,12 @@ const COPY: Record<Locale, RoutedCopy> = {
       h1: 'Leading global LED mirror manufacturer',
     },
     products: {
-      title: 'LED, Smart & Bathroom Mirror Catalog | Chengtai Mirror',
+      title: 'LED, Smart & Bathroom Mirror Catalog',
       description:
         "Browse Chengtai Mirror's full collection of LED, smart, anti-fog, and bathroom mirrors. Wholesale, OEM/ODM, export-ready packaging. Request a quote.",
     },
     videos: {
-      title: 'LED Mirror Videos, Factory Tours & Installation Demos | Chengtai Mirror',
+      title: 'LED Mirror Videos, Factory Tours & Installation Demos',
       description:
         'Watch Chengtai Mirror product demos, factory walkthroughs, installation clips, and quality-control videos for LED, smart, vanity, and bathroom mirrors.',
     },
@@ -172,7 +176,7 @@ const COPY: Record<Locale, RoutedCopy> = {
         "Share your project details with Chengtai Mirror's export team. We reply within one business day. Email, WhatsApp, and direct phone available.",
     },
     insight: {
-      title: 'LED Mirror Insights | Factory Notes from Chengtai Mirror',
+      title: 'LED Mirror Insights & Factory Notes',
       description:
         'Explore LED mirror design, manufacturing, quality control, certifications, and sourcing tips from Chengtai Mirror, a professional LED mirror factory.',
     },
@@ -185,7 +189,7 @@ const COPY: Record<Locale, RoutedCopy> = {
       h1: 'Fabricante líder mundial de espejos LED',
     },
     products: {
-      title: 'Catálogo de Espejos LED, Smart y Baño | Chengtai Mirror',
+      title: 'Catálogo de Espejos LED, Smart y Baño',
       description:
         'Explore la colección completa de espejos LED, inteligentes, antiniebla y de baño de Chengtai Mirror. Mayorista, OEM/ODM, embalaje listo para exportación. Solicite cotización.',
     },
@@ -200,7 +204,7 @@ const COPY: Record<Locale, RoutedCopy> = {
         'Comparta los detalles de su proyecto con el equipo de exportación de Chengtai Mirror. Respondemos en un día hábil. Correo, WhatsApp y teléfono directo disponibles.',
     },
     insight: {
-      title: 'Insight — Diario de Diseño y Compra de Espejos LED | Chengtai Mirror',
+      title: 'Insight — Diario de Diseño y Compra de Espejos LED',
       description:
         'Historias desde una fábrica de espejos en activo: tendencias de diseño de espejos LED, artesanía de fabricación, proyectos reales y guías de compra OEM/ODM.',
     },
@@ -213,7 +217,7 @@ const COPY: Record<Locale, RoutedCopy> = {
       h1: 'Fabricante líder mundial de espelhos LED',
     },
     products: {
-      title: 'Catálogo de Espelhos LED, Smart e de Banho | Chengtai Mirror',
+      title: 'Catálogo de Espelhos LED, Smart e de Banho',
       description:
         'Explore a coleção completa de espelhos LED, inteligentes, antiembaçantes e de banho da Chengtai Mirror. Atacado, OEM/ODM, embalagem pronta para exportação. Solicite orçamento.',
     },
@@ -228,7 +232,7 @@ const COPY: Record<Locale, RoutedCopy> = {
         'Compartilhe os detalhes do seu projeto com a equipe de exportação da Chengtai Mirror. Respondemos em um dia útil. E-mail, WhatsApp e telefone direto disponíveis.',
     },
     insight: {
-      title: 'Insight — Jornal de Design e Sourcing de Espelhos LED | Chengtai Mirror',
+      title: 'Insight — Jornal de Design e Sourcing de Espelhos LED',
       description:
         'Histórias de uma fábrica de espelhos em atividade: tendências de design de espelhos LED, artesanato de fabricação, estudos de projetos e guias de sourcing OEM/ODM.',
     },
@@ -241,7 +245,7 @@ const COPY: Record<Locale, RoutedCopy> = {
       h1: 'Fabricant leader mondial de miroirs LED',
     },
     products: {
-      title: 'Catalogue de Miroirs LED, Intelligents et de Salle de Bain | Chengtai Mirror',
+      title: 'Catalogue de Miroirs LED, Intelligents et de Salle de Bain',
       description:
         "Découvrez la collection complète de miroirs LED, intelligents, antibuée et de salle de bain de Chengtai Mirror. Vente en gros, OEM/ODM, emballage prêt à l'export. Demandez un devis.",
     },
@@ -256,7 +260,7 @@ const COPY: Record<Locale, RoutedCopy> = {
         "Partagez les détails de votre projet avec l'équipe d'export de Chengtai Mirror. Réponse sous un jour ouvré. E-mail, WhatsApp et téléphone direct disponibles.",
     },
     insight: {
-      title: 'Insight — Journal du Design et du Sourcing de Miroirs LED | Chengtai Mirror',
+      title: 'Insight — Journal du Design et du Sourcing de Miroirs LED',
       description:
         "Histoires d'une usine de miroirs en activité : tendances du design de miroirs LED, savoir-faire de fabrication, études de projets et guides de sourcing OEM/ODM.",
     },
@@ -269,7 +273,7 @@ const COPY: Record<Locale, RoutedCopy> = {
       h1: 'Produttore leader mondiale di specchi LED',
     },
     products: {
-      title: 'Catalogo Specchi LED, Smart e da Bagno | Chengtai Mirror',
+      title: 'Catalogo Specchi LED, Smart e da Bagno',
       description:
         "Esplora la collezione completa di specchi LED, smart, antiappannamento e da bagno di Chengtai Mirror. Ingrosso, OEM/ODM, imballaggio pronto per l'export. Richiedi preventivo.",
     },
@@ -284,7 +288,7 @@ const COPY: Record<Locale, RoutedCopy> = {
         "Condividi i dettagli del tuo progetto con il team export di Chengtai Mirror. Rispondiamo entro un giorno lavorativo. Email, WhatsApp e telefono diretto disponibili.",
     },
     insight: {
-      title: 'Insight — Giornale di Design e Sourcing di Specchi LED | Chengtai Mirror',
+      title: 'Insight — Giornale di Design e Sourcing di Specchi LED',
       description:
         'Storie da una fabbrica di specchi in attività: tendenze del design di specchi LED, artigianato produttivo, casi studio di progetti e guide al sourcing OEM/ODM.',
     },
@@ -297,7 +301,7 @@ const COPY: Record<Locale, RoutedCopy> = {
       h1: 'Weltweit führender LED-Spiegel-Hersteller',
     },
     products: {
-      title: 'LED-, Smart- & Badspiegel Katalog | Chengtai Mirror',
+      title: 'LED-, Smart- & Badspiegel Katalog',
       description:
         'Durchstöbern Sie die komplette Kollektion an LED-, Smart-, Antibeschlag- und Badspiegeln von Chengtai Mirror. Großhandel, OEM/ODM, exportfertige Verpackung. Angebot anfordern.',
     },
@@ -312,7 +316,7 @@ const COPY: Record<Locale, RoutedCopy> = {
         'Teilen Sie Ihre Projektdetails mit dem Exportteam von Chengtai Mirror. Wir antworten innerhalb eines Werktags. E-Mail, WhatsApp und Direkttelefon verfügbar.',
     },
     insight: {
-      title: 'Insight — Journal für LED-Spiegel-Design & Beschaffung | Chengtai Mirror',
+      title: 'Insight — Journal für LED-Spiegel-Design & Beschaffung',
       description:
         'Geschichten aus einer aktiven Spiegelfabrik: LED-Spiegel-Designtrends, Fertigungshandwerk, Projektberichte und OEM/ODM-Beschaffungsleitfäden für globale Einkäufer.',
     },
@@ -325,7 +329,7 @@ const COPY: Record<Locale, RoutedCopy> = {
       h1: 'יצרנית מראות LED מובילה בעולם',
     },
     products: {
-      title: 'קטלוג מראות LED, חכמות ולאמבטיה | מראות Chengtai',
+      title: 'קטלוג מראות LED, חכמות ולאמבטיה',
       description:
         'עיינו באוסף המלא של מראות LED, חכמות, נגד אדים ולאמבטיה של מראות Chengtai. סיטונאות, OEM/ODM ואריזה מוכנה לייצוא. בקשו הצעת מחיר.',
     },
@@ -340,7 +344,7 @@ const COPY: Record<Locale, RoutedCopy> = {
         'שתפו את פרטי הפרויקט שלכם עם צוות הייצוא של מראות Chengtai. אנו משיבים תוך יום עסקים אחד. אימייל, וואטסאפ וטלפון ישיר זמינים.',
     },
     insight: {
-      title: 'Insight — יומן עיצוב ורכש מראות LED | מראות Chengtai',
+      title: 'Insight — יומן עיצוב ורכש מראות LED',
       description:
         'סיפורים ממפעל מראות פעיל: מגמות עיצוב מראות LED, אומנות הייצור, מקרי בוחן של פרויקטים ומדריכי רכש OEM/ODM לקונים גלובליים.',
     },
@@ -350,32 +354,32 @@ const COPY: Record<Locale, RoutedCopy> = {
 const VIDEO_COPY: Record<Locale, PageEntry> = {
   en: COPY.en.videos!,
   es: {
-    title: 'Vídeos de Espejos LED, Visitas a Fábrica y Demostraciones de Instalación | Chengtai Mirror',
+    title: 'Vídeos de Espejos LED, Visitas a Fábrica y Demostraciones de Instalación',
     description:
       'Vea demostraciones de productos, recorridos por la fábrica, vídeos de instalación y controles de calidad de espejos LED, inteligentes, de tocador y de baño de Chengtai Mirror.',
   },
   pt: {
-    title: 'Vídeos de Espelhos LED, Visitas à Fábrica e Demonstrações de Instalação | Chengtai Mirror',
+    title: 'Vídeos de Espelhos LED, Visitas à Fábrica e Demonstrações de Instalação',
     description:
       'Assista a demonstrações de produtos, visitas à fábrica, vídeos de instalação e controle de qualidade de espelhos LED, inteligentes, de penteadeira e de banheiro da Chengtai Mirror.',
   },
   fr: {
-    title: 'Vidéos de Miroirs LED, Visites d’Usine et Démonstrations d’Installation | Chengtai Mirror',
+    title: 'Vidéos de Miroirs LED, Visites d’Usine et Démonstrations d’Installation',
     description:
       'Regardez les démonstrations de produits, visites d’usine, vidéos d’installation et contrôles qualité de Chengtai Mirror pour les miroirs LED, intelligents, de coiffeuse et de salle de bain.',
   },
   it: {
-    title: 'Video di Specchi LED, Tour della Fabbrica e Demo di Installazione | Chengtai Mirror',
+    title: 'Video di Specchi LED, Tour della Fabbrica e Demo di Installazione',
     description:
       'Guarda le demo dei prodotti, i tour della fabbrica, i video di installazione e i controlli qualità di Chengtai Mirror per specchi LED, smart, da toeletta e da bagno.',
   },
   de: {
-    title: 'LED-Spiegel-Videos, Werksführungen & Installationsdemos | Chengtai Mirror',
+    title: 'LED-Spiegel-Videos, Werksführungen & Installationsdemos',
     description:
       'Sehen Sie Produktdemos, Werksrundgänge, Installations- und Qualitätskontrollvideos von Chengtai Mirror für LED-, Smart-, Kosmetik- und Badspiegel.',
   },
   he: {
-    title: 'סרטוני מראות LED, סיורים במפעל והדגמות התקנה | מראות Chengtai',
+    title: 'סרטוני מראות LED, סיורים במפעל והדגמות התקנה',
     description:
       'צפו בהדגמות מוצרים, סיורים במפעל, סרטוני התקנה ובקרת איכות של מראות Chengtai למראות LED, מראות חכמות, מראות איפור ומראות אמבטיה.',
   },
@@ -388,28 +392,8 @@ export function pageCopy(locale: string, key: PageKey) {
 }
 
 // ---------------------------------------------------------------------------
-// Snippet helpers: <title> and meta description text for content pages
+// Snippet helpers: meta description text for content pages
 // ---------------------------------------------------------------------------
-
-/** The brand as it appears inside titles, in every locale's site name. */
-const BRAND_TOKEN = 'Chengtai';
-
-/**
- * "Title - Chengtai Mirror", unless the title already names the brand or the
- * suffix would push it past what a results page shows (~65 characters).
- *
- * Appending the site name to every article and video produced titles up to 124
- * characters and doubled the brand on titles that already carried it (F-08 in
- * the 2026-09-15 SEO audit). Google shows the site name separately above each
- * result, so on a long title those 18 characters only push the article's own
- * words out of view.
- */
-export function titleWithSiteName(title: string, siteName: string, separator = ' - ', max = 65): string {
-  const clean = title.trim();
-  if (clean.toLowerCase().includes(BRAND_TOKEN.toLowerCase())) return clean;
-  const full = `${clean}${separator}${siteName}`;
-  return full.length <= max ? full : clean;
-}
 
 const NAMED_ENTITIES: Record<string, string> = {
   nbsp: ' ', amp: '&', quot: '"', apos: "'", lt: '<', gt: '>',
@@ -486,9 +470,4 @@ export function w3cDateTime(value: string | null | undefined): string | undefine
   const date = value ? new Date(value) : null;
   if (!date || Number.isNaN(date.getTime())) return undefined;
   return date.toISOString().replace(/\.\d{3}Z$/, 'Z');
-}
-
-/** "Product Name — Chengtai Mirror", localized when the page locale needs it. */
-export function productTitle(name: string, locale: string = defaultLocale): string {
-  return `${name} — ${localizedSiteName(locale)}`;
 }

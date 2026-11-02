@@ -17,7 +17,6 @@ import {
   localizedUrl,
   pageCopy,
   snippet,
-  titleWithSiteName,
 } from '@/lib/seo';
 import { isIndexableLocalePath, robotsForPublicPage } from '@/lib/indexing';
 import { getUploadUrl } from '@/lib/utils';
@@ -39,12 +38,12 @@ export async function generateMetadata({
   const { locale, slug } = await params;
   const detail = await getVideoDetailData(locale, slug);
   if (!detail) {
-    return { title: `Videos - ${localizedSiteName(locale)}`, robots: { index: false, follow: true } };
+    return { title: pageCopy(locale, 'videos').title, robots: { index: false, follow: true } };
   }
 
   const { video } = detail;
   const siteName = localizedSiteName(locale);
-  const title = titleWithSiteName(video.seoTitle || video.title, siteName);
+  const title = (video.seoTitle || video.title).trim();
   // A written SEO description is used as-is. The fallbacks are whole paragraphs
   // of copy (up to ~1,300 characters), so they are trimmed to snippet length.
   const description =

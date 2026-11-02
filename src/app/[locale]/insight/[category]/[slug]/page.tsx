@@ -15,7 +15,6 @@ import {
   localizedUrl,
   pageCopy,
   snippet,
-  titleWithSiteName,
 } from '@/lib/seo';
 import { getUploadUrl } from '@/lib/utils';
 import { insightArticlePathAfterLocale } from '@/lib/public-paths';
@@ -46,7 +45,7 @@ export async function generateMetadata({
   try {
     const row = await getArticleRouteData(locale, slug);
     if (!row) {
-      return { title: `Insight - ${siteName}`, robots: { index: false, follow: true } };
+      return { title: pageCopy(locale, 'insight').title, robots: { index: false, follow: true } };
     }
 
     const allTrans = await getArticleAllTranslations(row.article.id);
@@ -67,7 +66,7 @@ export async function generateMetadata({
     const def = allTrans.find((tr) => tr.locale === defaultLocale);
     if (def) languages['x-default'] = localizedUrl(defaultLocale, pathFor(def.slug));
 
-    const title = titleWithSiteName(row.trans.title, siteName);
+    const title = row.trans.title.trim();
     // Articles without a dek used to fall back to the Insight index description,
     // so nine English articles shared one meta description (F-08 in the
     // 2026-09-15 SEO audit). Their own opening prose is unique to each page.
@@ -106,7 +105,7 @@ export async function generateMetadata({
       },
     };
   } catch {
-    return { title: `Insight - ${siteName}` };
+    return { title: pageCopy(locale, 'insight').title };
   }
 }
 

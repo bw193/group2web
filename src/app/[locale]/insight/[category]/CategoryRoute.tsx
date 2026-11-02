@@ -29,7 +29,6 @@ import {
   localizedUrl,
   pageCopy,
   snippet,
-  titleWithSiteName,
 } from '@/lib/seo';
 import { getUploadUrl } from '@/lib/utils';
 
@@ -80,7 +79,7 @@ export async function categoryMetadata({ params }: CategoryPageProps): Promise<M
     const copy = landingCopy(locale, category);
     const pathAfterLocale = insightCategoryPathAfterLocale(category.key);
     const url = localizedUrl(locale, pathAfterLocale);
-    const title = titleWithSiteName(copy.title, siteName);
+    const title = copy.title;
     const description = snippet(copy.intro);
 
     return {

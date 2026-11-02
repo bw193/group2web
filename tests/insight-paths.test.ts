@@ -13,7 +13,7 @@ import {
   localizedPathFromPathname,
 } from '../src/lib/public-paths';
 import { localizedRevalidationPaths } from '../src/lib/public-revalidation';
-import { localizedSiteName, snippet, titleWithSiteName } from '../src/lib/seo';
+import { snippet } from '../src/lib/seo';
 
 test('an article sits under its category, and the category has a page of its own', () => {
   assert.equal(insightCategoryPathAfterLocale('sourcing'), '/insight/sourcing');
@@ -89,8 +89,7 @@ test('every category landing page has fitting copy in every locale', () => {
       assert.ok(copy.heading.trim(), `${locale}/${key}: empty heading`);
       // The intro is also the meta description, so snippet() must leave it whole.
       assert.equal(snippet(copy.intro), copy.intro, `${locale}/${key}: intro would be cut`);
-      const title = titleWithSiteName(copy.title, localizedSiteName(locale));
-      assert.ok(title.length <= 65, `${locale}/${key}: title is ${title.length} characters`);
+      assert.ok(copy.title.length <= 65, `${locale}/${key}: title is ${copy.title.length} characters`);
     }
   }
 });
