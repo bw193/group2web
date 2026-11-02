@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { ArrowRight, Play } from 'lucide-react';
 import GalleryImage from '@/components/public/GalleryImage';
 import { localizedPath } from '@/lib/public-paths';
+import { snippet } from '@/lib/seo';
 import { formatVideoDate, formatVideoDuration, type VideoListItem } from '@/lib/video-utils';
 
 export default function VideoCard({
@@ -71,7 +72,8 @@ export default function VideoCard({
 
         {video.excerpt && (
           <p className="mb-6 line-clamp-2 font-body text-[14px] font-normal leading-[1.6] text-ink-mid">
-            {video.excerpt}
+            {/* Only the opening: the full description belongs to the video's own page. */}
+            {snippet(video.excerpt, 160)}
           </p>
         )}
 
