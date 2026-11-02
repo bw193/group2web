@@ -7,6 +7,7 @@ import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { X, ChevronLeft, ChevronRight, Maximize2 } from 'lucide-react';
 import { isOptimizedKey, optimizedSrc, optimizedSrcSet } from '@/lib/optimized-images';
+import { productImageAlt } from '@/lib/seo';
 
 // Render strategy per image: pre-optimized `-opt@<w>.webp` URLs go straight to
 // Supabase's CDN via <img srcSet> (bypassing Vercel image optimization, which
@@ -58,7 +59,20 @@ function PicSrcSet({
   );
 }
 
-export default function ImageGallery({ images, productName }: { images: string[]; productName: string }) {
+export default function ImageGallery({
+  images,
+  productName,
+  modelNumber,
+}: {
+  images: string[];
+  productName: string;
+  modelNumber?: string | null;
+}) {
+  // Every photo is in the page's HTML, in the strip and as a thumbnail, so each
+  // gets its own alt text.
+  const baseAlt = productImageAlt(productName, modelNumber);
+  const photoAlt = (i: number) => (i === 0 ? baseAlt : `${baseAlt} — ${i + 1}`);
+
   const [selected, setSelected] = useState(0);
   const [zoomed, setZoomed] = useState(false);
   const [dragX, setDragX] = useState(0);
@@ -183,7 +197,7 @@ export default function ImageGallery({ images, productName }: { images: string[]
             <div key={i} className="relative min-w-full shrink-0 h-full">
               <PicSrcSet
                 src={img}
-                alt={productName}
+                alt={photoAlt(i)}
                 sizes="(max-width: 1024px) 100vw, 58vw"
                 priority={i === 0}
                 // First image is the LCP element (priority). Eager-load only the
@@ -256,7 +270,7 @@ export default function ImageGallery({ images, productName }: { images: string[]
             >
               <PicSrcSet
                 src={img}
-                alt=""
+                alt={photoAlt(i)}
                 sizes="80px"
                 className="object-cover"
               />
@@ -282,7 +296,7 @@ export default function ImageGallery({ images, productName }: { images: string[]
             >
               <PicSrcSet
                 src={images[selected]}
-                alt={productName}
+                alt={photoAlt(selected)}
                 sizes="100vw"
                 draggable={false}
                 className="object-contain pointer-events-none"

@@ -276,7 +276,7 @@ export async function renderProductDetailPage(
         <div className="container-wide py-14 md:py-20">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 lg:items-start">
             <div className="lg:col-span-7 lg:sticky lg:top-28 lg:self-start">
-              <ImageGallery images={imageUrls} productName={trans.name} />
+              <ImageGallery images={imageUrls} productName={trans.name} modelNumber={product.modelNumber} />
             </div>
 
             <div className="lg:col-span-5 lg:pt-4">

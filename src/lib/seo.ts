@@ -471,3 +471,10 @@ export function w3cDateTime(value: string | null | undefined): string | undefine
   if (!date || Number.isNaN(date.getTime())) return undefined;
   return date.toISOString().replace(/\.\d{3}Z$/, 'Z');
 }
+
+/** Alt text for a product photo: the product and the model number buyers search for. */
+export function productImageAlt(name: string, modelNumber?: string | null): string {
+  const product = name.trim();
+  const model = modelNumber?.trim();
+  return model && !product.toLowerCase().includes(model.toLowerCase()) ? `${product} ${model}` : product;
+}

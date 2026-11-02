@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { locales } from '../src/i18n/config';
-import { leadingProse, pageCopy, plainText, snippet } from '../src/lib/seo';
+import { leadingProse, pageCopy, plainText, productImageAlt, snippet } from '../src/lib/seo';
 
 test('only the home, about and contact titles name the company', () => {
   for (const locale of locales) {
@@ -12,6 +12,12 @@ test('only the home, about and contact titles name the company', () => {
       assert.doesNotMatch(pageCopy(locale, key).title, /chengtai/i, `${locale}/${key}`);
     }
   }
+});
+
+test('productImageAlt names the product and its model once, without stray spaces', () => {
+  assert.equal(productImageAlt(' Retro Decorative Mirror', ' 0005 '), 'Retro Decorative Mirror 0005');
+  assert.equal(productImageAlt('Wall Mirror', null), 'Wall Mirror');
+  assert.equal(productImageAlt('Round Mirror CTL207D', 'ctl207d'), 'Round Mirror CTL207D');
 });
 
 test('plainText strips tags and decodes named and numeric entities', () => {

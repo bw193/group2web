@@ -5,6 +5,7 @@ import { useTranslations, useLocale } from 'next-intl';
 import GalleryImage from '@/components/public/GalleryImage';
 import { productCategorySlug } from '@/lib/product-categories';
 import { localizedPath, productPathAfterLocale } from '@/lib/public-paths';
+import { productImageAlt } from '@/lib/seo';
 
 interface ProductCardProps {
   id: number;
@@ -71,7 +72,7 @@ export default function ProductCard({
                 and falls back to next/image for legacy paths. */}
             <GalleryImage
               path={imageUrl}
-              alt={name}
+              alt={productImageAlt(name, modelNumber)}
               fill
               priority={priority}
               sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
