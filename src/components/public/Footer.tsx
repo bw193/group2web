@@ -40,7 +40,7 @@ export default function Footer() {
 
   return (
     <footer className="bg-ink text-cream/85">
-      <div className="container-wide pt-24 pb-10">
+      <div className="container-wide pt-24 pb-10" data-nosnippet="">
         {/* Wordmark row */}
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-10 pb-14 border-b border-cream/15">
           <div>
