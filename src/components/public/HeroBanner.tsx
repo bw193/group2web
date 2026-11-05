@@ -96,7 +96,7 @@ export default function HeroBanner({ slides, fallbackTitle, fallbackSubtitle, fa
 
   return (
     <section
-      className="relative aspect-[var(--banner-ratio,64/25)] transition-[aspect-ratio] duration-[1.2s] ease-out-expo overflow-hidden bg-ink"
+      className="relative aspect-[var(--banner-ratio,12/5)] transition-[aspect-ratio] duration-[1.2s] ease-out-expo overflow-hidden bg-ink"
       style={frameRatio ? ({ ['--banner-ratio' as never]: String(frameRatio) }) : undefined}
     >
       {/* Background Images — stacked cross-fade layers.
