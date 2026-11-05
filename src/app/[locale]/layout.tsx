@@ -11,7 +11,6 @@ import Header from '@/components/public/Header';
 import Footer from '@/components/public/Footer';
 import AnimationProvider from '@/components/public/AnimationProvider';
 import NavProgress from '@/components/public/NavProgress';
-import MobileInquiryBar from '@/components/public/MobileInquiryBar';
 import { fontDisplay, fontBody, fontAccent, fontDisplayHe, fontBodyHe } from '@/lib/fonts';
 import { getUploadOrigin } from '@/lib/utils';
 
@@ -76,7 +75,6 @@ export default async function LocaleLayout({
           <Header />
           <main className="flex-1 relative z-[2] pt-[72px] md:pt-20">{children}</main>
           <Footer />
-          <MobileInquiryBar />
         </NextIntlClientProvider>
         <Analytics />
         <SpeedInsights />
