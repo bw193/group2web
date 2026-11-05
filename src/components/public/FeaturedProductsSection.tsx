@@ -65,9 +65,9 @@ export default function FeaturedProductsSection({
 
   return (
     <section className="bg-cream border-b border-warm-border">
-      <div className="container-wide py-20 md:py-24">
+      <div className="container-wide py-10 md:py-24">
         {/* Header — heading, tabs, and CTA grouped as one cluster */}
-        <div className="flex flex-col items-center text-center mb-12 md:mb-14">
+        <div className="flex flex-col items-center text-center mb-8 md:mb-14">
           <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-normal text-ink tracking-[-0.02em] leading-[1.05]" data-reveal>
             {t('featuredProducts')}
           </h2>

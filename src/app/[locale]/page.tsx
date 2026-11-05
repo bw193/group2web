@@ -188,23 +188,28 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         fallbackHref={localizedPath(locale, '/contact')}
       />
 
+      {/* On phones the featured products come first and the four capability
+          blocks follow as a compact two-by-two grid. CSS order only: the markup
+          keeps its order for crawlers and screen readers. From md up the order
+          is the original: capabilities, then products. */}
+      <div className="flex flex-col">
       {/* Capabilities - compact four-column plinth seamed into the hero.
           No negative margin: the banner artwork carries its own captions right
           up to the bottom edge, so any overlap eats image content. */}
-      <section className="relative bg-cream border-b border-warm-border z-10 shadow-[0_-18px_48px_-40px_rgba(20,18,14,0.28)]">
+      <section className="order-2 md:order-1 relative bg-cream border-b border-warm-border z-10 md:shadow-[0_-18px_48px_-40px_rgba(20,18,14,0.28)]">
         <div className="container-wide pt-6 pb-10 md:pt-8 md:pb-12">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4" data-reveal-stagger>
+          <div className="grid grid-cols-2 lg:grid-cols-4" data-reveal-stagger>
             {capabilities.map((item, i) => {
               const Icon = item.Icon;
               return (
                 <div
                   key={i}
-                  className={`group relative flex flex-col items-center text-center py-5 md:py-3 md:px-8 lg:px-10 ${
-                    i < capabilities.length - 1 ? 'border-b md:border-b-0 md:border-e border-warm-border' : ''
+                  className={`group relative flex flex-col items-center text-center px-2 py-4 md:py-3 md:px-8 lg:px-10 ${
+                    i < capabilities.length - 1 ? 'md:border-e border-warm-border' : ''
                   }`}
                   data-reveal
                 >
-                  <div className="mb-4">
+                  <div className="mb-3 md:mb-4">
                     <Icon
                       size={32}
                       strokeWidth={1.5}
@@ -214,7 +219,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                   <h3 className="font-display text-lg md:text-xl font-normal text-ink leading-tight mb-1.5 tracking-[-0.01em]">
                     {item.title}
                   </h3>
-                  <p className="text-[14px] font-body font-normal text-ink leading-[1.55] max-w-xs">
+                  <p className="text-[13px] md:text-[14px] font-body font-normal text-ink leading-[1.55] max-w-xs">
                     {item.desc}
                   </p>
                 </div>
@@ -225,12 +230,15 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       </section>
 
       {/* Featured Products */}
-      <FeaturedProductsSection
-        products={featuredForToday}
-        categories={categoryOptions}
-        locale={locale}
-        maxVisible={8}
-      />
+      <div className="order-1 md:order-2">
+        <FeaturedProductsSection
+          products={featuredForToday}
+          categories={categoryOptions}
+          locale={locale}
+          maxVisible={8}
+        />
+      </div>
+      </div>
 
       {/* Customization Workflow - OEM/ODM process */}
       <CustomizationWorkflowSection locale={locale} />
