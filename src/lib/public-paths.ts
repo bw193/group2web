@@ -151,6 +151,32 @@ export function localizedPath(locale: string, pathAfterLocale: string): string {
   return `/${locale}${canonicalPathAfterLocale(locale, pathAfterLocale)}`;
 }
 
+/**
+ * The contact page with a product preselected in its inquiry form, for the
+ * Send Inquiry links on product cards and product pages. The product travels
+ * in the fragment (#product=…&model=…), never the query string: crawlers drop
+ * the fragment, so every one of these links is the one contact URL. With a
+ * query string each product and language minted its own address, and Google
+ * spent fetches on hundreds of them only to file them as duplicates of
+ * /contact (Nov 2026).
+ */
+export function productInquiryPath(locale: string, productName: string, modelNumber?: string | null): string {
+  const params = new URLSearchParams({ product: productName });
+  if (modelNumber) params.set('model', modelNumber);
+  return `${localizedPath(locale, '/contact')}#${params.toString()}`;
+}
+
+/**
+ * The product a visitor came to ask about, as productInquiryPath writes it.
+ * Falls back to the ?product=…&model=… query of the older links, so addresses
+ * already bookmarked or shared still fill the form.
+ */
+export function inquiryProductFromUrl(search: string, hash: string): { product: string; model: string } {
+  const fromHash = new URLSearchParams(hash.replace(/^#/, ''));
+  const source = fromHash.has('product') || fromHash.has('model') ? fromHash : new URLSearchParams(search);
+  return { product: source.get('product') ?? '', model: source.get('model') ?? '' };
+}
+
 export function localizedPathFromPathname(pathname: string, targetLocale: Locale): string {
   const segments = pathname.split('/');
   const currentLocale = (locales as readonly string[]).includes(segments[1]) ? segments[1] : null;

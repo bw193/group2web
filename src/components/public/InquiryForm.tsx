@@ -5,7 +5,7 @@ import { useTranslations, useLocale } from 'next-intl';
 import { ArrowRight, AlertCircle, ChevronDown, X } from 'lucide-react';
 import { useRouter, usePathname } from 'next/navigation';
 import { sendGAEvent } from '@next/third-parties/google';
-import { localizedPath } from '@/lib/public-paths';
+import { inquiryProductFromUrl, localizedPath } from '@/lib/public-paths';
 
 interface Category {
   id: number;
@@ -18,21 +18,26 @@ export default function InquiryForm({ categories }: { categories: Category[] }) 
   const router = useRouter();
   const pathname = usePathname();
 
-  // Deep-link context from a product card / product page. Read on the client
-  // after mount (not via useSearchParams) so the contact page can be statically
-  // prerendered instead of bailing into client-only rendering.
+  // Deep-link context from a product card / product page: #product=…&model=…
+  // (see productInquiryPath), or the ?product=… query of older links. Read on
+  // the client after mount (not via useSearchParams) so the contact page can be
+  // statically prerendered instead of bailing into client-only rendering.
   const [productParam, setProductParam] = useState('');
   const [modelParam, setModelParam] = useState('');
 
   useEffect(() => {
     const read = () => {
-      const sp = new URLSearchParams(window.location.search);
-      setProductParam(sp.get('product') || '');
-      setModelParam(sp.get('model') || '');
+      const { product, model } = inquiryProductFromUrl(window.location.search, window.location.hash);
+      setProductParam(product);
+      setModelParam(model);
     };
     read();
     window.addEventListener('popstate', read);
-    return () => window.removeEventListener('popstate', read);
+    window.addEventListener('hashchange', read);
+    return () => {
+      window.removeEventListener('popstate', read);
+      window.removeEventListener('hashchange', read);
+    };
   }, []);
 
   const selectedProductLabel = useMemo(() => {

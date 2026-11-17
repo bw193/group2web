@@ -16,6 +16,7 @@ import { usesItemPageMarkup } from '@/lib/product-markup';
 import {
   productCategoryPathAfterLocale,
   productCategorySegment,
+  productInquiryPath,
   productPathAfterLocale,
 } from '@/lib/public-paths';
 import { getUploadUrl } from '@/lib/utils';
@@ -317,9 +318,7 @@ export async function renderProductDetailPage(
 
               <div className="border border-warm-border bg-sand/60 p-6 sm:p-7">
                 <Link
-                  href={localizedPath(locale, `/contact?product=${encodeURIComponent(trans.name)}${
-                    product.modelNumber ? `&model=${encodeURIComponent(product.modelNumber)}` : ''
-                  }`)}
+                  href={productInquiryPath(locale, trans.name, product.modelNumber)}
                   className="btn-primary group w-full sm:w-auto"
                 >
                   {t('sendInquiry')}

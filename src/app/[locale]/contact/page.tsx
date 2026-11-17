@@ -95,7 +95,11 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
   };
 
   return (
-    <section className="bg-cream">
+    // Send Inquiry links carry the product as #product=…, and for a link with a
+    // #fragment Next.js scrolls this section into view. The scroll margin (the
+    // fixed header's height, as in main's padding) keeps the page at its very
+    // top, as after any other link.
+    <section className="bg-cream scroll-mt-[72px] md:scroll-mt-20">
       <JsonLd id="ld-contact" data={contactJsonLd} />
       <JsonLd id="ld-contact-breadcrumb" data={breadcrumb} />
       <div className="container-narrow pt-16 pb-24 md:pt-20 md:pb-32">

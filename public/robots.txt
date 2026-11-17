@@ -3,6 +3,9 @@ Allow: /
 
 Disallow: /cms/
 Disallow: /api/
+# Old Send Inquiry links: one copy of the contact page per product. The
+# product now travels after #, so only these old addresses carry it.
+Disallow: /*contact?product=
 
 Sitemap: https://chengtaimirror.com/sitemap.xml
 Sitemap: https://chengtaimirror.com/video-sitemap.xml

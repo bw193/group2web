@@ -3,9 +3,54 @@ import test from 'node:test';
 import {
   canonicalPathAfterLocale,
   genericPathAfterLocale,
+  inquiryProductFromUrl,
   localizedPath,
   localizedPathFromPathname,
+  productInquiryPath,
 } from '../src/lib/public-paths';
+
+test('productInquiryPath keeps the product in the fragment, so every Send Inquiry link is the one contact URL', () => {
+  assert.equal(
+    productInquiryPath('en', 'Round Backlit LED Mirror', 'CTL202'),
+    '/en/contact#product=Round+Backlit+LED+Mirror&model=CTL202',
+  );
+  assert.equal(productInquiryPath('de', 'Spiegel & Schrank', null), '/de/contact#product=Spiegel+%26+Schrank');
+  assert.equal(productInquiryPath('fr', 'Miroir', ''), '/fr/contact#product=Miroir');
+  assert.equal(productInquiryPath('he', 'מראה', 'X1'), '/he/israel-contact#product=%D7%9E%D7%A8%D7%90%D7%94&model=X1');
+  for (const locale of ['en', 'de', 'es', 'fr', 'it', 'pt', 'he']) {
+    const href = productInquiryPath(locale, 'Any Mirror?', 'M-1');
+    assert.equal(href.split('#')[0], localizedPath(locale, '/contact'));
+    assert.ok(!href.includes('?'), href);
+  }
+});
+
+test('inquiryProductFromUrl reads the fragment, and still reads the query of older links', () => {
+  assert.deepEqual(
+    inquiryProductFromUrl('', '#product=Round+Backlit+LED+Mirror&model=CTL202'),
+    { product: 'Round Backlit LED Mirror', model: 'CTL202' },
+  );
+  assert.deepEqual(
+    inquiryProductFromUrl('?product=Miroir%20D%C3%A9coratif%20Ovale&model=209', ''),
+    { product: 'Miroir Décoratif Ovale', model: '209' },
+  );
+  assert.deepEqual(
+    inquiryProductFromUrl('?product=Old&model=1', '#product=New&model=2'),
+    { product: 'New', model: '2' },
+  );
+  assert.deepEqual(inquiryProductFromUrl('?utm_source=chatgpt.com', ''), { product: '', model: '' });
+  assert.deepEqual(inquiryProductFromUrl('', '#write-review'), { product: '', model: '' });
+  assert.deepEqual(inquiryProductFromUrl('', ''), { product: '', model: '' });
+
+  const names: Array<[string, string | null]> = [
+    ['Miroir Décoratif Ovale', '209'],
+    ['Mirror + Cabinet 100% "custom" <hotel> #2 & more', 'G2011-CTL406'],
+    ['מראת איפור יוקרתית', null],
+  ];
+  for (const [name, model] of names) {
+    const href = productInquiryPath('en', name, model);
+    assert.deepEqual(inquiryProductFromUrl('', href.slice(href.indexOf('#'))), { product: name, model: model ?? '' });
+  }
+});
 
 test('localizedPath maps Hebrew static pages to Israel-specific paths', () => {
   assert.equal(localizedPath('he', ''), '/he/israel-home');

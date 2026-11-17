@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useTranslations, useLocale } from 'next-intl';
 import GalleryImage from '@/components/public/GalleryImage';
 import { productCategorySlug } from '@/lib/product-categories';
-import { localizedPath, productPathAfterLocale } from '@/lib/public-paths';
+import { localizedPath, productInquiryPath, productPathAfterLocale } from '@/lib/public-paths';
 import { productImageAlt } from '@/lib/seo';
 
 interface ProductCardProps {
@@ -140,9 +140,7 @@ export default function ProductCard({
             {t('viewDetails')}
           </Link>
           <Link
-            href={localizedPath(locale, `/contact?product=${encodeURIComponent(name)}${
-              modelNumber ? `&model=${encodeURIComponent(modelNumber)}` : ''
-            }`)}
+            href={productInquiryPath(locale, name, modelNumber)}
             className="text-[13px] font-body font-semibold text-ink-mid tracking-[0.12em] uppercase hover:text-bronze transition-colors duration-300"
           >
             {t('sendInquiry')}
