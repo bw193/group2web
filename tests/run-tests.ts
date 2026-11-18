@@ -6,6 +6,7 @@ import './product-paths.test';
 import './indexing.test';
 import './seo-snippets.test';
 import './product-slugs.test';
+import './product-specs.test';
 import './product-markup.test';
 import './description-images.test';
 import './related-products.test';

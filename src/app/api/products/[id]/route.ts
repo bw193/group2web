@@ -12,6 +12,7 @@ import {
   resolveProductTranslationSlug,
 } from '@/lib/products';
 import { productCategorySlug } from '@/lib/product-categories';
+import { saveProductSpecifications } from '@/lib/product-specs';
 import {
   revalidateLocalizedPublicPath,
   revalidateProductCategoryPaths,
@@ -207,13 +208,10 @@ export async function PUT(
         }
       }
 
+      // The CMS sends English specs only: translated rows are kept unless the
+      // English specs changed (see planProductSpecUpdate).
       if (body.specifications && Array.isArray(body.specifications)) {
-        await tx.delete(productSpecifications).where(eq(productSpecifications.productId, productId));
-        for (const spec of body.specifications) {
-          await tx.insert(productSpecifications).values({
-            productId, locale: spec.locale || 'en', specKey: spec.key, specValue: spec.value,
-          });
-        }
+        await saveProductSpecifications(tx, productId, body.specifications);
       }
 
       if (body.images && Array.isArray(body.images)) {
