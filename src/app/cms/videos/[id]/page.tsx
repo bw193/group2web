@@ -74,6 +74,11 @@ async function uploadToSignedUrl(
     };
     xhr.onerror = () => reject(new Error('Upload failed while sending the file to Supabase Storage'));
     xhr.open('PUT', signed.signedUrl);
+    // Supabase serves a file with `X-Robots-Tag: none` (noindex, nofollow)
+    // unless its upload set another value, which would keep uploaded videos
+    // and their thumbnails out of Google. Photos get the same value in
+    // uploadFile (src/lib/storage.ts).
+    xhr.setRequestHeader('x-robots-tag', 'all');
     xhr.send(formData);
   });
 
