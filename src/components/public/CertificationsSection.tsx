@@ -12,8 +12,15 @@ export default async function CertificationsSection({ locale, images = [] }: Pro
   const photos = images.filter((v): v is string => !!v);
   const hasPhotos = photos.length > 0;
   const siteName = localizedSiteName(locale);
+  const isHebrew = locale === 'he';
+  const kicker = isHebrew ? 'הסמכות' : 'Certifications';
+  const heading = isHebrew ? 'סומכים עלינו ביותר מ-60 מדינות' : 'Trusted in 60+ countries';
+  const photoAlt = (n: number) =>
+    isHebrew
+      ? `אישור הסמכה ${n} למוצרי ${siteName} (משפחת CE / CB / SAA / ETL / RoHS / ISO 9001)`
+      : `${siteName} product certification ${n} (CE / CB / SAA / ETL / RoHS / ISO 9001 family)`;
   const body =
-    locale === 'he'
+    isHebrew
       ? 'כל מוצר יוצא עם התיעוד הנדרש למעבר בשווקים המחמירים ביותר - מחדרי רחצה באירופה ועד פרויקטי מלונאות וקמעונאות בצפון אמריקה.'
       : 'Every mirror ships with the paperwork to clear the most demanding markets - from European bathrooms to North American hotel, retail projects.';
 
@@ -34,10 +41,10 @@ export default async function CertificationsSection({ locale, images = [] }: Pro
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-end mb-12 md:mb-16">
           <div className="lg:col-span-7" data-reveal>
             <p className="text-[13px] font-body font-semibold text-bronze uppercase tracking-[0.18em] mb-5">
-              Certifications
+              {kicker}
             </p>
             <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-normal text-ink leading-[1.05] tracking-[-0.02em]">
-              Trusted in 60+ countries
+              {heading}
             </h2>
           </div>
           <div className="lg:col-span-5 lg:text-end" data-reveal>
@@ -66,7 +73,7 @@ export default async function CertificationsSection({ locale, images = [] }: Pro
                     path={src}
                     alt={
                       i < photos.length
-                        ? `${siteName} product certification ${(i % photos.length) + 1} (CE / CB / SAA / ETL / RoHS / ISO 9001 family)`
+                        ? photoAlt((i % photos.length) + 1)
                         : ''
                     }
                     fill

@@ -8,21 +8,28 @@ export type RobotsDirective = {
 };
 
 /**
- * Hebrew public pages are crawlable but excluded from search, except for the
- * single canonical Hebrew homepage. Other locales keep their existing policy.
+ * Locales whose public pages are kept out of search. Empty: every public page
+ * in every locale is indexable.
+ *
+ * Hebrew was here from 23 Jul 2026, with only its homepage indexable, until
+ * 23 Nov 2026, when its pages were fully translated and opened to search.
+ * Putting a locale back here noindexes its pages and takes them out of the
+ * sitemaps and hreflang sets in one step.
  */
-export function robotsForPublicPage(
-  locale: string,
-  options: { isCanonicalHebrewHome?: boolean } = {},
-): RobotsDirective | undefined {
-  if (locale !== 'he') return undefined;
+const NOINDEX_LOCALES: readonly string[] = [];
 
-  const index = options.isCanonicalHebrewHome === true;
+/**
+ * The robots override for a locale's public pages, or undefined for none (the
+ * page is indexable). Utility pages such as the contact thank-you page add
+ * their own noindex on top.
+ */
+export function robotsForPublicPage(locale: string): RobotsDirective | undefined {
+  if (!NOINDEX_LOCALES.includes(locale)) return undefined;
   return {
-    index,
+    index: false,
     follow: true,
     googleBot: {
-      index,
+      index: false,
       follow: true,
     },
   };
@@ -31,15 +38,14 @@ export function robotsForPublicPage(
 /**
  * The read side of `robotsForPublicPage`: true when the locale/path pair ends
  * up indexable. Everything that advertises a URL to search engines — hreflang
- * alternates and the sitemap — must gate on this.
+ * alternates and the sitemaps — must gate on this.
  *
  * A noindexed URL must never be advertised: Google discards hreflang
  * annotations that point at one, and reports the sitemap entry as "Submitted
- * URL marked 'noindex'". Keep this in lockstep with `robotsForPublicPage`;
- * `pathAfterLocale` is the generic (pre-Hebrew-rewrite) path, so the Hebrew
- * homepage is `''`, matching `buildLanguageAlternates`.
+ * URL marked 'noindex'". Keep this in lockstep with `robotsForPublicPage`.
+ * `pathAfterLocale` is the generic (pre-Hebrew-rewrite) path, so a rule for
+ * one kind of page can be added here without changing the callers.
  */
 export function isIndexableLocalePath(locale: string, pathAfterLocale: string): boolean {
-  if (locale !== 'he') return true;
-  return pathAfterLocale === '';
+  return !NOINDEX_LOCALES.includes(locale);
 }

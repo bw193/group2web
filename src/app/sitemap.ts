@@ -46,7 +46,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const entries: MetadataRoute.Sitemap = [];
 
   // Static routes × every locale. Locales that are noindex at a given path
-  // (Hebrew, everywhere but its homepage) are skipped: submitting a noindexed
+  // (none at present: see indexing.ts) are skipped: submitting a noindexed
   // URL earns a "Submitted URL marked 'noindex'" error in Search Console.
   for (const pathAfterLocale of STATIC_ROUTES) {
     const languages = buildLanguageAlternates(pathAfterLocale);
@@ -111,7 +111,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         slugs[loc] ? productPathAfterLocale(categorySlug, slugs[loc]) : null;
 
       // Build hreflang languages map from this product's per-locale slugs,
-      // skipping locales that are noindex at this path (Hebrew).
+      // skipping locales that are noindex at this path.
       const languages: Record<string, string> = {};
       for (const loc of locales) {
         const path = pathIn(loc);

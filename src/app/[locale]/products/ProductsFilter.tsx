@@ -129,7 +129,7 @@ export default function ProductsFilter({
                 <button
                   type="button"
                   onClick={() => setSearch('')}
-                  aria-label="Clear search"
+                  aria-label={t('clearSearch')}
                   className="absolute end-0 top-1/2 -translate-y-1/2 text-ink-mid hover:text-ink transition-colors"
                 >
                   <X size={15} strokeWidth={1.75} />
@@ -145,8 +145,8 @@ export default function ProductsFilter({
         <div className="container-wide pt-8 pb-14 md:py-20">
           <p className="text-[14px] font-body font-semibold text-ink tracking-[0.08em] uppercase mb-5 md:mb-12">
             {filtered.length === 0
-              ? 'No results'
-              : `Showing ${filtered.length} ${filtered.length === 1 ? 'item' : 'items'}`}
+              ? t('noResults')
+              : t('showing', { count: filtered.length })}
           </p>
 
           {filtered.length === 0 ? (

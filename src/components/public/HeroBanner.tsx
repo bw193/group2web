@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
+import { useTranslations } from 'next-intl';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { getUploadUrl } from '@/lib/utils';
 import MagneticLink from './MagneticLink';
@@ -24,6 +25,7 @@ interface HeroBannerProps {
 }
 
 export default function HeroBanner({ slides, fallbackTitle, fallbackSubtitle, fallbackCta, fallbackHref = '/en/contact' }: HeroBannerProps) {
+  const t = useTranslations('home');
   const [current, setCurrent] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [ratios, setRatios] = useState<Record<number, number>>({});
@@ -154,7 +156,7 @@ export default function HeroBanner({ slides, fallbackTitle, fallbackSubtitle, fa
                   key={i}
                   onClick={() => goTo(i)}
                   className="group relative h-8 flex items-center"
-                  aria-label={`Go to slide ${i + 1}`}
+                  aria-label={t('goToSlide', { number: i + 1 })}
                 >
                   <div className={`h-px transition-all duration-700 ease-out-expo ${
                     i === current ? 'w-12 bg-cream' : 'w-6 bg-cream/30 group-hover:bg-cream/60'
@@ -171,14 +173,14 @@ export default function HeroBanner({ slides, fallbackTitle, fallbackSubtitle, fa
               <button
                 onClick={prev}
                 className="w-10 h-10 flex items-center justify-center border border-cream/20 text-cream/60 hover:border-cream/50 hover:text-cream transition-all duration-300"
-                aria-label="Previous slide"
+                aria-label={t('previousSlide')}
               >
                 <ArrowLeft size={16} />
               </button>
               <button
                 onClick={next}
                 className="w-10 h-10 flex items-center justify-center border border-cream/20 text-cream/60 hover:border-cream/50 hover:text-cream transition-all duration-300"
-                aria-label="Next slide"
+                aria-label={t('nextSlide')}
               >
                 <ArrowRight size={16} />
               </button>

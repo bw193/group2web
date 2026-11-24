@@ -87,7 +87,9 @@ export default async function WorldwideExhibitionSection({ locale, photos }: Pro
                     path={it.imageUrl}
                     alt={
                       it.caption
-                        ? `${it.caption} — ${siteName} international exhibition`
+                        ? locale === 'he'
+                          ? `${it.caption} — ${siteName} בתערוכה בינלאומית`
+                          : `${it.caption} — ${siteName} international exhibition`
                         : fallbackAlt
                     }
                     fill

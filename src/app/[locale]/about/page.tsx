@@ -272,7 +272,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
                 <div className="group relative aspect-[4/5] overflow-hidden bg-warm-gray sm:aspect-[16/10] lg:aspect-[4/5]">
                   <GalleryImage
                     path={mastheadPhoto.imageUrl}
-                    alt={mastheadPhoto.caption || `${siteName} headquarters and factory in Jiaxing`}
+                    alt={mastheadPhoto.caption || t('mastheadAlt', { siteName })}
                     fill
                     priority
                     sizes="(max-width: 1024px) 100vw, 40vw"
@@ -485,7 +485,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
                 imageUrl: photo.imageUrl,
                 caption: photo.caption,
               }))}
-              altBase={`${siteName} factory in Jiaxing — production view`}
+              altBase={t('galleryAltBase', { siteName })}
               labels={{
                 open: t('galleryOpen'),
                 close: t('galleryClose'),
@@ -526,7 +526,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
                 >
                   <GalleryImage
                     path={cert.imageUrl}
-                    alt={cert.caption || `${siteName} product certification ${i + 1} (CE / CB / SAA / ETL / RoHS / ISO 9001 family)`}
+                    alt={cert.caption || t('certificationAlt', { siteName, number: i + 1 })}
                     width={420}
                     height={420}
                     sizes="(max-width: 768px) 45vw, 20vw"

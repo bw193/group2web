@@ -50,8 +50,8 @@ export async function generateMetadata({
 
     const allTrans = await getArticleAllTranslations(row.article.id);
 
-    // Skip locales whose page is noindex at this path (Hebrew detail pages) —
-    // hreflang must never point at a URL we've asked not to be indexed. The
+    // Skip locales whose page is noindex at this path — hreflang must never
+    // point at a URL we've asked not to be indexed. The
     // category belongs to the article, so every translation shares it; the
     // URL's own segment is ignored here because the page redirects when it
     // disagrees.

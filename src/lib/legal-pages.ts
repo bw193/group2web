@@ -903,8 +903,8 @@ export function legalDocument(locale: string, key: LegalPageKey): LegalDocument 
 
 /**
  * Indexable like the other static pages, with canonical and hreflang
- * alternates; robots come from the locale layout (Hebrew stays noindex), and
- * both paths are listed in sitemap.ts.
+ * alternates; robots come from the locale layout, and both paths are listed
+ * in sitemap.ts.
  */
 export function legalMetadata(locale: string, key: LegalPageKey): Metadata {
   const doc = legalDocument(locale, key);

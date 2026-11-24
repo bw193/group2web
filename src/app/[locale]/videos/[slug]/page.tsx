@@ -52,8 +52,8 @@ export async function generateMetadata({
     pageCopy(locale, 'videos').description;
   const canonical = localizedUrl(locale, `/videos/${video.slug}`);
   const image = video.thumbnailUrl ? getUploadUrl(video.thumbnailUrl) : SITE_OG_IMAGE;
-  // Skip locales whose page is noindex at this path (Hebrew) — hreflang must
-  // never point at a URL we've asked not to be indexed.
+  // Skip locales whose page is noindex at this path — hreflang must never
+  // point at a URL we've asked not to be indexed.
   const languages: Record<string, string> = {};
   for (const loc of locales) {
     if (!isIndexableLocalePath(loc, `/videos/${video.slug}`)) continue;
@@ -127,7 +127,7 @@ export default async function VideoDetailPage({
       <JsonLd id="ld-video" data={videoLd} />
       <JsonLd id="ld-video-breadcrumb" data={breadcrumbLd} />
 
-      <nav aria-label="Breadcrumb" className="bg-cream border-b border-warm-border">
+      <nav aria-label={breadcrumbT('label')} className="bg-cream border-b border-warm-border">
         <div className="container-wide py-4">
           <ol className="flex items-center gap-2.5 text-[12px] font-body font-semibold tracking-[0.12em] uppercase">
             <li className="flex-shrink-0">

@@ -54,7 +54,7 @@ export default function FeaturedProductsSection({
   if (products.length === 0) return null;
 
   const allLabels: Record<string, string> = {
-    en: 'All', es: 'Todos', pt: 'Todos', fr: 'Tout', it: 'Tutti', de: 'Alle',
+    en: 'All', es: 'Todos', pt: 'Todos', fr: 'Tout', it: 'Tutti', de: 'Alle', he: 'הכל',
   };
   const allLabel = allLabels[locale] || 'All';
 
@@ -76,7 +76,7 @@ export default function FeaturedProductsSection({
             <div
               className="mt-8"
               role="tablist"
-              aria-label="Product categories"
+              aria-label={t('productCategoriesLabel')}
               data-reveal
             >
               <div className="flex justify-center flex-wrap gap-x-10 gap-y-3 md:gap-x-16 lg:gap-x-20 overflow-x-auto no-scrollbar -mx-1 px-1">

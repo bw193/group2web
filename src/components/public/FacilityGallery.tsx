@@ -14,6 +14,13 @@ export default function FacilityGallery({ images, locale }: Props) {
   const [activeIdx, setActiveIdx] = useState(0);
   const total = list.length;
   const siteName = localizedSiteName(locale);
+  const isHebrew = locale === 'he';
+  const placeholderLabel = isHebrew ? 'מבט על המפעל' : 'Facility View';
+  const imageAlt = (n: number) =>
+    isHebrew
+      ? `מתקן הייצור של ${siteName} בג׳יאשינג — תמונה ${n}`
+      : `${siteName} manufacturing facility in Jiaxing — view ${n}`;
+  const thumbLabel = (n: number) => (isHebrew ? `הצגת תמונה ${n} של המפעל` : `Show facility image ${n}`);
 
   return (
     <div className="relative">
@@ -29,14 +36,14 @@ export default function FacilityGallery({ images, locale }: Props) {
             >
               <div className="w-32 h-40 border border-bronze/25 bg-cream/30 mb-4" />
               <span className="text-[10px] font-body text-ink-light tracking-[0.3em] uppercase">
-                Facility View
+                {placeholderLabel}
               </span>
             </div>
           ) : (
             <GalleryImage
               key={`${src}-${i}`}
               path={src}
-              alt={`${siteName} manufacturing facility in Jiaxing — view ${i + 1}`}
+              alt={imageAlt(i + 1)}
               fill
               sizes="(max-width: 1024px) 100vw, 58vw"
               quality={85}
@@ -71,7 +78,7 @@ export default function FacilityGallery({ images, locale }: Props) {
               type="button"
               disabled={isPlaceholder}
               onClick={() => !isPlaceholder && setActiveIdx(i)}
-              aria-label={`Show facility image ${i + 1}`}
+              aria-label={thumbLabel(i + 1)}
               aria-pressed={isActive}
               className={`group relative aspect-[5/4] overflow-hidden transition-all duration-500 ${
                 isPlaceholder ? 'bg-warm-gray/60 cursor-not-allowed' : 'bg-warm-gray cursor-pointer'

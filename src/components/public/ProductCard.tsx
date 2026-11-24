@@ -62,7 +62,7 @@ export default function ProductCard({
       {/* Image */}
       <Link
         href={productHref}
-        aria-label={`${name} — view product details`}
+        aria-label={t('viewDetailsLabel', { name })}
         className="block relative aspect-square overflow-hidden bg-sand mb-6"
       >
         {imageUrl ? (

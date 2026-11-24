@@ -1,53 +1,33 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { locales } from '../src/i18n/config';
 import { isIndexableLocalePath, robotsForPublicPage } from '../src/lib/indexing';
 import { buildLanguageAlternates } from '../src/lib/seo';
 
-test('Hebrew public pages are noindex and remain crawlable by default', () => {
-  assert.deepEqual(robotsForPublicPage('he'), {
-    index: false,
-    follow: true,
-    googleBot: {
-      index: false,
-      follow: true,
-    },
-  });
+const PATHS = [
+  '',
+  '/about',
+  '/contact',
+  '/products',
+  '/products/led-mirrors',
+  '/products/led-mirrors/israel-round-mirror',
+  '/insight',
+  '/insight/sourcing/israel-lighting-guide',
+  '/videos',
+  '/videos/some-video',
+  '/privacy',
+];
+
+test('no locale carries a robots override, Hebrew included', () => {
+  for (const locale of locales) {
+    assert.equal(robotsForPublicPage(locale), undefined, `unexpected robots for ${locale}`);
+  }
 });
 
-test('the canonical Hebrew homepage remains indexable', () => {
-  assert.deepEqual(robotsForPublicPage('he', { isCanonicalHebrewHome: true }), {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-    },
-  });
-});
-
-test('other locales retain their existing robots policy', () => {
-  assert.equal(robotsForPublicPage('en'), undefined);
-  assert.equal(
-    robotsForPublicPage('de', { isCanonicalHebrewHome: true }),
-    undefined,
-  );
-});
-
-test('isIndexableLocalePath mirrors robotsForPublicPage for Hebrew', () => {
-  // Only the Hebrew homepage is indexable, so only it may be advertised.
-  assert.equal(isIndexableLocalePath('he', ''), true);
-  assert.equal(isIndexableLocalePath('he', '/about'), false);
-  assert.equal(isIndexableLocalePath('he', '/contact'), false);
-  assert.equal(isIndexableLocalePath('he', '/products'), false);
-  assert.equal(isIndexableLocalePath('he', '/insight'), false);
-  assert.equal(isIndexableLocalePath('he', '/products/some-mirror'), false);
-  assert.equal(isIndexableLocalePath('he', '/insight/some-article'), false);
-});
-
-test('isIndexableLocalePath leaves every other locale indexable', () => {
-  for (const locale of ['en', 'es', 'pt', 'fr', 'it', 'de']) {
-    for (const path of ['', '/about', '/products', '/products/some-mirror']) {
-      assert.equal(isIndexableLocalePath(locale, path), true);
+test('every public path is indexable in every locale', () => {
+  for (const locale of locales) {
+    for (const path of PATHS) {
+      assert.equal(isIndexableLocalePath(locale, path), true, `${locale} ${path || '/'} not indexable`);
     }
   }
 });
@@ -55,34 +35,40 @@ test('isIndexableLocalePath leaves every other locale indexable', () => {
 test('the two indexing helpers never disagree', () => {
   // The invariant the sitemap and hreflang builders rely on: a path is
   // advertisable exactly when robotsForPublicPage would not mark it noindex.
-  const cases: { locale: string; path: string }[] = [
-    { locale: 'he', path: '' },
-    { locale: 'he', path: '/about' },
-    { locale: 'he', path: '/products/some-mirror' },
-    { locale: 'en', path: '' },
-    { locale: 'de', path: '/about' },
-  ];
-
-  for (const { locale, path } of cases) {
-    const robots = robotsForPublicPage(locale, { isCanonicalHebrewHome: path === '' });
+  for (const locale of locales) {
+    const robots = robotsForPublicPage(locale);
     // undefined => no override => indexable.
     const indexableByRobots = robots ? robots.index : true;
-    assert.equal(
-      isIndexableLocalePath(locale, path),
-      indexableByRobots,
-      `disagreement for ${locale} ${path || '/'}`,
-    );
+    for (const path of PATHS) {
+      assert.equal(
+        isIndexableLocalePath(locale, path),
+        indexableByRobots,
+        `disagreement for ${locale} ${path || '/'}`,
+      );
+    }
   }
 });
 
-test('Hebrew appears only in the canonical homepage hreflang cluster', () => {
-  const homepageLanguages = buildLanguageAlternates('');
-  assert.equal(homepageLanguages.he, 'https://chengtaimirror.com/he/israel-home');
+test('every hreflang cluster lists Hebrew at its israel- address', () => {
+  const expectedHebrew: Record<string, string> = {
+    '': '/he/israel-home',
+    '/about': '/he/israel-about',
+    '/products': '/he/israel-products',
+    '/products/led-mirrors': '/he/israel-products/israel-led-mirrors',
+    '/products/led-mirrors/israel-round-mirror': '/he/israel-products/israel-led-mirrors/israel-round-mirror',
+    '/insight/sourcing/israel-lighting-guide': '/he/israel-insight/israel-sourcing/israel-lighting-guide',
+    // The video library keeps the generic path in Hebrew too.
+    '/videos/some-video': '/he/videos/some-video',
+  };
 
-  for (const path of ['/about', '/products', '/products/some-mirror']) {
+  for (const [path, hebrewPath] of Object.entries(expectedHebrew)) {
     const languages = buildLanguageAlternates(path);
-    assert.equal(languages.he, undefined, `unexpected Hebrew hreflang for ${path || '/'}`);
-    assert.equal(languages.en, `https://chengtaimirror.com/en${path}`);
-    assert.equal(languages['x-default'], `https://chengtaimirror.com/en${path}`);
+    assert.equal(languages.he, `https://chengtaimirror.com${hebrewPath}`, `Hebrew hreflang for ${path || '/'}`);
+    assert.deepEqual(
+      Object.keys(languages).sort(),
+      [...locales, 'x-default'].sort(),
+      `missing alternates for ${path || '/'}`,
+    );
+    assert.equal(languages['x-default'], languages.en);
   }
 });

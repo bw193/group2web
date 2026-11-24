@@ -27,7 +27,6 @@ import {
   pageCopy,
 } from '@/lib/seo';
 import { localizedPath } from '@/lib/public-paths';
-import { robotsForPublicPage } from '@/lib/indexing';
 import { rotateDaily } from '@/lib/daily-rotation';
 import { Users, Globe, FlaskConical, Factory } from 'lucide-react';
 
@@ -42,12 +41,10 @@ export async function generateMetadata({
   const copy = pageCopy(locale, 'home');
   const url = localizedUrl(locale, '');
   const siteName = localizedSiteName(locale);
-  const robots = robotsForPublicPage(locale, { isCanonicalHebrewHome: true });
 
   return {
     title: copy.title,
     description: copy.description,
-    ...(robots ? { robots } : {}),
     alternates: buildAlternates(locale, ''),
     openGraph: {
       type: 'website',

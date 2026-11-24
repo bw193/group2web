@@ -125,7 +125,7 @@ export async function renderArticlePage(
       <JsonLd id="ld-article-breadcrumb" data={breadcrumbLd} />
       <ReadingProgress targetId="article-body" />
 
-      <nav aria-label="Breadcrumb" className="bg-cream border-b border-warm-border">
+      <nav aria-label={breadcrumbT('label')} className="bg-cream border-b border-warm-border">
         <div className="container-wide py-4">
           <ol className="flex items-center gap-2.5 text-[12px] font-body font-semibold tracking-[0.12em] uppercase">
             <li className="flex-shrink-0">

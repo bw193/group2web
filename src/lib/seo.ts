@@ -112,7 +112,6 @@ export function localizedUrl(locale: string, pathAfterLocale: string): string {
  *
  * Locales whose page is noindex at this path are skipped — advertising a
  * noindexed URL as an alternate is a contradictory signal that Google drops.
- * In practice this removes `he` everywhere except the Hebrew homepage.
  */
 export function buildLanguageAlternates(
   pathAfterLocale: string,

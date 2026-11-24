@@ -56,9 +56,8 @@ export async function productMetadata({ params }: ProductDetailPageProps): Promi
 
     // The category belongs to the product, so every translation shares it;
     // the URL's own segment is ignored because the page redirects when it
-    // disagrees. Skip locales whose page is noindex at this path (Hebrew
-    // detail pages) — hreflang must never point at a URL we've asked not to
-    // be indexed.
+    // disagrees. Skip locales whose page is noindex at this path — hreflang
+    // must never point at a URL we've asked not to be indexed.
     const pathFor = (slugInLocale: string) =>
       productPathAfterLocale(productCategorySlug(row.product.categoryId), slugInLocale);
     const languages: Record<string, string> = {};
@@ -228,7 +227,7 @@ export async function renderProductDetailPage(
       />
       <JsonLd id="ld-product-breadcrumb" data={productBreadcrumb} />
 
-      <nav aria-label="Breadcrumb" className="bg-cream border-b border-warm-border">
+      <nav aria-label={breadcrumbT('label')} className="bg-cream border-b border-warm-border">
         <div className="container-wide py-4">
           <ol className="flex items-center gap-2.5 text-[12px] font-body font-semibold tracking-[0.12em] uppercase">
             {/* Four levels do not fit a phone (German's run past 400px), so
