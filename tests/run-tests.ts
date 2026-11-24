@@ -21,5 +21,6 @@ import './video-sitemap.test';
 import './video-schema.test';
 import './about-video.test';
 import './video-duration.test';
+import './legacy-video-slugs.test';
 import './inquiry-email.test';
 import './inquiry-recipient-history.test';

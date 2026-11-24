@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 import { ArrowLeft, ArrowRight, ChevronRight } from 'lucide-react';
 import ProductCard from '@/components/public/ProductCard';
 import VideoCard from '@/components/public/videos/VideoCard';
@@ -20,7 +20,7 @@ import {
 } from '@/lib/seo';
 import { isIndexableLocalePath, robotsForPublicPage } from '@/lib/indexing';
 import { getUploadUrl } from '@/lib/utils';
-import { getVideoDetailData, getVideoStaticParams } from '@/lib/videos';
+import { getMovedVideoSlug, getVideoDetailData, getVideoStaticParams } from '@/lib/videos';
 import { buildVideoObjectSchema } from '@/lib/video-schema';
 import { formatVideoDate, formatVideoDuration, splitVideoDescription, videoExcerpt } from '@/lib/video-utils';
 
@@ -94,7 +94,12 @@ export default async function VideoDetailPage({
   const t = await getTranslations('videos');
   const breadcrumbT = await getTranslations('breadcrumb');
   const detail = await getVideoDetailData(locale, slug);
-  if (!detail) notFound();
+  if (!detail) {
+    // A renamed video's old address goes to its page, in one permanent hop.
+    const moved = await getMovedVideoSlug(slug);
+    if (moved) permanentRedirect(localizedPath(locale, `/videos/${moved}`));
+    notFound();
+  }
 
   const { video, relatedProducts, relatedVideos } = detail;
   const videoUrl = localizedUrl(locale, `/videos/${video.slug}`);

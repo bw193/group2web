@@ -12,6 +12,7 @@ import {
   siteSettings,
   videos,
 } from '@/lib/db/schema';
+import { LEGACY_VIDEO_SLUGS, movedVideoSlug } from '@/lib/legacy-video-slugs';
 import { ABOUT_VIDEO_SETTING_KEY } from '@/lib/site-settings-keys';
 import { getPublicDataSnapshot } from '@/lib/public-data-snapshot';
 import type {
@@ -268,6 +269,22 @@ export async function getVideosIndexData(locale: string): Promise<VideosIndexDat
   return {
     videos: list,
   };
+}
+
+/**
+ * The current slug for an old video address (see legacy-video-slugs.ts), or
+ * null when the slug was never renamed or its video is no longer published.
+ */
+export async function getMovedVideoSlug(slug: string): Promise<string | null> {
+  if (!Object.prototype.hasOwnProperty.call(LEGACY_VIDEO_SLUGS, slug)) return null;
+  const snapshot = getSnapshot();
+  if (snapshot) return movedVideoSlug(slug, snapshot.data.videos);
+  const rows = await getDb()
+    .select({ id: videos.id, slug: videos.slug, status: videos.status })
+    .from(videos)
+    .where(eq(videos.id, LEGACY_VIDEO_SLUGS[slug]))
+    .limit(1);
+  return movedVideoSlug(slug, rows);
 }
 
 export async function getVideoDetailData(locale: string, slug: string): Promise<VideoDetailData | null> {
