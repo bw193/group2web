@@ -12,7 +12,7 @@ import { isIndexableLocalePath } from '@/lib/indexing';
 import { getProductDetailData, getProductMetadataData } from '@/lib/public-data';
 import { withResponsiveDescriptionImages } from '@/lib/description-images';
 import { productCategorySlug } from '@/lib/product-categories';
-import { usesItemPageMarkup } from '@/lib/product-markup';
+import { productPageJsonLd } from '@/lib/product-markup';
 import {
   productCategoryPathAfterLocale,
   productCategorySegment,
@@ -22,7 +22,6 @@ import {
 import { getUploadUrl } from '@/lib/utils';
 import {
   SITE_OG_IMAGE,
-  SITE_URL,
   localeToOg,
   localizedSiteName,
   localizedPath,
@@ -154,58 +153,19 @@ export async function renderProductDetailPage(
     (trans.fullDescription
       ? trans.fullDescription.replace(/<[^>]+>/g, '').slice(0, 500)
       : `${trans.name} - manufactured by ${siteName}.`);
-  const useItemPageMarkup = usesItemPageMarkup(product.id);
 
-  const productJsonLd: Record<string, unknown> = {
-    '@context': 'https://schema.org',
-    '@type': 'Product',
-    name: trans.name,
-    image: imageUrls,
-    description,
-    brand: { '@type': 'Brand', name: siteName },
-    manufacturer: { '@id': `${SITE_URL}/#organization` },
+  // An ItemPage about the model's datasheet, never a Product: see product-markup.ts.
+  const pageJsonLd = productPageJsonLd({
     url: productUrl,
-  };
-  if (product.modelNumber) {
-    productJsonLd.sku = product.modelNumber;
-    productJsonLd.mpn = product.modelNumber;
-  }
-
-  // Mirror the visible spec table into structured data so answer engines read
-  // dimensions, IP ratings and certifications as facts instead of inferring
-  // them from prose. Two deliberate non-transformations: property names stay in
-  // the page's own locale (the CMS translates spec keys, and a localized name
-  // matches how buyers phrase the question), and repeated names are kept, since
-  // a product legitimately carries e.g. both a concrete size and "custom".
-  const modelNumber = product.modelNumber?.trim().toLowerCase();
-  const specProperties = specs
-    .map((s) => ({ name: s.specKey.trim(), value: s.specValue.trim() }))
-    .filter((p) => p.name && p.value && p.value.toLowerCase() !== modelNumber)
-    .slice(0, 20);
-  if (specProperties.length > 0) {
-    productJsonLd.additionalProperty = specProperties.map((p) => ({
-      '@type': 'PropertyValue',
-      name: p.name,
-      value: p.value,
-    }));
-  }
-
-  // A quote-only page can't carry the price or ratings a Product snippet needs,
-  // so the products staged in ITEM_PAGE_MARKUP_PRODUCTS describe the page itself
-  // instead of claiming to be a purchasable product.
-  const itemPageJsonLd: Record<string, unknown> = {
-    '@context': 'https://schema.org',
-    '@type': 'ItemPage',
-    '@id': `${productUrl}#page`,
-    url: productUrl,
+    locale,
     name: trans.name,
     description,
-    inLanguage: locale,
-    isPartOf: { '@id': `${SITE_URL}/#website` },
-    publisher: { '@id': `${SITE_URL}/#organization` },
-    breadcrumb: { '@id': breadcrumbId },
-    primaryImageOfPage: { '@type': 'ImageObject', url: imageUrls[0] },
-  };
+    images: imageUrls,
+    brandName: siteName,
+    modelNumber: product.modelNumber,
+    specs,
+    breadcrumbId,
+  });
 
   const productBreadcrumb = {
     '@context': 'https://schema.org',
@@ -221,10 +181,7 @@ export async function renderProductDetailPage(
 
   return (
     <>
-      <JsonLd
-        id={useItemPageMarkup ? 'ld-item-page' : 'ld-product'}
-        data={useItemPageMarkup ? itemPageJsonLd : productJsonLd}
-      />
+      <JsonLd id="ld-item-page" data={pageJsonLd} />
       <JsonLd id="ld-product-breadcrumb" data={productBreadcrumb} />
 
       <nav aria-label={breadcrumbT('label')} className="bg-cream border-b border-warm-border">
